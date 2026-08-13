@@ -1,250 +1,192 @@
 # Network Design HTML
 
-Git-native, self-contained network topology documentation for network engineers.
+**Network diagrams you can edit by asking. One HTML file. No installs.**
 
-Network Design HTML treats a network diagram as both a visual document and
-maintainable source code. The result is an ordinary HTML file that opens in a
-browser, remains useful without a server or special drawing application, and can
-be reviewed and versioned with the same Git workflow used for infrastructure and
-automation code.
+[![Validate](https://github.com/cloudbatsx/network-design-html/actions/workflows/validate.yml/badge.svg)](https://github.com/cloudbatsx/network-design-html/actions/workflows/validate.yml)
+[![License](https://img.shields.io/badge/license-MIT%20%28scoped%29-blue)](LICENSE)
+![Dependencies](https://img.shields.io/badge/dependencies-none-brightgreen)
+![Offline](https://img.shields.io/badge/works-offline-brightgreen)
 
-## Why this project matters
+Your topology, rack elevation, and design notes live in **one HTML file** that opens
+in any browser, prints to a clean PDF, and diffs properly in Git.
 
-Network diagrams are critical operational documents, but they are often stored
-as proprietary drawing files, slide decks, exported PDFs, or screenshots. Those
-formats can produce a good picture while making the underlying design difficult
-to inspect, compare, automate, and maintain. Over time, multiple copies circulate,
-the reason for a change is lost, and nobody is certain which diagram represents
-the current network.
+You change it by describing what you want. A **free** AI model is enough, because it
+never sees the HTML — only a small block of data.
 
-HTML offers a practical alternative because the source and the deliverable are
-the same artifact. A network engineer can edit the structured source, immediately
-open the file in a browser, and see the result. The file can then be committed,
-reviewed, shared, printed, archived, or converted to PDF without a proprietary
-viewer or an export step.
+---
 
-This makes network documentation behave more like an engineering system of
-record than a static illustration.
+## How it works
 
-### Universal and portable
-
-Every modern workstation already has a browser. A self-contained topology can be
-opened on Windows, macOS, or Linux; attached to a ticket or change record; shared
-with a colleague; stored with project documentation; or kept as an offline
-artifact. Inline CSS and SVG mean that the default editable file does not depend
-on a web server, CDN, font service, adjacent icon directory, or paid application.
-
-### Traceable by design
-
-HTML, CSS, SVG, JavaScript, and JSON are text. Git can therefore record who
-changed a topology, what changed, when it changed, and why it changed. Engineers
-can use commits, branches, diffs, pull requests, reviews, tags, and rollbacks to
-follow the design from an early proposal through implementation and the final
-as-built state.
-
-The template keeps ordinary topology edits in clearly marked semantic data. A
-change such as adding a switch, renaming a VLAN, moving a connection, or updating
-a rack position can remain understandable in a source diff instead of appearing
-only as an opaque binary-file replacement.
-
-### Immediately useful as documentation
-
-The browser-rendered result is already a document. It can support design notes,
-device and interface labels, addressing context, rack information, legends, and
-operational annotations alongside the topology. Engineers can zoom it, print it,
-save it as PDF, capture part of it for another document, or copy its source into
-a larger documentation workflow.
-
-The same approach is useful for enterprise networks, branch deployments, data
-centers, lab environments, managed-service providers, training material,
-incident records, migration plans, change-control evidence, and hobby networks.
-
-### Accessible to people and automation
-
-The diagram is readable by a browser, editable with any text editor, and
-structured enough for scripts and AI tools. Devices use stable semantic keys such
-as `router`, `access-switch`, and `wlan-controller`; ordinary editors do not need
-to understand or redraw complex SVG geometry.
-
-That smaller editing surface is intentional. It allows lower-capability and free
-AI models to make useful topology changes while protected symbol definitions and
-packaging contracts remain stable. A human reviewer can then inspect the same
-plain-text change before accepting it.
-
-### One design, two presentation paths
-
-The default workflow uses clean inline SVG symbols. This keeps the working file
-small, scalable, self-contained, and easy to version. When a presentation
-requires official raster artwork, the same semantic design can optionally be
-processed by the local packager, which replaces the placeholders with embedded
-official assets without changing the topology data.
-
-In short, the project separates the durable network design from the artwork used
-to present it:
-
-```text
-network intent and notes
-        ↓
-self-contained editable HTML + inline SVG
-        ↓ Git history, review, sharing, printing
-optional local packaging
-        ↓
-self-contained HTML with embedded official assets
+```mermaid
+flowchart LR
+    A["Say what you want:<br/>add a WLC, wire it<br/>to both cores"] --> B["Free AI model"]
+    B --> C["JSON only<br/>~17% of the file"]
+    C --> D{"Checked"}
+    D -- problems --> B
+    D -- clean --> E["New .edit.html<br/>byte-exact"]
+    E --> F["Open · Print · Commit"]
 ```
 
-## Project principles
+The AI never touches the drawing code, the symbols, or the styling. Everything
+outside the data block is copied through **byte for byte**.
 
-- The editable topology should remain a single, directly viewable HTML file.
-- A useful diagram should not require a particular operating system or paid tool.
-- Ordinary changes should be semantic, reviewable, and friendly to Git diffs.
-- Visual symbols should be reusable and kept outside the routine editing surface.
-- A packaged document should remain self-contained and recover its exact editable
-  source.
-- Third-party artwork should remain separate from the source repository until its
-  provenance and redistribution terms are understood.
+---
 
-This is documentation tooling, not a live discovery or monitoring platform. It
-does not attempt to replace a network source of truth, configuration management,
-telemetry, or a full CAD application. Its purpose is to make intentional network
-design documentation easier to create, understand, exchange, and maintain.
+## Quick start
 
-## Start here — no installs, no command line
+No Node. No npm. No command line. Just a browser and an AI chat window.
 
-You need a browser and an AI chat window. Nothing else. A free AI model is
-enough, because you never ask it for the HTML file — only for the diagram data,
-which is about a sixth of the file and contains no code at all.
+1. **Download two files** — [`network-design-template.edit.html`](templates/network-design-template.edit.html) and [`edit-with-ai.html`](tools/edit-with-ai.html)
+2. **Open `edit-with-ai.html`** and pick your design file
+3. **Type your change** in plain English → click **Copy prompt** → paste into your AI chat
+4. **Paste the reply back** → click **Check it**
+5. **Save new design file** → double-click it. Done.
 
-### The short way
+> **Step 4 is the important one.** If the AI got something wrong, you get plain
+> English — *"access-sw-01 and edge-fw-02 both occupy U38"* — plus a ready-made
+> sentence to paste straight back to the AI.
 
-1. Download [`templates/network-design-template.edit.html`](templates/network-design-template.edit.html)
-   and [`tools/edit-with-ai.html`](tools/edit-with-ai.html).
-2. Double-click `edit-with-ai.html` and choose your design file.
-3. Type what you want changed, click **Copy prompt**, and paste it into your AI
-   chat.
-4. Paste the reply back and click **Check it**. If something is wrong it tells
-   you in plain English and gives you a sentence to paste back to the AI.
-5. Click **Save new design file**, then double-click the file you just saved.
+<details>
+<summary><b>No helper tool? Do it by hand.</b></summary>
 
-The helper never uploads anything and never edits the drawing code — everything
-outside the diagram data is copied through byte for byte.
+<br>
 
-### By hand
+1. Open the template in a plain text editor
+2. Find `<!-- PROOF-DATA:BEGIN -->` and `<!-- PROOF-DATA:END -->`
+3. Copy the JSON between them (not the `<script>` lines)
+4. Paste it into the prompt from [`docs/ai-json-rules.md`](docs/ai-json-rules.md)
+5. Paste the reply back over the old JSON, save, reopen
 
-The same loop works with nothing but a text editor.
+**Three things that will bite you:**
 
-1. Download [`templates/network-design-template.edit.html`](templates/network-design-template.edit.html)
-   and double-click it. You should see an example campus network, a 42U rack
-   elevation, and a green `PASS` badge.
-2. Open that same file in a plain text editor. Find these two lines:
+- Save as **UTF-8**, never ANSI — the file contains `·` and `—`
+- Use a **plain text editor**. Never Word
+- Change **nothing** outside those two marker lines
 
-   ```text
-   <!-- PROOF-DATA:BEGIN -->
-   <!-- PROOF-DATA:END -->
-   ```
+</details>
 
-3. Between them is a `<script id="proof-data" ...>` line, a block of JSON, and a
-   closing `</script>` line. Copy **only the JSON** — not the two script lines.
-4. Open [`docs/ai-json-rules.md`](docs/ai-json-rules.md), copy the prompt, and
-   paste your JSON where it says `<<<CURRENT_JSON>>>`. Describe your change in
-   plain English where it says `<<<USER_REQUEST>>>`. Send it.
-5. The AI replies with JSON. Paste it back over the old JSON, in exactly the same
-   place. Save.
-6. Double-click the file again. Your change is on the screen.
+---
 
-Three things that will bite you:
+## What you get
 
-- **Save as UTF-8, never ANSI.** The file contains `·` and `—`; ANSI destroys
-  them.
-- **Use a plain text editor.** Notepad, VS Code, Notepad++. Never Word or
-  anything that formats text.
-- **Change nothing outside those two marker lines.** Everything else — the
-  drawing code, the symbols, the styling — is meant to stay exactly as it is.
+| | |
+|---|---|
+| 🖥️ **Logical topology** | Zones, devices, and links from a JSON block. Click any device to inspect it. |
+| 🗄️ **Rack elevation** | Front and rear from one equipment schedule, so they can't drift apart. |
+| ✅ **It checks itself** | Catches rack overlaps, dangling links, duplicate IDs, devices outside the rack. |
+| 🖨️ **Prints properly** | Letter-size PDF with the sidebar dropped and hidden sections revealed. |
+| 🎨 **Your branding** | Swap the logo with one line of JSON. |
+| 📦 **Zero dependencies** | No CDN, no fonts, no build step, no server. Works on a plane. |
 
-If the diagram looks wrong or the badge turns red, the page tells you what is
-wrong at the top of each tab. Paste that message back to the AI and ask it to
-fix it.
+### It catches your mistakes
 
-You pick device types by name — `router`, `access-switch`, `wlan-controller`.
-You never touch drawing geometry or artwork filenames.
+This is the part that isn't like other diagram tools. Visio and draw.io will happily
+let you stack two 2U servers in the same rack slot forever. This won't:
 
-### Put your own logo on it
+```
+FAIL · 2 data errors
+access-sw-01 overlaps edge-fw-02 at U38.
+Link 19 references a missing node.
+```
 
-Every document uses one fixed layout — a sidebar, a numbered section spine, and
-two toggleable layers — so a reader who has seen one has seen them all. The
-branding in the top-left is **not** part of that. It is data:
+---
+
+## Make it yours
+
+The layout is fixed so every document reads the same way. **The branding is not.**
 
 ```json
 "brand": {
   "name": "Acme Networks",
   "label": "Network Engineering — Internal",
   "logoViewBox": "0 0 512 512",
-  "logoFill": "#0F172A",
   "logoPath": "M64 64h384v384h-384z"
 }
 ```
 
-Export your logo as SVG, copy its path `d` attribute into `logoPath`, set
-`logoViewBox` to match, and the whole document carries your brand. Nothing else
-depends on it. See [`docs/document-shell.md`](docs/document-shell.md) for what
-the layout does fix, and why.
+Export your logo as SVG, paste its path `d` into `logoPath`, match the `viewBox`.
+That's it — nothing else depends on it.
 
-## For maintainers
+---
 
-Changing the template, the symbols, or the packaging contract is a different
-job with its own rules.
+## Why HTML?
 
-- [`docs/gemini-editing-rules.md`](docs/gemini-editing-rules.md) is the
-  template-authoring and packaging contract — the rules an AI must follow when
-  it rewrites the template itself, not the prompt for editing a diagram.
-- [`docs/document-shell.md`](docs/document-shell.md) is the layout standard —
-  the fixed section spine, the two toggleable layers, the print contract, and
-  the two places this implementation deliberately differs from the original.
-- [`docs/architecture.md`](docs/architecture.md) covers the protected packaging
-  contract and symbol synchronization.
-- [`CONTRIBUTING.md`](CONTRIBUTING.md) is required reading before changing
-  symbol geometry.
+- **The source and the deliverable are the same file.** No export step.
+- **Git tells you what changed.** Adding a switch is a readable diff, not a new binary.
+- **It opens anywhere.** Attach it to a ticket. Email it. Archive it. It still works in five years.
+- **Weak AI models can drive it.** The editable surface is data, not geometry.
 
-Run `npm test` before sharing a template change.
+### What this is *not*
 
-### Optional official-asset build
+Documentation tooling — not discovery, monitoring, or a source of truth. It won't poll
+your network or replace NetBox. It makes *intentional* design documentation easy to
+write, review, and keep honest.
 
-Official Cisco JPGs and local rack PNGs are not part of this repository. If you
-have reviewed and supplied them under `vendor-local/`, run:
+There's also no auto-layout: node positions are coordinates you (or the AI) set. Fine
+for the diagrams people actually hand-draw; not a substitute for Graphviz on 200 nodes.
 
-```text
+---
+
+## Documentation
+
+| File | What it covers |
+|---|---|
+| [`docs/ai-json-rules.md`](docs/ai-json-rules.md) | The prompt. Copy it into your AI chat. |
+| [`docs/document-shell.md`](docs/document-shell.md) | The layout standard — section spine, toggleable layers, print contract. |
+| [`docs/architecture.md`](docs/architecture.md) | The packaging contract and symbol synchronization. |
+| [`CONTRIBUTING.md`](CONTRIBUTING.md) | Read before changing symbol geometry. |
+
+<details>
+<summary><b>For maintainers</b> — tests, the packager, repo layout</summary>
+
+<br>
+
+Run the validator before sharing a template change:
+
+```bash
+npm test
+```
+
+**Optional official-asset build.** Cisco JPGs and rack PNGs are not in this repository.
+If you have reviewed and supplied them under `vendor-local/`:
+
+```bash
 npm run build:packager
 npm run verify:packager
 ```
 
-This creates `dist/network-design-packager.html` and tested self-contained
-`.portable.html` examples. Both `vendor-local/` and generated `dist/` artifacts
-are Git-ignored because they may contain third-party binary artwork.
+This produces `dist/network-design-packager.html` — a browser tool that embeds official
+artwork into a self-contained `.portable.html`, which can recover its exact editable
+source again. Both `vendor-local/` and `dist/` are Git-ignored.
 
-## Repository layout
+[`docs/gemini-editing-rules.md`](docs/gemini-editing-rules.md) is the template-authoring
+and packaging contract — the rules for rewriting the template itself, *not* the prompt
+for editing a diagram.
 
 ```text
-templates/             canonical editable hybrid template
-symbols/               canonical SVG sprite and semantic map
-examples/              source-controlled vector showcase
-docs/                  diagram-editing prompt, architecture, packaging contract
-tools/edit-with-ai.html offline AI editing helper for diagram data
-tools/packager/         reproducible optional packager source
-tools/                  local Cisco filename catalog
-scripts/                source validation
-tests/fixtures/         alternate editable contract fixture
-vendor-local/           optional untracked binary inputs
-dist/                   generated untracked outputs
+templates/               the editable template
+symbols/                 canonical SVG sprite + semantic map
+tools/edit-with-ai.html  offline AI editing helper
+tools/packager/          optional packager source
+docs/                    prompt, layout standard, architecture
+scripts/                 repository validation
+examples/  tests/        showcase and contract fixture
+vendor-local/  dist/     untracked binaries and build output
 ```
 
-## Publication status
+</details>
 
-This is a pre-release working repository. The code, tooling, and documentation
-are MIT licensed; see [`LICENSE`](LICENSE).
+---
 
-That grant excludes the vector symbol artwork. The symbols are experimental
-interpretations informed by Cisco reference silhouettes, not official
-Cisco-distributed SVG files, and the artwork review is not complete. Do not
-treat the current tree as permission to redistribute Cisco artwork or close
-derivatives; see [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md).
+## Status and license
 
-This project is independent and is not affiliated with or endorsed by Cisco.
+Pre-release, but the workflow above works today.
+
+Code, tooling, and documentation are **MIT licensed** — see [`LICENSE`](LICENSE).
+
+⚠️ **That grant excludes the vector symbols.** They are experimental interpretations
+informed by Cisco reference silhouettes, and the artwork review is not finished. Don't
+treat this repository as permission to redistribute Cisco artwork or close derivatives.
+See [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md).
+
+Independent project. Not affiliated with or endorsed by Cisco.
