@@ -117,7 +117,10 @@
  * docs/ai-json-rules.md, which carries the same four lists.
  * ------------------------------------------------------------------ */
 const ICON_KEYS = ["cloud","router","firewall","core-switch","access-switch","access-point","server","pc","workstation","wlan-controller","vpn-headend","dc-switch","ip-phone","laptop","printer","database","storage-array","network-management","branch-office","wireless-router"];
-const RACK_CODES = ["c9500","c9300","fpr4215","r750","ups"];
+// Only these five have real front/rear artwork. "generic" is the escape hatch
+// for any other hardware: the device still renders at the right height with a
+// plain labelled face, in both editable and packaged files.
+const RACK_CODES = ["c9500","c9300","fpr4215","r750","ups","generic"];
 const LINK_KINDS = ["l3","aggregate","ha","access","backup"];
 const ZONE_KINDS = ["external","perimeter","internal","other"];
 
@@ -555,9 +558,11 @@ function checkMeaning(data) {
 
   const occupied = new Map();
   for (const device of devices) {
+    // Not a hard failure: an unknown code now falls back to a generic face
+    // rather than deleting the device, so nothing disappears from the drawing.
     if (device.asset !== undefined && !RACK_CODES.includes(device.asset)) {
-      out.push(problem(true, `Rack device "${device.id}" uses the hardware code "${device.asset}", which does not exist. It vanishes from both rack views.`,
-        `"${device.asset}" is not a valid rack asset. Use one of: ${RACK_CODES.join(", ")}.`));
+      out.push(problem(false, `Rack device "${device.id}" uses the hardware code "${device.asset}", which does not exist. It will be drawn as a generic face, and the saved file will show a red FAIL badge until it is corrected.`,
+        `"${device.asset}" is not a valid rack asset. Use one of: ${RACK_CODES.join(", ")}. Use "generic" for hardware that has no artwork.`));
     }
     if (typeof device.position === "string" || typeof device.height === "string") {
       out.push(problem(true, `Rack device "${device.id}" has its position or height written as text instead of a number.`,

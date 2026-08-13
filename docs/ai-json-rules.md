@@ -39,9 +39,11 @@ An unlisted kind draws a completely invisible line.
 **Zone `kind`** — `external`, `perimeter`, `internal`, `other`
 An unlisted kind draws a solid black rectangle over your diagram.
 
-**Rack `asset`** — `c9500`, `c9300`, `fpr4215`, `r750`, `ups`
-This is a short hardware code, never a filename. An unlisted code deletes the
-device from both rack views.
+**Rack `asset`** — `c9500`, `c9300`, `fpr4215`, `r750`, `ups`, `generic`
+This is a short hardware code, never a filename. Only those five models have
+real front and rear artwork. **For any other hardware use `generic`** — the
+device still appears in both rack views at the right height, drawn as a plain
+labelled face. Never invent a code.
 
 ## Shape
 
