@@ -108,19 +108,62 @@ does not attempt to replace a network source of truth, configuration management,
 telemetry, or a full CAD application. Its purpose is to make intentional network
 design documentation easier to create, understand, exchange, and maintain.
 
-## Start here
+## Start here — no installs, no command line
 
-1. Copy [`templates/network-design-template.edit.html`](templates/network-design-template.edit.html).
-2. Change the clearly marked diagram data, labels, layout, and styles. For an AI
-   editor, also supply [`docs/gemini-editing-rules.md`](docs/gemini-editing-rules.md).
-3. Open the resulting `.edit.html` in any current browser. It needs no server,
-   package install, adjacent icon folder, or network connection.
-4. Run `npm test` before sharing a template change.
+You need a browser, a plain text editor, and an AI chat window. Nothing else.
+A free AI model is enough, because you never ask it for the HTML file.
 
-Topology nodes choose stable semantic keys. Detailed SVG geometry and official
-asset filenames stay outside the ordinary editing surface.
+1. Download [`templates/network-design-template.edit.html`](templates/network-design-template.edit.html)
+   and double-click it. You should see an example campus network, a 42U rack
+   elevation, and a green `PASS` badge.
+2. Open that same file in a plain text editor. Find these two lines:
 
-## Optional official-asset build
+   ```text
+   <!-- PROOF-DATA:BEGIN -->
+   <!-- PROOF-DATA:END -->
+   ```
+
+3. Between them is a `<script id="proof-data" ...>` line, a block of JSON, and a
+   closing `</script>` line. Copy **only the JSON** — not the two script lines.
+4. Open [`docs/ai-json-rules.md`](docs/ai-json-rules.md), copy the prompt, and
+   paste your JSON where it says `<<<CURRENT_JSON>>>`. Describe your change in
+   plain English where it says `<<<USER_REQUEST>>>`. Send it.
+5. The AI replies with JSON. Paste it back over the old JSON, in exactly the same
+   place. Save.
+6. Double-click the file again. Your change is on the screen.
+
+Three things that will bite you:
+
+- **Save as UTF-8, never ANSI.** The file contains `·` and `—`; ANSI destroys
+  them.
+- **Use a plain text editor.** Notepad, VS Code, Notepad++. Never Word or
+  anything that formats text.
+- **Change nothing outside those two marker lines.** Everything else — the
+  drawing code, the symbols, the styling — is meant to stay exactly as it is.
+
+If the diagram looks wrong or the badge turns red, the page tells you what is
+wrong at the top of each tab. Paste that message back to the AI and ask it to
+fix it.
+
+You pick device types by name — `router`, `access-switch`, `wlan-controller`.
+You never touch drawing geometry or artwork filenames.
+
+## For maintainers
+
+Changing the template, the symbols, or the packaging contract is a different
+job with its own rules.
+
+- [`docs/gemini-editing-rules.md`](docs/gemini-editing-rules.md) is the
+  template-authoring and packaging contract — the rules an AI must follow when
+  it rewrites the template itself, not the prompt for editing a diagram.
+- [`docs/architecture.md`](docs/architecture.md) covers the protected packaging
+  contract and symbol synchronization.
+- [`CONTRIBUTING.md`](CONTRIBUTING.md) is required reading before changing
+  symbol geometry.
+
+Run `npm test` before sharing a template change.
+
+### Optional official-asset build
 
 Official Cisco JPGs and local rack PNGs are not part of this repository. If you
 have reviewed and supplied them under `vendor-local/`, run:
@@ -140,7 +183,7 @@ are Git-ignored because they may contain third-party binary artwork.
 templates/             canonical editable hybrid template
 symbols/               canonical SVG sprite and semantic map
 examples/              source-controlled vector showcase
-docs/                  architecture and AI-editing contract
+docs/                  diagram-editing prompt, architecture, packaging contract
 tools/packager/         reproducible optional packager source
 tools/                  local Cisco filename catalog
 scripts/                source validation
@@ -148,10 +191,6 @@ tests/fixtures/         alternate editable contract fixture
 vendor-local/           optional untracked binary inputs
 dist/                   generated untracked outputs
 ```
-
-See [`docs/architecture.md`](docs/architecture.md) for the protected packaging
-contract and synchronization rules, and [`CONTRIBUTING.md`](CONTRIBUTING.md)
-before changing symbol geometry.
 
 ## Publication status
 
