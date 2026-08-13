@@ -110,8 +110,27 @@ design documentation easier to create, understand, exchange, and maintain.
 
 ## Start here — no installs, no command line
 
-You need a browser, a plain text editor, and an AI chat window. Nothing else.
-A free AI model is enough, because you never ask it for the HTML file.
+You need a browser and an AI chat window. Nothing else. A free AI model is
+enough, because you never ask it for the HTML file — only for the diagram data,
+which is about a sixth of the file and contains no code at all.
+
+### The short way
+
+1. Download [`templates/network-design-template.edit.html`](templates/network-design-template.edit.html)
+   and [`tools/edit-with-ai.html`](tools/edit-with-ai.html).
+2. Double-click `edit-with-ai.html` and choose your design file.
+3. Type what you want changed, click **Copy prompt**, and paste it into your AI
+   chat.
+4. Paste the reply back and click **Check it**. If something is wrong it tells
+   you in plain English and gives you a sentence to paste back to the AI.
+5. Click **Save new design file**, then double-click the file you just saved.
+
+The helper never uploads anything and never edits the drawing code — everything
+outside the diagram data is copied through byte for byte.
+
+### By hand
+
+The same loop works with nothing but a text editor.
 
 1. Download [`templates/network-design-template.edit.html`](templates/network-design-template.edit.html)
    and double-click it. You should see an example campus network, a 42U rack
@@ -184,6 +203,7 @@ templates/             canonical editable hybrid template
 symbols/               canonical SVG sprite and semantic map
 examples/              source-controlled vector showcase
 docs/                  diagram-editing prompt, architecture, packaging contract
+tools/edit-with-ai.html offline AI editing helper for diagram data
 tools/packager/         reproducible optional packager source
 tools/                  local Cisco filename catalog
 scripts/                source validation

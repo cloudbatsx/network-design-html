@@ -1,0 +1,748 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Offline helper for editing a network design file with a free AI model. Builds the prompt, checks the reply, and writes a new file byte-exactly.">
+  <title>Edit a Network Design with AI</title>
+  <style>
+    :root{--ink:#14242f;--muted:#5d707c;--page:#e8eef1;--paper:#fff;--line:#c9d4da;--blue:#007fa8;--blue2:#006687;--ok:#26734d;--warn:#a66300;--bad:#a02d2d;color-scheme:light;font-family:"Segoe UI",Arial,sans-serif}
+    *{box-sizing:border-box}body{margin:0;color:var(--ink);background:var(--page);line-height:1.45}
+    button,input,textarea,select{font:inherit}code{font-family:Consolas,"Courier New",monospace}
+    .app{width:min(1080px,100%);min-height:100vh;margin:auto;background:var(--paper);box-shadow:0 0 34px #14242f1f}
+    header{padding:26px 30px 22px;border-bottom:1px solid var(--line);background:linear-gradient(135deg,#fbfdfe,#edf6f8)}
+    .eyebrow{margin:0 0 5px;color:var(--blue2);font-size:.75rem;font-weight:750;letter-spacing:.12em;text-transform:uppercase}
+    h1{margin:0;font-size:clamp(1.6rem,4vw,2.4rem);line-height:1.08}
+    .subtitle{max-width:820px;margin:9px 0 0;color:var(--muted)}
+    main{padding:22px 30px 38px}
+    .step{margin-bottom:26px;padding:18px 20px;border:1px solid var(--line);border-radius:9px;background:#fafcfd}
+    .step[hidden]{display:none}
+    .step h2{margin:0 0 4px;font-size:1.1rem}
+    .step h2 .n{display:inline-grid;place-items:center;width:24px;height:24px;margin-right:8px;border-radius:50%;color:#fff;background:var(--blue2);font-size:.82rem;vertical-align:2px}
+    .step p.hint{margin:0 0 13px;color:var(--muted);font-size:.88rem}
+    .button{padding:9px 14px;border:1px solid var(--line);border-radius:6px;color:var(--ink);background:#fff;cursor:pointer;font-weight:650}
+    .button:hover:not(:disabled){border-color:#8ca3ae;background:#f3f7f9}
+    .button.primary{border-color:var(--blue2);color:#fff;background:var(--blue2)}
+    .button.success{border-color:var(--ok);color:#fff;background:var(--ok)}
+    .button:disabled{cursor:not-allowed;opacity:.45}
+    .row{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+    .row.gap{margin-top:12px}
+    input[type=file]{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+    textarea{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:6px;background:#fff;font-family:Consolas,"Courier New",monospace;font-size:.8rem;line-height:1.4;resize:vertical}
+    textarea[readonly]{background:#f4f7f9;color:#3d5261}
+    .file-name{color:var(--muted);font-size:.86rem;overflow-wrap:anywhere}
+    .msg{margin:12px 0 0;padding:11px 13px;border-left:4px solid var(--blue);background:#f3f8fa;font-size:.88rem}
+    .msg.ok{border-color:var(--ok);background:#f1f8f4}
+    .msg.warning{border-color:var(--warn);background:#fff8ed}
+    .msg.error{border-color:var(--bad);color:#762121;background:#fff3f3}
+    .msg strong{display:block;margin-bottom:3px}
+    .problems{margin:12px 0 0;padding:0;list-style:none}
+    .problems li{margin-bottom:9px;padding:10px 12px;border-left:4px solid var(--warn);border-radius:0 5px 5px 0;background:#fff8ed;font-size:.87rem}
+    .problems li.stop{border-color:var(--bad);background:#fff3f3}
+    .problems .what{font-weight:700}
+    .problems .tell{display:block;margin-top:5px;padding:7px 9px;border-radius:4px;background:#ffffffcc;color:#3d5261;font-family:Consolas,"Courier New",monospace;font-size:.79rem}
+    .counts{margin:10px 0 0;color:var(--muted);font-size:.83rem}
+    footer{padding:15px 30px 22px;border-top:1px solid var(--line);color:var(--muted);font-size:.78rem}
+    @media(max-width:700px){header,main,footer{padding-inline:15px}}
+  </style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <p class="eyebrow">Network Design HTML · Offline · No install</p>
+    <h1>Edit a network design with AI</h1>
+    <p class="subtitle">Builds the prompt for you, checks what the AI sends back, and writes a new file. Your file never leaves this browser, and everything outside the diagram data is copied through untouched, byte for byte.</p>
+  </header>
+
+  <main>
+    <section class="step" id="step-1">
+      <h2><span class="n">1</span>Choose your design file</h2>
+      <p class="hint">Pick the <code>.edit.html</code> file you want to change. If you have not made one yet, use <code>templates/network-design-template.edit.html</code>.</p>
+      <div class="row">
+        <input id="file-input" type="file" accept=".html,text/html">
+        <button class="button primary" id="choose-file" type="button">Choose file</button>
+        <span class="file-name" id="file-name">No file chosen</span>
+      </div>
+      <div id="load-message"></div>
+    </section>
+
+    <section class="step" id="step-2" hidden>
+      <h2><span class="n">2</span>Say what you want changed</h2>
+      <p class="hint">Describe the change in plain English, then copy the prompt and paste it into your AI chat. The prompt already contains your current diagram, so you do not need to attach anything.</p>
+      <textarea id="request" rows="3" placeholder="Add a wireless LAN controller in the internal zone and connect it to both core switches."></textarea>
+      <div class="row gap">
+        <button class="button primary" id="copy-prompt" type="button">Copy prompt</button>
+        <span class="file-name" id="copy-state"></span>
+      </div>
+      <details style="margin-top:14px">
+        <summary style="cursor:pointer;color:var(--blue2);font-weight:700">Show the diagram data being sent</summary>
+        <p class="counts" id="payload-size"></p>
+        <textarea id="payload" rows="12" readonly></textarea>
+      </details>
+    </section>
+
+    <section class="step" id="step-3" hidden>
+      <h2><span class="n">3</span>Paste what the AI sent back</h2>
+      <p class="hint">Paste the whole reply. Code fences, a stray sentence, or a trailing comma are fine — they get cleaned up automatically.</p>
+      <textarea id="reply" rows="10" placeholder="Paste the AI's reply here."></textarea>
+      <div class="row gap">
+        <button class="button primary" id="check" type="button">Check it</button>
+        <button class="button" id="copy-problems" type="button" disabled>Copy problems</button>
+      </div>
+      <div id="check-message"></div>
+      <ul class="problems" id="problems"></ul>
+    </section>
+
+    <section class="step" id="step-4" hidden>
+      <h2><span class="n">4</span>Save your new file</h2>
+      <p class="hint">Everything outside the diagram data is copied through unchanged. Save it, then double-click it to see your change.</p>
+      <div class="row">
+        <button class="button success" id="save" type="button" disabled>Save new design file</button>
+        <span class="file-name" id="save-state"></span>
+      </div>
+      <div id="save-message"></div>
+    </section>
+  </main>
+
+  <footer>Nothing is uploaded. No server, CDN, or network connection is used. This page never parses your file as HTML, which is what keeps the drawing code and symbols identical to the ones you started with.</footer>
+</div>
+
+<script>
+"use strict";
+
+/* ------------------------------------------------------------------ *
+ * Closed lists. Copied from templates/network-design-template.edit.html
+ * (ICONS map, RACK_ASSETS map, and the .link.* / .zone.* CSS rules).
+ * Nothing checks this automatically. If those change, change these AND
+ * docs/ai-json-rules.md, which carries the same four lists.
+ * ------------------------------------------------------------------ */
+const ICON_KEYS = ["cloud","router","firewall","core-switch","access-switch","access-point","server","pc","workstation","wlan-controller","vpn-headend","dc-switch","ip-phone","laptop","printer","database","storage-array","network-management","branch-office","wireless-router"];
+const RACK_CODES = ["c9500","c9300","fpr4215","r750","ups"];
+const LINK_KINDS = ["l3","aggregate","ha","access","backup"];
+const ZONE_KINDS = ["external","perimeter","internal","other"];
+
+const NODE_W = 176, NODE_H = 104;
+
+/* The prompt. Keep in sync with docs/ai-json-rules.md. */
+const PROMPT = `Reply with ONE JSON object and nothing else. The first character of your reply
+must be { and the last character must be }. No code fences. No explanation
+before or after. No comments inside the JSON.
+
+You are supplying the data behind a diagram that is already built. You never
+write HTML, CSS, JavaScript, or SVG.
+
+CLOSED LISTS - never invent a value
+
+icon - one of exactly these 20:
+${ICON_KEYS.join(", ")}
+If the device you need is not on the list, pick the closest one. switch,
+l3-switch, ap, fw and nas do not exist and will render a red error box.
+
+link kind - ${LINK_KINDS.join(", ")}
+An unlisted kind draws a completely invisible line.
+
+zone kind - ${ZONE_KINDS.join(", ")}
+An unlisted kind draws a solid black rectangle over your diagram.
+
+rack asset - ${RACK_CODES.join(", ")}
+This is a short hardware code, never a filename. An unlisted code deletes the
+device from both rack views.
+
+SHAPE - keep every field that is already present. Do not rename fields and do
+not invent new ones. Fields you may see but must never add yourself: iconAsset
+on a node, via on a link. If one is already there, copy it through unchanged.
+label, labelX and labelY on a link are optional; if a link already has them keep
+them exactly, and do not add labelX/labelY to a new link.
+
+NUMBERS
+- A node's x,y is the CENTRE of a box that is ${NODE_W} wide and ${NODE_H} tall.
+- A zone's x,y is its TOP-LEFT corner.
+- Keep nodes inside x 100-1180 and y 60-870.
+- Two nodes overlap only when their x values are less than ${NODE_W} apart AND
+  their y values are less than ${NODE_H} apart. Both conditions must be true.
+  Nodes far apart vertically may share an x.
+- Rack units are numbered from the BOTTOM. position is the lowest unit the
+  device fills, so "position": 30 with "height": 2 fills U30 AND U31.
+- Every rack device must fit: position >= 1 and position + height - 1 <= units.
+- position and height must be numbers, never strings.
+- A device that appears both in the topology and in the rack uses the SAME id in
+  both places.
+
+TEXT
+- Straight quotes only. Never use curly quotes.
+- Never use < or > inside any value.
+- Every id must be unique, and every link's from and to must name a node id that
+  exists.
+
+CURRENT DIAGRAM
+<<<CURRENT_JSON>>>
+
+WHAT TO CHANGE
+<<<USER_REQUEST>>>
+
+Reply with ONE JSON object and nothing else. First character {, last character
+}. No code fences, no explanation, no comments.`;
+
+/* Strings that must never appear inside the diagram data, because they would
+   break the file's structure or its packaging blocks. */
+const FORBIDDEN_IN_DATA = [
+  "NETWORK-PACKAGER-CONTRACT:BEGIN","NETWORK-PACKAGER-CONTRACT:END",
+  "NETWORK-ASSET-VAULT:BEGIN","NETWORK-ASSET-VAULT:END",
+  "EDITABLE-SOURCE-CAPSULE:BEGIN","EDITABLE-SOURCE-CAPSULE:END",
+  "PROOF-DATA:BEGIN","PROOF-DATA:END"
+];
+
+/* Every literal that would otherwise read as a script tag is built by
+   concatenation. A plain one, even inside a comment, ends this element early -
+   which is the same failure this tool checks the AI's reply for. */
+const DATA_OPEN = "<" + 'script id="proof-data"';
+const VAULT_OPEN = "<" + 'script id="network-asset-vault"';
+const SCRIPT_CLOSE = "</" + "script>";
+
+let source = "";           // the file's exact original text
+let payloadStart = 0;      // byte offset just after the data block's open tag
+let payloadEnd = 0;        // byte offset of the matching closing tag
+let sourceName = "";
+let accepted = null;       // the parsed object that passed checking
+
+const $ = (id) => document.getElementById(id);
+const countOf = (text, token) => text.split(token).length - 1;
+
+function note(host, kind, title, body) {
+  const box = $(host);
+  box.replaceChildren();
+  if (!kind) return;
+  const el = document.createElement("div");
+  el.className = `msg ${kind}`;
+  const strong = document.createElement("strong");
+  strong.textContent = title;
+  el.append(strong, document.createTextNode(body || ""));
+  box.appendChild(el);
+}
+
+/* ---------- 1. Read the file, locate the data block ---------- */
+
+// Pure string search. No DOMParser, no innerHTML, no iframe: that is the single
+// decision that keeps the saved file byte-identical to the original and leaves
+// the SVG symbol library untouched.
+function locatePayload(text) {
+  const open = DATA_OPEN;
+  const hits = countOf(text, open);
+  if (hits === 0) {
+    throw new Error("This file has no diagram data block, so it is not a network design file this tool can edit.");
+  }
+  if (hits > 1) {
+    throw new Error("This file has more than one diagram data block and cannot be edited safely.");
+  }
+  // NOTE: never search for the bare token "PROOF-DATA:BEGIN". It occurs twice in
+  // the template - the second hit is the human-readable contract comment - and
+  // anchoring on the first would swallow the whole diagram on save.
+  const tagStart = text.indexOf(open);
+  const tagEnd = text.indexOf(">", tagStart);
+  if (tagEnd < 0) throw new Error("The diagram data block is malformed.");
+  const close = text.indexOf(SCRIPT_CLOSE, tagEnd);
+  if (close < 0) throw new Error("The diagram data block is never closed.");
+  return { start: tagEnd + 1, end: close };
+}
+
+function assertNotPackaged(text) {
+  const at = text.indexOf(VAULT_OPEN);
+  if (at < 0) return;
+  const tagEnd = text.indexOf(">", at);
+  const close = text.indexOf(SCRIPT_CLOSE, tagEnd);
+  if (tagEnd < 0 || close < 0) return;
+  if (text.slice(tagEnd + 1, close).trim() !== "{}") {
+    throw new Error("This is a packaged file with artwork built into it. Open it in your browser, click Export Editable Source, and edit that file instead.");
+  }
+}
+
+async function loadFile(file) {
+  sourceName = file.name;
+  $("file-name").textContent = file.name;
+  try {
+    const text = new TextDecoder("utf-8", { fatal: true }).decode(await file.arrayBuffer());
+    assertNotPackaged(text);
+    const at = locatePayload(text);
+    const raw = text.slice(at.start, at.end).trim();
+    const parsed = JSON.parse(raw);      // proves the starting point is sound
+    source = text; payloadStart = at.start; payloadEnd = at.end;
+    $("payload").value = JSON.stringify(parsed, null, 2);
+    $("payload-size").textContent = `${raw.length.toLocaleString()} characters of diagram data, out of ${text.length.toLocaleString()} in the whole file.`;
+    note("load-message", "ok", "File loaded.", " Now describe your change below.");
+    $("step-2").hidden = false; $("step-3").hidden = false;
+    $("step-4").hidden = false; $("save").disabled = true;
+    $("save-state").textContent = ""; note("save-message", null);
+    // Anything reported against the previous file is meaningless now.
+    $("problems").replaceChildren();
+    $("copy-problems").disabled = true;
+    note("check-message", null);
+  } catch (error) {
+    source = ""; accepted = null;
+    $("step-2").hidden = true; $("step-3").hidden = true; $("step-4").hidden = true;
+    const why = error instanceof SyntaxError
+      ? "The diagram data in this file is not valid JSON, so it was probably damaged by an earlier edit."
+      : error.message;
+    note("load-message", "error", "Cannot use this file.", " " + why);
+  }
+}
+
+/* ---------- 2. Build the prompt ---------- */
+
+function buildPrompt() {
+  const request = $("request").value.trim();
+  return PROMPT
+    .replace("<<<CURRENT_JSON>>>", $("payload").value)
+    .replace("<<<USER_REQUEST>>>", request || "(describe your change here)");
+}
+
+/* ---------- 3. Repair, then check ---------- */
+
+// Walks the text tracking whether we are inside a JSON string, so a comma or a
+// slash inside a device label is never mistaken for syntax.
+function scanOutsideStrings(text, onCode) {
+  let out = "", inString = false, escaped = false;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (inString) {
+      out += ch;
+      if (escaped) escaped = false;
+      else if (ch === "\\") escaped = true;
+      else if (ch === '"') inString = false;
+      continue;
+    }
+    if (ch === '"') { inString = true; out += ch; continue; }
+    const handled = onCode(text, i, (s) => { out += s; });
+    if (handled === undefined) out += ch;
+    else i = handled;
+  }
+  return out;
+}
+
+function stripComments(text) {
+  return scanOutsideStrings(text, (t, i) => {
+    if (t[i] === "/" && t[i + 1] === "/") { const nl = t.indexOf("\n", i); return nl < 0 ? t.length : nl - 1; }
+    if (t[i] === "/" && t[i + 1] === "*") { const end = t.indexOf("*/", i + 2); return end < 0 ? t.length : end + 1; }
+    return undefined;
+  });
+}
+
+function stripTrailingCommas(text) {
+  return scanOutsideStrings(text, (t, i, emit) => {
+    if (t[i] !== ",") return undefined;
+    let j = i + 1;
+    while (j < t.length && /\s/.test(t[j])) j++;
+    if (t[j] === "}" || t[j] === "]") { emit(""); return i; }
+    return undefined;
+  });
+}
+
+// Repair order is deliberate and not the obvious one. The curly-quote mapper is
+// the only LOSSY stage, so it runs last: a paste that failed purely because of a
+// trailing comma must never reach it and have a legitimate apostrophe rewritten.
+function parseWithRepair(text) {
+  const applied = [];
+  const attempt = (value) => { try { return JSON.parse(value); } catch { return undefined; } };
+
+  let current = text.trim();
+  let parsed = attempt(current);
+  if (parsed !== undefined) return { parsed, applied, text: current };
+
+  const stages = [
+    ["removed a code fence", (s) => s.replace(/^\s*```[a-z]*\s*\n?/i, "").replace(/\n?\s*```\s*$/, "").trim()],
+    ["ignored text around the JSON", (s) => {
+      const a = s.indexOf("{"), b = s.lastIndexOf("}");
+      return (a >= 0 && b > a) ? s.slice(a, b + 1) : s;
+    }],
+    ["removed invisible characters", (s) => s.replace(NBSP, " ").replace(ZERO_WIDTH, "")],
+    ["removed comments", stripComments],
+    ["removed trailing commas", stripTrailingCommas],
+    ["replaced curly quotes", (s) => s.replace(/[‘’]/g, "'").replace(/[“”]/g, '"')]
+  ];
+
+  for (const [label, fix] of stages) {
+    const next = fix(current);
+    if (next !== current) { current = next; applied.push(label); }
+    parsed = attempt(current);
+    if (parsed !== undefined) return { parsed, applied, text: current };
+  }
+  return { parsed: undefined, applied, text: current };
+}
+
+function problem(stop, what, tell) { return { stop, what, tell }; }
+
+// A reply that stops early is the most dangerous failure here, because the
+// remaining text can still look reasonable. Detect it from the raw text rather
+// than from the parse error, which only ever says "unexpected end of input".
+function looksTruncated(raw) {
+  const text = raw.trim();
+  if (!text) return false;
+  let depth = 0, inString = false, escaped = false;
+  for (const ch of text) {
+    if (inString) {
+      if (escaped) escaped = false;
+      else if (ch === "\\") escaped = true;
+      else if (ch === '"') inString = false;
+      continue;
+    }
+    if (ch === '"') inString = true;
+    else if (ch === "{" || ch === "[") depth++;
+    else if (ch === "}" || ch === "]") depth--;
+  }
+  return inString || depth > 0 || !text.endsWith("}");
+}
+
+function checkStructure(raw, data) {
+  const out = [];
+  const trimmed = (raw || "").trim();
+  if (trimmed && !trimmed.endsWith("}")) {
+    out.push(problem(true,
+      "The reply is cut off. It does not end with a closing brace, so part of your diagram is missing.",
+      "Your last reply was cut off before it finished. Send it again, and this time reply with only the topology section."));
+  }
+  for (const key of ["document", "topology", "rack"]) {
+    if (!data || typeof data[key] !== "object" || data[key] === null) {
+      out.push(problem(true, `The "${key}" section is missing from the reply.`,
+        `Your reply was missing the "${key}" section. Send the complete JSON object with document, topology and rack all present.`));
+    }
+  }
+  const arrays = [["topology", "nodes"], ["topology", "links"], ["rack", "devices"]];
+  for (const [parent, child] of arrays) {
+    if (data?.[parent] && !Array.isArray(data[parent][child])) {
+      out.push(problem(true, `${parent}.${child} is missing or is not a list.`,
+        `In your reply, ${parent}.${child} must be a list in square brackets.`));
+    }
+  }
+  return out;
+}
+
+function checkHostileText(raw) {
+  const out = [];
+  if (raw.includes("data:image/")) {
+    out.push(problem(true, "The reply contains an embedded image. Diagram data never contains images.",
+      "Do not embed images or data URLs. Reply with diagram data only."));
+  }
+  if (/<\/script/i.test(raw)) {
+    out.push(problem(true, "The reply contains a closing script tag, which would break the file.",
+      "Do not use < or > anywhere in the JSON values."));
+  }
+  for (const marker of FORBIDDEN_IN_DATA) {
+    if (raw.includes(marker)) {
+      out.push(problem(true, `The reply contains the internal marker "${marker}", which belongs to the file structure and not to the diagram.`,
+        "Reply with the diagram JSON object only. Do not include any HTML comments or file markers."));
+      break;
+    }
+  }
+  return out;
+}
+
+// Mirrors assetIdToPath() in tools/packager/build-packager.js: one path segment,
+// no backslash, no percent, no control characters. Spaces ARE legal here - some
+// official artwork names contain them, such as "layer 3 switch.jpg".
+// The control-character class is built from a string so this source file never
+// has to contain a literal control character.
+const ASSET_ID = /^asset:(cisco|rack)\/[^/\\%]+\.(jpg|png)$/;
+const CONTROL_CHARS = new RegExp("[\\u0000-\\u001f]");
+
+// All built from escape sequences so this source file contains no invisible
+// characters of its own. U+2028 and U+2029 especially: ECMAScript counts them as
+// line terminators, so a regex literal containing one raw ends early and throws
+// "Invalid regular expression: missing /" before any of this file can run.
+const NBSP = new RegExp("\\u00a0", "g");
+const ZERO_WIDTH = new RegExp("[\\u200b\\ufeff]", "g");
+const LINE_SEP = new RegExp("\\u2028", "g");
+const PARA_SEP = new RegExp("\\u2029", "g");
+
+function checkAssetStrings(data) {
+  const out = [];
+  const walk = (value, path) => {
+    if (typeof value === "string") {
+      if (CONTROL_CHARS.test(value)) {
+        out.push(problem(true, `${path} contains an invisible control character.`,
+          `Remove the control character from ${path} and use plain text only.`));
+      }
+      if (value.includes("asset:") && !ASSET_ID.test(value)) {
+        out.push(problem(true, `${path} contains a broken artwork reference: "${value}".`,
+          `Remove the artwork reference at ${path}. Pick a device type from the icon list instead.`));
+      } else if (ASSET_ID.test(value)) {
+        const [, scheme, ext] = ASSET_ID.exec(value);
+        if ((scheme === "cisco") !== (ext === "jpg")) {
+          out.push(problem(true, `${path} has an artwork reference with the wrong file type: "${value}".`,
+            `Remove the artwork reference at ${path}.`));
+        }
+      }
+    } else if (Array.isArray(value)) value.forEach((v, i) => walk(v, `${path}[${i}]`));
+    else if (value && typeof value === "object") Object.entries(value).forEach(([k, v]) => walk(v, `${path}.${k}`));
+  };
+  walk(data, "data");
+  return out;
+}
+
+function freeUnits(devices, units) {
+  const taken = new Set();
+  for (const d of devices) {
+    const p = Number(d.position), h = Number(d.height) || 1;
+    if (!Number.isFinite(p)) continue;
+    for (let u = p; u < p + h; u++) taken.add(u);
+  }
+  const free = [];
+  for (let u = 1; u <= units; u++) if (!taken.has(u)) free.push(u);
+  return free;
+}
+
+function checkMeaning(data) {
+  const out = [];
+  const nodes = data.topology?.nodes || [];
+  const links = data.topology?.links || [];
+  const zones = data.topology?.zones || [];
+  const devices = data.rack?.devices || [];
+  const units = Number(data.rack?.units) || 42;
+
+  const seen = new Set();
+  for (const node of nodes) {
+    if (!node.id) {
+      out.push(problem(true, "A device has no id.", "Every device in topology.nodes needs a unique id."));
+      continue;
+    }
+    if (seen.has(node.id)) {
+      out.push(problem(true, `Two devices share the id "${node.id}". The second one replaces the first and disappears.`,
+        `Two devices both use the id "${node.id}". Give each device its own unique id.`));
+    }
+    seen.add(node.id);
+    if (node.icon !== undefined && !ICON_KEYS.includes(node.icon)) {
+      out.push(problem(false, `"${node.id}" uses the device type "${node.icon}", which does not exist. It will show a red UNKNOWN ICON box.`,
+        `"${node.icon}" is not a valid icon. Use one of: ${ICON_KEYS.join(", ")}.`));
+    }
+  }
+
+  for (const [i, link] of links.entries()) {
+    for (const end of ["from", "to"]) {
+      if (!seen.has(link[end])) {
+        out.push(problem(true, `Connection ${i + 1} points at "${link[end]}", which is not a device on this diagram. The connection will not be drawn.`,
+          `The connection to "${link[end]}" refers to a device that does not exist. Either add that device or remove the connection.`));
+      }
+    }
+    if (link.kind !== undefined && !LINK_KINDS.includes(link.kind)) {
+      out.push(problem(false, `Connection ${i + 1} uses the type "${link.kind}", which does not exist. It will be drawn as an invisible line.`,
+        `"${link.kind}" is not a valid link kind. Use one of: ${LINK_KINDS.join(", ")}.`));
+    }
+    for (const key of ["labelX", "labelY"]) {
+      if (link[key] === null || link[key] === "") {
+        out.push(problem(true, `Connection ${i + 1} has an empty ${key}, which drags its label to the top-left corner of the page.`,
+          `Remove the empty ${key} from that connection instead of leaving it blank.`));
+      }
+    }
+  }
+
+  for (const zone of zones) {
+    if (zone.kind !== undefined && !ZONE_KINDS.includes(zone.kind)) {
+      out.push(problem(false, `The area "${zone.id || zone.label || "?"}" uses the type "${zone.kind}", which does not exist. It will be drawn as a solid black rectangle.`,
+        `"${zone.kind}" is not a valid zone kind. Use one of: ${ZONE_KINDS.join(", ")}.`));
+    }
+  }
+
+  // Node overlap. Both conditions must hold - checking only horizontal distance
+  // would flag 34 non-overlapping pairs in the shipped reference diagram.
+  for (let a = 0; a < nodes.length; a++) {
+    for (let b = a + 1; b < nodes.length; b++) {
+      const dx = Math.abs(Number(nodes[a].x) - Number(nodes[b].x));
+      const dy = Math.abs(Number(nodes[a].y) - Number(nodes[b].y));
+      if (dx < NODE_W && dy < NODE_H) {
+        out.push(problem(false, `"${nodes[a].id}" and "${nodes[b].id}" sit on top of each other.`,
+          `Move "${nodes[b].id}" so it is at least ${NODE_W} away horizontally or ${NODE_H} away vertically from "${nodes[a].id}".`));
+      }
+    }
+  }
+
+  const occupied = new Map();
+  for (const device of devices) {
+    if (device.asset !== undefined && !RACK_CODES.includes(device.asset)) {
+      out.push(problem(true, `Rack device "${device.id}" uses the hardware code "${device.asset}", which does not exist. It vanishes from both rack views.`,
+        `"${device.asset}" is not a valid rack asset. Use one of: ${RACK_CODES.join(", ")}.`));
+    }
+    if (typeof device.position === "string" || typeof device.height === "string") {
+      out.push(problem(true, `Rack device "${device.id}" has its position or height written as text instead of a number.`,
+        `Write position and height as plain numbers, like "position": 30, not "position": "30".`));
+      continue;
+    }
+    const p = Number(device.position), h = Number(device.height);
+    if (!Number.isFinite(p) || !Number.isFinite(h) || h < 1) {
+      out.push(problem(true, `Rack device "${device.id}" has no usable position or height.`,
+        `Give "${device.id}" a numeric position and height.`));
+      continue;
+    }
+    if (p < 1 || p + h - 1 > units) {
+      out.push(problem(true, `Rack device "${device.id}" does not fit. It would sit at U${p}${h > 1 ? `-U${p + h - 1}` : ""} in a ${units}U rack.`,
+        `"${device.id}" does not fit in the ${units}U rack. Rack units count from the bottom and position is the lowest unit used.`));
+      continue;
+    }
+    for (let u = p; u < p + h; u++) {
+      if (occupied.has(u)) {
+        const free = freeUnits(devices, units);
+        out.push(problem(true, `Rack devices "${device.id}" and "${occupied.get(u)}" both occupy U${u}.`,
+          `"${device.id}" and "${occupied.get(u)}" overlap at U${u}. Free units are: ${free.length ? free.join(", ") : "none"}. Remember a 2U device at position 30 fills U30 and U31.`));
+        break;
+      }
+      occupied.set(u, device.id);
+    }
+  }
+  return out;
+}
+
+function renderProblems(list) {
+  const host = $("problems");
+  host.replaceChildren();
+  for (const item of list) {
+    const li = document.createElement("li");
+    if (item.stop) li.className = "stop";
+    const what = document.createElement("span");
+    what.className = "what";
+    what.textContent = item.what;
+    const tell = document.createElement("code");
+    tell.className = "tell";
+    tell.textContent = `Tell the AI: ${item.tell}`;
+    li.append(what, tell);
+    host.appendChild(li);
+  }
+  $("copy-problems").disabled = list.length === 0;
+}
+
+function check() {
+  const raw = $("reply").value;
+  accepted = null; $("save").disabled = true; $("save-state").textContent = "";
+  note("save-message", null);
+  if (!raw.trim()) {
+    renderProblems([]);
+    note("check-message", "error", "Nothing to check.", " Paste the AI's reply first.");
+    return;
+  }
+
+  const hostile = checkHostileText(raw);
+  // `cleaned` is the text the repair chain actually parsed. Structural checks
+  // must use it, not the raw paste: a reply wrapped in code fences ends with a
+  // fence, which would otherwise read as "cut off".
+  const { parsed, applied, text: cleanedText } = parseWithRepair(raw);
+
+  if (parsed === undefined) {
+    const why = looksTruncated(cleanedText)
+      ? problem(true,
+          "The reply is cut off. It stops part-way through, so some of your diagram is missing.",
+          "Your last reply was cut off before it finished. Send it again, and this time reply with the topology section only, then the rack section in a second reply.")
+      : problem(true,
+          "This reply is not valid JSON, even after cleaning it up.",
+          "Your last reply was not valid JSON. Reply again with one JSON object and nothing else - no explanation, no code fences.");
+    renderProblems(hostile.concat([why]));
+    note("check-message", "error", "Could not read the reply.", " See below.");
+    return;
+  }
+
+  const all = hostile
+    .concat(checkStructure(cleanedText, parsed))
+    .concat(checkAssetStrings(parsed))
+    .concat(checkMeaning(parsed));
+  renderProblems(all);
+
+  const stops = all.filter((p) => p.stop).length;
+  const warns = all.length - stops;
+  const cleaned = applied.length ? ` I cleaned up the reply first: ${applied.join(", ")}.` : "";
+
+  if (stops) {
+    note("check-message", "error", `${stops} problem${stops === 1 ? "" : "s"} must be fixed before saving.`,
+      `${warns ? ` There ${warns === 1 ? "is" : "are"} also ${warns} warning${warns === 1 ? "" : "s"}.` : ""} Use Copy problems and paste them back to the AI.${cleaned}`);
+    return;
+  }
+
+  accepted = parsed;
+  $("save").disabled = false;
+  if (warns) {
+    note("check-message", "warning", `Ready to save, with ${warns} warning${warns === 1 ? "" : "s"}.`,
+      ` The diagram will draw, but check the warnings below first.${cleaned}`);
+  } else {
+    note("check-message", "ok", "No problems found.", ` The diagram data is complete and consistent.${cleaned}`);
+  }
+}
+
+/* ---------- 4. Splice and save ---------- */
+
+// Exactly the escapes used by tools/packager/build-packager.js.
+//
+// DO NOT ESCAPE THE FORWARD SLASH here, however tempting it looks as a defence
+// against a closing script tag inside a value. The packager's asset scanner
+// excludes backslash from its character class, so an escaped slash makes an
+// artwork reference invisible at build time while still decoding to a
+// valid-looking path at runtime - producing a clean, successful build and a
+// diagram full of MISSING ASSET placeholders. Escaping "<" already defuses the
+// closing tag, because the browser only ends a script element on a literal one.
+function safeJson(value) {
+  return JSON.stringify(value, null, 2)
+    .replace(/</g, "\\u003c")
+    .replace(/>/g, "\\u003e")
+    .replace(/&/g, "\\u0026")
+    .replace(LINE_SEP, "\\u2028")
+    .replace(PARA_SEP, "\\u2029");
+}
+
+function outputName() {
+  const drawing = accepted?.document?.drawing || "network-design";
+  const slug = String(drawing).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  return (slug || "network-design") + ".edit.html";
+}
+
+function save() {
+  try {
+    const out = source.slice(0, payloadStart) + "\n" + safeJson(accepted) + "\n" + source.slice(payloadEnd);
+
+    // Refuse rather than hand over a damaged file.
+    for (const marker of FORBIDDEN_IN_DATA) {
+      const want = countOf(source, marker), got = countOf(out, marker);
+      if (want !== got) throw new Error(`internal marker count changed for ${marker}`);
+    }
+    if (countOf(out, "<" + "script") !== countOf(source, "<" + "script")) throw new Error("script tag count changed");
+    if (countOf(out, "asset:") !== countOf(source, "asset:")) throw new Error("artwork reference count changed");
+    if (out.includes("data:image/")) throw new Error("an embedded image appeared");
+    if (!out.trimEnd().endsWith("</" + "html>")) throw new Error("the file no longer ends correctly");
+    if (out.slice(0, payloadStart) !== source.slice(0, payloadStart)) throw new Error("bytes before the diagram data changed");
+    if (out.slice(out.length - (source.length - payloadEnd)) !== source.slice(payloadEnd)) throw new Error("bytes after the diagram data changed");
+
+    const name = outputName();
+    const url = URL.createObjectURL(new Blob([out], { type: "text/html;charset=utf-8" }));
+    const link = document.createElement("a");
+    link.href = url; link.download = name; link.hidden = true;
+    document.body.appendChild(link); link.click(); link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1200);
+    $("save-state").textContent = `Saved as ${name}`;
+    note("save-message", "ok", "Saved.", ` Everything outside the diagram data is identical to ${sourceName}. Double-click the new file to see your change.`);
+  } catch (error) {
+    $("save-state").textContent = "";
+    note("save-message", "error", "Refused to save.", ` The new file would have been damaged (${error.message}). Nothing was written. Check the AI's reply and try again.`);
+  }
+}
+
+/* ---------- wiring ---------- */
+
+$("choose-file").addEventListener("click", () => $("file-input").click());
+$("file-input").addEventListener("change", () => {
+  const file = $("file-input").files[0];
+  if (file) loadFile(file);
+});
+$("copy-prompt").addEventListener("click", async () => {
+  const text = buildPrompt();
+  try {
+    await navigator.clipboard.writeText(text);
+    $("copy-state").textContent = `Copied ${text.length.toLocaleString()} characters. Paste it into your AI chat.`;
+  } catch {
+    $("payload").value = text;
+    $("copy-state").textContent = "Could not copy automatically. The full prompt is in the box below - select all and copy.";
+  }
+});
+$("check").addEventListener("click", check);
+$("copy-problems").addEventListener("click", async () => {
+  const lines = [...$("problems").querySelectorAll("li")]
+    .map((li, i) => `${i + 1}. ${li.querySelector(".what").textContent}\n   ${li.querySelector(".tell").textContent}`);
+  const text = `Your last reply had these problems. Please send the complete JSON object again with them fixed, and reply with JSON only.\n\n${lines.join("\n\n")}`;
+  try { await navigator.clipboard.writeText(text); $("copy-problems").textContent = "Copied"; setTimeout(() => { $("copy-problems").textContent = "Copy problems"; }, 1600); }
+  catch { $("reply").value = text; }
+});
+$("save").addEventListener("click", save);
+</script>
+</body>
+</html>
