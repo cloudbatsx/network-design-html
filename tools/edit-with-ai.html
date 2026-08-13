@@ -509,9 +509,28 @@ function checkShell(data) {
   }
   const sections = data.sections;
   if (sections) {
+    // Gap-overlay anchors. A marker that points at nothing is not drawn, so the
+    // reader loses the link between the picture and the finding.
+    const nodeIds = new Set((data.topology?.nodes || []).map((n) => n.id));
+    const zoneIds = new Set((data.topology?.zones || []).map((z) => z.id));
+    (Array.isArray(sections.findings?.items) ? sections.findings.items : []).forEach((item, i) => {
+      const n = i + 1;
+      const anchors = item?.at == null ? [] : (Array.isArray(item.at) ? item.at : [item.at]);
+      anchors.forEach((id) => {
+        if (!nodeIds.has(id)) {
+          out.push(problem(true, `Gap ${n} is pinned to "${id}", which is not a device on this diagram. The marker will not be drawn.`,
+            `Gap ${n} points at "${id}", which does not exist. Pin it to a real device id, or remove the "at" field.`));
+        }
+      });
+      if (item?.atZone !== undefined && !zoneIds.has(item.atZone)) {
+        out.push(problem(true, `Gap ${n} is pinned to area "${item.atZone}", which does not exist.`,
+          `Gap ${n} points at area "${item.atZone}", which does not exist. Use a real zone id, or remove the "atZone" field.`));
+      }
+    });
+
     const items = sections.findings?.items;
     if (Array.isArray(items) && items.length === 0) {
-      out.push(problem(false, "The Key gaps section is empty. A document that renders perfectly but hides its own uncertainty is off-template.",
+      out.push(problem(false, "The Gaps & open items section is empty. A document that renders perfectly but hides its own uncertainty is off-template.",
         "Fill sections.findings.items with what this document does not know or has not verified. Never leave it empty."));
     }
     const footer = data.document?.footer;

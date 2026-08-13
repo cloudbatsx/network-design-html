@@ -53,6 +53,22 @@ Labels may be abbreviated in the sidebar; the `id` may not change.
 - **Slot B** is the equipment exhibit. Always `id="equipment-exhibit"`, always
   last, always lettered **A** (appendix), never numbered.
 
+### The gap overlay
+
+Slot A is not only a list. A finding that carries `at` (a device id) or `atZone`
+(an area id) also draws a numbered marker onto the topology, so a reader can
+point at the drawing and read the finding. Zone findings additionally get a
+dashed outline.
+
+One control governs all of it — the section, the markers, and any identity row
+marked `"layer": "gap"` — because they all carry `.gap-layer` and the body
+class `show-gaps` is the single switch.
+
+Marker numbers are **derived from the order of `findings.items`**, never
+authored. The earlier hand-built documents placed markers at absolute SVG
+coordinates with hand-typed numbers; both drift silently the moment the layout
+or the list changes. Anchoring to ids removes that whole class of error.
+
 **Four header badges, this order, always:** domain (constant `Network &
 Security`) · `{docClass} · {subject}` · `{revision} · {date}` · epistemic status.
 

@@ -77,6 +77,15 @@
   .gaps li,.patterns li,.gains li { display:flex; gap:10px; align-items:flex-start; margin:8px 0; padding:8px 10px; border-radius:4px; }
   .gapnum,.patnum,.gainnum { flex:0 0 auto; display:inline-flex; align-items:center; justify-content:center; color:#fff; font-weight:700; font-size:10pt; border-radius:50%; width:22px; height:22px; }
   .gaps li { background:#fef2f2; border-left:3px solid #dc2626; } .gapnum { background:#dc2626; } .gaps b { color:#7f1d1d; }
+  /* -- the gap overlay: markers drawn onto the topology, numbered from the findings
+        list so a reader can point at the picture and read the finding. Carries
+        .gap-layer so one control governs the diagram, the tables and the list. -- */
+  .gap-pin { cursor:pointer; }
+  .gap-pin circle { fill:#dc2626; stroke:#fff; stroke-width:2; }
+  .gap-pin text { fill:#fff; font-size:13px; font-weight:700; text-anchor:middle; pointer-events:none; }
+  .gap-pin:hover circle, .gap-pin:focus circle { fill:#7f1d1d; }
+  .gap-region { fill:none; stroke:#dc2626; stroke-width:2; stroke-dasharray:7 4; }
+  .gaps li:target { outline:3px solid #dc2626; outline-offset:3px; }
   .patterns li { background:#f0fdfa; border-left:3px solid #0f766e; } .patnum { background:#0f766e; } .patterns b { color:#134e4a; }
   .gains li { background:#eff6ff; border-left:3px solid #0e7490; } .gainnum { background:#0e7490; } .gains b { color:#0c4a6e; }
 
@@ -424,8 +433,8 @@
         <!-- Section 6 is ALWAYS the Slot-A candour layer, always a toc-control. -->
         <li class="toc-control">
           <div class="sidebar-control">
-            <a id="gapLink" href="#key-gaps"><span class="num">6</span><span id="gap-label">Key gaps</span></a>
-            <button class="visibility-toggle" id="gapToggle" type="button" aria-labelledby="gapLink" aria-controls="key-gaps" aria-pressed="true" title="Hide gaps and unknowns">
+            <a id="gapLink" href="#gaps"><span class="num">6</span><span id="gap-label">Gaps &amp; open items</span></a>
+            <button class="visibility-toggle" id="gapToggle" type="button" aria-labelledby="gapLink" aria-controls="gaps" aria-pressed="true" title="Hide gaps and open items">
               <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                 <path d="M2.3 12s3.4-5.5 9.7-5.5 9.7 5.5 9.7 5.5-3.4 5.5-9.7 5.5S2.3 12 2.3 12Z"/>
                 <circle cx="12" cy="12" r="3"/>
@@ -583,9 +592,9 @@
       <!-- ============ SECTION 6 — SLOT A: the toggleable candour layer ============
            The whole point is that the document can be shown with its own
            weaknesses visible or hidden. Print force-reveals it regardless. -->
-      <section id="key-gaps" class="gap-layer">
+      <section id="gaps" class="gap-layer">
         <p class="kicker">Section 6</p>
-        <h2 id="findings-heading">Key gaps</h2>
+        <h2 id="findings-heading">Gaps and open items</h2>
         <ul class="gaps" id="findings-list"></ul>
       </section>
 
@@ -1116,15 +1125,16 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
       ]
     },
     "findings": {
-      "id": "key-gaps",
-      "label": "Key gaps",
-      "noun": "gaps and unknowns",
-      "heading": "Key gaps \u2014 what this document does not know",
+      "id": "gaps",
+      "label": "Gaps \u0026 open items",
+      "noun": "gaps and open items",
+      "heading": "Gaps and open items \u2014 what this document does not know",
       "flavour": "gaps",
       "items": [
-        { "title": "Every address is illustrative", "detail": "No range here has been reconciled against a live device. Replace them before this document is used to make a change." },
-        { "title": "No provider or circuit detail", "detail": "The two uplinks are drawn as a pattern. Carrier, bandwidth, and demarcation are unrecorded." },
-        { "title": "Rack schedule is partial", "detail": "Power, cooling, and cable management are not modelled, so the elevation shows placement only, not capacity." }
+        { "title": "Every address is illustrative", "detail": "No range here has been reconciled against a live device. Replace them before this document is used to make a change.", "atZone": "internal" },
+        { "title": "No provider or circuit detail", "detail": "Both uplinks are drawn as a pattern. Carrier, bandwidth and demarcation are unrecorded.", "at": ["edge-rtr-01", "edge-rtr-02"] },
+        { "title": "Firewall failover is unproven", "detail": "The HA pair is drawn as active/standby, but no failover test is recorded against this design.", "at": "edge-fw-02" },
+        { "title": "Rack schedule is partial", "detail": "Power, cooling and cable management are not modelled, so the elevation shows placement only, not capacity." }
       ]
     },
     "equipment": {
@@ -1203,7 +1213,7 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
   const SVG_NS="http://www.w3.org/2000/svg",NODE_W=176,NODE_H=104;
   const DEFAULT_BRAND_PATH="M112 72 H400 V352 Q400 400 376 424 Q356 440 336 424 Q316 400 296 400 H216 Q196 400 176 424 Q156 440 136 424 Q112 400 112 352 Z M312 136 A40 40 0 0 1 352 176 V304 A40 40 0 0 1 312 344 A40 40 0 0 1 272 304 V176 A40 40 0 0 1 312 136 Z";
   const FINDING_FLAVOURS=Object.freeze({gaps:["gaps","gapnum"],patterns:["patterns","patnum"],gains:["gains","gainnum"]});
-  let data,topologyErrors=[],rackErrors=[],slotAId="key-gaps";
+  let data,topologyErrors=[],rackErrors=[],slotAId="gaps";
 
   function svgEl(name,attrs={},text=""){const node=document.createElementNS(SVG_NS,name);Object.entries(attrs).forEach(([key,value])=>node.setAttribute(key,String(value)));if(text)node.textContent=text;return node}
   function assetUrl(assetId){
@@ -1362,24 +1372,64 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
       body.appendChild(tr)
     })
   }
+  /* Draws the numbered markers onto the topology. Anchors are node ids and zone ids,
+     never coordinates, so a marker cannot drift when the layout moves, and the number
+     is the item's position in the list, so the picture and the list cannot disagree. */
+  function renderGapOverlay(items){
+    const svg=el("topology");if(!svg)return;
+    svg.querySelectorAll(".gap-overlay").forEach(node=>node.remove());
+    const nodes=new Map((data.topology?.nodes||[]).map(node=>[node.id,node]));
+    const zones=new Map((data.topology?.zones||[]).map(zone=>[zone.id,zone]));
+    const layer=svgEl("g",{class:"gap-layer gap-overlay","aria-label":"Gap markers"});
+    const addPin=(cx,cy,number,title)=>{
+      const pin=svgEl("a",{class:"gap-pin",href:`#gap-${number}`,"aria-label":`Gap ${number}: ${title||"finding"}`});
+      pin.appendChild(svgEl("circle",{cx,cy,r:14}));
+      pin.appendChild(svgEl("text",{x:cx,y:cy+5},String(number)));
+      layer.appendChild(pin)
+    };
+    items.forEach((item,index)=>{
+      const number=index+1,title=item&&item.title;
+      if(item&&item.atZone){
+        const zone=zones.get(item.atZone);
+        if(!zone)topologyErrors.push(`Gap ${number} points at zone ${item.atZone}, which does not exist.`);
+        else{
+          layer.appendChild(svgEl("rect",{class:"gap-region",x:Number(zone.x)-7,y:Number(zone.y)-7,width:Number(zone.width)+14,height:Number(zone.height)+14,rx:15}));
+          /* a region needs its number too, or the reader cannot tell which finding it is */
+          addPin(Number(zone.x)+Number(zone.width)-22,Number(zone.y)+22,number,title)
+        }
+      }
+      const anchors=item&&item.at!=null?(Array.isArray(item.at)?item.at:[item.at]):[];
+      anchors.forEach(id=>{
+        const node=nodes.get(id);
+        if(!node){topologyErrors.push(`Gap ${number} points at device ${id}, which does not exist.`);return}
+        addPin(Number(node.x)+NODE_W/2-16,Number(node.y)-NODE_H/2+16,number,title)
+      })
+    });
+    if(layer.childNodes.length)svg.appendChild(layer)
+  }
+
   function renderFindings(){
     const f=data.sections?.findings||{};
-    slotAId=f.id||"key-gaps";
-    const section=el("key-gaps");
+    slotAId=f.id||"gaps";
+    const section=el("gaps");
     section.id=slotAId;
     const link=el("gapLink");link.setAttribute("href",`#${slotAId}`);
     el("gapToggle").setAttribute("aria-controls",slotAId);
-    setText("gap-label",f.label||"Key gaps");
-    setText("findings-heading",f.heading||f.label||"Key gaps");
+    setText("gap-label",f.label||"Gaps & open items");
+    setText("findings-heading",f.heading||f.label||"Gaps and open items");
     const [listClass,numClass]=FINDING_FLAVOURS[f.flavour]||FINDING_FLAVOURS.gaps;
     const list=el("findings-list");list.className=listClass;list.replaceChildren();
-    (Array.isArray(f.items)?f.items:[]).forEach((item,index)=>{
+    const items=Array.isArray(f.items)?f.items:[];
+    items.forEach((item,index)=>{
       const li=document.createElement("li"),num=document.createElement("span"),wrap=document.createElement("div"),lead=document.createElement("b");
+      li.id=`gap-${index+1}`;
       num.className=numClass;num.textContent=String(index+1);
       lead.textContent=`${(item&&item.title)||"Finding"}.`;
       wrap.append(lead,document.createTextNode(item&&item.detail?` ${item.detail}`:""));
       li.append(num,wrap);list.appendChild(li)
     });
+    renderGapOverlay(items);
+    showErrors("topology-errors",topologyErrors);
     if(!list.children.length){const li=document.createElement("li"),num=document.createElement("span"),wrap=document.createElement("div");num.className=numClass;num.textContent="1";wrap.textContent="No findings recorded. A document that hides its own uncertainty is off-template - list what is assumed here.";li.append(num,wrap);list.appendChild(li)}
   }
   function renderEquipment(){

@@ -102,6 +102,29 @@ they hide and reveal with the Key gaps control, so mark anything unverified.
 `findings.flavour` is `gaps` (what is missing), `patterns` (what worked), or
 `gains` (what this buys you). Pick the one that matches the document.
 
+## Pinning a gap onto the diagram
+
+A finding can point at the thing it is about. A numbered marker then appears on the
+topology, and the number is the finding's position in the list.
+
+```json
+{ "title": "No out-of-band path", "detail": "...", "at": "core-sw-01" }
+{ "title": "Single uplink",       "detail": "...", "at": ["access-sw-01", "access-sw-02"] }
+{ "title": "Unverified policy",   "detail": "...", "atZone": "perimeter" }
+{ "title": "No change process",   "detail": "..." }
+```
+
+- `at` is a **device id**, or a list of them — one marker per device.
+- `atZone` is an **area id** — draws a dashed outline round that area, plus a marker.
+- Leave both out for a finding that is not about one place on the drawing.
+- **Never write the marker number yourself.** It comes from the order of the list, so
+  the picture and the list can never disagree.
+- Every `at` must name a device in `topology.nodes`; every `atZone` must name an area
+  in `topology.zones`. A marker pointing at something that does not exist is an error.
+
+Anchor a finding only where it genuinely belongs. Roughly half anchored is a good
+document; anchoring everything makes the drawing unreadable.
+
 ## The rule underneath the rules
 
 **The reader must always be able to tell what is known from what is assumed.**
