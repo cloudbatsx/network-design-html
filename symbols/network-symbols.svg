@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <title>Network Design inline SVG placeholder sprite</title>
+  <style>
+    :root{--blue:#0076a8;--blue-dark:#005779;--blue-light:#51bde6}
+    .sym-primary{fill:var(--symbol-main,var(--blue))}
+    .sym-dark{fill:var(--symbol-dark,var(--blue-dark))}
+    .sym-light{fill:var(--symbol-light,var(--blue-light))}
+    .sym-detail{fill:var(--symbol-detail,#fff)}
+    .sym-outline{fill:#fff;stroke:var(--symbol-main,var(--blue));stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+    .sym-detail-stroke{fill:none;stroke:var(--symbol-detail,#fff);stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+  </style>
+<defs id="vector-symbol-library">
+            <filter id="card-shadow" x="-25%" y="-25%" width="150%" height="165%">
+              <feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#26485c" flood-opacity=".12"/>
+            </filter>
+
+            <!--
+              Shared switch-top glyph: four parallel arrows, alternating two
+              right and two left, as shown by the Cisco workgroup-switch and
+              WLAN-controller references. The rows are staggered to follow the
+              isometric top plane without crossing or touching.
+            -->
+            <g id="nd-switch-arrow-glyph" class="sym-detail">
+              <path data-direction="right" d="M63 14h28v-2.8l10 3.8-10 3.8V16H63Z"/>
+              <path data-direction="left" d="M75 18.8H45V16l-10 3.8 10 3.8v-2.8h30Z"/>
+              <path data-direction="right" d="M49 23.3h30v-2.8l10 3.8-10 3.8v-2.8H49Z"/>
+              <path data-direction="left" d="M61 27.5H32v-2.8l-10 3.8 10 3.8v-2.8h29Z"/>
+            </g>
+
+            <!-- Seven symbols carried forward from experiment 01. -->
+            <symbol id="nd-cloud" viewBox="0 0 150 88">
+              <title>Network cloud</title>
+              <path class="sym-outline" stroke-width="2.4" d="M26 72C14 72 6 64 6 54c0-9 6-17 16-20 3-13 15-22 30-22 8 0 15 2 21 7 6-5 14-7 23-7 15 0 27 8 30 20 10 2 17 10 17 20 0 11-9 20-22 20H26Z"/>
+            </symbol>
+
+            <symbol id="nd-firewall" viewBox="0 0 86 108">
+              <title>Firewall</title>
+              <polygon class="sym-light" points="15,22 29,10 74,10 60,22"/>
+              <polygon class="sym-dark" points="60,22 74,10 74,82 60,94"/>
+              <rect class="sym-primary" x="15" y="22" width="45" height="72"/>
+              <g class="sym-detail-stroke" stroke-width="2">
+                <path d="M15 40H60M15 58H60M15 76H60"/>
+                <path d="M29 22V40M47 22V40M23 40V58M41 40V58M29 58V76M47 58V76M23 76V94M41 76V94"/>
+                <path d="M60 40 74 28M60 58 74 46M60 76 74 64"/>
+              </g>
+            </symbol>
+
+            <symbol id="nd-router" viewBox="0 0 120 88">
+              <title>Router</title>
+              <path class="sym-dark" d="M12 36v22c0 12 21 21 48 21s48-9 48-21V36c-8 9-26 15-48 15S20 45 12 36Z"/>
+              <ellipse class="sym-primary" cx="60" cy="35" rx="48" ry="20"/>
+              <path class="sym-light" d="M18 30c7-8 23-13 42-13 21 0 38 6 44 15-10-6-25-9-42-9-19 0-35 3-44 7Z" opacity=".75"/>
+              <g class="sym-detail"><path d="M60 18 70 27h-7v10h-7V27h-7Z"/><path d="m60 52-10-9h7V33h7v10h7Z"/><path d="m32 35 10-9v6h13v6H42v6Z"/><path d="m88 35-10 9v-6H65v-6h13v-6Z"/></g>
+            </symbol>
+
+            <symbol id="nd-l3-switch" viewBox="0 0 106 106">
+              <title>Layer 3 switch</title>
+              <polygon class="sym-light" points="14,26 28,14 91,14 77,26"/>
+              <polygon class="sym-dark" points="77,26 91,14 91,78 77,92"/>
+              <rect class="sym-primary" x="14" y="26" width="63" height="66"/>
+              <circle class="sym-detail" cx="45.5" cy="59" r="9"/>
+              <g class="sym-detail" transform="translate(45.5 59)">
+                <path id="l3-arrow" d="M-3-12v-13h-5l8-9 8 9H3v13Z"/>
+                <use href="#l3-arrow" transform="rotate(45)"/><use href="#l3-arrow" transform="rotate(90)"/><use href="#l3-arrow" transform="rotate(135)"/><use href="#l3-arrow" transform="rotate(180)"/><use href="#l3-arrow" transform="rotate(225)"/><use href="#l3-arrow" transform="rotate(270)"/><use href="#l3-arrow" transform="rotate(315)"/>
+              </g>
+            </symbol>
+
+            <symbol id="nd-server" viewBox="0 0 92 108">
+              <title>Server</title>
+              <polygon class="sym-light" points="14,20 27,9 75,9 62,20"/>
+              <polygon class="sym-dark" points="62,20 75,9 75,88 62,99"/>
+              <rect class="sym-primary" x="14" y="20" width="48" height="79"/>
+              <g class="sym-detail-stroke" stroke-width="2"><rect x="20" y="29" width="14" height="12" rx="1"/><rect x="41" y="29" width="14" height="12" rx="1"/><rect x="20" y="50" width="14" height="14" rx="1"/><rect x="41" y="50" width="14" height="14" rx="1"/><rect x="20" y="73" width="14" height="17" rx="1"/><rect x="41" y="73" width="14" height="17" rx="1"/></g>
+            </symbol>
+
+            <symbol id="nd-access-point" viewBox="0 0 120 76">
+              <title>Wireless access point</title>
+              <polygon class="sym-light" points="12,28 30,13 108,13 90,28"/><polygon class="sym-dark" points="90,28 108,13 108,51 90,66"/><polygon class="sym-primary" points="12,28 90,28 90,66 12,66"/>
+              <g class="sym-detail-stroke" stroke-width="2.6"><circle cx="27" cy="47" r="7"/><circle cx="42" cy="47" r="7"/><circle cx="57" cy="47" r="7"/><circle cx="72" cy="47" r="7"/></g><circle class="sym-detail" cx="82" cy="47" r="2.6"/>
+            </symbol>
+
+            <symbol id="nd-workstation" viewBox="0 0 126 104">
+              <title>Workstation</title>
+              <polygon class="sym-dark" points="25,12 92,12 84,62 18,62"/><polygon class="sym-primary" points="29,16 88,16 81,57 22,57"/><polygon class="sym-light" points="33,20 83,20 78,52 27,52" opacity=".38"/>
+              <path class="sym-primary" d="M45 62h15l3 10h16l7 7H31l8-7h8Z"/><polygon class="sym-dark" points="24,80 89,80 105,94 9,94"/><polygon class="sym-light" points="28,83 86,83 96,91 18,91"/><path class="sym-primary" d="M104 78c10 0 15 5 15 10s-4 9-10 9c-5 0-8-3-8-7 0-3 2-6 6-7-3-1-6-1-9 0l-2-3c3-1 5-2 8-2Z"/>
+            </symbol>
+
+            <!-- Twelve new clean-vector interpretations for experiment 02. -->
+            <symbol id="nd-access-switch" viewBox="0 0 120 72">
+              <title>Access switch</title>
+              <polygon class="sym-light" points="10,33 34,11 110,11 86,33"/><polygon class="sym-dark" points="86,33 110,11 110,37 86,59"/><polygon class="sym-primary" points="10,33 86,33 86,59 10,59"/>
+              <use href="#nd-switch-arrow-glyph"/>
+            </symbol>
+
+            <symbol id="nd-wlan-controller" viewBox="0 0 120 76">
+              <title>Wireless LAN controller</title>
+              <polygon class="sym-light" points="10,33 34,11 110,11 86,33"/><polygon class="sym-dark" points="86,33 110,11 110,43 86,65"/><polygon class="sym-primary" points="10,33 86,33 86,65 10,65"/>
+              <use href="#nd-switch-arrow-glyph"/>
+              <g class="sym-detail-stroke" stroke-width="2.2"><circle cx="21" cy="49" r="6.5"/><circle cx="34.5" cy="49" r="6.5"/><circle cx="48" cy="49" r="6.5"/><circle cx="61.5" cy="49" r="6.5"/><circle cx="75" cy="49" r="6.5"/></g>
+            </symbol>
+
+            <symbol id="nd-vpn-headend" viewBox="0 0 100 106">
+              <title>VPN headend</title>
+              <polygon class="sym-light" points="14,20 27,9 82,9 69,20"/><polygon class="sym-dark" points="69,20 82,9 82,91 69,102"/><rect class="sym-primary" x="14" y="20" width="55" height="82" rx="2"/>
+              <g class="sym-detail-stroke" stroke-width="2"><rect x="20" y="31" width="42" height="22" rx="2"/><rect x="20" y="65" width="42" height="22" rx="2"/></g>
+              <g class="sym-detail"><path d="M26 38h22v-5l10 9-10 9v-5H26Z"/><path d="M56 72H34v-5l-10 9 10 9v-5h22Z"/></g>
+              <g class="sym-detail-stroke" stroke-width="1.8"><ellipse cx="75.5" cy="43" rx="3" ry="7"/><ellipse cx="75.5" cy="77" rx="3" ry="7"/></g>
+            </symbol>
+
+            <symbol id="nd-dc-switch" viewBox="0 0 104 104">
+              <title>Data-center server-access switch</title>
+              <polygon class="sym-light" points="13,26 28,12 91,12 76,26"/><polygon class="sym-dark" points="76,26 91,12 91,77 76,91"/><rect class="sym-primary" x="13" y="26" width="63" height="65"/>
+              <g class="sym-detail-stroke" stroke-width="1.8"><path d="M28 42H61M28 58H61M28 74H61M28 42V74M44.5 42V74M61 42V74"/></g>
+              <g class="sym-detail"><circle cx="28" cy="42" r="4"/><circle cx="44.5" cy="42" r="4"/><circle cx="61" cy="42" r="4"/><circle cx="28" cy="58" r="4"/><circle cx="44.5" cy="58" r="4"/><circle cx="61" cy="58" r="4"/><circle cx="28" cy="74" r="4"/><circle cx="44.5" cy="74" r="4"/><circle cx="61" cy="74" r="4"/></g>
+            </symbol>
+
+            <symbol id="nd-ip-phone" viewBox="0 0 126 88">
+              <title>IP phone</title>
+              <polygon class="sym-primary" points="21,38 101,38 116,70 8,70"/><polygon class="sym-light" points="31,25 92,25 101,38 21,38"/><polygon class="sym-dark" points="101,38 116,70 106,80 99,53"/>
+              <polygon class="sym-detail" points="66,42 94,42 99,53 69,53"/><polygon class="sym-light" points="69,44 91,44 94,50 71,50"/>
+              <g class="sym-detail"><circle cx="45" cy="49" r="2.2"/><circle cx="52" cy="49" r="2.2"/><circle cx="59" cy="49" r="2.2"/><circle cx="45" cy="56" r="2.2"/><circle cx="52" cy="56" r="2.2"/><circle cx="59" cy="56" r="2.2"/><circle cx="45" cy="63" r="2.2"/><circle cx="52" cy="63" r="2.2"/><circle cx="59" cy="63" r="2.2"/></g>
+              <path class="sym-primary" d="M20 19c6-7 14-11 23-11l11 8-10 14-10-5c-3 4-5 8-6 13l-13-2c0-7 2-12 5-17Z"/><path class="sym-detail-stroke" stroke-width="2" d="m22 22 12 5M39 12l8 8"/>
+            </symbol>
+
+            <symbol id="nd-laptop" viewBox="0 0 126 96">
+              <title>Laptop</title>
+              <polygon class="sym-dark" points="31,10 104,10 91,62 19,62"/><polygon class="sym-primary" points="34,14 99,14 88,57 24,57"/><polygon class="sym-light" points="39,19 94,19 85,52 30,52" opacity=".4"/>
+              <polygon class="sym-primary" points="19,63 91,63 117,87 5,87"/><polygon class="sym-light" points="24,66 87,66 105,82 13,82"/>
+              <g class="sym-detail-stroke" stroke-width="1.2" opacity=".9"><path d="M31 69h53M25 73h66M19 77h80"/></g>
+            </symbol>
+
+            <symbol id="nd-printer" viewBox="0 0 126 82">
+              <title>Printer</title>
+              <polygon class="sym-light" points="12,24 28,10 96,10 80,24"/><polygon class="sym-dark" points="80,24 96,10 96,61 80,75"/><rect class="sym-primary" x="12" y="24" width="68" height="51"/>
+              <path class="sym-detail-stroke" stroke-width="2" d="M18 48H74"/><polygon class="sym-primary" points="96,43 120,35 111,49 96,56"/><polygon class="sym-light" points="98,42 116,36 108,43 98,48"/>
+            </symbol>
+
+            <symbol id="nd-database" viewBox="0 0 110 90">
+              <title>Relational database</title>
+              <path class="sym-dark" d="M13 30v33c0 12 19 21 42 21s42-9 42-21V30c-8 9-23 14-42 14S21 39 13 30Z"/><rect class="sym-primary" x="13" y="27" width="84" height="36"/><ellipse class="sym-primary" cx="55" cy="28" rx="42" ry="18"/><ellipse class="sym-light" cx="55" cy="25" rx="35" ry="11" opacity=".25"/>
+            </symbol>
+
+            <symbol id="nd-storage-array" viewBox="0 0 126 98">
+              <title>Storage array</title>
+              <polygon class="sym-light" points="10,26 27,10 113,10 96,26"/><polygon class="sym-dark" points="96,26 113,10 113,76 96,92"/><rect class="sym-primary" x="10" y="26" width="86" height="66"/>
+              <g class="sym-detail-stroke" stroke-width="2"><ellipse cx="29" cy="49" rx="10" ry="5"/><path d="M19 49v21c0 3 4 5 10 5s10-2 10-5V49"/><ellipse cx="54" cy="49" rx="10" ry="5"/><path d="M44 49v21c0 3 4 5 10 5s10-2 10-5V49"/><ellipse cx="79" cy="49" rx="10" ry="5"/><path d="M69 49v21c0 3 4 5 10 5s10-2 10-5V49"/></g>
+            </symbol>
+
+            <symbol id="nd-nms" viewBox="0 0 108 106">
+              <title>Network management system</title>
+              <polygon class="sym-light" points="13,25 28,11 94,11 79,25"/><polygon class="sym-dark" points="79,25 94,11 94,78 79,92"/><rect class="sym-primary" x="13" y="25" width="66" height="67"/>
+              <rect class="sym-detail-stroke" stroke-width="2" x="27" y="37" width="38" height="33" rx="2"/><circle class="sym-detail-stroke" stroke-width="4" cx="48" cy="52" r="11"/><path class="sym-detail-stroke" stroke-width="5" d="m40 61-16 17"/>
+            </symbol>
+
+            <symbol id="nd-branch-office" viewBox="0 0 90 114">
+              <title>Branch office</title>
+              <polygon class="sym-light" points="14,23 28,10 76,10 62,23"/><polygon class="sym-dark" points="62,23 76,10 76,96 62,108"/><rect class="sym-primary" x="14" y="23" width="48" height="85"/>
+              <g class="sym-detail"><rect x="20" y="31" width="5" height="8"/><rect x="31" y="31" width="5" height="8"/><rect x="42" y="31" width="5" height="8"/><rect x="53" y="31" width="5" height="8"/><rect x="20" y="47" width="5" height="8"/><rect x="31" y="47" width="5" height="8"/><rect x="42" y="47" width="5" height="8"/><rect x="53" y="47" width="5" height="8"/><rect x="20" y="63" width="5" height="8"/><rect x="31" y="63" width="5" height="8"/><rect x="42" y="63" width="5" height="8"/><rect x="53" y="63" width="5" height="8"/><rect x="20" y="79" width="5" height="8"/><rect x="31" y="79" width="5" height="8"/><rect x="42" y="79" width="5" height="8"/><rect x="53" y="79" width="5" height="8"/></g>
+            </symbol>
+
+            <symbol id="nd-wireless-router" viewBox="0 0 120 110">
+              <title>Wireless router</title>
+              <g class="sym-detail-stroke" stroke="var(--symbol-main, #0076a8)" stroke-width="4"><path d="M26 28V5M94 28V5"/></g><g class="sym-primary"><rect x="22" y="3" width="8" height="5"/><rect x="90" y="3" width="8" height="5"/></g>
+              <path class="sym-dark" d="M12 54v22c0 12 21 21 48 21s48-9 48-21V54c-8 9-26 15-48 15S20 63 12 54Z"/><ellipse class="sym-primary" cx="60" cy="53" rx="48" ry="20"/>
+              <g class="sym-detail"><path d="M60 36 70 45h-7v10h-7V45h-7Z"/><path d="m60 70-10-9h7V51h7v10h7Z"/><path d="m32 53 10-9v6h13v6H42v6Z"/><path d="m88 53-10 9v-6H65v-6h13v-6Z"/></g>
+            </symbol>
+          </defs>
+</svg>

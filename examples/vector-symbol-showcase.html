@@ -1,0 +1,535 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Network Design HTML — Vector Symbol Showcase</title>
+  <meta name="description" content="A self-contained campus, branch, wireless, VPN, and data-center topology using reusable inline SVG symbols.">
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #132733;
+      --muted: #637783;
+      --surface: #fff;
+      --canvas: #f5f8fa;
+      --line: #dce5e9;
+      --blue: #0076a8;
+      --blue-dark: #005779;
+      --blue-light: #51bde6;
+      --green: #238262;
+      --amber: #a56d12;
+      --violet: #6f63a8;
+      --shadow: 0 18px 58px rgba(19, 48, 66, .12);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 12% -4%, rgba(0, 118, 168, .11), transparent 34rem),
+        #edf2f5;
+    }
+
+    .page { width: min(1640px, calc(100% - 36px)); margin: 28px auto 46px; }
+
+    .masthead {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 26px;
+      margin: 0 4px 18px;
+    }
+
+    .eyebrow {
+      margin: 0 0 7px;
+      color: var(--blue);
+      font-size: 12px;
+      font-weight: 820;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+    }
+
+    h1 { margin: 0; font-size: clamp(27px, 3vw, 43px); font-weight: 760; letter-spacing: -.038em; }
+
+    .subtitle { max-width: 850px; margin: 9px 0 0; color: var(--muted); font-size: 15px; line-height: 1.55; }
+
+    .badges { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; padding-bottom: 4px; }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 11px;
+      border: 1px solid rgba(0, 118, 168, .18);
+      border-radius: 999px;
+      color: #195a77;
+      background: rgba(255, 255, 255, .84);
+      font-size: 12px;
+      font-weight: 750;
+      white-space: nowrap;
+    }
+
+    .badge::before { width: 7px; height: 7px; border-radius: 50%; background: #22a475; content: ""; }
+
+    .sheet { overflow: hidden; border: 1px solid #dbe4e9; border-radius: 24px; background: var(--surface); box-shadow: var(--shadow); }
+
+    .sheet-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      min-height: 56px;
+      padding: 12px 20px;
+      border-bottom: 1px solid #e4ebef;
+      background: linear-gradient(180deg, #fff, #fbfcfd);
+    }
+
+    .sheet-title { display: flex; align-items: center; gap: 11px; min-width: 0; font-size: 14px; font-weight: 780; }
+    .sheet-mark { display: grid; width: 29px; height: 29px; place-items: center; border-radius: 8px; color: #fff; background: var(--blue); font-size: 11px; }
+    .sheet-meta { color: var(--muted); font-size: 12px; white-space: nowrap; }
+
+    .topology-wrap {
+      background-color: var(--canvas);
+      background-image:
+        linear-gradient(rgba(115, 142, 157, .075) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(115, 142, 157, .075) 1px, transparent 1px);
+      background-size: 24px 24px;
+    }
+
+    #topology { display: block; width: 100%; height: auto; }
+
+    .zone { stroke-width: 1.2; stroke-dasharray: 5 5; vector-effect: non-scaling-stroke; }
+    .zone-wan { fill: #f8fafb; stroke: #aab8c1; }
+    .zone-edge { fill: #f2f8fc; stroke: #86b5cb; }
+    .zone-campus { fill: #f4faf7; stroke: #8dbba5; }
+    .zone-dc { fill: #faf7fc; stroke: #b5a2c9; }
+    .zone-label { fill: #516773; font-size: 11px; font-weight: 820; letter-spacing: .12em; }
+    .zone-subtitle { fill: #82919a; font-size: 10.5px; }
+
+    .link { fill: none; stroke: #5c7582; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+    .link.wan { stroke: #667d88; }
+    .link.trunk { stroke: var(--blue); stroke-width: 4; }
+    .link.access { stroke: var(--green); }
+    .link.tunnel { stroke: var(--violet); stroke-width: 3.5; stroke-dasharray: 10 7; }
+    .link.control { stroke: var(--amber); stroke-dasharray: 8 6; }
+    .link.management { stroke: #63717b; stroke-width: 2; stroke-dasharray: 3 6; }
+    .link.wireless { stroke: var(--amber); stroke-width: 3.5; stroke-dasharray: 2 7; }
+    .link.context { stroke: #9caab2; stroke-width: 1.6; stroke-dasharray: 2 5; }
+
+    .link-label rect { fill: rgba(255,255,255,.97); stroke: #d5e0e5; stroke-width: 1; vector-effect: non-scaling-stroke; }
+    .link-label text { fill: #526b77; font-size: 10px; font-weight: 720; text-anchor: middle; }
+
+    .node { cursor: pointer; outline: none; --symbol-main: var(--blue); --symbol-dark: var(--blue-dark); --symbol-light: var(--blue-light); --symbol-detail: #fff; }
+    .node-card { fill: #fff; stroke: #d5dfe4; stroke-width: 1.2; filter: url(#card-shadow); transition: stroke 140ms ease, stroke-width 140ms ease; vector-effect: non-scaling-stroke; }
+    .node:hover .node-card, .node:focus .node-card, .node.is-selected .node-card { stroke: var(--blue); stroke-width: 2.6; }
+    .node-label { fill: #142b38; font-size: 12px; font-weight: 790; text-anchor: middle; }
+    .node-role { fill: #6c7e89; font-size: 9.5px; font-weight: 560; text-anchor: middle; }
+    .status-ring { fill: #fff; }
+    .status-dot { fill: #27a276; }
+
+    .sym-primary { fill: var(--symbol-main, var(--blue)); }
+    .sym-dark { fill: var(--symbol-dark, var(--blue-dark)); }
+    .sym-light { fill: var(--symbol-light, var(--blue-light)); }
+    .sym-detail { fill: var(--symbol-detail, #fff); }
+    .sym-outline { fill: #fff; stroke: var(--symbol-main, var(--blue)); stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+    .sym-detail-stroke { fill: none; stroke: var(--symbol-detail, #fff); stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+
+    .info-strip { display: grid; grid-template-columns: 1.15fr 1fr 1.1fr; gap: 1px; border-top: 1px solid #e1e8ec; background: #e1e8ec; }
+    .info-card { min-height: 106px; padding: 17px 20px; background: #fff; }
+    .info-card h2, .gallery-head h2 { margin: 0 0 7px; font-size: 12px; font-weight: 830; letter-spacing: .09em; text-transform: uppercase; }
+    .info-card p, .gallery-head p { margin: 0; color: var(--muted); font-size: 12.5px; line-height: 1.55; }
+    #selection { color: #1a5d79; font-weight: 730; }
+
+    .legend { display: flex; flex-wrap: wrap; gap: 8px 13px; margin-top: 8px; }
+    .legend span { display: inline-flex; align-items: center; gap: 6px; color: #647782; font-size: 10px; font-weight: 700; }
+    .legend i { display: block; width: 22px; height: 0; border-top: 3px solid #5c7582; }
+    .legend .l-trunk { border-color: var(--blue); border-width: 4px; }
+    .legend .l-access { border-color: var(--green); }
+    .legend .l-control { border-color: var(--amber); border-style: dashed; }
+    .legend .l-tunnel { border-color: var(--violet); border-style: dashed; }
+
+    .gallery { margin-top: 18px; padding: 21px; border: 1px solid #dbe4e9; border-radius: 22px; background: rgba(255,255,255,.94); box-shadow: 0 13px 40px rgba(19,48,66,.08); }
+    .gallery-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; margin-bottom: 15px; }
+    .gallery-head p { max-width: 760px; }
+    .gallery-grid { display: grid; grid-template-columns: repeat(6, minmax(140px, 1fr)); gap: 10px; }
+    .symbol-card { min-width: 0; padding: 13px 10px 11px; border: 1px solid #e0e8ec; border-radius: 14px; text-align: center; background: linear-gradient(180deg,#fff,#f9fbfc); }
+    .symbol-card svg { display: block; width: 100%; height: 82px; margin: 0 auto 4px; --symbol-main: var(--blue); --symbol-dark: var(--blue-dark); --symbol-light: var(--blue-light); --symbol-detail: #fff; }
+    .symbol-name { display: block; color: #183545; font-size: 11.5px; font-weight: 780; }
+    .symbol-source { display: block; margin-top: 3px; overflow: hidden; color: #788892; font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-size: 8.5px; text-overflow: ellipsis; white-space: nowrap; }
+
+    .rights-note { margin: 14px 4px 0; color: #677984; font-size: 11px; line-height: 1.55; }
+    .rights-note a { color: #176b91; }
+
+    @media (max-width: 1050px) {
+      .masthead { align-items: flex-start; flex-direction: column; }
+      .badges { justify-content: flex-start; }
+      .gallery-grid { grid-template-columns: repeat(4, minmax(130px, 1fr)); }
+    }
+
+    @media (max-width: 760px) {
+      .page { width: min(100% - 20px, 1640px); margin-top: 16px; }
+      .sheet-bar, .gallery-head { align-items: flex-start; flex-direction: column; }
+      .sheet-meta { white-space: normal; }
+      .info-strip { grid-template-columns: 1fr; }
+      .gallery-grid { grid-template-columns: repeat(2, minmax(120px, 1fr)); }
+    }
+
+    @media print {
+      @page { size: landscape; margin: .3in; }
+      body { background: #fff; }
+      .page { width: 100%; margin: 0; }
+      .sheet, .gallery { box-shadow: none; }
+      .gallery { break-before: page; }
+      .rights-note { font-size: 8pt; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="masthead">
+      <div>
+        <p class="eyebrow">Network Design as HTML · Vector experiment 02</p>
+        <h1>Expanded campus, branch, and services topology</h1>
+        <p class="subtitle">A denser demonstration of a reusable inline SVG vocabulary spanning WAN edge, IPsec branch connectivity, campus access, unified communications, wireless control, operations, and data-center services.</p>
+      </div>
+      <div class="badges" aria-label="Showcase properties">
+        <span class="badge">19 symbol types</span>
+        <span class="badge">20 topology nodes</span>
+        <span class="badge">0 external assets</span>
+        <span class="badge">1 portable HTML</span>
+      </div>
+    </header>
+
+    <article class="sheet" aria-label="Expanded network topology vector showcase">
+      <div class="sheet-bar">
+        <div class="sheet-title"><span class="sheet-mark">ND</span> NET-POC-002 · Campus, branch, wireless, and services</div>
+        <div class="sheet-meta">Logical topology · Revision 0.3 · 2026-08-13</div>
+      </div>
+
+      <div class="topology-wrap">
+        <svg id="topology" viewBox="0 0 1720 1050" role="img" aria-labelledby="topology-title topology-desc">
+          <title id="topology-title">Expanded campus, branch, wireless, and data-center topology</title>
+          <desc id="topology-desc">Internet and a remote branch connect through a secure edge to a layer three campus core. Two access switches serve users, phones, printers, and wireless access. A data-center switch connects application, database, and storage services. A network management station monitors the environment.</desc>
+
+          <!-- VECTOR SYMBOL LIBRARY: stable infrastructure; model edits belong in TOPOLOGY DATA. -->
+          <defs id="vector-symbol-library">
+            <filter id="card-shadow" x="-25%" y="-25%" width="150%" height="165%">
+              <feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#26485c" flood-opacity=".12"/>
+            </filter>
+
+            <!--
+              Shared switch-top glyph: four parallel arrows, alternating two
+              right and two left, as shown by the Cisco workgroup-switch and
+              WLAN-controller references. The rows are staggered to follow the
+              isometric top plane without crossing or touching.
+            -->
+            <g id="nd-switch-arrow-glyph" class="sym-detail">
+              <path data-direction="right" d="M63 14h28v-2.8l10 3.8-10 3.8V16H63Z"/>
+              <path data-direction="left" d="M75 18.8H45V16l-10 3.8 10 3.8v-2.8h30Z"/>
+              <path data-direction="right" d="M49 23.3h30v-2.8l10 3.8-10 3.8v-2.8H49Z"/>
+              <path data-direction="left" d="M61 27.5H32v-2.8l-10 3.8 10 3.8v-2.8h29Z"/>
+            </g>
+
+            <!-- Seven symbols carried forward from experiment 01. -->
+            <symbol id="nd-cloud" viewBox="0 0 150 88">
+              <title>Network cloud</title>
+              <path class="sym-outline" stroke-width="2.4" d="M26 72C14 72 6 64 6 54c0-9 6-17 16-20 3-13 15-22 30-22 8 0 15 2 21 7 6-5 14-7 23-7 15 0 27 8 30 20 10 2 17 10 17 20 0 11-9 20-22 20H26Z"/>
+            </symbol>
+
+            <symbol id="nd-firewall" viewBox="0 0 86 108">
+              <title>Firewall</title>
+              <polygon class="sym-light" points="15,22 29,10 74,10 60,22"/>
+              <polygon class="sym-dark" points="60,22 74,10 74,82 60,94"/>
+              <rect class="sym-primary" x="15" y="22" width="45" height="72"/>
+              <g class="sym-detail-stroke" stroke-width="2">
+                <path d="M15 40H60M15 58H60M15 76H60"/>
+                <path d="M29 22V40M47 22V40M23 40V58M41 40V58M29 58V76M47 58V76M23 76V94M41 76V94"/>
+                <path d="M60 40 74 28M60 58 74 46M60 76 74 64"/>
+              </g>
+            </symbol>
+
+            <symbol id="nd-router" viewBox="0 0 120 88">
+              <title>Router</title>
+              <path class="sym-dark" d="M12 36v22c0 12 21 21 48 21s48-9 48-21V36c-8 9-26 15-48 15S20 45 12 36Z"/>
+              <ellipse class="sym-primary" cx="60" cy="35" rx="48" ry="20"/>
+              <path class="sym-light" d="M18 30c7-8 23-13 42-13 21 0 38 6 44 15-10-6-25-9-42-9-19 0-35 3-44 7Z" opacity=".75"/>
+              <g class="sym-detail"><path d="M60 18 70 27h-7v10h-7V27h-7Z"/><path d="m60 52-10-9h7V33h7v10h7Z"/><path d="m32 35 10-9v6h13v6H42v6Z"/><path d="m88 35-10 9v-6H65v-6h13v-6Z"/></g>
+            </symbol>
+
+            <symbol id="nd-l3-switch" viewBox="0 0 106 106">
+              <title>Layer 3 switch</title>
+              <polygon class="sym-light" points="14,26 28,14 91,14 77,26"/>
+              <polygon class="sym-dark" points="77,26 91,14 91,78 77,92"/>
+              <rect class="sym-primary" x="14" y="26" width="63" height="66"/>
+              <circle class="sym-detail" cx="45.5" cy="59" r="9"/>
+              <g class="sym-detail" transform="translate(45.5 59)">
+                <path id="l3-arrow" d="M-3-12v-13h-5l8-9 8 9H3v13Z"/>
+                <use href="#l3-arrow" transform="rotate(45)"/><use href="#l3-arrow" transform="rotate(90)"/><use href="#l3-arrow" transform="rotate(135)"/><use href="#l3-arrow" transform="rotate(180)"/><use href="#l3-arrow" transform="rotate(225)"/><use href="#l3-arrow" transform="rotate(270)"/><use href="#l3-arrow" transform="rotate(315)"/>
+              </g>
+            </symbol>
+
+            <symbol id="nd-server" viewBox="0 0 92 108">
+              <title>Server</title>
+              <polygon class="sym-light" points="14,20 27,9 75,9 62,20"/>
+              <polygon class="sym-dark" points="62,20 75,9 75,88 62,99"/>
+              <rect class="sym-primary" x="14" y="20" width="48" height="79"/>
+              <g class="sym-detail-stroke" stroke-width="2"><rect x="20" y="29" width="14" height="12" rx="1"/><rect x="41" y="29" width="14" height="12" rx="1"/><rect x="20" y="50" width="14" height="14" rx="1"/><rect x="41" y="50" width="14" height="14" rx="1"/><rect x="20" y="73" width="14" height="17" rx="1"/><rect x="41" y="73" width="14" height="17" rx="1"/></g>
+            </symbol>
+
+            <symbol id="nd-access-point" viewBox="0 0 120 76">
+              <title>Wireless access point</title>
+              <polygon class="sym-light" points="12,28 30,13 108,13 90,28"/><polygon class="sym-dark" points="90,28 108,13 108,51 90,66"/><polygon class="sym-primary" points="12,28 90,28 90,66 12,66"/>
+              <g class="sym-detail-stroke" stroke-width="2.6"><circle cx="27" cy="47" r="7"/><circle cx="42" cy="47" r="7"/><circle cx="57" cy="47" r="7"/><circle cx="72" cy="47" r="7"/></g><circle class="sym-detail" cx="82" cy="47" r="2.6"/>
+            </symbol>
+
+            <symbol id="nd-workstation" viewBox="0 0 126 104">
+              <title>Workstation</title>
+              <polygon class="sym-dark" points="25,12 92,12 84,62 18,62"/><polygon class="sym-primary" points="29,16 88,16 81,57 22,57"/><polygon class="sym-light" points="33,20 83,20 78,52 27,52" opacity=".38"/>
+              <path class="sym-primary" d="M45 62h15l3 10h16l7 7H31l8-7h8Z"/><polygon class="sym-dark" points="24,80 89,80 105,94 9,94"/><polygon class="sym-light" points="28,83 86,83 96,91 18,91"/><path class="sym-primary" d="M104 78c10 0 15 5 15 10s-4 9-10 9c-5 0-8-3-8-7 0-3 2-6 6-7-3-1-6-1-9 0l-2-3c3-1 5-2 8-2Z"/>
+            </symbol>
+
+            <!-- Twelve new clean-vector interpretations for experiment 02. -->
+            <symbol id="nd-access-switch" viewBox="0 0 120 72">
+              <title>Access switch</title>
+              <polygon class="sym-light" points="10,33 34,11 110,11 86,33"/><polygon class="sym-dark" points="86,33 110,11 110,37 86,59"/><polygon class="sym-primary" points="10,33 86,33 86,59 10,59"/>
+              <use href="#nd-switch-arrow-glyph"/>
+            </symbol>
+
+            <symbol id="nd-wlan-controller" viewBox="0 0 120 76">
+              <title>Wireless LAN controller</title>
+              <polygon class="sym-light" points="10,33 34,11 110,11 86,33"/><polygon class="sym-dark" points="86,33 110,11 110,43 86,65"/><polygon class="sym-primary" points="10,33 86,33 86,65 10,65"/>
+              <use href="#nd-switch-arrow-glyph"/>
+              <g class="sym-detail-stroke" stroke-width="2.2"><circle cx="21" cy="49" r="6.5"/><circle cx="34.5" cy="49" r="6.5"/><circle cx="48" cy="49" r="6.5"/><circle cx="61.5" cy="49" r="6.5"/><circle cx="75" cy="49" r="6.5"/></g>
+            </symbol>
+
+            <symbol id="nd-vpn-headend" viewBox="0 0 100 106">
+              <title>VPN headend</title>
+              <polygon class="sym-light" points="14,20 27,9 82,9 69,20"/><polygon class="sym-dark" points="69,20 82,9 82,91 69,102"/><rect class="sym-primary" x="14" y="20" width="55" height="82" rx="2"/>
+              <g class="sym-detail-stroke" stroke-width="2"><rect x="20" y="31" width="42" height="22" rx="2"/><rect x="20" y="65" width="42" height="22" rx="2"/></g>
+              <g class="sym-detail"><path d="M26 38h22v-5l10 9-10 9v-5H26Z"/><path d="M56 72H34v-5l-10 9 10 9v-5h22Z"/></g>
+              <g class="sym-detail-stroke" stroke-width="1.8"><ellipse cx="75.5" cy="43" rx="3" ry="7"/><ellipse cx="75.5" cy="77" rx="3" ry="7"/></g>
+            </symbol>
+
+            <symbol id="nd-dc-switch" viewBox="0 0 104 104">
+              <title>Data-center server-access switch</title>
+              <polygon class="sym-light" points="13,26 28,12 91,12 76,26"/><polygon class="sym-dark" points="76,26 91,12 91,77 76,91"/><rect class="sym-primary" x="13" y="26" width="63" height="65"/>
+              <g class="sym-detail-stroke" stroke-width="1.8"><path d="M28 42H61M28 58H61M28 74H61M28 42V74M44.5 42V74M61 42V74"/></g>
+              <g class="sym-detail"><circle cx="28" cy="42" r="4"/><circle cx="44.5" cy="42" r="4"/><circle cx="61" cy="42" r="4"/><circle cx="28" cy="58" r="4"/><circle cx="44.5" cy="58" r="4"/><circle cx="61" cy="58" r="4"/><circle cx="28" cy="74" r="4"/><circle cx="44.5" cy="74" r="4"/><circle cx="61" cy="74" r="4"/></g>
+            </symbol>
+
+            <symbol id="nd-ip-phone" viewBox="0 0 126 88">
+              <title>IP phone</title>
+              <polygon class="sym-primary" points="21,38 101,38 116,70 8,70"/><polygon class="sym-light" points="31,25 92,25 101,38 21,38"/><polygon class="sym-dark" points="101,38 116,70 106,80 99,53"/>
+              <polygon class="sym-detail" points="66,42 94,42 99,53 69,53"/><polygon class="sym-light" points="69,44 91,44 94,50 71,50"/>
+              <g class="sym-detail"><circle cx="45" cy="49" r="2.2"/><circle cx="52" cy="49" r="2.2"/><circle cx="59" cy="49" r="2.2"/><circle cx="45" cy="56" r="2.2"/><circle cx="52" cy="56" r="2.2"/><circle cx="59" cy="56" r="2.2"/><circle cx="45" cy="63" r="2.2"/><circle cx="52" cy="63" r="2.2"/><circle cx="59" cy="63" r="2.2"/></g>
+              <path class="sym-primary" d="M20 19c6-7 14-11 23-11l11 8-10 14-10-5c-3 4-5 8-6 13l-13-2c0-7 2-12 5-17Z"/><path class="sym-detail-stroke" stroke-width="2" d="m22 22 12 5M39 12l8 8"/>
+            </symbol>
+
+            <symbol id="nd-laptop" viewBox="0 0 126 96">
+              <title>Laptop</title>
+              <polygon class="sym-dark" points="31,10 104,10 91,62 19,62"/><polygon class="sym-primary" points="34,14 99,14 88,57 24,57"/><polygon class="sym-light" points="39,19 94,19 85,52 30,52" opacity=".4"/>
+              <polygon class="sym-primary" points="19,63 91,63 117,87 5,87"/><polygon class="sym-light" points="24,66 87,66 105,82 13,82"/>
+              <g class="sym-detail-stroke" stroke-width="1.2" opacity=".9"><path d="M31 69h53M25 73h66M19 77h80"/></g>
+            </symbol>
+
+            <symbol id="nd-printer" viewBox="0 0 126 82">
+              <title>Printer</title>
+              <polygon class="sym-light" points="12,24 28,10 96,10 80,24"/><polygon class="sym-dark" points="80,24 96,10 96,61 80,75"/><rect class="sym-primary" x="12" y="24" width="68" height="51"/>
+              <path class="sym-detail-stroke" stroke-width="2" d="M18 48H74"/><polygon class="sym-primary" points="96,43 120,35 111,49 96,56"/><polygon class="sym-light" points="98,42 116,36 108,43 98,48"/>
+            </symbol>
+
+            <symbol id="nd-database" viewBox="0 0 110 90">
+              <title>Relational database</title>
+              <path class="sym-dark" d="M13 30v33c0 12 19 21 42 21s42-9 42-21V30c-8 9-23 14-42 14S21 39 13 30Z"/><rect class="sym-primary" x="13" y="27" width="84" height="36"/><ellipse class="sym-primary" cx="55" cy="28" rx="42" ry="18"/><ellipse class="sym-light" cx="55" cy="25" rx="35" ry="11" opacity=".25"/>
+            </symbol>
+
+            <symbol id="nd-storage-array" viewBox="0 0 126 98">
+              <title>Storage array</title>
+              <polygon class="sym-light" points="10,26 27,10 113,10 96,26"/><polygon class="sym-dark" points="96,26 113,10 113,76 96,92"/><rect class="sym-primary" x="10" y="26" width="86" height="66"/>
+              <g class="sym-detail-stroke" stroke-width="2"><ellipse cx="29" cy="49" rx="10" ry="5"/><path d="M19 49v21c0 3 4 5 10 5s10-2 10-5V49"/><ellipse cx="54" cy="49" rx="10" ry="5"/><path d="M44 49v21c0 3 4 5 10 5s10-2 10-5V49"/><ellipse cx="79" cy="49" rx="10" ry="5"/><path d="M69 49v21c0 3 4 5 10 5s10-2 10-5V49"/></g>
+            </symbol>
+
+            <symbol id="nd-nms" viewBox="0 0 108 106">
+              <title>Network management system</title>
+              <polygon class="sym-light" points="13,25 28,11 94,11 79,25"/><polygon class="sym-dark" points="79,25 94,11 94,78 79,92"/><rect class="sym-primary" x="13" y="25" width="66" height="67"/>
+              <rect class="sym-detail-stroke" stroke-width="2" x="27" y="37" width="38" height="33" rx="2"/><circle class="sym-detail-stroke" stroke-width="4" cx="48" cy="52" r="11"/><path class="sym-detail-stroke" stroke-width="5" d="m40 61-16 17"/>
+            </symbol>
+
+            <symbol id="nd-branch-office" viewBox="0 0 90 114">
+              <title>Branch office</title>
+              <polygon class="sym-light" points="14,23 28,10 76,10 62,23"/><polygon class="sym-dark" points="62,23 76,10 76,96 62,108"/><rect class="sym-primary" x="14" y="23" width="48" height="85"/>
+              <g class="sym-detail"><rect x="20" y="31" width="5" height="8"/><rect x="31" y="31" width="5" height="8"/><rect x="42" y="31" width="5" height="8"/><rect x="53" y="31" width="5" height="8"/><rect x="20" y="47" width="5" height="8"/><rect x="31" y="47" width="5" height="8"/><rect x="42" y="47" width="5" height="8"/><rect x="53" y="47" width="5" height="8"/><rect x="20" y="63" width="5" height="8"/><rect x="31" y="63" width="5" height="8"/><rect x="42" y="63" width="5" height="8"/><rect x="53" y="63" width="5" height="8"/><rect x="20" y="79" width="5" height="8"/><rect x="31" y="79" width="5" height="8"/><rect x="42" y="79" width="5" height="8"/><rect x="53" y="79" width="5" height="8"/></g>
+            </symbol>
+
+            <symbol id="nd-wireless-router" viewBox="0 0 120 110">
+              <title>Wireless router</title>
+              <g class="sym-detail-stroke" stroke="var(--symbol-main, #0076a8)" stroke-width="4"><path d="M26 28V5M94 28V5"/></g><g class="sym-primary"><rect x="22" y="3" width="8" height="5"/><rect x="90" y="3" width="8" height="5"/></g>
+              <path class="sym-dark" d="M12 54v22c0 12 21 21 48 21s48-9 48-21V54c-8 9-26 15-48 15S20 63 12 54Z"/><ellipse class="sym-primary" cx="60" cy="53" rx="48" ry="20"/>
+              <g class="sym-detail"><path d="M60 36 70 45h-7v10h-7V45h-7Z"/><path d="m60 70-10-9h7V51h7v10h7Z"/><path d="m32 53 10-9v6h13v6H42v6Z"/><path d="m88 53-10 9v-6H65v-6h13v-6Z"/></g>
+            </symbol>
+          </defs>
+
+          <g id="zones" aria-hidden="true">
+            <rect class="zone zone-wan" x="26" y="76" width="250" height="890" rx="22"/><text class="zone-label" x="46" y="108">EXTERNAL / REMOTE</text><text class="zone-subtitle" x="46" y="127">Internet and branch site</text>
+            <rect class="zone zone-edge" x="296" y="76" width="300" height="890" rx="22"/><text class="zone-label" x="316" y="108">SECURE EDGE</text><text class="zone-subtitle" x="316" y="127">Routing, policy, and VPN termination</text>
+            <rect class="zone zone-campus" x="616" y="76" width="610" height="890" rx="22"/><text class="zone-label" x="636" y="108">CAMPUS</text><text class="zone-subtitle" x="636" y="127">Core, access, wireless, and operations</text>
+            <rect class="zone zone-dc" x="1246" y="76" width="448" height="890" rx="22"/><text class="zone-label" x="1266" y="108">DATA CENTER</text><text class="zone-subtitle" x="1266" y="127">Server access and application services</text>
+          </g>
+
+          <g id="link-layer" aria-label="Network links"></g>
+          <g id="node-layer" aria-label="Network devices and services"></g>
+        </svg>
+      </div>
+
+      <div class="info-strip">
+        <section class="info-card"><h2>Selected node</h2><p id="selection" aria-live="polite">Select a device to inspect its role and addressing note.</p></section>
+        <section class="info-card"><h2>Model editing boundary</h2><p>A smaller model edits only the marked <code>TOPOLOGY DATA</code> block. The 19 symbol definitions and renderer remain stable.</p></section>
+        <section class="info-card"><h2>Link semantics</h2><div class="legend"><span><i></i>WAN</span><span><i class="l-trunk"></i>Trunk</span><span><i class="l-access"></i>Access</span><span><i class="l-control"></i>Control</span><span><i class="l-tunnel"></i>Tunnel</span></div></section>
+      </div>
+    </article>
+
+    <section class="gallery" aria-labelledby="gallery-title">
+      <div class="gallery-head"><div><h2 id="gallery-title">Expanded symbol study</h2><p>The twelve additions are shown larger here so their silhouettes and details can be judged independently of the topology.</p></div><p>Reference filenames identify the locally archived Cisco PMS 3015 JPG used for visual comparison.</p></div>
+      <div class="gallery-grid">
+        <div class="symbol-card"><svg viewBox="0 0 120 72" aria-label="Access switch"><use href="#nd-access-switch"/></svg><span class="symbol-name">Access switch</span><span class="symbol-source">workgroup switch.jpg</span></div>
+        <div class="symbol-card"><svg viewBox="0 0 120 76" aria-label="WLAN controller"><use href="#nd-wlan-controller"/></svg><span class="symbol-name">WLAN controller</span><span class="symbol-source">wlan controller.jpg</span></div>
+        <div class="symbol-card"><svg viewBox="0 0 100 106" aria-label="VPN headend"><use href="#nd-vpn-headend"/></svg><span class="symbol-name">VPN headend</span><span class="symbol-source">vpn concentrator.jpg</span></div>
+        <div class="symbol-card"><svg viewBox="0 0 104 104" aria-label="Data-center switch"><use href="#nd-dc-switch"/></svg><span class="symbol-name">DC access switch</span><span class="symbol-source">server switch.jpg</span></div>
+        <div class="symbol-card"><svg viewBox="0 0 126 88" aria-label="IP phone"><use href="#nd-ip-phone"/></svg><span class="symbol-name">IP phone</span><span class="symbol-source">ip phone.jpg</span></div>
+        <div class="symbol-card"><svg viewBox="0 0 126 96" aria-label="Laptop"><use href="#nd-laptop"/></svg><span class="symbol-name">Laptop</span><span class="symbol-source">laptop.jpg</span></div>
+        <div class="symbol-card"><svg viewBox="0 0 126 82" aria-label="Printer"><use href="#nd-printer"/></svg><span class="symbol-name">Printer</span><span class="symbol-source">printer.jpg</span></div>
+        <div class="symbol-card"><svg viewBox="0 0 110 90" aria-label="Relational database"><use href="#nd-database"/></svg><span class="symbol-name">Database</span><span class="symbol-source">relational database.jpg</span></div>
+        <div class="symbol-card"><svg viewBox="0 0 126 98" aria-label="Storage array"><use href="#nd-storage-array"/></svg><span class="symbol-name">Storage array</span><span class="symbol-source">fc storage.jpg</span></div>
+        <div class="symbol-card"><svg viewBox="0 0 108 106" aria-label="Network management system"><use href="#nd-nms"/></svg><span class="symbol-name">Network management</span><span class="symbol-source">network management.jpg</span></div>
+        <div class="symbol-card"><svg viewBox="0 0 90 114" aria-label="Branch office"><use href="#nd-branch-office"/></svg><span class="symbol-name">Branch office</span><span class="symbol-source">branch office.jpg</span></div>
+        <div class="symbol-card"><svg viewBox="0 0 120 110" aria-label="Wireless router"><use href="#nd-wireless-router"/></svg><span class="symbol-name">Wireless router</span><span class="symbol-source">wireless router.jpg</span></div>
+      </div>
+    </section>
+
+    <p class="rights-note"><strong>Artwork status:</strong> these are experimental vector interpretations informed by Cisco PMS 3015 reference silhouettes, not official Cisco-distributed SVG assets. Public redistribution remains gated on a rights review, permission, or replacement with a project-owned visual language. Source reference: <a href="https://www.cisco.com/c/en/us/about/brand-center/network-topology-icons.html">Cisco Network Topology Icons</a>.</p>
+  </main>
+
+  <script>
+    "use strict";
+
+    /* ======================================================================
+       TOPOLOGY DATA — THE ONLY SECTION A SMALL MODEL NEEDS TO EDIT.
+       Coordinates use the 1720 × 1050 canvas. Optional `via` points route a
+       link around other devices; `lx` and `ly` place its readable label.
+       ====================================================================== */
+    const topologyData = {
+      nodes: [
+        { id: "internet", symbol: "nd-cloud",          x: 145,  y: 245, label: "Internet",       role: "Public WAN",             note: "Dual-carrier abstraction" },
+        { id: "branch-rtr",symbol: "nd-wireless-router",x: 145, y: 645, label: "BR-RTR-01",      role: "Remote branch router",    note: "10.44.0.1" },
+        { id: "branch",   symbol: "nd-branch-office",  x: 145,  y: 835, label: "BRANCH-01",      role: "Remote site context",     note: "Portland office" },
+        { id: "edge",     symbol: "nd-router",         x: 380,  y: 245, label: "EDGE-RTR-01",    role: "WAN edge router",         note: "AS 65010" },
+        { id: "firewall", symbol: "nd-firewall",       x: 535,  y: 245, label: "FW-EDGE-01",     role: "Security gateway",        note: "Policy enforcement" },
+        { id: "vpn",      symbol: "nd-vpn-headend",    x: 460,  y: 645, label: "VPN-HUB-01",     role: "IPsec VPN headend",       note: "Route-based tunnels" },
+        { id: "core",     symbol: "nd-l3-switch",      x: 735,  y: 245, label: "CORE-SW-01",     role: "Layer 3 campus core",     note: "10.20.0.1" },
+        { id: "nms",      symbol: "nd-nms",            x: 980,  y: 165, label: "NMS-01",         role: "Network management",      note: "Telemetry and assurance" },
+        { id: "access-a", symbol: "nd-access-switch",  x: 760,  y: 505, label: "ACC-SW-01",      role: "Access switch · Floor 1", note: "StackWise pair" },
+        { id: "phone",    symbol: "nd-ip-phone",       x: 665,  y: 720, label: "IP-PHONE-01",    role: "Unified communications",  note: "Voice VLAN 30" },
+        { id: "desktop",  symbol: "nd-workstation",    x: 825,  y: 720, label: "USER-WS-01",     role: "Managed workstation",     note: "Data VLAN 40" },
+        { id: "access-b", symbol: "nd-access-switch",  x: 970,  y: 505, label: "ACC-SW-02",      role: "Access switch · Floor 2", note: "PoE access" },
+        { id: "printer",  symbol: "nd-printer",        x: 955,  y: 720, label: "PRINT-01",       role: "Shared printer",          note: "IoT VLAN 60" },
+        { id: "wlc",      symbol: "nd-wlan-controller",x: 1140, y: 505, label: "WLC-01",         role: "Wireless LAN controller", note: "HA controller pair" },
+        { id: "ap",       symbol: "nd-access-point",   x: 1120, y: 720, label: "AP-F2-01",       role: "Wireless access point",   note: "Corp and guest SSIDs" },
+        { id: "laptop",   symbol: "nd-laptop",         x: 1120, y: 875, label: "USER-LT-01",     role: "Wireless client",         note: "802.1X authenticated" },
+        { id: "dc-switch",symbol: "nd-dc-switch",      x: 1335, y: 245, label: "DC-SW-01",       role: "Server-access switch",    note: "vPC pair abstraction" },
+        { id: "server",   symbol: "nd-server",         x: 1540, y: 165, label: "APP-SRV-01",     role: "Application server",      note: "10.30.120.20" },
+        { id: "database", symbol: "nd-database",       x: 1540, y: 350, label: "DB-CLUSTER-01",  role: "Relational database",     note: "HA service" },
+        { id: "storage",  symbol: "nd-storage-array",  x: 1540, y: 535, label: "SAN-01",         role: "Storage array",           note: "Redundant fabrics" }
+      ],
+      links: [
+        { from: "internet",  to: "edge",      label: "ISP handoff",       kind: "wan",        lx: 262,  ly: 218 },
+        { from: "edge",      to: "firewall",  label: "Outside transit",   kind: "wan",        lx: 458,  ly: 166 },
+        { from: "firewall",  to: "core",      label: "Inside transit",    kind: "trunk",      lx: 636,  ly: 166 },
+        { from: "firewall",  to: "vpn",       label: "VPN services",      kind: "tunnel",     via: [[535,430],[460,430]], lx: 502, ly: 412 },
+        { from: "vpn",       to: "branch-rtr",label: "Route-based IPsec", kind: "tunnel",     lx: 302,  ly: 618 },
+        { from: "branch-rtr",to: "branch",    label: "Site context",      kind: "context",    lx: 205,  ly: 750 },
+        { from: "core",      to: "nms",       label: "Management",        kind: "management", lx: 852,  ly: 160 },
+        { from: "core",      to: "access-a",  label: "Po10 · 802.1Q",     kind: "trunk",      lx: 700,  ly: 375 },
+        { from: "core",      to: "access-b",  label: "Po20 · 802.1Q",     kind: "trunk",      via: [[870,360],[970,360]], lx: 900, ly: 338 },
+        { from: "core",      to: "wlc",       label: "Wireless control", kind: "control",    via: [[800,315],[1140,315]], lx: 1005, ly: 293 },
+        { from: "access-a",  to: "phone",     label: "Voice VLAN 30",    kind: "access",     lx: 690,  ly: 620 },
+        { from: "access-a",  to: "desktop",   label: "Data VLAN 40",     kind: "access",     lx: 805,  ly: 620 },
+        { from: "access-b",  to: "printer",   label: "IoT VLAN 60",      kind: "access",     lx: 930,  ly: 620 },
+        { from: "access-b",  to: "ap",        label: "PoE trunk",        kind: "access",     lx: 1040, ly: 620 },
+        { from: "wlc",       to: "ap",        label: "CAPWAP",           kind: "control",    lx: 1183, ly: 618 },
+        { from: "ap",        to: "laptop",    label: "Wi-Fi 6 · Corp",   kind: "wireless",   lx: 1184, ly: 798 },
+        { from: "core",      to: "dc-switch", label: "DC interconnect",  kind: "trunk",      lx: 1165, ly: 218 },
+        { from: "dc-switch", to: "server",    label: "App VLAN 120",     kind: "access",     lx: 1440, ly: 178 },
+        { from: "dc-switch", to: "database",  label: "DB VLAN 130",      kind: "access",     lx: 1440, ly: 330 },
+        { from: "dc-switch", to: "storage",   label: "Storage fabric",   kind: "access",     lx: 1445, ly: 478 }
+      ]
+    };
+    /* ========================== END TOPOLOGY DATA ========================== */
+
+    const SVG_NS = "http://www.w3.org/2000/svg";
+    const CARD_W = 136;
+    const CARD_H = 112;
+    const nodeById = new Map(topologyData.nodes.map((node) => [node.id, node]));
+    const nodeLayer = document.getElementById("node-layer");
+    const linkLayer = document.getElementById("link-layer");
+    const selection = document.getElementById("selection");
+
+    function svgElement(tag, attributes = {}, text = "") {
+      const element = document.createElementNS(SVG_NS, tag);
+      for (const [name, value] of Object.entries(attributes)) element.setAttribute(name, String(value));
+      if (text) element.textContent = text;
+      return element;
+    }
+
+    function linkPath(source, target, via = []) {
+      const points = [{ x: source.x, y: source.y }, ...via.map(([x,y]) => ({x,y})), { x: target.x, y: target.y }];
+      return points.map((point, index) => `${index ? "L" : "M"} ${point.x} ${point.y}`).join(" ");
+    }
+
+    function renderLinks() {
+      for (const link of topologyData.links) {
+        const source = nodeById.get(link.from);
+        const target = nodeById.get(link.to);
+        if (!source || !target) continue;
+        const group = svgElement("g", { "aria-label": `${source.label} to ${target.label}: ${link.label}` });
+        group.append(svgElement("path", { class: `link ${link.kind || ""}`, d: linkPath(source, target, link.via) }));
+        const labelWidth = Math.max(76, link.label.length * 6.1 + 20);
+        const labelGroup = svgElement("g", { class: "link-label", transform: `translate(${link.lx} ${link.ly})` });
+        labelGroup.append(svgElement("rect", { x: -labelWidth/2, y: -11, width: labelWidth, height: 22, rx: 11 }), svgElement("text", { y: 3.5 }, link.label));
+        group.append(labelGroup);
+        linkLayer.append(group);
+      }
+    }
+
+    function selectNode(group, node) {
+      document.querySelectorAll(".node.is-selected").forEach((item) => item.classList.remove("is-selected"));
+      group.classList.add("is-selected");
+      selection.textContent = `${node.label} — ${node.role} — ${node.note}`;
+    }
+
+    function renderNodes() {
+      for (const node of topologyData.nodes) {
+        const accessibleLabel = `${node.label}, ${node.role}, ${node.note}`;
+        const group = svgElement("g", { class: "node", transform: `translate(${node.x-CARD_W/2} ${node.y-CARD_H/2})`, role: "button", tabindex: "0", "aria-label": accessibleLabel });
+        group.append(
+          svgElement("title", {}, accessibleLabel),
+          svgElement("rect", { class: "node-card", width: CARD_W, height: CARD_H, rx: 15 }),
+          svgElement("use", { href: `#${node.symbol}`, x: 32, y: 6, width: 72, height: 64 }),
+          svgElement("text", { class: "node-label", x: CARD_W/2, y: 86 }, node.label),
+          svgElement("text", { class: "node-role", x: CARD_W/2, y: 102 }, node.role),
+          svgElement("circle", { class: "status-ring", cx: 119, cy: 16, r: 8 }),
+          svgElement("circle", { class: "status-dot", cx: 119, cy: 16, r: 4.5 })
+        );
+        group.addEventListener("click", () => selectNode(group, node));
+        group.addEventListener("keydown", (event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); selectNode(group, node); } });
+        nodeLayer.append(group);
+      }
+    }
+
+    renderLinks();
+    renderNodes();
+  </script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+/dist/**
+!/dist/README.md
+/vendor-local/**
+!/vendor-local/README.md
+*.portable.html
+node_modules/
+coverage/
+*.log
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/

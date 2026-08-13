@@ -1,0 +1,26 @@
+{
+  "schema": "network-design-symbol-map/v1",
+  "sprite": "network-symbols.svg",
+  "symbols": {
+    "cloud": {"vector": "nd-cloud", "official": "asset:cisco/cloud.jpg"},
+    "router": {"vector": "nd-router", "official": "asset:cisco/router.jpg"},
+    "firewall": {"vector": "nd-firewall", "official": "asset:cisco/firewall.jpg"},
+    "core-switch": {"vector": "nd-l3-switch", "official": "asset:cisco/layer 3 switch.jpg"},
+    "access-switch": {"vector": "nd-access-switch", "official": "asset:cisco/workgroup switch.jpg"},
+    "access-point": {"vector": "nd-access-point", "official": "asset:cisco/lightweight ap.jpg"},
+    "server": {"vector": "nd-server", "official": "asset:cisco/fileserver.jpg"},
+    "pc": {"vector": "nd-workstation", "official": "asset:cisco/pc.jpg"},
+    "workstation": {"vector": "nd-workstation", "official": "asset:cisco/pc.jpg"},
+    "wlan-controller": {"vector": "nd-wlan-controller", "official": "asset:cisco/wlan controller.jpg"},
+    "vpn-headend": {"vector": "nd-vpn-headend", "official": "asset:cisco/vpn concentrator.jpg"},
+    "dc-switch": {"vector": "nd-dc-switch", "official": "asset:cisco/server switch.jpg"},
+    "ip-phone": {"vector": "nd-ip-phone", "official": "asset:cisco/ip phone.jpg"},
+    "laptop": {"vector": "nd-laptop", "official": "asset:cisco/laptop.jpg"},
+    "printer": {"vector": "nd-printer", "official": "asset:cisco/printer.jpg"},
+    "database": {"vector": "nd-database", "official": "asset:cisco/relational database.jpg"},
+    "storage-array": {"vector": "nd-storage-array", "official": "asset:cisco/fc storage.jpg"},
+    "network-management": {"vector": "nd-nms", "official": "asset:cisco/network management.jpg"},
+    "branch-office": {"vector": "nd-branch-office", "official": "asset:cisco/branch office.jpg"},
+    "wireless-router": {"vector": "nd-wireless-router", "official": "asset:cisco/wireless router.jpg"}
+  }
+}

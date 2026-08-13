@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Branch Operations Dashboard — Editable Source</title>
+  <style>
+    :root{--bg:#07111f;--panel:#0d1b2b;--panel2:#10253a;--line:#24405a;--text:#edf7ff;--muted:#91a9be;--cyan:#39d4ff;--green:#53e3a6;--amber:#ffbd59;--red:#ff6d7a;--shadow:0 18px 46px #0007}
+    *{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 80% -10%,#123a5f 0,transparent 35%),var(--bg);color:var(--text);font:14px/1.45 Inter,Segoe UI,Arial,sans-serif}button{font:inherit}.shell{max-width:1320px;margin:auto;padding:24px}
+    header{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:20px}.eyebrow,.label{color:var(--cyan);font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase}h1{font-size:clamp(25px,3vw,40px);line-height:1.05;margin:5px 0 0}.sub{color:var(--muted);margin-top:8px}.status{display:flex;align-items:center;gap:9px;padding:10px 14px;border:1px solid #2b5168;background:#0b2032;border-radius:999px;font-weight:700}.pulse{width:9px;height:9px;border-radius:50%;background:var(--green);box-shadow:0 0 0 5px #53e3a622}
+    .actions{display:flex;gap:8px;align-items:center}.actions button{color:#dff7ff;background:#10283b;border:1px solid #31516a;border-radius:10px;padding:9px 12px;cursor:pointer}.actions button:hover{border-color:var(--cyan)}[hidden]{display:none!important}
+    .metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}.metric{background:linear-gradient(145deg,#10243a,#0b1929);border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:var(--shadow)}.metric .value{font-size:28px;font-weight:850;margin:4px 0}.metric .hint{color:var(--muted);font-size:12px}.good{color:var(--green)}.warn{color:var(--amber)}
+    .grid{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(320px,.85fr);gap:16px}.panel{background:#0b1928dd;border:1px solid var(--line);border-radius:17px;padding:18px;box-shadow:var(--shadow);min-width:0}.panel-head{display:flex;justify-content:space-between;align-items:start;gap:12px;margin-bottom:15px}.panel h2{font-size:17px;margin:2px 0}.panel p{color:var(--muted);margin:3px 0;font-size:12px}.chip{border:1px solid #275c6f;background:#0b2a3b;color:#87e9ff;border-radius:999px;padding:5px 9px;font-size:11px;font-weight:750;white-space:nowrap}
+    .path{display:grid;grid-template-columns:repeat(7,minmax(70px,1fr));align-items:center;gap:7px;padding:16px 8px 19px;background:linear-gradient(90deg,#081524,#102238,#081524);border:1px solid #1d394f;border-radius:14px;overflow:auto}.asset-node{position:relative;text-align:center;min-width:78px}.asset-node:not(:last-child)::after{content:"";position:absolute;top:28px;left:72%;width:62%;height:2px;background:linear-gradient(90deg,var(--cyan),#31526d)}.asset-node:not(:last-child)::before{content:"›";position:absolute;z-index:2;top:16px;right:-5px;color:var(--cyan);font-size:22px}.icon{position:relative;z-index:2;width:58px;height:58px;object-fit:contain;border-radius:13px;padding:8px;background:#f5fbff;border:2px solid #70dcf4;box-shadow:0 0 24px #39d4ff25}.asset-node b{display:block;margin-top:8px;font-size:11px}.asset-node small{display:block;color:var(--muted);font-size:9px}.asset-node.alert .icon{border-color:var(--amber);box-shadow:0 0 24px #ffbd5928}
+    .sites{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}.site{padding:13px;background:var(--panel2);border:1px solid #25445c;border-radius:12px}.site-top{display:flex;justify-content:space-between;align-items:center;gap:8px}.site h3{font-size:13px;margin:0}.dot{width:8px;height:8px;border-radius:50%;background:var(--green)}.dot.degraded{background:var(--amber)}.site dl{display:grid;grid-template-columns:1fr auto;gap:6px;margin:10px 0 0;font-size:11px}.site dt{color:var(--muted)}.site dd{margin:0;font-weight:700}
+    .rack-list{display:grid;gap:9px}.rack-item{display:grid;grid-template-columns:68px 1fr auto;gap:12px;align-items:center;background:#0f2235;border:1px solid #29465e;border-radius:12px;padding:9px}.rack-item img{width:68px;height:34px;object-fit:contain;background:#dfe7eb;border-radius:4px}.rack-item b{display:block;font-size:12px}.rack-item small{color:var(--muted)}.u{color:var(--cyan);font:800 11px ui-monospace,Consolas,monospace}.bar{height:5px;background:#142d40;border-radius:9px;margin-top:7px;overflow:hidden}.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--cyan),var(--green));border-radius:inherit}
+    .events{margin-top:16px}.event{display:grid;grid-template-columns:63px 10px 1fr;gap:9px;padding:10px 0;border-top:1px solid #18354a;font-size:11px}.event time{color:var(--muted)}.event .e-dot{width:7px;height:7px;border-radius:50%;margin-top:5px;background:var(--green)}.event.warning .e-dot{background:var(--amber)}.event strong{font-size:12px}.event span{display:block;color:var(--muted)}
+    footer{display:flex;justify-content:space-between;gap:20px;color:#708da4;font-size:11px;padding:16px 2px}.error{display:none;margin:0 0 16px;padding:11px 14px;border:1px solid #a54250;background:#451b27;border-radius:10px;color:#ffdce1}.error.show{display:block}
+    @media(max-width:900px){.metrics{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}.sites{grid-template-columns:1fr 1fr}}@media(max-width:560px){.shell{padding:15px}.metrics,.sites{grid-template-columns:1fr}header{align-items:flex-start;flex-direction:column}.path{grid-template-columns:repeat(7,86px)}}
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header>
+      <div><div class="eyebrow">Northwind retail network</div><h1>Branch operations</h1><div class="sub">Live service path, site health, and compact rack inventory.</div></div>
+      <div class="actions"><div class="status"><span class="pulse"></span><span id="health-label">Operational</span></div><button id="export-editable" type="button" hidden>Export editable source</button></div>
+    </header>
+    <div id="error" class="error" role="alert"></div>
+    <section id="metrics" class="metrics" aria-label="Network metrics"></section>
+    <section class="grid">
+      <div>
+        <article class="panel">
+          <div class="panel-head"><div><div class="label">Service path</div><h2>Internet to branch users</h2><p>Stable asset IDs are resolved locally in edit mode and embedded in portable mode.</p></div><span class="chip">SD-WAN primary</span></div>
+          <div id="service-path" class="path"></div>
+          <div id="sites" class="sites"></div>
+        </article>
+        <article class="panel events">
+          <div class="panel-head"><div><div class="label">Event stream</div><h2>Operational notes</h2></div><span class="chip">Last 30 min</span></div>
+          <div id="events"></div>
+        </article>
+      </div>
+      <aside class="panel">
+        <div class="panel-head"><div><div class="label">MDF snapshot</div><h2>HQ rack allocation</h2><p>Card layout—not a rack elevation.</p></div><span class="chip">42U · A feed</span></div>
+        <div id="rack-list" class="rack-list"></div>
+      </aside>
+    </section>
+    <footer><span>Editable v2 contract fixture</span><span id="mode-label">Mode: linked local assets</span></footer>
+  </main>
+
+  <!-- NETWORK-PACKAGER-CONTRACT:BEGIN -->
+  <script id="network-packager-contract" type="application/json">
+  {
+    "schema": "network-design-package/v2",
+    "assetReferences": "asset-uri/v1",
+    "assetUriSchemes": {
+      "cisco": "icons/cisco-pms3015/",
+      "rack": "rack-assets/"
+    }
+  }
+  </script>
+  <!-- NETWORK-PACKAGER-CONTRACT:END -->
+
+  <!-- NETWORK-ASSET-VAULT:BEGIN -->
+<script id="network-asset-vault" type="application/json">
+{}
+</script>
+<!-- NETWORK-ASSET-VAULT:END -->
+
+  <!-- EDITABLE-SOURCE-CAPSULE:BEGIN -->
+<script id="editable-source-capsule" type="application/octet-stream">
+
+</script>
+<!-- EDITABLE-SOURCE-CAPSULE:END -->
+
+  <!-- DASHBOARD-DATA:BEGIN — Gemini may edit this JSON -->
+  <script id="dashboard-data" type="application/json">
+  {
+    "health": "Operational",
+    "metrics": [
+      {"label":"Sites online","value":"12 / 12","hint":"100% reachability","tone":"good"},
+      {"label":"WAN availability","value":"99.98%","hint":"Rolling 30 days","tone":"good"},
+      {"label":"Active clients","value":"684","hint":"Across all branches"},
+      {"label":"Open alerts","value":"2","hint":"No critical incidents","tone":"warn"}
+    ],
+    "servicePath": [
+      {"name":"Internet","detail":"Dual carrier","asset":"asset:cisco/cloud.jpg"},
+      {"name":"Edge","detail":"BGP","asset":"asset:cisco/router.jpg"},
+      {"name":"Security","detail":"IPS active","asset":"asset:cisco/firewall.jpg"},
+      {"name":"Core","detail":"10G fabric","asset":"asset:cisco/layer 3 switch.jpg"},
+      {"name":"Access","detail":"PoE+","asset":"asset:cisco/layer 3 switch.jpg"},
+      {"name":"Wireless","detail":"Wi-Fi 6","asset":"asset:cisco/accesspoint.jpg","state":"alert"},
+      {"name":"Users","detail":"684 clients","asset":"asset:cisco/pc.jpg"}
+    ],
+    "sites": [
+      {"name":"HQ / Seattle","state":"healthy","latency":"8 ms","wan":"2 × 1 Gbps","clients":312},
+      {"name":"Branch 07 / Tacoma","state":"degraded","latency":"34 ms","wan":"500 Mbps","clients":148},
+      {"name":"Branch 12 / Bellevue","state":"healthy","latency":"12 ms","wan":"1 Gbps","clients":224}
+    ],
+    "rack": [
+      {"hostname":"CORE-01","model":"Cisco C9500X-28C8D","position":"U42","load":41,"asset":"asset:rack/cisco-c9500x-28c8d.front.png"},
+      {"hostname":"FW-EDGE-01","model":"Cisco Secure Firewall 4215","position":"U39–U40","load":54,"asset":"asset:rack/cisco-fpr4215-ngfw-k9.front.png"},
+      {"hostname":"ACCESS-01","model":"Cisco C9300-48P","position":"U35","load":63,"asset":"asset:rack/cisco-c9300-48p.front.png"},
+      {"hostname":"APP-01","model":"Dell PowerEdge R750","position":"U30–U31","load":72,"asset":"asset:rack/dell-poweredge-r750.front.png"},
+      {"hostname":"UPS-A","model":"APC SMT3000RMI2UC","position":"U01–U02","load":38,"asset":"asset:rack/apc-smt3000rmi2uc.front.png"}
+    ],
+    "events": [
+      {"time":"09:42","title":"Branch 07 wireless utilization","detail":"Radio utilization crossed 70%; capacity review queued.","severity":"warning"},
+      {"time":"09:31","title":"Primary WAN path restored","detail":"HQ carrier circuit returned to preferred route.","severity":"normal"},
+      {"time":"09:18","title":"Configuration archive complete","detail":"Twelve branch configurations verified and stored.","severity":"normal"}
+    ]
+  }
+  </script>
+  <!-- DASHBOARD-DATA:END -->
+
+  <script>
+  (()=>{
+    "use strict";
+    const byId=id=>document.getElementById(id);
+    const readJson=id=>JSON.parse(byId(id).textContent);
+    const contract=readJson("network-packager-contract");
+    const vault=readJson("network-asset-vault");
+    const portableMode=vault?.schema==="network-asset-vault/v2";
+    const data=readJson("dashboard-data");
+    const esc=value=>String(value).replace(/[&<>"']/g,char=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[char]));
+    function assetUrl(uri){
+      if(portableMode){const hash=vault.keys?.[uri],packed=hash&&vault.blobs?.[hash];if(!packed)throw new Error(`Portable asset is missing from the vault: ${uri}`);return`data:${packed.mime};base64,${packed.base64}`}
+      const match=/^asset:(cisco|rack)\/([^/]+)$/.exec(uri),folder=match&&contract.assetUriSchemes?.[match[1]];
+      if(match&&folder)return folder+match[2];
+      throw new Error(`Unsupported asset URI: ${uri}`);
+    }
+    function render(){
+      byId("health-label").textContent=data.health;
+      byId("metrics").innerHTML=data.metrics.map(item=>`<article class="metric"><div class="label">${esc(item.label)}</div><div class="value ${esc(item.tone||"")}">${esc(item.value)}</div><div class="hint">${esc(item.hint)}</div></article>`).join("");
+      byId("service-path").innerHTML=data.servicePath.map(item=>`<div class="asset-node ${esc(item.state||"")}"><img class="icon" src="${esc(assetUrl(item.asset))}" alt=""><b>${esc(item.name)}</b><small>${esc(item.detail)}</small></div>`).join("");
+      byId("sites").innerHTML=data.sites.map(site=>`<article class="site"><div class="site-top"><h3>${esc(site.name)}</h3><span class="dot ${site.state==="degraded"?"degraded":""}" title="${esc(site.state)}"></span></div><dl><dt>Latency</dt><dd>${esc(site.latency)}</dd><dt>WAN</dt><dd>${esc(site.wan)}</dd><dt>Clients</dt><dd>${esc(site.clients)}</dd></dl></article>`).join("");
+      byId("rack-list").innerHTML=data.rack.map(item=>`<article class="rack-item"><img src="${esc(assetUrl(item.asset))}" alt="${esc(item.model)}"><div><b>${esc(item.hostname)}</b><small>${esc(item.model)}</small><div class="bar"><i style="width:${Math.max(0,Math.min(100,Number(item.load)))}%"></i></div></div><span class="u">${esc(item.position)}</span></article>`).join("");
+      byId("events").innerHTML=data.events.map(item=>`<div class="event ${item.severity==="warning"?"warning":""}"><time>${esc(item.time)}</time><span class="e-dot"></span><div><strong>${esc(item.title)}</strong><span>${esc(item.detail)}</span></div></div>`).join("");
+      if(portableMode)byId("mode-label").textContent=`Mode: portable · ${Object.keys(vault.keys||{}).length} embedded assets`;
+      setupExport();
+    }
+    function setupExport(){
+      const encoded=byId("editable-source-capsule").textContent.trim();
+      if(!encoded)return;
+      const button=byId("export-editable");button.hidden=false;
+      button.addEventListener("click",()=>{const bytes=Uint8Array.from(atob(encoded),c=>c.charCodeAt(0));const source=new TextDecoder().decode(bytes);const url=URL.createObjectURL(new Blob([source],{type:"text/html;charset=utf-8"}));const link=document.createElement("a");link.href=url;link.download="alternate-dashboard.edit.html";link.click();setTimeout(()=>URL.revokeObjectURL(url),1000)});
+    }
+    try{if(contract.schema!=="network-design-package/v2")throw new Error("This document requires network-design-package/v2.");render()}catch(error){byId("error").textContent=error.message;byId("error").classList.add("show");console.error(error)}
+  })();
+  </script>
+</body>
+</html>

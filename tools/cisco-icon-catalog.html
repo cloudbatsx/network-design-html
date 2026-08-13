@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cisco PMS 3015 Icon Catalog</title>
+  <style>
+    :root { color-scheme: light; font-family: "Segoe UI", Arial, sans-serif; --ink:#14242f; --muted:#61737e; --line:#ccd7dc; --blue:#006b8f; }
+    * { box-sizing: border-box; }
+    body { margin: 0; color: var(--ink); background: #edf2f4; }
+    header { position: sticky; top: 0; z-index: 2; padding: 18px 24px; border-bottom: 1px solid var(--line); background: rgba(255,255,255,.96); backdrop-filter: blur(8px); }
+    h1 { margin: 0 0 5px; font-size: 1.55rem; }
+    p { margin: 0; color: var(--muted); } a { color: var(--blue); }
+    .controls { display: flex; align-items: center; gap: 12px; margin-top: 12px; }
+    input { width: min(520px, 100%); padding: 9px 11px; border: 1px solid #9eafb8; border-radius: 6px; font: inherit; }
+    #count { color: var(--muted); white-space: nowrap; }
+    #selected { margin-top: 8px; color: var(--blue); font-size: .86rem; min-height: 1.2em; }
+    main { padding: 18px 24px 32px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 9px; }
+    .icon { display: grid; grid-template-rows: 92px auto; align-items: center; width: 100%; min-height: 132px; padding: 8px; border: 1px solid var(--line); border-radius: 7px; color: var(--ink); background: #fff; cursor: pointer; }
+    .icon:hover, .icon:focus { border-color: var(--blue); outline: 2px solid rgba(0,107,143,.13); }
+    .icon img { display: block; width: 100%; height: 84px; object-fit: contain; }
+    .icon span { overflow-wrap: anywhere; color: var(--muted); font-size: .76rem; line-height: 1.2; }
+    .empty { display: none; padding: 40px; text-align: center; color: var(--muted); }
+    @media (max-width: 600px) { header, main { padding-inline: 12px; } .controls { align-items: flex-start; flex-direction: column; } }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Cisco PMS 3015 icon catalog</h1>
+    <p>Local view of 294 JPGs (not committed). Prefer a supported semantic <code>icon</code> key from <a href="../symbols/symbol-map.json">the hybrid symbol map</a>. For an uncommon icon, click here to copy its complete literal <code>iconAsset</code> identifier.</p>
+    <div class="controls">
+      <input id="search" type="search" placeholder="Search router, firewall, wireless, server…" aria-label="Search icon filenames" autofocus>
+      <span id="count"></span>
+    </div>
+    <div id="selected" aria-live="polite"></div>
+  </header>
+  <main>
+    <div class="grid" id="grid"></div>
+    <div class="empty" id="empty">No filenames match that search.</div>
+  </main>
+
+  <script>
+    "use strict";
+    const FILES = ["100baset hub.jpg","10700.jpg","10GE_FCoE.jpg","15200.jpg","3174 (desktop).jpg","3200 mobile access router.jpg","3x74 (floor).jpg","6700 series.jpg","7500ars (7513).jpg","access gateway.jpg","accesspoint.jpg","ace.jpg","ACS.jpg","adm.jpg","androgenous person.jpg","antenna.jpg","asic processor.jpg","ASR 1000 Series.jpg","ata.jpg","atm 3800.jpg","atm fast gigabit etherswitch.jpg","atm router.jpg","atm switch.jpg","atm tag switch router.jpg","avs.jpg","AXP.jpg","bbfw media.jpg","bbfw.jpg","bbsm.jpg","branch office.jpg","breakout box.jpg","bridge.jpg","broadband router.jpg","bts 10200.jpg","cable modem.jpg","callmanager.jpg","car.jpg","carrier routing system.jpg","cddi-fddi.jpg","cdm.jpg","cellular phone.jpg","centri firewall.jpg","cisco 1000.jpg","cisco asa 5500.jpg","cisco ca.jpg","cisco file engine.jpg","cisco hub.jpg","cisco unified presence server.jpg","cisco unityexpress.jpg","ciscosecurity.jpg","ciscoworks.jpg","class 4_5 switch.jpg","cloud.jpg","communications server.jpg","contact center.jpg","content engine (cache director).jpg","content service router.jpg","content service switch 1100.jpg","content switch module.jpg","content switch.jpg","content transformation engine (cte).jpg","cs-mars.jpg","csm-s.jpg","csu_dsu.jpg","CUBE.jpg","detector.jpg","director-class fibre channel director.jpg","directory server.jpg","diskette.jpg","distributed director.jpg","dot-dot.jpg","dpt.jpg","dslam.jpg","dual mode ap.jpg","dwdm filter.jpg","end office.jpg","fax.jpg","fc storage.jpg","fddi ring.jpg","fibre channel disk subsystem.jpg","fibre channel fabric switch.jpg","file cabinet.jpg","file server.jpg","fileserver.jpg","firewall service module (fwsm).jpg","firewall.jpg","front end processor.jpg","gatekeeper.jpg","general applicance.jpg","generic building.jpg","generic gateway.jpg","generic processor.jpg","generic softswitch.jpg","gigabit switch atm tag router.jpg","government building.jpg","Ground terminal.jpg","guard.jpg","h.323.jpg","handheld.jpg","hootphone.jpg","host.jpg","hp mini.jpg","hub.jpg","iad router.jpg","ibm mainframe.jpg","ibm mini as400.jpg","ibm tower.jpg","icm.jpg","ics.jpg","intelliswitch stack.jpg","internet streamer.jpg","ios firewall.jpg","ios slb.jpg","ip communicator.jpg","ip dsl.jpg","ip phone.jpg","ip telephony router.jpg","ip.jpg","iptc.jpg","iptv content manager.jpg","iptv server.jpg","iscsi router.jpg","isdn switch.jpg","itp.jpg","jbod.jpg","key.jpg","keys.jpg","lan to lan.jpg","laptop.jpg","layer 2 remote switch.jpg","layer 3 switch.jpg","lightweight ap.jpg","localdirector.jpg","lock.jpg","longreach cpe.jpg","mac woman.jpg","macintosh.jpg","man_woman.jpg","mas gateway.jpg","mau.jpg","mcu.jpg","mdu.jpg","me 1100.jpg","Mediator.jpg","meetingplace.jpg","mesh ap.jpg","metro 1500.jpg","mgx 8000 multiservice switch.jpg","microphone.jpg","microwebserver.jpg","mini vax.jpg","mobile access ip phone.jpg","mobile access router.jpg","mobile streamer.jpg","modem.jpg","moh server.jpg","MSE.jpg","mulitswitch device.jpg","multi-fabric server switch.jpg","multilayer remote switch.jpg","mux.jpg","MXE.jpg","nac appliance.jpg","NCE router.jpg","NCE.jpg","netflow router.jpg","netranger.jpg","netsonar.jpg","network management.jpg","Nexus 1000.jpg","Nexus 2000.jpg","Nexus 5000.jpg","Nexus 7000.jpg","octel.jpg","ons15500.jpg","optical amplifier.jpg","optical services router.jpg","optical transport.jpg","pad x.28.jpg","pad.jpg","page icon.jpg","pbx switch.jpg","pbx.jpg","pc adapter card.jpg","pc man.jpg","pc routercard.jpg","pc software.jpg","pc video.jpg","pc.jpg","pda.jpg","phone.jpg","phone_fax.jpg","pix firewall.jpg","pmc.jpg","printer.jpg","programmable switch.jpg","protocol translator.jpg","pxf.jpg","radio tower.jpg","ratemux.jpg","relational database.jpg","repeater.jpg","RF modem.jpg","route switch processor.jpg","router with silicon switch.jpg","router.jpg","router_firewall.jpg","routerin building.jpg","rpsrps.jpg","running man.jpg","safeharbor icon.jpg","sattelite dish.jpg","sattelite.jpg","scanner.jpg","server switch.jpg","server with router.jpg","service control.jpg","Service Module.jpg","Service router.jpg","Services.jpg","Set top box.jpg","simulitlayer switch.jpg","sip proxy werver.jpg","sitting woman.jpg","small business.jpg","small hub.jpg","softphone.jpg","softswitch pgw mgc.jpg","software based server.jpg","Space router.jpg","speaker.jpg","ssc.jpg","ssl terminator.jpg","standard host.jpg","standing man.jpg","standing woman.jpg","stb.jpg","storage router.jpg","storage server.jpg","stp.jpg","streamer.jpg","sun workstation.jpg","supercomputer.jpg","svx.jpg","system controller.jpg","tablet.jpg","tape array.jpg","tdm router.jpg","telecommuter house pc.jpg","telecommuter house.jpg","telecommuter icon.jpg","terminal.jpg","token.jpg","TP MCU.jpg","transpath.jpg","truck.jpg","turret.jpg","tv.jpg","ubr910.jpg","umg series.jpg","unity server.jpg","universal gateway.jpg","university.jpg","upc.jpg","ups.jpg","vault.jpg","video camera.jpg","vip.jpg","virtual layer switch.jpg","virtual switch controller (vsc3000).jpg","voice atm switch.jpg","voice commserver.jpg","voice router.jpg","voice switch.jpg","vpn concentrator.jpg","vpn gateway.jpg","VSD.jpg","VSS.jpg","wae.jpg","wavelength router.jpg","web browser.jpg","web cluster.jpg","wi-fi tag.jpg","wireless bridge.jpg","wireless location appliance.jpg","wireless router.jpg","wireless transport.jpg","wireless.jpg","wism.jpg","wlan controller.jpg","workgroup director.jpg","workgroup switch.jpg","workstation.jpg","www server.jpg"];
+
+    const grid = document.getElementById("grid");
+    const search = document.getElementById("search");
+    const count = document.getElementById("count");
+    const selected = document.getElementById("selected");
+    const empty = document.getElementById("empty");
+
+    function show(files) {
+      grid.replaceChildren();
+      const fragment = document.createDocumentFragment();
+      files.forEach(file => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "icon";
+        button.setAttribute("aria-label", `Select ${file}`);
+        const image = document.createElement("img");
+        image.loading = "lazy";
+        image.src = `../vendor-local/icons/cisco-pms3015/${file}`;
+        image.alt = "";
+        const label = document.createElement("span");
+        label.textContent = file;
+        button.append(image, label);
+        button.addEventListener("click", async () => {
+          const assetId = `asset:cisco/${file}`;
+          selected.textContent = `"iconAsset": "${assetId}"`;
+          try { await navigator.clipboard.writeText(assetId); selected.textContent += " · identifier copied"; } catch (_) {}
+        });
+        fragment.appendChild(button);
+      });
+      grid.appendChild(fragment);
+      count.textContent = `${files.length} of ${FILES.length}`;
+      empty.style.display = files.length ? "none" : "block";
+    }
+
+    search.addEventListener("input", () => {
+      const query = search.value.trim().toLowerCase();
+      show(FILES.filter(file => file.toLowerCase().includes(query)));
+    });
+    show(FILES);
+  </script>
+</body>
+</html>
