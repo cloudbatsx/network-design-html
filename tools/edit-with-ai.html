@@ -492,6 +492,37 @@ function freeUnits(devices, units) {
   return free;
 }
 
+// The documentation shell's own doctrine: the reader must always be able to
+// tell what is known from what is assumed. See docs/document-shell.md.
+function checkShell(data) {
+  const out = [];
+  const brand = data.document?.brand;
+  if (brand && typeof brand.logoPath === "string" && brand.logoPath.trim().length < 12) {
+    out.push(problem(true, "The company logo path has been shortened or emptied, which would destroy the logo.",
+      "Do not modify document.brand at all. Copy the entire brand object through exactly as you received it."));
+  }
+  const colors = ["purple","red","green","amber","teal"];
+  const color = data.document?.evidence?.color;
+  if (color !== undefined && !colors.includes(color)) {
+    out.push(problem(false, `The evidence badge colour "${color}" is not valid, so it will fall back to purple.`,
+      `"${color}" is not a valid evidence colour. Use one of: ${colors.join(", ")}.`));
+  }
+  const sections = data.sections;
+  if (sections) {
+    const items = sections.findings?.items;
+    if (Array.isArray(items) && items.length === 0) {
+      out.push(problem(false, "The Key gaps section is empty. A document that renders perfectly but hides its own uncertainty is off-template.",
+        "Fill sections.findings.items with what this document does not know or has not verified. Never leave it empty."));
+    }
+    const footer = data.document?.footer;
+    if (footer && (!footer.caveat || !footer.redaction)) {
+      out.push(problem(false, "The footer is missing its epistemic caveat or its redaction statement. Both are mandatory.",
+        "Keep footer.caveat and footer.redaction filled in. They are required in every document."));
+    }
+  }
+  return out;
+}
+
 function checkMeaning(data) {
   const out = [];
   const nodes = data.topology?.nodes || [];
@@ -643,6 +674,7 @@ function check() {
   const all = hostile
     .concat(checkStructure(cleanedText, parsed))
     .concat(checkAssetStrings(parsed))
+    .concat(checkShell(parsed))
     .concat(checkMeaning(parsed));
   renderProblems(all);
 

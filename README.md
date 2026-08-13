@@ -167,6 +167,27 @@ fix it.
 You pick device types by name — `router`, `access-switch`, `wlan-controller`.
 You never touch drawing geometry or artwork filenames.
 
+### Put your own logo on it
+
+Every document uses one fixed layout — a sidebar, a numbered section spine, and
+two toggleable layers — so a reader who has seen one has seen them all. The
+branding in the top-left is **not** part of that. It is data:
+
+```json
+"brand": {
+  "name": "Acme Networks",
+  "label": "Network Engineering — Internal",
+  "logoViewBox": "0 0 512 512",
+  "logoFill": "#0F172A",
+  "logoPath": "M64 64h384v384h-384z"
+}
+```
+
+Export your logo as SVG, copy its path `d` attribute into `logoPath`, set
+`logoViewBox` to match, and the whole document carries your brand. Nothing else
+depends on it. See [`docs/document-shell.md`](docs/document-shell.md) for what
+the layout does fix, and why.
+
 ## For maintainers
 
 Changing the template, the symbols, or the packaging contract is a different
@@ -175,6 +196,9 @@ job with its own rules.
 - [`docs/gemini-editing-rules.md`](docs/gemini-editing-rules.md) is the
   template-authoring and packaging contract — the rules an AI must follow when
   it rewrites the template itself, not the prompt for editing a diagram.
+- [`docs/document-shell.md`](docs/document-shell.md) is the layout standard —
+  the fixed section spine, the two toggleable layers, the print contract, and
+  the two places this implementation deliberately differs from the original.
 - [`docs/architecture.md`](docs/architecture.md) covers the protected packaging
   contract and symbol synchronization.
 - [`CONTRIBUTING.md`](CONTRIBUTING.md) is required reading before changing

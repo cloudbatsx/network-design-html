@@ -45,6 +45,14 @@ real front and rear artwork. **For any other hardware use `generic`** — the
 device still appears in both rack views at the right height, drawn as a plain
 labelled face. Never invent a code.
 
+## Never touch these
+
+- **`brand`** — the company logo and name. `logoPath` is SVG path data. Copy the
+  whole `brand` object through **exactly as you found it**, character for
+  character. It is the only place a person changes their own branding, and one
+  altered character destroys the logo.
+- **`evidence.color`** must be one of `purple`, `red`, `green`, `amber`, `teal`.
+
 ## Shape
 
 Keep every field that is already present. Do not rename fields and do not
@@ -52,7 +60,14 @@ invent new ones.
 
 ```json
 {
-  "document": { "title": "", "subtitle": "", "drawing": "", "revision": "", "status": "", "date": "" },
+  "document": {
+    "title": "", "subtitle": "", "drawing": "", "revision": "", "status": "", "date": "",
+    "docClass": "", "subject": "",
+    "evidence": { "text": "", "color": "red" },
+    "brand": { "name": "", "label": "", "logoViewBox": "", "logoFill": "", "logoPath": "" },
+    "layers": { "findings": true, "equipment": false },
+    "footer": { "author": "", "originalDate": "", "edition": "", "changed": "", "detail": "", "caveat": "", "redaction": "" }
+  },
   "topology": {
     "canvas": { "width": 1280, "height": 930 },
     "zones": [ { "id": "", "label": "", "kind": "internal", "x": 0, "y": 0, "width": 0, "height": 0 } ],
@@ -64,9 +79,40 @@ invent new ones.
     "frontAisle": "cold aisle", "rearAisle": "hot aisle",
     "reserved": [ { "position": 1, "height": 1, "label": "" } ],
     "devices": [ { "id": "", "model": "", "role": "", "position": 1, "height": 1, "asset": "c9300" } ]
+  },
+  "sections": {
+    "overview":   { "heading": "", "notes": [], "provenance": [] },
+    "logical":    { "heading": "", "notes": [], "caption": "", "legend": "" },
+    "identity":   { "heading": "", "notes": [], "columns": [], "rows": [] },
+    "physical":   { "heading": "", "notes": [], "caption": "", "legend": "" },
+    "change":     { "heading": "", "notes": [] },
+    "operations": { "heading": "", "notes": [] },
+    "findings":   { "id": "key-gaps", "label": "", "noun": "", "heading": "", "flavour": "gaps", "items": [ { "title": "", "detail": "" } ] },
+    "equipment":  { "cards": [ { "model": "", "u": "", "why": "", "asset": "c9300" } ], "costs": [ { "role": "", "model": "", "qty": 1, "unit": 0 } ] }
   }
 }
 ```
+
+A **note** is either a plain string or `{ "lead": "bold part", "text": "rest" }`.
+
+An **identity row** is either a list of cells, or
+`{ "cells": [], "layer": "gap" }`. Rows marked `"layer": "gap"` are assumptions —
+they hide and reveal with the Key gaps control, so mark anything unverified.
+
+`findings.flavour` is `gaps` (what is missing), `patterns` (what worked), or
+`gains` (what this buys you). Pick the one that matches the document.
+
+## The rule underneath the rules
+
+**The reader must always be able to tell what is known from what is assumed.**
+
+- `evidence.text` is an epistemic status, not decoration. Say what class of
+  evidence the document rests on.
+- Every caption must state what is **assumed** as well as what is drawn.
+- `sections.findings.items` must never be empty. A document that renders
+  perfectly but hides its own uncertainty is off-template. If you genuinely know
+  of no gaps, say what has not been verified.
+- `footer.caveat` and `footer.redaction` are mandatory. Never drop them.
 
 Fields you may see but must never add yourself: `iconAsset` on a node, `via` on
 a link. If one is already there, copy it through unchanged.
