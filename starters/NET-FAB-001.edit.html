@@ -638,18 +638,18 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
 <script id="proof-data" type="application/json">
 {
   "document": {
-    "title": "Campus Topology \u0026 Rack Elevation",
-    "subtitle": "A worked sample of the documentation shell \u2014 logical topology, addressing and a 42U elevation generated from one data block, with every assumption marked as an assumption.",
-    "drawing": "NET-PROOF-001",
+    "title": "Leaf-Spine Fabric and Rack Elevation",
+    "subtitle": "A starter kit for the documentation shell drawn as a non-hierarchical fabric — two spines, four leaves, every leaf routed to every spine — with the physical elevation, the addressing plan and the open items generated from one data block.",
+    "drawing": "NET-FAB-001",
     "revision": "v1.0",
-    "status": "Working sample",
+    "status": "Starter kit · proposed",
     "date": "2026-08-13",
-    "docClass": "Reference design",
-    "subject": "Campus",
-    "evidence": { "text": "Assumptions \u00b7 validation required", "color": "red" },
+    "docClass": "Data-centre leaf-spine fabric",
+    "subject": "Private cloud fabric",
+    "evidence": { "text": "Design intent · nothing reconciled", "color": "purple" },
     "brand": {
       "name": "cloudbats",
-      "label": "Systems \u00b7 Network Design \u2014 Internal Reference",
+      "label": "Systems · Network Design — Starter kit",
       "logoViewBox": "0 0 512 512",
       "logoFill": "#0F172A",
       "logoPath": "M112 72 H400 V352 Q400 400 376 424 Q356 440 336 424 Q316 400 296 400 H216 Q196 400 176 424 Q156 440 136 424 Q112 400 112 352 Z M312 136 A40 40 0 0 1 352 176 V304 A40 40 0 0 1 312 344 A40 40 0 0 1 272 304 V176 A40 40 0 0 1 312 136 Z"
@@ -658,495 +658,405 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
     "footer": {
       "author": "Prepared by the design owner",
       "originalDate": "2026-08-13",
-      "edition": "Presentation edition",
-      "changed": "documentation shell standardized 2026-08-13",
-      "detail": "full working detail lives with the change record",
-      "caveat": "Every element in this sample is an assumption to validate, not a recorded fact",
-      "redaction": "Facility identifiers at pattern level; personal identifiers redacted"
-    }  },
+      "edition": "Starter-kit edition",
+      "changed": "first publication of the fabric kit, 2026-08-13",
+      "detail": "the member-level port, optic and cable records live in a patch-schedule work package that has not been written",
+      "caveat": "Every value in this file is a design assumption to validate — no configuration, measurement or as-built survey stands behind any of it",
+      "redaction": "Generic rack, hall and circuit identifiers only; addressing is RFC 1918 and RFC 5737 documentation space; serials and personal identifiers removed"
+    }
+  },
   "topology": {
-    "canvas": {
-      "width": 1280,
-      "height": 930
-    },
+    "canvas": { "width": 1280, "height": 930 },
     "zones": [
       {
         "id": "external",
-        "label": "EXTERNAL / SERVICE PROVIDER",
+        "label": "EXTERNAL · CARRIER SERVICES",
         "kind": "external",
         "x": 25,
-        "y": 25,
+        "y": 20,
         "width": 1230,
-        "height": 245
+        "height": 130
       },
       {
         "id": "perimeter",
-        "label": "PERIMETER SECURITY",
+        "label": "PERIMETER — SECURITY EDGE",
         "kind": "perimeter",
         "x": 25,
-        "y": 285,
+        "y": 165,
         "width": 1230,
-        "height": 165
+        "height": 140
       },
       {
-        "id": "internal",
-        "label": "CAMPUS / INTERNAL TRUST",
+        "id": "fabric",
+        "label": "DATA-CENTRE FABRIC — LEAF-SPINE",
         "kind": "internal",
         "x": 25,
-        "y": 465,
-        "width": 1230,
-        "height": 440
+        "y": 320,
+        "width": 940,
+        "height": 590
+      },
+      {
+        "id": "oob",
+        "label": "OUT-OF-BAND PLANE",
+        "kind": "other",
+        "x": 985,
+        "y": 320,
+        "width": 270,
+        "height": 590
       }
     ],
     "nodes": [
       {
-        "id": "internet",
-        "label": "Internet / ISP",
-        "role": "External service",
+        "id": "wan",
+        "label": "Internet + private WAN",
+        "role": "External routed services",
         "icon": "cloud",
-        "x": 640,
-        "y": 88,
-        "address": "Provider assigned",
-        "notes": "External routed service."
+        "x": 690,
+        "y": 90,
+        "address": "DIA 198.51.100.0/29 · private WAN 192.0.2.0/29",
+        "notes": "Opaque provider services north of the security boundary. Circuit identifiers, bandwidth and demarcation belong to a carrier work package that does not exist yet."
       },
       {
-        "id": "edge-rtr-01",
-        "label": "edge-rtr-01",
-        "role": "WAN router · ISP-A",
-        "icon": "router",
-        "x": 360,
-        "y": 200,
-        "address": "198.51.100.2/30",
-        "notes": "eBGP to ISP-A."
-      },
-      {
-        "id": "edge-rtr-02",
-        "label": "edge-rtr-02",
-        "role": "WAN router · ISP-B",
-        "icon": "router",
-        "x": 920,
-        "y": 200,
-        "address": "203.0.113.2/30",
-        "notes": "eBGP to ISP-B."
-      },
-      {
-        "id": "edge-fw-01",
-        "label": "edge-fw-01",
-        "role": "Perimeter · active",
+        "id": "fw-01a",
+        "label": "fw-01a",
+        "role": "Security edge · active",
         "icon": "firewall",
-        "x": 420,
-        "y": 365,
-        "address": "Outside / inside transit",
-        "notes": "NAT, VPN, IPS, and policy."
+        "x": 480,
+        "y": 240,
+        "address": "inside 10.200.10.2/29 · shared VIP 10.200.10.1",
+        "notes": "Active member of the north-south pair. Its inside handoff lands on the service leaves, not on a spine — north-south enters this fabric through a leaf like any other attachment. Rack U33."
       },
       {
-        "id": "edge-fw-02",
-        "label": "edge-fw-02",
-        "role": "Perimeter · standby",
+        "id": "fw-01b",
+        "label": "fw-01b",
+        "role": "Security edge · standby",
         "icon": "firewall",
+        "x": 900,
+        "y": 240,
+        "address": "inside 10.200.10.3/29 · shared VIP 10.200.10.1",
+        "notes": "Standby member with synchronised configuration and connection state. Rack U32."
+      },
+      {
+        "id": "spine-01",
+        "label": "spine-01",
+        "role": "Fabric spine · EVPN RR",
+        "icon": "dc-switch",
+        "x": 330,
+        "y": 410,
+        "address": "Lo0 10.200.0.1/32 · ASN 65000",
+        "notes": "Every leaf holds one routed fabric adjacency to this spine. No leaf talks to another leaf directly, and no spine talks to another spine. Rack U42."
+      },
+      {
+        "id": "spine-02",
+        "label": "spine-02",
+        "role": "Fabric spine · EVPN RR",
+        "icon": "dc-switch",
+        "x": 670,
+        "y": 410,
+        "address": "Lo0 10.200.0.2/32 · ASN 65000",
+        "notes": "Second independent spine and route reflector. Losing it halves fabric capacity and loses no destination. Rack U41."
+      },
+      {
+        "id": "leaf-01",
+        "label": "leaf-01",
+        "role": "Compute leaf · VTEP",
+        "icon": "dc-switch",
+        "x": 140,
+        "y": 620,
+        "address": "Lo0 10.200.1.11/32 · VTEP 10.200.2.11 · ASN 65101",
+        "notes": "Compute attachment pair, member A. Rack U39."
+      },
+      {
+        "id": "leaf-02",
+        "label": "leaf-02",
+        "role": "Compute leaf · VTEP",
+        "icon": "dc-switch",
+        "x": 380,
+        "y": 620,
+        "address": "Lo0 10.200.1.12/32 · VTEP 10.200.2.12 · ASN 65102",
+        "notes": "Compute attachment pair, member B. Rack U38."
+      },
+      {
+        "id": "leaf-03",
+        "label": "leaf-03",
+        "role": "Service / border leaf · VTEP",
+        "icon": "dc-switch",
+        "x": 620,
+        "y": 620,
+        "address": "Lo0 10.200.1.13/32 · VTEP 10.200.2.13 · ASN 65103",
+        "notes": "Border pair member A. Carries the firewall handoff and the shared-service attachments. Rack U36."
+      },
+      {
+        "id": "leaf-04",
+        "label": "leaf-04",
+        "role": "Service / border leaf · VTEP",
+        "icon": "dc-switch",
         "x": 860,
-        "y": 365,
-        "address": "Outside / inside transit",
-        "notes": "HA mate to edge-fw-01."
-      },
-      {
-        "id": "core-sw-01",
-        "label": "core-sw-01",
-        "role": "L3 collapsed core",
-        "icon": "core-switch",
-        "x": 475,
-        "y": 545,
-        "address": "10.255.255.1/32",
-        "notes": "Physical model C9500X-28C8D at U42."
-      },
-      {
-        "id": "core-sw-02",
-        "label": "core-sw-02",
-        "role": "L3 collapsed core",
-        "icon": "core-switch",
-        "x": 805,
-        "y": 545,
-        "address": "10.255.255.2/32",
-        "notes": "Physical model C9500X-28C8D at U41."
-      },
-      {
-        "id": "access-sw-01",
-        "label": "access-sw-01",
-        "role": "Users / voice",
-        "icon": "access-switch",
-        "x": 245,
-        "y": 700,
-        "address": "10.10.99.11/24",
-        "notes": "Physical model C9300-48P at U35."
-      },
-      {
-        "id": "access-sw-02",
-        "label": "access-sw-02",
-        "role": "Users / wireless",
-        "icon": "access-switch",
-        "x": 525,
-        "y": 700,
-        "address": "10.10.99.12/24",
-        "notes": "Physical model C9300-48P at U34."
-      },
-      {
-        "id": "services-sw-01",
-        "label": "services-sw-01",
-        "role": "Server access",
-        "icon": "access-switch",
-        "x": 970,
-        "y": 700,
-        "address": "10.50.99.11/24",
-        "notes": "Logical service-access switch."
-      },
-      {
-        "id": "ap-01",
-        "label": "ap-01",
-        "role": "Corp / Guest WLAN",
-        "icon": "access-point",
-        "x": 125,
-        "y": 842,
-        "address": "10.10.99.31/24",
-        "notes": "PoE lightweight access point."
-      },
-      {
-        "id": "users-a",
-        "label": "Users · VLAN 10",
-        "role": "10.10.10.0/24",
-        "icon": "pc",
-        "x": 350,
-        "y": 842,
-        "address": "VLAN 10",
-        "notes": "Aggregate endpoint symbol."
-      },
-      {
-        "id": "ap-02",
-        "label": "ap-02",
-        "role": "Corp / Guest WLAN",
-        "icon": "access-point",
-        "x": 575,
-        "y": 842,
-        "address": "10.10.99.32/24",
-        "notes": "PoE lightweight access point."
+        "y": 620,
+        "address": "Lo0 10.200.1.14/32 · VTEP 10.200.2.14 · ASN 65104",
+        "notes": "Border pair member B. Provides the redundant firewall, storage and shared-service path. Rack U35."
       },
       {
         "id": "hv-01",
         "label": "hv-01",
-        "role": "Compute · VLAN 50",
+        "role": "Virtualisation host",
         "icon": "server",
-        "x": 875,
-        "y": 842,
-        "address": "10.50.50.21/24",
-        "notes": "Dell PowerEdge R750 at U30–U31."
+        "x": 140,
+        "y": 800,
+        "address": "10.200.50.21/24 · bond0 2 × 25GbE",
+        "notes": "Dual-homed across leaf-01 and leaf-02, so a leaf reload costs half the bandwidth and no sessions. Rack U29–U30."
       },
       {
         "id": "hv-02",
         "label": "hv-02",
-        "role": "Compute · VLAN 50",
+        "role": "Virtualisation host",
         "icon": "server",
-        "x": 1100,
-        "y": 842,
-        "address": "10.50.50.22/24",
-        "notes": "Dell PowerEdge R750 at U27–U28."
+        "x": 380,
+        "y": 800,
+        "address": "10.200.50.22/24 · bond0 2 × 25GbE",
+        "notes": "Second dual-homed compute host on the same leaf pair. Rack U26–U27."
+      },
+      {
+        "id": "storage-01",
+        "label": "storage-01",
+        "role": "Shared storage service",
+        "icon": "storage-array",
+        "x": 620,
+        "y": 800,
+        "address": "10.200.60.10/24 · replication 10.200.61.10/24",
+        "notes": "Logical service only. The physical array sits outside this rack — a deliberate scope difference, recorded in the findings, not an omission."
+      },
+      {
+        "id": "svc-01",
+        "label": "shared-services",
+        "role": "DNS, identity, load balancing",
+        "icon": "server",
+        "x": 860,
+        "y": 800,
+        "address": "10.200.70.0/24",
+        "notes": "Aggregate symbol for the shared-service block. Individual virtual machines belong in an application dependency view, not here."
+      },
+      {
+        "id": "oob-sw-01",
+        "label": "oob-sw-01",
+        "role": "Out-of-band switch",
+        "icon": "access-switch",
+        "x": 1120,
+        "y": 620,
+        "address": "10.200.99.2/24 · VLAN 999",
+        "notes": "Aggregates dedicated management and console interfaces off the production forwarding path. Rack U34."
+      },
+      {
+        "id": "oob-nms-01",
+        "label": "oob-nms-01",
+        "role": "Management and monitoring",
+        "icon": "network-management",
+        "x": 1120,
+        "y": 800,
+        "address": "10.200.99.10/24",
+        "notes": "Reachable only through oob-sw-01. Drawn with a plain labelled rack face because no model has been selected. Rack U31."
       }
     ],
     "links": [
-      {
-        "from": "internet",
-        "to": "edge-rtr-01",
-        "kind": "l3",
-        "label": "DIA · ISP-A",
-        "labelX": 470,
-        "labelY": 128
-      },
-      {
-        "from": "internet",
-        "to": "edge-rtr-02",
-        "kind": "l3",
-        "label": "DIA · ISP-B",
-        "labelX": 810,
-        "labelY": 128
-      },
-      {
-        "from": "edge-rtr-01",
-        "to": "edge-fw-01",
-        "kind": "l3"
-      },
-      {
-        "from": "edge-rtr-02",
-        "to": "edge-fw-02",
-        "kind": "l3"
-      },
-      {
-        "from": "edge-rtr-01",
-        "to": "edge-fw-02",
-        "kind": "backup"
-      },
-      {
-        "from": "edge-rtr-02",
-        "to": "edge-fw-01",
-        "kind": "backup"
-      },
-      {
-        "from": "edge-fw-01",
-        "to": "edge-fw-02",
-        "kind": "ha",
-        "label": "HA state / sync",
-        "labelX": 640,
-        "labelY": 365
-      },
-      {
-        "from": "edge-fw-01",
-        "to": "core-sw-01",
-        "kind": "aggregate"
-      },
-      {
-        "from": "edge-fw-01",
-        "to": "core-sw-02",
-        "kind": "aggregate"
-      },
-      {
-        "from": "edge-fw-02",
-        "to": "core-sw-01",
-        "kind": "aggregate"
-      },
-      {
-        "from": "edge-fw-02",
-        "to": "core-sw-02",
-        "kind": "aggregate"
-      },
-      {
-        "from": "core-sw-01",
-        "to": "core-sw-02",
-        "kind": "ha",
-        "label": "Peer link",
-        "labelX": 640,
-        "labelY": 545
-      },
-      {
-        "from": "core-sw-01",
-        "to": "access-sw-01",
-        "kind": "aggregate"
-      },
-      {
-        "from": "core-sw-02",
-        "to": "access-sw-01",
-        "kind": "aggregate"
-      },
-      {
-        "from": "core-sw-01",
-        "to": "access-sw-02",
-        "kind": "aggregate"
-      },
-      {
-        "from": "core-sw-02",
-        "to": "access-sw-02",
-        "kind": "aggregate"
-      },
-      {
-        "from": "core-sw-01",
-        "to": "services-sw-01",
-        "kind": "aggregate"
-      },
-      {
-        "from": "core-sw-02",
-        "to": "services-sw-01",
-        "kind": "aggregate"
-      },
-      {
-        "from": "access-sw-01",
-        "to": "ap-01",
-        "kind": "access"
-      },
-      {
-        "from": "access-sw-01",
-        "to": "users-a",
-        "kind": "access"
-      },
-      {
-        "from": "access-sw-02",
-        "to": "ap-02",
-        "kind": "access"
-      },
-      {
-        "from": "services-sw-01",
-        "to": "hv-01",
-        "kind": "access"
-      },
-      {
-        "from": "services-sw-01",
-        "to": "hv-02",
-        "kind": "access"
-      }
+      { "from": "wan", "to": "fw-01a", "kind": "l3", "label": "DIA + private WAN · 10G", "labelX": 545, "labelY": 168 },
+      { "from": "wan", "to": "fw-01b", "kind": "l3" },
+      { "from": "fw-01a", "to": "fw-01b", "kind": "ha", "label": "HA state / session sync", "labelX": 690, "labelY": 240 },
+      { "from": "fw-01a", "to": "leaf-03", "kind": "l3" },
+      { "from": "fw-01b", "to": "leaf-04", "kind": "l3" },
+      { "from": "spine-01", "to": "leaf-01", "kind": "aggregate", "label": "eBGP underlay · ECMP", "labelX": 200, "labelY": 515 },
+      { "from": "spine-01", "to": "leaf-02", "kind": "aggregate" },
+      { "from": "spine-01", "to": "leaf-03", "kind": "aggregate" },
+      { "from": "spine-01", "to": "leaf-04", "kind": "aggregate" },
+      { "from": "spine-02", "to": "leaf-01", "kind": "aggregate" },
+      { "from": "spine-02", "to": "leaf-02", "kind": "aggregate" },
+      { "from": "spine-02", "to": "leaf-03", "kind": "aggregate" },
+      { "from": "spine-02", "to": "leaf-04", "kind": "aggregate", "label": "8 × 100G fabric links", "labelX": 765, "labelY": 515 },
+      { "from": "leaf-01", "to": "leaf-02", "kind": "ha" },
+      { "from": "leaf-03", "to": "leaf-04", "kind": "ha" },
+      { "from": "leaf-01", "to": "hv-01", "kind": "access", "label": "dual-homed · 2 × 25GbE", "labelX": 140, "labelY": 725 },
+      { "from": "leaf-01", "to": "hv-02", "kind": "access" },
+      { "from": "leaf-02", "to": "hv-01", "kind": "access" },
+      { "from": "leaf-02", "to": "hv-02", "kind": "access" },
+      { "from": "leaf-03", "to": "storage-01", "kind": "access" },
+      { "from": "leaf-03", "to": "svc-01", "kind": "access" },
+      { "from": "leaf-04", "to": "storage-01", "kind": "access" },
+      { "from": "leaf-04", "to": "svc-01", "kind": "access", "label": "dual-homed services", "labelX": 860, "labelY": 725 },
+      { "from": "oob-sw-01", "to": "oob-nms-01", "kind": "access", "label": "OOB · 10.200.99.0/24", "labelX": 1120, "labelY": 710 },
+      { "from": "oob-sw-01", "to": "leaf-04", "kind": "backup" }
     ]
   },
   "rack": {
-    "id": "R113",
-    "location": "MDF-1",
+    "id": "R01",
+    "location": "Data hall · row 1",
     "units": 42,
     "frontAisle": "cold aisle",
     "rearAisle": "hot aisle",
     "reserved": [
-      {
-        "position": 36,
-        "height": 1,
-        "label": "U36 · reserved patch field"
-      }
+      { "position": 40, "height": 1, "label": "U40 · reserved fabric patch field" }
     ],
     "devices": [
-      {
-        "id": "core-sw-01",
-        "model": "Cisco Catalyst 9500X-28C8D",
-        "role": "Collapsed core",
-        "position": 42,
-        "height": 1,
-        "asset": "c9500"
-      },
-      {
-        "id": "core-sw-02",
-        "model": "Cisco Catalyst 9500X-28C8D",
-        "role": "Collapsed core",
-        "position": 41,
-        "height": 1,
-        "asset": "c9500"
-      },
-      {
-        "id": "edge-fw-01",
-        "model": "Cisco FPR4215-NGFW-K9",
-        "role": "Perimeter firewall · active",
-        "position": 39,
-        "height": 1,
-        "asset": "fpr4215"
-      },
-      {
-        "id": "edge-fw-02",
-        "model": "Cisco FPR4215-NGFW-K9",
-        "role": "Perimeter firewall · standby",
-        "position": 38,
-        "height": 1,
-        "asset": "fpr4215"
-      },
-      {
-        "id": "access-sw-01",
-        "model": "Cisco Catalyst 9300-48P",
-        "role": "User access",
-        "position": 35,
-        "height": 1,
-        "asset": "c9300"
-      },
-      {
-        "id": "access-sw-02",
-        "model": "Cisco Catalyst 9300-48P",
-        "role": "User access",
-        "position": 34,
-        "height": 1,
-        "asset": "c9300"
-      },
-      {
-        "id": "hv-01",
-        "model": "Dell PowerEdge R750",
-        "role": "Virtualization host",
-        "position": 30,
-        "height": 2,
-        "asset": "r750"
-      },
-      {
-        "id": "hv-02",
-        "model": "Dell PowerEdge R750",
-        "role": "Virtualization host",
-        "position": 27,
-        "height": 2,
-        "asset": "r750"
-      },
-      {
-        "id": "ups-01",
-        "model": "APC SMT3000RMI2UC",
-        "role": "Rack UPS",
-        "position": 2,
-        "height": 2,
-        "asset": "ups"
-      }
+      { "id": "spine-01", "model": "Cisco Catalyst 9500X-28C8D", "role": "Fabric spine · EVPN route reflector", "position": 42, "height": 1, "asset": "c9500" },
+      { "id": "spine-02", "model": "Cisco Catalyst 9500X-28C8D", "role": "Fabric spine · EVPN route reflector", "position": 41, "height": 1, "asset": "c9500" },
+      { "id": "leaf-01", "model": "Cisco Catalyst 9300-48P", "role": "Compute leaf · VTEP", "position": 39, "height": 1, "asset": "c9300" },
+      { "id": "leaf-02", "model": "Cisco Catalyst 9300-48P", "role": "Compute leaf · VTEP", "position": 38, "height": 1, "asset": "c9300" },
+      { "id": "leaf-03", "model": "Cisco Catalyst 9300-48P", "role": "Service / border leaf · VTEP", "position": 36, "height": 1, "asset": "c9300" },
+      { "id": "leaf-04", "model": "Cisco Catalyst 9300-48P", "role": "Service / border leaf · VTEP", "position": 35, "height": 1, "asset": "c9300" },
+      { "id": "oob-sw-01", "model": "Cisco Catalyst 9300-48P", "role": "Out-of-band management switch", "position": 34, "height": 1, "asset": "c9300" },
+      { "id": "fw-01a", "model": "Cisco FPR4215-NGFW-K9", "role": "Security edge · active", "position": 33, "height": 1, "asset": "fpr4215" },
+      { "id": "fw-01b", "model": "Cisco FPR4215-NGFW-K9", "role": "Security edge · standby", "position": 32, "height": 1, "asset": "fpr4215" },
+      { "id": "oob-nms-01", "model": "Management appliance · model not selected", "role": "Out-of-band management and monitoring", "position": 31, "height": 1, "asset": "generic" },
+      { "id": "hv-01", "model": "Dell PowerEdge R750", "role": "Virtualisation host", "position": 29, "height": 2, "asset": "r750" },
+      { "id": "hv-02", "model": "Dell PowerEdge R750", "role": "Virtualisation host", "position": 26, "height": 2, "asset": "r750" },
+      { "id": "ups-01", "model": "APC SMT3000RMI2UC", "role": "Rack UPS", "position": 2, "height": 2, "asset": "ups" }
     ]
   },
   "sections": {
     "overview": {
       "heading": "What this document is",
       "notes": [
-        { "lead": "A reference campus design", "text": "one collapsed core, a redundant perimeter and a single 42U rack, drawn to show the notation rather than a real site." },
-        { "lead": "Why it matters here", "text": "it is the worked example every other document in this repository is copied from." },
-        { "lead": "Same drawing conventions as the rest of the set", "text": "only the network changes, not the notation." }
+        { "lead": "A two-spine, four-leaf fabric", "text": "every leaf holds one routed adjacency to every spine, so any leaf reaches any other leaf in exactly two hops and no leaf ever talks to a peer directly." },
+        { "lead": "Why the kit exists", "text": "it is the non-hierarchical member of the starter set. The same data block that draws a campus tree draws a Clos fabric — only the links change, not the notation." },
+        { "lead": "Roles are split, not stacked", "text": "leaf-01 and leaf-02 attach compute; leaf-03 and leaf-04 are the service and border pair that carry the firewall handoff, storage and shared services." },
+        { "lead": "The management plane is drawn separately", "text": "oob-sw-01 and oob-nms-01 sit in their own zone because their reachability must not depend on the fabric they are used to fix." },
+        { "lead": "One set of names", "text": "the topology, the rack elevation and the equipment schedule all use the same device ids, which is what the PASS badge above counts." }
       ],
       "provenance": [
-        { "lead": "Provenance, two classes, kept visibly distinct", "text": "Recorded = the topology and rack data in this file, which renders exactly what it says. Assumed = every address, model and role, which is illustrative only." },
+        { "lead": "Two classes of statement, kept visibly apart", "text": "Recorded = the shape, the device list and the rack geometry in this file, which render exactly what they say. Assumed = every address, every model choice and every capacity claim." },
+        { "lead": "Nothing here has been reconciled against a live device", "text": "no configuration was read, no port was walked, no feed was measured. Treat the whole file as a proposal." },
         { "lead": "The Key gaps eye control in the sidebar", "text": "hides the assumption layer for a recorded-only view. Printing force-reveals it, so the PDF is always the complete document." }
       ]
     },
     "logical": {
-      "heading": "Logical topology \u2014 dual-homed edge into a collapsed core",
+      "heading": "Logical topology — a Clos fabric, not a hierarchy",
       "notes": [
-        { "lead": "Design point", "text": "two providers terminate on separate edge routers, cross-connect to an active/standby firewall pair, then port-channel into a two-member collapsed core." },
-        { "lead": "Provenance", "text": "the shape is a documented pattern; every address shown is assumed." }
-      ]
+        { "lead": "Read it as two rows, not as a tree", "text": "the eight heavy links are the fabric. There is no root and no distribution layer; capacity is added by adding a spine, and every leaf gains from it at once." },
+        { "lead": "What makes it non-hierarchical", "text": "no spine peers with another spine, no leaf transits another leaf, and no device sits above the spines. The two rows are a drawing convention for a full mesh, not a parent-and-child relationship." },
+        { "lead": "eBGP underlay, EVPN overlay", "text": "spines share ASN 65000 and act as route reflectors; each leaf runs its own ASN in the 65101–65104 range. Forwarding is ECMP across all eight paths." },
+        { "lead": "The security edge attaches, it does not sit on top", "text": "the firewall pair hands off into the two border leaves. North-south traffic enters the fabric the same way any other endpoint does." },
+        { "lead": "Endpoint links are logical", "text": "each dual-homed attachment is drawn as one line per leaf. The member ports behind those lines are unassigned." },
+        { "lead": "Provenance", "text": "the shape is a documented pattern; every address, ASN and speed shown is assumed." }
+      ],
+      "caption": "Fig. 1 — Two spines, four leaves, every leaf routed to both spines. The heavy links are the fabric underlay; the thin links are endpoint attachments. Drawn from the diagram data block. Every address, ASN, link speed and model shown is assumed, and the member ports behind each drawn line are unassigned.",
+      "legend": "Legend — heavy teal = routed fabric underlay, one link per leaf-spine pair (eight in total) · solid blue = routed Layer 3, including the firewall inside handoff · dashed magenta = firewall HA and leaf peer relationships · thin grey = endpoint attachment, members unassigned · dotted grey = out-of-band fan-out, summarised to one line."
     },
     "identity": {
-      "heading": "Identity \u0026 addressing \u2014 one summarizable block per function",
+      "heading": "Identity and addressing — underlay, overlay and the plane that must never depend on either",
       "notes": [
-        { "lead": "Addressing intent", "text": "user, voice, wireless and server ranges stay separable so the core can summarize outward." }
+        { "lead": "Addressing intent", "text": "the underlay, the overlay tunnel sources and the out-of-band plane are separable blocks so each can be summarised, filtered and reasoned about on its own." },
+        { "lead": "Documentation space only", "text": "private ranges are RFC 1918 inside 10.200.0.0/16; external examples are RFC 5737 documentation prefixes. Nothing here is routable." },
+        { "lead": "Rows marked as gaps", "text": "hide and reveal with the Key gaps control. If a row is marked, no device was asked and no plan was written." }
       ],
-      "columns": ["Function", "VLAN", "Range", "Provenance"],
+      "columns": ["Function", "VRF / scope", "Prefix or address", "Provenance"],
       "rows": [
-        { "cells": ["Users", "10", "10.10.10.0/24", "Assumed"], "layer": "gap" },
-        { "cells": ["Wireless infrastructure", "99", "10.10.99.0/24", "Assumed"], "layer": "gap" },
-        { "cells": ["Server / compute", "50", "10.50.50.0/24", "Assumed"], "layer": "gap" },
-        { "cells": ["Core loopbacks", "\u2014", "10.255.255.0/24", "Assumed"], "layer": "gap" }
+        { "cells": ["Spine loopbacks", "Underlay", "10.200.0.1/32 · 10.200.0.2/32", "Declared in this file"] },
+        { "cells": ["Leaf loopbacks", "Underlay", "10.200.1.11/32 – 10.200.1.14/32", "Declared in this file"] },
+        { "cells": ["VTEP loopbacks", "Overlay", "10.200.2.11/32 – 10.200.2.14/32", "Addresses declared; VNI map unwritten"], "layer": "gap" },
+        { "cells": ["Fabric point-to-point links", "Underlay", "Unassigned", "Open — eight adjacencies, no prefixes"], "layer": "gap" },
+        { "cells": ["Tenant VLAN and VNI map", "Overlay", "Unassigned", "Open — no tenant design exists"], "layer": "gap" },
+        { "cells": ["Firewall inside transit", "North-south", "10.200.10.0/29 · VIP .1 · A .2 · B .3", "Declared in this file"] },
+        { "cells": ["Compute management", "PROD", "10.200.50.0/24 · hv-01 .21 · hv-02 .22", "Declared in this file"] },
+        { "cells": ["Storage and replication", "STORAGE", "10.200.60.0/24 · 10.200.61.0/24", "Assumed — array is out of scope here"], "layer": "gap" },
+        { "cells": ["Shared application services", "SHARED", "10.200.70.0/24", "Assumed — block prefix only"], "layer": "gap" },
+        { "cells": ["Out-of-band management", "OOB", "10.200.99.0/24 · VLAN 999", "Declared in this file"] },
+        { "cells": ["External documentation nets", "External", "198.51.100.0/29 · 192.0.2.0/29", "RFC 5737 example space"] }
       ]
     },
     "physical": {
-      "heading": "Physical view \u2014 one rack, both faces, one schedule",
+      "heading": "Physical view — the fabric folded into one cabinet",
       "notes": [
-        { "lead": "Same device IDs, different view", "text": "front and rear elevations and the schedule below are generated from a single equipment list, so they cannot drift apart." },
-        { "lead": "Rack units are numbered from the bottom", "text": "a device position is the lowest unit it fills." }
-      ]
+        { "lead": "Same device ids, different view", "text": "front and rear elevations and the schedule below are generated from a single equipment list, so they cannot drift apart from each other or from Figure 1." },
+        { "lead": "Rack units are numbered from the bottom", "text": "a device position is the lowest unit it fills, and U ranges are inclusive." },
+        { "lead": "Not everything logical is in this rack", "text": "storage-01 and the shared-service block are logical entities elsewhere; the UPS exists only here. Those scope differences are deliberate and are listed in the findings." },
+        { "lead": "A plain labelled face means no artwork", "text": "oob-nms-01 has no selected model, so the elevation draws a generic face rather than borrowing a picture of something else." }
+      ],
+      "caption": "Fig. 2 — 42U elevation, front and rear, generated from one equipment schedule. Thirteen devices occupy 16U; one unit is reserved for a fabric patch field; the remaining 25U are unplanned rather than deliberately free. Every position, model and height shown is assumed, and no power, weight, airflow or blanking value stands behind this drawing.",
+      "legend": "Legend — shaded slots are occupied · hatched slots are reserved · a plain labelled face means no orthographic artwork exists for that model · front is the cold aisle and rear the hot aisle by convention, not by measurement."
     },
     "change": {
-      "heading": "Change management \u2014 the file is the record",
+      "heading": "Change management — the file is the record",
       "notes": [
-        { "lead": "Versioned as text", "text": "the whole document is one HTML file, so a topology change is a reviewable diff rather than an opaque binary replacement." },
+        { "lead": "Versioned as text", "text": "the whole document is one HTML file, so adding a spine or moving a leaf is a reviewable diff rather than an opaque binary replacement." },
+        { "lead": "One data block, three views", "text": "a device can only be added by editing the topology and the rack together; the PASS badge fails loudly if the two lists stop agreeing." },
         { "lead": "Revision discipline", "text": "bump the revision and the date in the data block whenever the design changes; the header badges read from those fields." },
-        { "lead": "Rollback", "text": "any prior revision opens in a browser exactly as it was published." }
+        { "lead": "What a fabric change actually costs", "text": "a leaf addition touches both spines. Record the intended link count before the change, not after, so the diff shows whether the fabric stayed symmetric." },
+        { "lead": "Rollback", "text": "any prior revision opens in a browser exactly as it was published, with no server and no toolchain." }
       ]
     },
     "operations": {
-      "heading": "Operations \u0026 observability \u2014 what to watch",
+      "heading": "Operations and observability — what has never been measured",
       "notes": [
-        { "lead": "Owner", "text": "name the team accountable for this design and the escalation path." },
-        { "lead": "Signals", "text": "the links drawn as HA or aggregate are the ones whose loss is silent \u2014 monitor member state, not just the logical interface." },
+        { "lead": "Owner", "text": "name the team accountable for this fabric and the escalation path. No owner, reviewer or approver is recorded against this revision." },
+        { "lead": "The signals that fail silently", "text": "a fabric that loses one of eight links keeps forwarding. Monitor per-link BGP session state and ECMP path count, not just reachability, or the first symptom will be congestion." },
+        { "lead": "Watch the pairs, not the pair members", "text": "firewall HA state and the two leaf peer relationships are the places where a healthy-looking device hides a broken relationship." },
+        { "lead": "Out-of-band is only useful if it is independent", "text": "oob-sw-01 must not depend on the fabric for its own reachability or power. That independence is asserted here and has not been tested." },
+        { "lead": "Power and thermal are blank", "text": "no circuit ratings, PSU-to-feed mapping, measured load or UPS runtime were supplied, so no capacity or single-feed survival claim is made." },
         { "lead": "Validation", "text": "this document asserts intent. Reconcile it against the running configuration before treating any value as fact." }
       ]
     },
     "findings": {
-      "id": "gaps",
-      "label": "Gaps \u0026 open items",
-      "noun": "gaps and open items",
-      "heading": "Gaps and open items \u2014 what this document does not know",
+      "id": "key-gaps",
+      "label": "Key gaps",
+      "noun": "gaps and unknowns",
+      "heading": "Key gaps — what this document does not know",
       "flavour": "gaps",
       "items": [
-        { "title": "Every address is illustrative", "detail": "No range here has been reconciled against a live device. Replace them before this document is used to make a change.", "atZone": "internal" },
-        { "title": "No provider or circuit detail", "detail": "Both uplinks are drawn as a pattern. Carrier, bandwidth and demarcation are unrecorded.", "at": ["edge-rtr-01", "edge-rtr-02"] },
-        { "title": "Firewall failover is unproven", "detail": "The HA pair is drawn as active/standby, but no failover test is recorded against this design.", "at": "edge-fw-02" },
-        { "title": "Rack schedule is partial", "detail": "Power, cooling and cable management are not modelled, so the elevation shows placement only, not capacity." }
+        {
+          "title": "The leaf platform is drawn doing something it may not do",
+          "detail": "All four leaves are shown as 100G fabric ports and VXLAN tunnel endpoints on an access-class switch. Platform capability, port speed and overlay support are unverified. Either validate a supported data-centre leaf or change the drawing.",
+          "at": ["leaf-01", "leaf-02", "leaf-03", "leaf-04"]
+        },
+        {
+          "title": "No physical record stands behind the fabric",
+          "detail": "The eight spine-to-leaf links have no ports, optics, cable identifiers or patch paths. The count is an intention, not an inventory.",
+          "at": ["spine-01", "spine-02"]
+        },
+        {
+          "title": "Underlay point-to-point addressing is unassigned",
+          "detail": "Loopbacks are declared but the eight routed adjacencies have no prefixes, no BGP neighbour addresses, no timers and no BFD policy."
+        },
+        {
+          "title": "North-south policy is asserted, not designed",
+          "detail": "The firewall pair is drawn handing off into the border leaves, but route leaking, VRF selection, external route admission and failure detection are all undefined.",
+          "atZone": "perimeter"
+        },
+        {
+          "title": "Out-of-band fan-out is one summarised line",
+          "detail": "The management plane is drawn reaching the fabric as a single dotted link. Which devices actually have dedicated management or console connections, and by what media, is unrecorded.",
+          "at": "oob-sw-01"
+        },
+        {
+          "title": "Two logical services have no physical home",
+          "detail": "Storage and the shared-service block appear in the topology but not in the rack. That is a valid scope difference for this kit, not an error, but their real location and attachment must be recorded before the design is used.",
+          "at": ["storage-01", "svc-01"]
+        },
+        {
+          "title": "Power, cooling and UPS scope are blank",
+          "detail": "No feed ratings, PSU-to-feed mapping, measured load, airflow direction or UPS runtime were supplied. Capacity and single-feed survival cannot be claimed from this document."
+        },
+        {
+          "title": "Twenty-five rack units are unplanned rather than free",
+          "detail": "The elevation shows placement only. Blanking panels, growth reservations and cable management have not been designed, so the open space is not evidence of headroom."
+        },
+        {
+          "title": "No reviewer, approver or owner is recorded",
+          "detail": "This revision carries an author role and nothing else. A design document with no named reviewer has no approval gate, whatever its technical content says."
+        }
       ]
     },
     "equipment": {
       "cards": [
-        { "model": "Cisco Catalyst 9500X-28C8D", "u": "1U", "why": "Collapsed core \u2014 two members, port-channelled to every access switch.", "asset": "c9500" },
-        { "model": "Cisco Catalyst 9300-48P", "u": "1U", "why": "User and voice access with PoE for the wireless estate.", "asset": "c9300" },
-        { "model": "Cisco FPR4215-NGFW-K9", "u": "1U", "why": "Perimeter pair, active and standby.", "asset": "fpr4215" }
+        { "model": "Cisco Catalyst 9500X-28C8D", "u": "1U", "why": "Fabric spine and EVPN route reflector — two of them, one routed link to every leaf.", "asset": "c9500" },
+        { "model": "Cisco Catalyst 9300-48P", "u": "1U", "why": "Drawn as the four leaves and the out-of-band switch. Its capability as a 100G tunnel endpoint is an open item, not a fact.", "asset": "c9300" },
+        { "model": "Cisco FPR4215-NGFW-K9", "u": "1U", "why": "North-south security pair, active and standby, handing off into the border leaves.", "asset": "fpr4215" },
+        { "model": "Dell PowerEdge R750", "u": "2U", "why": "Dual-homed virtualisation host on the compute leaf pair.", "asset": "r750" },
+        { "model": "APC SMT3000RMI2UC", "u": "2U", "why": "Rack UPS. Protected load, output capacity and runtime target are all unrecorded.", "asset": "ups" },
+        { "model": "Management appliance · model not selected", "u": "1U", "why": "No model has been chosen, so the elevation draws a plain labelled face instead of inventing artwork.", "asset": "generic" }
       ],
       "costs": []
     }
   }
 }
+
 </script>
 <!-- PROOF-DATA:END -->
 

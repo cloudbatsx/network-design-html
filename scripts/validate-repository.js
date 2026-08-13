@@ -133,6 +133,76 @@ check("template semantic map matches JSON", () => {
   }
 });
 
+function scriptById(source, id) {
+  const escaped = id.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const match = source.match(new RegExp(`<script\\b(?=[^>]*\\bid=["']${escaped}["'])[^>]*>([\\s\\S]*?)<\\/script>`, "i"));
+  assert(match, `missing ${id} script`);
+  return match[1].trim();
+}
+
+function embeddedIconMap(source) {
+  const embedded = {};
+  for (const match of source.matchAll(/^\s*"([^"]+)":\{vector:"([^"]+)",official:"([^"]+)"\}/gm)) {
+    embedded[match[1]] = { vector: match[2], official: match[3] };
+  }
+  return embedded;
+}
+
+const starterDirectory = path.join(root, "starters");
+const starterNames = fs.existsSync(starterDirectory)
+  ? fs.readdirSync(starterDirectory).filter((name) => name.endsWith(".edit.html")).sort()
+  : [];
+const starters = [];
+
+check("starter kits exist", () => {
+  assert(starterNames.length > 0, "no .edit.html starter kits found under starters/");
+});
+
+// Each starter carries its own copy of the sprite and the semantic map. Without
+// this loop they drift apart silently, which is exactly how a documentation set
+// ends up with the stylesheet no longer describing the document.
+for (const name of starterNames) {
+  check(`starter ${name}`, () => {
+    const source = validateEditable(`starters/${name}`);
+    starters.push(source);
+    assert(extractDefs(source, name) === extractDefs(sprite, "sprite"), "sprite drifted from symbols/network-symbols.svg");
+    assert(symbolIds(source).length === 19, `expected 19 symbols, found ${symbolIds(source).length}`);
+    assert(!/<image\b/i.test(source), "contains an SVG image element");
+
+    const embedded = embeddedIconMap(source);
+    assert(Object.keys(embedded).length === Object.keys(map.symbols).length, "semantic key count differs from symbol-map.json");
+    for (const [key, record] of Object.entries(map.symbols)) {
+      assert(JSON.stringify(embedded[key]) === JSON.stringify(record), `${key} differs from symbol-map.json`);
+    }
+
+    const data = JSON.parse(scriptById(source, "proof-data"));
+    const nodeIds = new Set((data.topology?.nodes || []).map((node) => node.id));
+    const zoneIds = new Set((data.topology?.zones || []).map((zone) => zone.id));
+    assert(nodeIds.size === (data.topology?.nodes || []).length, "duplicate topology node id");
+    for (const link of data.topology?.links || []) {
+      assert(nodeIds.has(link.from), `link references missing node ${link.from}`);
+      assert(nodeIds.has(link.to), `link references missing node ${link.to}`);
+    }
+    const occupied = new Map();
+    for (const device of data.rack?.devices || []) {
+      assert(typeof device.position === "number" && typeof device.height === "number", `${device.id} position/height must be numbers`);
+      assert(device.position >= 1 && device.position + device.height - 1 <= (data.rack.units || 42), `${device.id} does not fit the rack`);
+      for (let unit = device.position; unit < device.position + device.height; unit++) {
+        assert(!occupied.has(unit), `${device.id} overlaps ${occupied.get(unit)} at U${unit}`);
+        occupied.set(unit, device.id);
+      }
+    }
+    const findings = data.sections?.findings?.items || [];
+    assert(findings.length > 0, "a starter kit must record its own gaps");
+    findings.forEach((item, index) => {
+      const anchors = item.at == null ? [] : (Array.isArray(item.at) ? item.at : [item.at]);
+      for (const id of anchors) assert(nodeIds.has(id), `gap ${index + 1} pins to missing device ${id}`);
+      if (item.atZone !== undefined) assert(zoneIds.has(item.atZone), `gap ${index + 1} pins to missing zone ${item.atZone}`);
+    });
+    assert(findings.some((item) => item.at != null || item.atZone !== undefined), "no gap is pinned to the drawing");
+  });
+}
+
 check("editable vector files contain no raster image payloads", () => {
   for (const [label, source] of [["primary", primary], ["showcase", showcase], ["sprite", sprite]]) {
     assert(!/<image\b/i.test(source), `${label} contains an SVG image element`);
@@ -151,7 +221,7 @@ check("local asset references resolve when vendor assets are present", () => {
   const rackFiles = fs.readdirSync(rackDirectory).filter((name) => name.toLowerCase().endsWith(".png"));
   assert(iconFiles.length === 294, `expected 294 local Cisco JPGs, found ${iconFiles.length}`);
   assert(rackFiles.length === 10, `expected 10 local rack PNGs, found ${rackFiles.length}`);
-  const sources = [primary, alternate, JSON.stringify(map)];
+  const sources = [primary, alternate, JSON.stringify(map), ...starters];
   for (const source of sources) {
     for (const match of source.matchAll(/asset:(cisco|rack)\/([^"'<>`\r\n\\]+)/g)) {
       const directory = match[1] === "cisco" ? iconDirectory : rackDirectory;

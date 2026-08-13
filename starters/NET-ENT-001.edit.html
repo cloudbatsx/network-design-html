@@ -638,18 +638,18 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
 <script id="proof-data" type="application/json">
 {
   "document": {
-    "title": "Campus Topology \u0026 Rack Elevation",
-    "subtitle": "A worked sample of the documentation shell \u2014 logical topology, addressing and a 42U elevation generated from one data block, with every assumption marked as an assumption.",
-    "drawing": "NET-PROOF-001",
+    "title": "Enterprise Edge, DMZ \u0026 Services",
+    "subtitle": "A Layer 3 starter kit — external providers, a redundant perimeter with a DMZ services segment, and a collapsed core serving routed user, voice and application space, with every unverified value marked as an assumption.",
+    "drawing": "NET-ENT-001",
     "revision": "v1.0",
-    "status": "Working sample",
+    "status": "Reference design · proposed",
     "date": "2026-08-13",
-    "docClass": "Reference design",
-    "subject": "Campus",
-    "evidence": { "text": "Assumptions \u00b7 validation required", "color": "red" },
+    "docClass": "Enterprise edge, DMZ and services",
+    "subject": "Enterprise edge",
+    "evidence": { "text": "Reference pattern · no measured data", "color": "teal" },
     "brand": {
       "name": "cloudbats",
-      "label": "Systems \u00b7 Network Design \u2014 Internal Reference",
+      "label": "Systems · Network Design — Starter kit",
       "logoViewBox": "0 0 512 512",
       "logoFill": "#0F172A",
       "logoPath": "M112 72 H400 V352 Q400 400 376 424 Q356 440 336 424 Q316 400 296 400 H216 Q196 400 176 424 Q156 440 136 424 Q112 400 112 352 Z M312 136 A40 40 0 0 1 352 176 V304 A40 40 0 0 1 312 344 A40 40 0 0 1 272 304 V176 A40 40 0 0 1 312 136 Z"
@@ -658,12 +658,13 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
     "footer": {
       "author": "Prepared by the design owner",
       "originalDate": "2026-08-13",
-      "edition": "Presentation edition",
-      "changed": "documentation shell standardized 2026-08-13",
-      "detail": "full working detail lives with the change record",
-      "caveat": "Every element in this sample is an assumption to validate, not a recorded fact",
-      "redaction": "Facility identifiers at pattern level; personal identifiers redacted"
-    }  },
+      "edition": "Starter kit edition",
+      "changed": "published as the enterprise-edge starter kit",
+      "detail": "the working detail belongs in the companion Layer 2 sheet, carrier turn-up record and approved device inventory",
+      "caveat": "Every name, address, model and rack position here is a teaching assumption to validate, not a recorded fact",
+      "redaction": "No real site, carrier, circuit, serial or person appears; addressing is RFC 1918 private and RFC 5737 documentation ranges only"
+    }
+  },
   "topology": {
     "canvas": {
       "width": 1280,
@@ -672,182 +673,182 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
     "zones": [
       {
         "id": "external",
-        "label": "EXTERNAL / SERVICE PROVIDER",
+        "label": "EXTERNAL / PROVIDER",
         "kind": "external",
         "x": 25,
         "y": 25,
         "width": 1230,
-        "height": 245
+        "height": 268
       },
       {
         "id": "perimeter",
-        "label": "PERIMETER SECURITY",
+        "label": "PERIMETER · DMZ SERVICES",
         "kind": "perimeter",
         "x": 25,
-        "y": 285,
+        "y": 310,
         "width": 1230,
-        "height": 165
+        "height": 300
       },
       {
         "id": "internal",
-        "label": "CAMPUS / INTERNAL TRUST",
+        "label": "INTERNAL · TRUSTED SPACE",
         "kind": "internal",
         "x": 25,
-        "y": 465,
+        "y": 628,
         "width": 1230,
-        "height": 440
+        "height": 295
       }
     ],
     "nodes": [
       {
         "id": "internet",
-        "label": "Internet / ISP",
-        "role": "External service",
+        "label": "Internet",
+        "role": "External routed service",
         "icon": "cloud",
-        "x": 640,
-        "y": 88,
+        "x": 380,
+        "y": 95,
         "address": "Provider assigned",
-        "notes": "External routed service."
+        "notes": "Direct Internet access from one carrier. Carrier, circuit and bandwidth are unrecorded."
+      },
+      {
+        "id": "wan-corp",
+        "label": "Private WAN",
+        "role": "MPLS L3VPN service",
+        "icon": "cloud",
+        "x": 820,
+        "y": 95,
+        "address": "Provider VRF",
+        "notes": "Second provider service, kept separate from the Internet path all the way to the perimeter."
       },
       {
         "id": "edge-rtr-01",
         "label": "edge-rtr-01",
-        "role": "WAN router · ISP-A",
+        "role": "Internet edge router",
         "icon": "router",
-        "x": 360,
-        "y": 200,
-        "address": "198.51.100.2/30",
-        "notes": "eBGP to ISP-A."
+        "x": 380,
+        "y": 225,
+        "address": "Lo0 10.0.0.1/32 · outside 198.51.100.2/30",
+        "notes": "eBGP to the Internet provider. Rack U36. Chassis model not selected."
       },
       {
         "id": "edge-rtr-02",
         "label": "edge-rtr-02",
-        "role": "WAN router · ISP-B",
+        "role": "Private WAN edge router",
         "icon": "router",
-        "x": 920,
-        "y": 200,
-        "address": "203.0.113.2/30",
-        "notes": "eBGP to ISP-B."
+        "x": 820,
+        "y": 225,
+        "address": "Lo0 10.0.0.2/32 · VRF corp handoff",
+        "notes": "MPLS L3VPN handoff. iBGP peer of edge-rtr-01. Rack U35. Chassis model not selected."
       },
       {
         "id": "edge-fw-01",
         "label": "edge-fw-01",
         "role": "Perimeter · active",
         "icon": "firewall",
-        "x": 420,
-        "y": 365,
-        "address": "Outside / inside transit",
-        "notes": "NAT, VPN, IPS, and policy."
+        "x": 380,
+        "y": 380,
+        "address": "Transit 10.255.0.0/29 outside · /31 inside",
+        "notes": "Policy, NAT and VPN termination. HA active member. Rack U39."
       },
       {
         "id": "edge-fw-02",
         "label": "edge-fw-02",
         "role": "Perimeter · standby",
         "icon": "firewall",
-        "x": 860,
-        "y": 365,
-        "address": "Outside / inside transit",
-        "notes": "HA mate to edge-fw-01."
+        "x": 820,
+        "y": 380,
+        "address": "Transit 10.255.0.0/29 outside · /31 inside",
+        "notes": "Synchronized standby mate of edge-fw-01. The DMZ segment is drawn attached here. Rack U38."
+      },
+      {
+        "id": "dmz-lb-01",
+        "label": "dmz-lb-01",
+        "role": "DMZ load balancer",
+        "icon": "server",
+        "x": 1090,
+        "y": 380,
+        "address": "203.0.113.2/28 · VIPs .8–.10",
+        "notes": "Publishes virtual addresses to the DMZ web tier. Rack U33. Appliance model not selected."
+      },
+      {
+        "id": "dmz-web-01",
+        "label": "dmz-web-01",
+        "role": "DMZ web service",
+        "icon": "server",
+        "x": 950,
+        "y": 520,
+        "address": "203.0.113.3/28",
+        "notes": "Published through dmz-lb-01 only. Rack U30–U31."
+      },
+      {
+        "id": "dmz-web-02",
+        "label": "dmz-web-02",
+        "role": "DMZ web service",
+        "icon": "server",
+        "x": 1160,
+        "y": 520,
+        "address": "203.0.113.4/28",
+        "notes": "Published through dmz-lb-01 only. Rack U27–U28."
       },
       {
         "id": "core-sw-01",
         "label": "core-sw-01",
-        "role": "L3 collapsed core",
+        "role": "Collapsed core · gateway active",
         "icon": "core-switch",
-        "x": 475,
-        "y": 545,
-        "address": "10.255.255.1/32",
-        "notes": "Physical model C9500X-28C8D at U42."
+        "x": 380,
+        "y": 705,
+        "address": "Lo0 10.0.0.11/32 · OSPF area 0",
+        "notes": "First-hop gateway for the routed segments. Rack U42."
       },
       {
         "id": "core-sw-02",
         "label": "core-sw-02",
-        "role": "L3 collapsed core",
+        "role": "Collapsed core · gateway standby",
         "icon": "core-switch",
-        "x": 805,
-        "y": 545,
-        "address": "10.255.255.2/32",
-        "notes": "Physical model C9500X-28C8D at U41."
+        "x": 820,
+        "y": 705,
+        "address": "Lo0 10.0.0.12/32 · OSPF area 0",
+        "notes": "Peer of core-sw-01. Rack U41."
       },
       {
-        "id": "access-sw-01",
-        "label": "access-sw-01",
-        "role": "Users / voice",
-        "icon": "access-switch",
-        "x": 245,
-        "y": 700,
-        "address": "10.10.99.11/24",
-        "notes": "Physical model C9300-48P at U35."
+        "id": "oob-nms-01",
+        "label": "oob-nms-01",
+        "role": "Out-of-band management",
+        "icon": "network-management",
+        "x": 1120,
+        "y": 705,
+        "address": "10.99.0.10/24",
+        "notes": "Reaches both cores over a dedicated management path. Rack U24–U25."
       },
       {
-        "id": "access-sw-02",
-        "label": "access-sw-02",
-        "role": "Users / wireless",
-        "icon": "access-switch",
-        "x": 525,
-        "y": 700,
-        "address": "10.10.99.12/24",
-        "notes": "Physical model C9300-48P at U34."
-      },
-      {
-        "id": "services-sw-01",
-        "label": "services-sw-01",
-        "role": "Server access",
-        "icon": "access-switch",
-        "x": 970,
-        "y": 700,
-        "address": "10.50.99.11/24",
-        "notes": "Logical service-access switch."
-      },
-      {
-        "id": "ap-01",
-        "label": "ap-01",
-        "role": "Corp / Guest WLAN",
-        "icon": "access-point",
-        "x": 125,
-        "y": 842,
-        "address": "10.10.99.31/24",
-        "notes": "PoE lightweight access point."
-      },
-      {
-        "id": "users-a",
+        "id": "seg-users",
         "label": "Users · VLAN 10",
-        "role": "10.10.10.0/24",
+        "role": "Wired user population",
         "icon": "pc",
-        "x": 350,
-        "y": 842,
-        "address": "VLAN 10",
-        "notes": "Aggregate endpoint symbol."
+        "x": 260,
+        "y": 850,
+        "address": "VLAN 10 · 10.10.10.0/24 · gateway .1",
+        "notes": "Aggregate endpoint population. The access switches that carry it are not drawn on this sheet."
       },
       {
-        "id": "ap-02",
-        "label": "ap-02",
-        "role": "Corp / Guest WLAN",
-        "icon": "access-point",
-        "x": 575,
-        "y": 842,
-        "address": "10.10.99.32/24",
-        "notes": "PoE lightweight access point."
+        "id": "seg-voice",
+        "label": "Voice · VLAN 20",
+        "role": "IP telephony",
+        "icon": "ip-phone",
+        "x": 600,
+        "y": 850,
+        "address": "VLAN 20 · 10.10.20.0/24 · gateway .1",
+        "notes": "Aggregate endpoint population. Kept in its own range so it stays separable for policy."
       },
       {
-        "id": "hv-01",
-        "label": "hv-01",
-        "role": "Compute · VLAN 50",
+        "id": "seg-apps",
+        "label": "Applications · VLAN 50",
+        "role": "Internal application tier",
         "icon": "server",
-        "x": 875,
-        "y": 842,
-        "address": "10.50.50.21/24",
-        "notes": "Dell PowerEdge R750 at U30–U31."
-      },
-      {
-        "id": "hv-02",
-        "label": "hv-02",
-        "role": "Compute · VLAN 50",
-        "icon": "server",
-        "x": 1100,
-        "y": 842,
-        "address": "10.50.50.22/24",
-        "notes": "Dell PowerEdge R750 at U27–U28."
+        "x": 940,
+        "y": 850,
+        "address": "VLAN 50 · 10.10.50.0/24 · gateway .1",
+        "notes": "Aggregate internal service population. Not the DMZ tier — these are never published outward."
       }
     ],
     "links": [
@@ -856,16 +857,24 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
         "to": "edge-rtr-01",
         "kind": "l3",
         "label": "DIA · ISP-A",
-        "labelX": 470,
-        "labelY": 128
+        "labelX": 380,
+        "labelY": 160
       },
       {
-        "from": "internet",
+        "from": "wan-corp",
         "to": "edge-rtr-02",
         "kind": "l3",
-        "label": "DIA · ISP-B",
-        "labelX": 810,
-        "labelY": 128
+        "label": "MPLS · VRF corp",
+        "labelX": 820,
+        "labelY": 160
+      },
+      {
+        "from": "edge-rtr-01",
+        "to": "edge-rtr-02",
+        "kind": "ha",
+        "label": "iBGP · AS 65020",
+        "labelX": 600,
+        "labelY": 225
       },
       {
         "from": "edge-rtr-01",
@@ -891,14 +900,35 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
         "from": "edge-fw-01",
         "to": "edge-fw-02",
         "kind": "ha",
-        "label": "HA state / sync",
-        "labelX": 640,
-        "labelY": 365
+        "label": "HA state / session sync",
+        "labelX": 600,
+        "labelY": 380
+      },
+      {
+        "from": "edge-fw-02",
+        "to": "dmz-lb-01",
+        "kind": "l3",
+        "label": "VLAN 210",
+        "labelX": 955,
+        "labelY": 380
+      },
+      {
+        "from": "dmz-lb-01",
+        "to": "dmz-web-01",
+        "kind": "access"
+      },
+      {
+        "from": "dmz-lb-01",
+        "to": "dmz-web-02",
+        "kind": "access"
       },
       {
         "from": "edge-fw-01",
         "to": "core-sw-01",
-        "kind": "aggregate"
+        "kind": "aggregate",
+        "label": "OSPF area 0",
+        "labelX": 380,
+        "labelY": 540
       },
       {
         "from": "edge-fw-01",
@@ -919,85 +949,79 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
         "from": "core-sw-01",
         "to": "core-sw-02",
         "kind": "ha",
-        "label": "Peer link",
-        "labelX": 640,
-        "labelY": 545
+        "label": "Core peer link",
+        "labelX": 600,
+        "labelY": 705
       },
       {
         "from": "core-sw-01",
-        "to": "access-sw-01",
-        "kind": "aggregate"
+        "to": "seg-users",
+        "kind": "access"
       },
       {
         "from": "core-sw-02",
-        "to": "access-sw-01",
-        "kind": "aggregate"
+        "to": "seg-users",
+        "kind": "access"
       },
       {
         "from": "core-sw-01",
-        "to": "access-sw-02",
-        "kind": "aggregate"
+        "to": "seg-voice",
+        "kind": "access"
       },
       {
         "from": "core-sw-02",
-        "to": "access-sw-02",
-        "kind": "aggregate"
+        "to": "seg-voice",
+        "kind": "access"
       },
       {
         "from": "core-sw-01",
-        "to": "services-sw-01",
-        "kind": "aggregate"
+        "to": "seg-apps",
+        "kind": "access"
       },
       {
         "from": "core-sw-02",
-        "to": "services-sw-01",
-        "kind": "aggregate"
-      },
-      {
-        "from": "access-sw-01",
-        "to": "ap-01",
+        "to": "seg-apps",
         "kind": "access"
       },
       {
-        "from": "access-sw-01",
-        "to": "users-a",
-        "kind": "access"
+        "from": "oob-nms-01",
+        "to": "core-sw-02",
+        "kind": "backup"
       },
       {
-        "from": "access-sw-02",
-        "to": "ap-02",
-        "kind": "access"
-      },
-      {
-        "from": "services-sw-01",
-        "to": "hv-01",
-        "kind": "access"
-      },
-      {
-        "from": "services-sw-01",
-        "to": "hv-02",
-        "kind": "access"
+        "from": "oob-nms-01",
+        "to": "core-sw-01",
+        "kind": "backup",
+        "via": [[1120, 645], [200, 645]],
+        "label": "OOB · 10.99.0.0/24",
+        "labelX": 620,
+        "labelY": 645
       }
     ]
   },
   "rack": {
-    "id": "R113",
-    "location": "MDF-1",
+    "id": "RK-EDGE-01",
+    "location": "Edge row",
     "units": 42,
     "frontAisle": "cold aisle",
     "rearAisle": "hot aisle",
     "reserved": [
       {
-        "position": 36,
+        "position": 40,
         "height": 1,
-        "label": "U36 · reserved patch field"
+        "label": "U40 · reserved patch field"
+      },
+      {
+        "position": 20,
+        "height": 2,
+        "label": "U20–U21 · reserved for growth"
       }
     ],
     "devices": [
       {
         "id": "core-sw-01",
         "model": "Cisco Catalyst 9500X-28C8D",
-        "role": "Collapsed core",
+        "role": "Collapsed core · gateway active",
         "position": 42,
         "height": 1,
         "asset": "c9500"
@@ -1005,7 +1029,7 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
       {
         "id": "core-sw-02",
         "model": "Cisco Catalyst 9500X-28C8D",
-        "role": "Collapsed core",
+        "role": "Collapsed core · gateway standby",
         "position": 41,
         "height": 1,
         "asset": "c9500"
@@ -1027,34 +1051,50 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
         "asset": "fpr4215"
       },
       {
-        "id": "access-sw-01",
-        "model": "Cisco Catalyst 9300-48P",
-        "role": "User access",
+        "id": "edge-rtr-01",
+        "model": "Not selected · 1U Internet edge router",
+        "role": "Internet edge router",
+        "position": 36,
+        "height": 1,
+        "asset": "generic"
+      },
+      {
+        "id": "edge-rtr-02",
+        "model": "Not selected · 1U private WAN edge router",
+        "role": "Private WAN edge router",
         "position": 35,
         "height": 1,
-        "asset": "c9300"
+        "asset": "generic"
       },
       {
-        "id": "access-sw-02",
-        "model": "Cisco Catalyst 9300-48P",
-        "role": "User access",
-        "position": 34,
+        "id": "dmz-lb-01",
+        "model": "Not selected · 1U application delivery appliance",
+        "role": "DMZ load balancer",
+        "position": 33,
         "height": 1,
-        "asset": "c9300"
+        "asset": "generic"
       },
       {
-        "id": "hv-01",
+        "id": "dmz-web-01",
         "model": "Dell PowerEdge R750",
-        "role": "Virtualization host",
+        "role": "DMZ web service host",
         "position": 30,
         "height": 2,
         "asset": "r750"
       },
       {
-        "id": "hv-02",
+        "id": "dmz-web-02",
         "model": "Dell PowerEdge R750",
-        "role": "Virtualization host",
+        "role": "DMZ web service host",
         "position": 27,
+        "height": 2,
+        "asset": "r750"
+      },
+      {
+        "id": "oob-nms-01",
+        "model": "Dell PowerEdge R750",
+        "role": "Out-of-band management host",
+        "position": 24,
         "height": 2,
         "asset": "r750"
       },
@@ -1072,81 +1112,143 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
     "overview": {
       "heading": "What this document is",
       "notes": [
-        { "lead": "A reference campus design", "text": "one collapsed core, a redundant perimeter and a single 42U rack, drawn to show the notation rather than a real site." },
-        { "lead": "Why it matters here", "text": "it is the worked example every other document in this repository is copied from." },
-        { "lead": "Same drawing conventions as the rest of the set", "text": "only the network changes, not the notation." }
+        { "lead": "A three-zone enterprise edge", "text": "two provider services, a redundant perimeter pair carrying a DMZ services segment, and a collapsed core that serves routed user, voice and application space." },
+        { "lead": "Open this one first", "text": "it is the smallest complete kit in the set apart from the branch — fifteen nodes, one rack, one addressing table — and every feature of the document contract appears in it exactly once." },
+        { "lead": "What it is not", "text": "not an as-built record and not a construction package. It draws intent at Layer 3 and names the missing facts instead of inventing them." }
       ],
       "provenance": [
-        { "lead": "Provenance, two classes, kept visibly distinct", "text": "Recorded = the topology and rack data in this file, which renders exactly what it says. Assumed = every address, model and role, which is illustrative only." },
-        { "lead": "The Key gaps eye control in the sidebar", "text": "hides the assumption layer for a recorded-only view. Printing force-reveals it, so the PDF is always the complete document." }
+        { "lead": "Two classes of claim, kept visibly apart", "text": "Recorded = the topology, rack and table data in this file, which renders exactly what it says. Assumed = every address, chassis model, rack position and carrier detail." },
+        { "lead": "The Key gaps eye control in the sidebar", "text": "hides the assumption layer, including the assumed rows of the addressing table, for a recorded-only reading. Printing force-reveals it, so the PDF is always the complete document." }
       ]
     },
     "logical": {
-      "heading": "Logical topology \u2014 dual-homed edge into a collapsed core",
+      "heading": "Logical topology — three zones, one perimeter pair, one DMZ",
       "notes": [
-        { "lead": "Design point", "text": "two providers terminate on separate edge routers, cross-connect to an active/standby firewall pair, then port-channel into a two-member collapsed core." },
-        { "lead": "Provenance", "text": "the shape is a documented pattern; every address shown is assumed." }
-      ]
+        { "lead": "Design point", "text": "two providers land on separate edge routers, cross-connect into an active/standby firewall pair, then port-channel into a two-member collapsed core. The DMZ hangs off the perimeter, never off the core." },
+        { "lead": "Reading the zones", "text": "external is everything the enterprise does not administer, perimeter is where policy is enforced and where the DMZ services sit, internal is trusted address space. Nothing crosses a zone boundary without passing the firewall pair." },
+        { "lead": "Deliberately absent", "text": "no access switches, no spanning tree, no trunk allow-lists and no physical interfaces. One sheet, one abstraction layer." },
+        { "lead": "Provenance", "text": "the shape is a documented pattern; every address on the drawing is a proposal." }
+      ],
+      "caption": "Fig. 1 — Enterprise edge, DMZ and services, drawn strictly at Layer 3. Providers north, trusted space south, A members left of B members. Generated from the diagram data block; every address, model and rack position shown is assumed.",
+      "legend": "Legend — solid = routed / Layer 3 · heavy = port-channel or aggregate · dashed magenta = HA, peer or routing adjacency · thin = segment attachment · dotted grey = backup or out-of-band path."
     },
     "identity": {
-      "heading": "Identity \u0026 addressing \u2014 one summarizable block per function",
+      "heading": "Identity \u0026 addressing — documentation ranges only",
       "notes": [
-        { "lead": "Addressing intent", "text": "user, voice, wireless and server ranges stay separable so the core can summarize outward." }
+        { "lead": "Addressing intent", "text": "user, voice and application ranges stay separable so the core can summarize inward, and the DMZ sits in public documentation space so it is never confused with internal address space." },
+        { "lead": "Ranges used", "text": "RFC 1918 for private space, RFC 5737 (198.51.100.0/24 and 203.0.113.0/24) wherever a public address is implied. Nothing here is routable on the public Internet." },
+        { "lead": "Rows marked as assumptions", "text": "hide with the Key gaps control. What is left is the short list of statements this document can actually stand behind." }
       ],
-      "columns": ["Function", "VLAN", "Range", "Provenance"],
+      "columns": ["Function / object", "VLAN", "Prefix or address", "Provenance"],
       "rows": [
-        { "cells": ["Users", "10", "10.10.10.0/24", "Assumed"], "layer": "gap" },
-        { "cells": ["Wireless infrastructure", "99", "10.10.99.0/24", "Assumed"], "layer": "gap" },
-        { "cells": ["Server / compute", "50", "10.50.50.0/24", "Assumed"], "layer": "gap" },
-        { "cells": ["Core loopbacks", "\u2014", "10.255.255.0/24", "Assumed"], "layer": "gap" }
+        { "cells": ["DMZ services", "210", "203.0.113.0/28 · gateway .1", "Documentation range (RFC 5737)"] },
+        { "cells": ["Routing design", "—", "eBGP to provider · iBGP AS 65020 · OSPF area 0", "Design decision recorded here"] },
+        { "cells": ["Internet handoff", "—", "198.51.100.0/30", "Assumed · carrier turn-up record open"], "layer": "gap" },
+        { "cells": ["Users", "10", "10.10.10.0/24 · gateway .1", "Assumed"], "layer": "gap" },
+        { "cells": ["Voice", "20", "10.10.20.0/24 · gateway .1", "Assumed"], "layer": "gap" },
+        { "cells": ["Applications", "50", "10.10.50.0/24 · gateway .1", "Assumed"], "layer": "gap" },
+        { "cells": ["Out-of-band management", "—", "10.99.0.0/24", "Assumed · core management addresses open"], "layer": "gap" },
+        { "cells": ["Edge to firewall transit", "—", "10.255.0.0/29", "Assumed"], "layer": "gap" },
+        { "cells": ["Firewall to core transits", "—", "One /31 per link · not allocated", "Open · no addresses assigned"], "layer": "gap" },
+        { "cells": ["Device loopbacks", "—", "10.0.0.0/24 · .1–.12 in use", "Assumed"], "layer": "gap" }
       ]
     },
     "physical": {
-      "heading": "Physical view \u2014 one rack, both faces, one schedule",
+      "heading": "Physical view — one 42U rack, both faces, one schedule",
       "notes": [
-        { "lead": "Same device IDs, different view", "text": "front and rear elevations and the schedule below are generated from a single equipment list, so they cannot drift apart." },
-        { "lead": "Rack units are numbered from the bottom", "text": "a device position is the lowest unit it fills." }
-      ]
+        { "lead": "Same device IDs, different view", "text": "the front elevation, the rear elevation and the schedule below are generated from a single equipment list, so they cannot drift apart. Ten of the eleven rack devices carry the same id as a topology node; only the UPS does not appear on the drawing." },
+        { "lead": "Rack units count from the bottom", "text": "a device position is the lowest unit it fills, so a 2U host at position 30 occupies U30 and U31." },
+        { "lead": "Placement is illustrative", "text": "the design this kit is drawn from deliberately recorded no physical placement. This elevation exists to demonstrate the notation — do not read power, airflow, weight or cable path from it." },
+        { "lead": "Where a model is not chosen", "text": "the edge routers and the load balancer are drawn as plain labelled faces. A generic face is the honest way to say the chassis has not been selected." }
+      ],
+      "caption": "Fig. 2 — Rack elevation, front and rear, generated from one equipment schedule. Rack units are numbered from the bottom; hatched slots are reserved, not empty. Every position and model shown is assumed, because the parent design recorded none.",
+      "legend": "Legend — shaded slots are occupied · hatched slots are reserved · a plain labelled face means no chassis has been selected for that role."
     },
     "change": {
-      "heading": "Change management \u2014 the file is the record",
+      "heading": "Change management — the file is the record",
       "notes": [
-        { "lead": "Versioned as text", "text": "the whole document is one HTML file, so a topology change is a reviewable diff rather than an opaque binary replacement." },
+        { "lead": "Versioned as text", "text": "the whole document is one HTML file with one JSON data block, so a topology change is a reviewable diff rather than an opaque binary replacement." },
         { "lead": "Revision discipline", "text": "bump the revision and the date in the data block whenever the design changes; the header badges read from those fields." },
+        { "lead": "Companion documents are prerequisites", "text": "a Layer 2 sheet, an approved carrier turn-up record and a signed device inventory are not optional extras. Produce them before this design drives a change." },
         { "lead": "Rollback", "text": "any prior revision opens in a browser exactly as it was published." }
       ]
     },
     "operations": {
-      "heading": "Operations \u0026 observability \u2014 what to watch",
+      "heading": "Operations \u0026 observability — what would have to be true",
       "notes": [
-        { "lead": "Owner", "text": "name the team accountable for this design and the escalation path." },
-        { "lead": "Signals", "text": "the links drawn as HA or aggregate are the ones whose loss is silent \u2014 monitor member state, not just the logical interface." },
+        { "lead": "Owner", "text": "name the team accountable for this design and the escalation path. This kit names none, and that absence is recorded as a gap rather than left implicit." },
+        { "lead": "Signals", "text": "the links drawn as HA or aggregate are the ones whose partial loss is silent — monitor member state, not just the logical interface." },
+        { "lead": "Out-of-band", "text": "the management segment is drawn as a routed identity only. No console server, no reachability test and no failure-mode evidence is attached to it." },
         { "lead": "Validation", "text": "this document asserts intent. Reconcile it against the running configuration before treating any value as fact." }
       ]
     },
     "findings": {
-      "id": "gaps",
-      "label": "Gaps \u0026 open items",
-      "noun": "gaps and open items",
-      "heading": "Gaps and open items \u2014 what this document does not know",
+      "id": "key-gaps",
+      "label": "Key gaps",
+      "noun": "gaps and unknowns",
+      "heading": "Key gaps — what this document does not know",
       "flavour": "gaps",
       "items": [
-        { "title": "Every address is illustrative", "detail": "No range here has been reconciled against a live device. Replace them before this document is used to make a change.", "atZone": "internal" },
-        { "title": "No provider or circuit detail", "detail": "Both uplinks are drawn as a pattern. Carrier, bandwidth and demarcation are unrecorded.", "at": ["edge-rtr-01", "edge-rtr-02"] },
-        { "title": "Firewall failover is unproven", "detail": "The HA pair is drawn as active/standby, but no failover test is recorded against this design.", "at": "edge-fw-02" },
-        { "title": "Rack schedule is partial", "detail": "Power, cooling and cable management are not modelled, so the elevation shows placement only, not capacity." }
+        {
+          "title": "The core pair is described two ways",
+          "detail": "It is drawn as a single peer-linked pair and also as two independently addressed gateways. Those are different control-plane designs with different failure behaviour. Choose one and document it before either core is configured.",
+          "at": ["core-sw-01", "core-sw-02"]
+        },
+        {
+          "title": "The four firewall-to-core transits carry no addresses",
+          "detail": "Each of the four routed paths needs its own point-to-point network. None has been allocated, so no interface on either side can be configured or reconciled.",
+          "at": ["edge-fw-01", "edge-fw-02"]
+        },
+        {
+          "title": "Which firewall owns the DMZ gateway is unrecorded",
+          "detail": "The DMZ segment is drawn attached through the standby member while the other member is marked active. The virtual-interface behaviour across a failover is not stated, so the published services have no documented failure mode.",
+          "atZone": "perimeter"
+        },
+        {
+          "title": "There is no carrier record behind either uplink",
+          "detail": "Provider ASN, peer addresses, handoff prefix, committed rate and demarcation are all absent. The two clouds are a pattern, not a service.",
+          "atZone": "external"
+        },
+        {
+          "title": "The access layer under these segments is not drawn",
+          "detail": "Endpoint populations attach straight to the core on this sheet. The switches, trunks and spanning-tree state that actually carry VLANs 10, 20 and 50 belong on a Layer 2 companion that does not yet exist.",
+          "at": ["seg-users", "seg-voice", "seg-apps"]
+        },
+        {
+          "title": "Out-of-band management is drawn but unmeasured",
+          "detail": "The management host appears as a routed identity with a path to each core. No console server, no polling target, no syslog destination and no reachability evidence is attached to it, so nothing in this design is currently observable.",
+          "at": "oob-nms-01"
+        },
+        {
+          "title": "The rack elevation is placement, not an as-built record",
+          "detail": "The source design recorded no physical facts at all. Positions here are illustrative and carry no power, airflow, weight or cabling authority. Treat the elevation as notation practice until an approved inventory and U plan exist."
+        },
+        {
+          "title": "No reviewer and no approver are assigned",
+          "detail": "The document names an author and nobody else. A design with no second reader is an opinion, however well drawn."
+        },
+        {
+          "title": "Every address is a proposal",
+          "detail": "Not one range in the addressing table has been reconciled against a live device or an IPAM record. Replace them from approved sources before this document is used to make a change."
+        },
+        {
+          "title": "Print and grayscale review have not been run",
+          "detail": "The document is designed to survive a monochrome Letter print, but that has not been verified on a real driver. Until it is, do not rely on colour alone to carry meaning in a printed copy."
+        }
       ]
     },
     "equipment": {
       "cards": [
-        { "model": "Cisco Catalyst 9500X-28C8D", "u": "1U", "why": "Collapsed core \u2014 two members, port-channelled to every access switch.", "asset": "c9500" },
-        { "model": "Cisco Catalyst 9300-48P", "u": "1U", "why": "User and voice access with PoE for the wireless estate.", "asset": "c9300" },
-        { "model": "Cisco FPR4215-NGFW-K9", "u": "1U", "why": "Perimeter pair, active and standby.", "asset": "fpr4215" }
+        { "model": "Cisco Catalyst 9500X-28C8D", "u": "1U", "why": "Collapsed core pair — peer-linked to each other and port-channelled to both firewalls.", "asset": "c9500" },
+        { "model": "Cisco FPR4215-NGFW-K9", "u": "1U", "why": "Perimeter pair, active and standby, carrying policy, NAT, VPN and the DMZ segment.", "asset": "fpr4215" },
+        { "model": "Dell PowerEdge R750", "u": "2U", "why": "DMZ web tier and the out-of-band management host — three identical chassis.", "asset": "r750" },
+        { "model": "APC SMT3000RMI2UC", "u": "2U", "why": "Rack UPS. The only scheduled device that does not appear on the logical drawing.", "asset": "ups" }
       ],
       "costs": []
     }
   }
 }
+
 </script>
 <!-- PROOF-DATA:END -->
 

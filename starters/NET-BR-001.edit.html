@@ -638,18 +638,18 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
 <script id="proof-data" type="application/json">
 {
   "document": {
-    "title": "Campus Topology \u0026 Rack Elevation",
-    "subtitle": "A worked sample of the documentation shell \u2014 logical topology, addressing and a 42U elevation generated from one data block, with every assumption marked as an assumption.",
-    "drawing": "NET-PROOF-001",
+    "title": "Branch Site — Topology \u0026 Rack Elevation",
+    "subtitle": "The smallest complete kit in the set — one WAN edge, one firewall, one PoE access switch, wireless and a 12U cabinet, all generated from a single data block. Copy this file when you are starting from nothing.",
+    "drawing": "NET-BR-001",
     "revision": "v1.0",
-    "status": "Working sample",
+    "status": "Starter kit · not approved",
     "date": "2026-08-13",
-    "docClass": "Reference design",
-    "subject": "Campus",
-    "evidence": { "text": "Assumptions \u00b7 validation required", "color": "red" },
+    "docClass": "Branch site",
+    "subject": "Branch",
+    "evidence": { "text": "Assumptions only · nothing validated", "color": "red" },
     "brand": {
       "name": "cloudbats",
-      "label": "Systems \u00b7 Network Design \u2014 Internal Reference",
+      "label": "Systems · Network Design — Starter kit",
       "logoViewBox": "0 0 512 512",
       "logoFill": "#0F172A",
       "logoPath": "M112 72 H400 V352 Q400 400 376 424 Q356 440 336 424 Q316 400 296 400 H216 Q196 400 176 424 Q156 440 136 424 Q112 400 112 352 Z M312 136 A40 40 0 0 1 352 176 V304 A40 40 0 0 1 312 344 A40 40 0 0 1 272 304 V176 A40 40 0 0 1 312 136 Z"
@@ -658,411 +658,245 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
     "footer": {
       "author": "Prepared by the design owner",
       "originalDate": "2026-08-13",
-      "edition": "Presentation edition",
-      "changed": "documentation shell standardized 2026-08-13",
-      "detail": "full working detail lives with the change record",
-      "caveat": "Every element in this sample is an assumption to validate, not a recorded fact",
-      "redaction": "Facility identifiers at pattern level; personal identifiers redacted"
-    }  },
+      "edition": "Starter kit edition",
+      "changed": "first published as the branch starter kit",
+      "detail": "working detail belongs in the change record of whichever site adopts this file",
+      "caveat": "Every element in this kit is an assumption to validate, not a recorded fact — no configuration, measurement or as-built survey stands behind any value",
+      "redaction": "Generic site and role names throughout; addressing is RFC 1918 / RFC 5737 / RFC 3849 documentation space; facility, serial and personal identifiers are redacted"
+    }
+  },
   "topology": {
-    "canvas": {
-      "width": 1280,
-      "height": 930
-    },
+    "canvas": { "width": 1280, "height": 930 },
     "zones": [
       {
         "id": "external",
-        "label": "EXTERNAL / SERVICE PROVIDER",
+        "label": "EXTERNAL TRANSPORTS",
         "kind": "external",
         "x": 25,
         "y": 25,
         "width": 1230,
-        "height": 245
+        "height": 175
       },
       {
         "id": "perimeter",
-        "label": "PERIMETER SECURITY",
+        "label": "WAN EDGE \u0026 PERIMETER",
         "kind": "perimeter",
         "x": 25,
-        "y": 285,
+        "y": 235,
         "width": 1230,
-        "height": 165
+        "height": 300
       },
       {
         "id": "internal",
-        "label": "CAMPUS / INTERNAL TRUST",
+        "label": "BRANCH ACCESS \u0026 LOCAL SERVICES",
         "kind": "internal",
         "x": 25,
-        "y": 465,
+        "y": 550,
         "width": 1230,
-        "height": 440
+        "height": 355
       }
     ],
     "nodes": [
       {
-        "id": "internet",
-        "label": "Internet / ISP",
-        "role": "External service",
+        "id": "wan-internet",
+        "label": "Broadband / DIA",
+        "role": "Primary transport",
         "icon": "cloud",
+        "x": 480,
+        "y": 120,
+        "address": "198.51.100.0/30 handoff",
+        "notes": "Carrier-provided direct internet access. Circuit ID, committed bandwidth and demarcation point are unrecorded."
+      },
+      {
+        "id": "wan-backup",
+        "label": "Backup overlay",
+        "role": "Secondary transport",
+        "icon": "cloud",
+        "x": 800,
+        "y": 120,
+        "address": "Carrier NAT · no branch-held prefix",
+        "notes": "Standby IPsec overlay behind carrier NAT, so the branch holds no address on this transport and no inbound service is expected on it. Access technology is unrecorded."
+      },
+      {
+        "id": "branch-rtr-01",
+        "label": "branch-rtr-01",
+        "role": "WAN edge router",
+        "icon": "router",
         "x": 640,
-        "y": 88,
-        "address": "Provider assigned",
-        "notes": "External routed service."
+        "y": 300,
+        "address": "10.20.10.11/24",
+        "notes": "Terminates both transports on one chassis. Racked at U10; see the schedule in section 3."
       },
       {
-        "id": "edge-rtr-01",
-        "label": "edge-rtr-01",
-        "role": "WAN router · ISP-A",
-        "icon": "router",
-        "x": 360,
-        "y": 200,
-        "address": "198.51.100.2/30",
-        "notes": "eBGP to ISP-A."
-      },
-      {
-        "id": "edge-rtr-02",
-        "label": "edge-rtr-02",
-        "role": "WAN router · ISP-B",
-        "icon": "router",
-        "x": 920,
-        "y": 200,
-        "address": "203.0.113.2/30",
-        "notes": "eBGP to ISP-B."
-      },
-      {
-        "id": "edge-fw-01",
-        "label": "edge-fw-01",
-        "role": "Perimeter · active",
+        "id": "branch-fw-01",
+        "label": "branch-fw-01",
+        "role": "Perimeter firewall",
         "icon": "firewall",
-        "x": 420,
-        "y": 365,
-        "address": "Outside / inside transit",
-        "notes": "NAT, VPN, IPS, and policy."
+        "x": 640,
+        "y": 460,
+        "address": "10.20.10.21/24",
+        "notes": "The only routed boundary at the site — NAT, egress policy and remote access. No HA mate is installed."
       },
       {
-        "id": "edge-fw-02",
-        "label": "edge-fw-02",
-        "role": "Perimeter · standby",
-        "icon": "firewall",
-        "x": 860,
-        "y": 365,
-        "address": "Outside / inside transit",
-        "notes": "HA mate to edge-fw-01."
-      },
-      {
-        "id": "core-sw-01",
-        "label": "core-sw-01",
-        "role": "L3 collapsed core",
-        "icon": "core-switch",
-        "x": 475,
-        "y": 545,
-        "address": "10.255.255.1/32",
-        "notes": "Physical model C9500X-28C8D at U42."
-      },
-      {
-        "id": "core-sw-02",
-        "label": "core-sw-02",
-        "role": "L3 collapsed core",
-        "icon": "core-switch",
-        "x": 805,
-        "y": 545,
-        "address": "10.255.255.2/32",
-        "notes": "Physical model C9500X-28C8D at U41."
-      },
-      {
-        "id": "access-sw-01",
-        "label": "access-sw-01",
-        "role": "Users / voice",
+        "id": "branch-sw-01",
+        "label": "branch-sw-01",
+        "role": "PoE access switch",
         "icon": "access-switch",
-        "x": 245,
-        "y": 700,
-        "address": "10.10.99.11/24",
-        "notes": "Physical model C9300-48P at U35."
+        "x": 640,
+        "y": 630,
+        "address": "10.20.10.31/24",
+        "notes": "One 48-port PoE switch carries users, voice, building IoT and the wireless estate."
       },
       {
-        "id": "access-sw-02",
-        "label": "access-sw-02",
-        "role": "Users / wireless",
-        "icon": "access-switch",
-        "x": 525,
-        "y": 700,
-        "address": "10.10.99.12/24",
-        "notes": "Physical model C9300-48P at U34."
-      },
-      {
-        "id": "services-sw-01",
-        "label": "services-sw-01",
-        "role": "Server access",
-        "icon": "access-switch",
-        "x": 970,
-        "y": 700,
-        "address": "10.50.99.11/24",
-        "notes": "Logical service-access switch."
-      },
-      {
-        "id": "ap-01",
-        "label": "ap-01",
-        "role": "Corp / Guest WLAN",
+        "id": "branch-ap-01",
+        "label": "branch-ap-01",
+        "role": "Corp / guest WLAN",
         "icon": "access-point",
-        "x": 125,
-        "y": 842,
-        "address": "10.10.99.31/24",
-        "notes": "PoE lightweight access point."
+        "x": 190,
+        "y": 800,
+        "address": "10.20.60.11/24",
+        "notes": "PoE access point. Drawn as one symbol for the whole floor, not one cable per radio."
       },
       {
-        "id": "users-a",
-        "label": "Users · VLAN 10",
-        "role": "10.10.10.0/24",
+        "id": "users-vl20",
+        "label": "Users · VLAN 20",
+        "role": "Wired user population",
         "icon": "pc",
-        "x": 350,
-        "y": 842,
-        "address": "VLAN 10",
-        "notes": "Aggregate endpoint symbol."
+        "x": 460,
+        "y": 800,
+        "address": "VLAN 20 · 10.20.20.0/24",
+        "notes": "Aggregate endpoint symbol. Outlet and switchport counts are a separate schedule."
       },
       {
-        "id": "ap-02",
-        "label": "ap-02",
-        "role": "Corp / Guest WLAN",
-        "icon": "access-point",
-        "x": 575,
-        "y": 842,
-        "address": "10.10.99.32/24",
-        "notes": "PoE lightweight access point."
+        "id": "voice-vl30",
+        "label": "Voice · VLAN 30",
+        "role": "IP telephony",
+        "icon": "ip-phone",
+        "x": 730,
+        "y": 800,
+        "address": "VLAN 30 · 10.20.30.0/24",
+        "notes": "Handsets on switchport pass-through. Call control lives off site across the WAN."
       },
       {
-        "id": "hv-01",
-        "label": "hv-01",
-        "role": "Compute · VLAN 50",
+        "id": "branch-srv-01",
+        "label": "branch-srv-01",
+        "role": "Local services host",
         "icon": "server",
-        "x": 875,
-        "y": 842,
-        "address": "10.50.50.21/24",
-        "notes": "Dell PowerEdge R750 at U30–U31."
-      },
-      {
-        "id": "hv-02",
-        "label": "hv-02",
-        "role": "Compute · VLAN 50",
-        "icon": "server",
-        "x": 1100,
-        "y": 842,
-        "address": "10.50.50.22/24",
-        "notes": "Dell PowerEdge R750 at U27–U28."
+        "x": 1010,
+        "y": 800,
+        "address": "10.20.50.11/24",
+        "notes": "DHCP, DNS and print, so the site stays usable during a WAN outage. Racked at U3–U4."
       }
     ],
     "links": [
       {
-        "from": "internet",
-        "to": "edge-rtr-01",
+        "from": "wan-internet",
+        "to": "branch-rtr-01",
         "kind": "l3",
-        "label": "DIA · ISP-A",
-        "labelX": 470,
-        "labelY": 128
+        "label": "Broadband · DIA",
+        "labelX": 564,
+        "labelY": 215
       },
       {
-        "from": "internet",
-        "to": "edge-rtr-02",
+        "from": "wan-backup",
+        "to": "branch-rtr-01",
+        "kind": "backup",
+        "label": "Standby overlay",
+        "labelX": 716,
+        "labelY": 215
+      },
+      {
+        "from": "branch-rtr-01",
+        "to": "branch-fw-01",
         "kind": "l3",
-        "label": "DIA · ISP-B",
-        "labelX": 810,
-        "labelY": 128
-      },
-      {
-        "from": "edge-rtr-01",
-        "to": "edge-fw-01",
-        "kind": "l3"
-      },
-      {
-        "from": "edge-rtr-02",
-        "to": "edge-fw-02",
-        "kind": "l3"
-      },
-      {
-        "from": "edge-rtr-01",
-        "to": "edge-fw-02",
-        "kind": "backup"
-      },
-      {
-        "from": "edge-rtr-02",
-        "to": "edge-fw-01",
-        "kind": "backup"
-      },
-      {
-        "from": "edge-fw-01",
-        "to": "edge-fw-02",
-        "kind": "ha",
-        "label": "HA state / sync",
+        "label": "Edge transit",
         "labelX": 640,
-        "labelY": 365
+        "labelY": 380
       },
       {
-        "from": "edge-fw-01",
-        "to": "core-sw-01",
-        "kind": "aggregate"
-      },
-      {
-        "from": "edge-fw-01",
-        "to": "core-sw-02",
-        "kind": "aggregate"
-      },
-      {
-        "from": "edge-fw-02",
-        "to": "core-sw-01",
-        "kind": "aggregate"
-      },
-      {
-        "from": "edge-fw-02",
-        "to": "core-sw-02",
-        "kind": "aggregate"
-      },
-      {
-        "from": "core-sw-01",
-        "to": "core-sw-02",
-        "kind": "ha",
-        "label": "Peer link",
+        "from": "branch-fw-01",
+        "to": "branch-sw-01",
+        "kind": "aggregate",
+        "label": "Po1 · 2 × 1G",
         "labelX": 640,
         "labelY": 545
       },
       {
-        "from": "core-sw-01",
-        "to": "access-sw-01",
-        "kind": "aggregate"
+        "from": "branch-sw-01",
+        "to": "branch-ap-01",
+        "kind": "access",
+        "label": "PoE",
+        "labelX": 415,
+        "labelY": 715
       },
       {
-        "from": "core-sw-02",
-        "to": "access-sw-01",
-        "kind": "aggregate"
-      },
-      {
-        "from": "core-sw-01",
-        "to": "access-sw-02",
-        "kind": "aggregate"
-      },
-      {
-        "from": "core-sw-02",
-        "to": "access-sw-02",
-        "kind": "aggregate"
-      },
-      {
-        "from": "core-sw-01",
-        "to": "services-sw-01",
-        "kind": "aggregate"
-      },
-      {
-        "from": "core-sw-02",
-        "to": "services-sw-01",
-        "kind": "aggregate"
-      },
-      {
-        "from": "access-sw-01",
-        "to": "ap-01",
+        "from": "branch-sw-01",
+        "to": "users-vl20",
         "kind": "access"
       },
       {
-        "from": "access-sw-01",
-        "to": "users-a",
+        "from": "branch-sw-01",
+        "to": "voice-vl30",
         "kind": "access"
       },
       {
-        "from": "access-sw-02",
-        "to": "ap-02",
-        "kind": "access"
-      },
-      {
-        "from": "services-sw-01",
-        "to": "hv-01",
-        "kind": "access"
-      },
-      {
-        "from": "services-sw-01",
-        "to": "hv-02",
+        "from": "branch-sw-01",
+        "to": "branch-srv-01",
         "kind": "access"
       }
     ]
   },
   "rack": {
-    "id": "R113",
-    "location": "MDF-1",
-    "units": 42,
-    "frontAisle": "cold aisle",
-    "rearAisle": "hot aisle",
+    "id": "R01",
+    "location": "Branch comms room",
+    "units": 12,
+    "frontAisle": "intake side",
+    "rearAisle": "exhaust side",
     "reserved": [
-      {
-        "position": 36,
-        "height": 1,
-        "label": "U36 · reserved patch field"
-      }
+      { "position": 12, "height": 1, "label": "U12 · WAN patch field" },
+      { "position": 11, "height": 1, "label": "U11 · cable manager" },
+      { "position": 9, "height": 1, "label": "U9 · cable manager" },
+      { "position": 7, "height": 1, "label": "U7 · cable manager" },
+      { "position": 5, "height": 1, "label": "U5 · reserved for growth" }
     ],
     "devices": [
       {
-        "id": "core-sw-01",
-        "model": "Cisco Catalyst 9500X-28C8D",
-        "role": "Collapsed core",
-        "position": 42,
+        "id": "branch-rtr-01",
+        "model": "Cisco Catalyst 8300-1N1S-6T",
+        "role": "WAN edge router",
+        "position": 10,
         "height": 1,
-        "asset": "c9500"
+        "asset": "generic"
       },
       {
-        "id": "core-sw-02",
-        "model": "Cisco Catalyst 9500X-28C8D",
-        "role": "Collapsed core",
-        "position": 41,
-        "height": 1,
-        "asset": "c9500"
-      },
-      {
-        "id": "edge-fw-01",
-        "model": "Cisco FPR4215-NGFW-K9",
-        "role": "Perimeter firewall · active",
-        "position": 39,
+        "id": "branch-fw-01",
+        "model": "Cisco Secure Firewall 4215",
+        "role": "Perimeter firewall",
+        "position": 8,
         "height": 1,
         "asset": "fpr4215"
       },
       {
-        "id": "edge-fw-02",
-        "model": "Cisco FPR4215-NGFW-K9",
-        "role": "Perimeter firewall · standby",
-        "position": 38,
-        "height": 1,
-        "asset": "fpr4215"
-      },
-      {
-        "id": "access-sw-01",
+        "id": "branch-sw-01",
         "model": "Cisco Catalyst 9300-48P",
-        "role": "User access",
-        "position": 35,
+        "role": "PoE access switch",
+        "position": 6,
         "height": 1,
         "asset": "c9300"
       },
       {
-        "id": "access-sw-02",
-        "model": "Cisco Catalyst 9300-48P",
-        "role": "User access",
-        "position": 34,
-        "height": 1,
-        "asset": "c9300"
-      },
-      {
-        "id": "hv-01",
+        "id": "branch-srv-01",
         "model": "Dell PowerEdge R750",
-        "role": "Virtualization host",
-        "position": 30,
-        "height": 2,
-        "asset": "r750"
-      },
-      {
-        "id": "hv-02",
-        "model": "Dell PowerEdge R750",
-        "role": "Virtualization host",
-        "position": 27,
+        "role": "Local services host",
+        "position": 3,
         "height": 2,
         "asset": "r750"
       },
       {
         "id": "ups-01",
         "model": "APC SMT3000RMI2UC",
-        "role": "Rack UPS",
-        "position": 2,
+        "role": "Cabinet UPS",
+        "position": 1,
         "height": 2,
         "asset": "ups"
       }
@@ -1072,81 +906,165 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
     "overview": {
       "heading": "What this document is",
       "notes": [
-        { "lead": "A reference campus design", "text": "one collapsed core, a redundant perimeter and a single 42U rack, drawn to show the notation rather than a real site." },
-        { "lead": "Why it matters here", "text": "it is the worked example every other document in this repository is copied from." },
-        { "lead": "Same drawing conventions as the rest of the set", "text": "only the network changes, not the notation." }
+        { "lead": "The smallest complete kit in the set", "text": "one branch site drawn end to end — a WAN edge, a single firewall, one PoE access switch, wireless, two endpoint groups and a 12U cabinet. Nine nodes, eight links, five rack devices." },
+        { "lead": "Why it is this small", "text": "everything here earns its place. Add a second firewall, a collapsed core or a controller only when the branch actually has one; do not inherit hardware from a drawing." },
+        { "lead": "Same notation as every other document in the set", "text": "icons, link kinds, zones and rack arithmetic follow the shared standard, so a larger design is this file with more rows — not a different language." }
       ],
       "provenance": [
-        { "lead": "Provenance, two classes, kept visibly distinct", "text": "Recorded = the topology and rack data in this file, which renders exactly what it says. Assumed = every address, model and role, which is illustrative only." },
-        { "lead": "The Key gaps eye control in the sidebar", "text": "hides the assumption layer for a recorded-only view. Printing force-reveals it, so the PDF is always the complete document." }
+        { "lead": "Two classes of statement, kept visibly apart", "text": "Recorded = the topology, zone and rack data in this file, which renders exactly what it says. Assumed = every address, VLAN, model and role, which is illustrative only." },
+        { "lead": "Nothing here was reconciled against a device", "text": "no configuration, measurement or site survey stands behind any value. Treat the whole file as a shape to fill in, not a design to build." },
+        { "lead": "The Key gaps eye control in the sidebar", "text": "hides the assumption layer, including the rows marked Assumed in section 2, leaving a recorded-only view. Printing force-reveals it, so the PDF is always the complete document." }
       ]
     },
     "logical": {
-      "heading": "Logical topology \u2014 dual-homed edge into a collapsed core",
+      "heading": "Logical topology — one edge, one firewall, one switch",
       "notes": [
-        { "lead": "Design point", "text": "two providers terminate on separate edge routers, cross-connect to an active/standby firewall pair, then port-channel into a two-member collapsed core." },
-        { "lead": "Provenance", "text": "the shape is a documented pattern; every address shown is assumed." }
-      ]
+        { "lead": "Design point", "text": "two transports terminate on a single WAN edge, the firewall is the only routed boundary, and one PoE switch carries users, voice, building IoT and wireless." },
+        { "lead": "The single points of failure are deliberate and drawn", "text": "a branch this size usually has them. Showing them is the point; each one is listed in section 6 with the decision it forces." },
+        { "lead": "The backup transport holds no branch address", "text": "it is a standby tunnel behind carrier NAT, so there is nothing to allocate and nothing to publish inbound. That is recorded rather than filled in with a plausible prefix." },
+        { "lead": "Provenance", "text": "the shape is a documented pattern. Every address, VLAN and model shown is assumed." }
+      ],
+      "caption": "Fig. 1 — Generic branch site. Three zones, nine logical nodes and eight links, drawn from the diagram data block. Node IDs are shared with the rack schedule in section 3. Every address, VLAN, port count and model shown is assumed.",
+      "legend": "Legend — solid = routed / Layer 3 · heavy = port-channel or aggregate · thin = access link · dotted grey = backup path. No HA link is drawn, because no device at this site has a mate."
     },
     "identity": {
-      "heading": "Identity \u0026 addressing \u2014 one summarizable block per function",
+      "heading": "Identity \u0026 addressing — one /24 per function",
       "notes": [
-        { "lead": "Addressing intent", "text": "user, voice, wireless and server ranges stay separable so the core can summarize outward." }
+        { "lead": "Addressing intent", "text": "a single branch block with one /24 per function, so the whole site summarizes upward as one prefix and a new VLAN never needs a new summary." },
+        { "lead": "Every row marked Assumed is a row to replace", "text": "those rows belong to the gaps layer and vanish with it. What remains visible is the little this document actually records." }
       ],
       "columns": ["Function", "VLAN", "Range", "Provenance"],
       "rows": [
-        { "cells": ["Users", "10", "10.10.10.0/24", "Assumed"], "layer": "gap" },
-        { "cells": ["Wireless infrastructure", "99", "10.10.99.0/24", "Assumed"], "layer": "gap" },
-        { "cells": ["Server / compute", "50", "10.50.50.0/24", "Assumed"], "layer": "gap" },
-        { "cells": ["Core loopbacks", "\u2014", "10.255.255.0/24", "Assumed"], "layer": "gap" }
+        { "cells": ["Infrastructure management", "10", "10.20.10.0/24", "Assumed"], "layer": "gap" },
+        { "cells": ["Office users", "20", "10.20.20.0/24", "Assumed"], "layer": "gap" },
+        { "cells": ["Voice", "30", "10.20.30.0/24", "Assumed"], "layer": "gap" },
+        { "cells": ["Guest wireless", "41", "10.20.41.0/24", "Assumed"], "layer": "gap" },
+        { "cells": ["Local services", "50", "10.20.50.0/24", "Assumed"], "layer": "gap" },
+        { "cells": ["Wireless infrastructure", "60", "10.20.60.0/24", "Assumed"], "layer": "gap" },
+        { "cells": ["Building IoT", "70", "10.20.70.0/24", "Assumed"], "layer": "gap" },
+        { "cells": ["Broadband WAN handoff", "—", "198.51.100.0/30", "Documentation prefix · pattern only"] },
+        { "cells": ["Backup overlay handoff", "—", "Carrier NAT · no branch-held prefix", "Assumed · transport not ordered"], "layer": "gap" },
+        { "cells": ["IPv6 dual-stack (planned)", "—", "2001:db8:20::/48", "Assumed"], "layer": "gap" }
       ]
     },
     "physical": {
-      "heading": "Physical view \u2014 one rack, both faces, one schedule",
+      "heading": "Physical view — one 12U branch cabinet",
       "notes": [
-        { "lead": "Same device IDs, different view", "text": "front and rear elevations and the schedule below are generated from a single equipment list, so they cannot drift apart." },
-        { "lead": "Rack units are numbered from the bottom", "text": "a device position is the lowest unit it fills." }
-      ]
+        { "lead": "A short rack, on purpose", "text": "twelve units, five installed devices, and the rest patch, cable management and declared growth. A branch cabinet is a cabling problem before it is a capacity problem." },
+        { "lead": "Rack units are numbered from the bottom", "text": "a device position is the lowest unit it fills, and every range is inclusive." },
+        { "lead": "Device IDs are shared with the topology", "text": "the four network devices below carry the same IDs as their logical nodes, so the two views cannot drift apart without the badge in section 0 noticing." },
+        { "lead": "One face is deliberately plain", "text": "the WAN edge router has no orthographic artwork in this repository, so it draws as a labelled generic face rather than a stand-in image of a different model." }
+      ],
+      "caption": "Fig. 2 — Branch cabinet, front and rear. Both faces and the schedule below are generated from one equipment list; U1 is the bottom unit. Every model, height and unit assignment shown is assumed, and no power, weight or thermal value stands behind this drawing.",
+      "legend": "Legend — shaded slots are occupied · hatched slots are patch field, cable management or declared growth · a plain labelled face means no orthographic artwork exists for that model."
     },
     "change": {
-      "heading": "Change management \u2014 the file is the record",
+      "heading": "Change management — the file is the record",
       "notes": [
-        { "lead": "Versioned as text", "text": "the whole document is one HTML file, so a topology change is a reviewable diff rather than an opaque binary replacement." },
-        { "lead": "Revision discipline", "text": "bump the revision and the date in the data block whenever the design changes; the header badges read from those fields." },
-        { "lead": "Rollback", "text": "any prior revision opens in a browser exactly as it was published." }
+        { "lead": "Versioned as text", "text": "one HTML file with one data block, so a topology change is a reviewable diff rather than an opaque binary replacement." },
+        { "lead": "Bump the revision and the date together", "text": "the header badges read straight from those fields. A badge that disagrees with the drawing is the first sign the data block was edited without review." },
+        { "lead": "Reviewer and approver ship unassigned", "text": "this kit carries no approval, because none exists. Fill those fields before the document is used to authorise a change at a real site." },
+        { "lead": "Rollback", "text": "any prior revision opens in a browser exactly as it was published; no tooling is needed to read an old copy." }
       ]
     },
     "operations": {
-      "heading": "Operations \u0026 observability \u2014 what to watch",
+      "heading": "Operations \u0026 observability — what to watch first",
       "notes": [
-        { "lead": "Owner", "text": "name the team accountable for this design and the escalation path." },
-        { "lead": "Signals", "text": "the links drawn as HA or aggregate are the ones whose loss is silent \u2014 monitor member state, not just the logical interface." },
-        { "lead": "Validation", "text": "this document asserts intent. Reconcile it against the running configuration before treating any value as fact." }
+        { "lead": "Owner", "text": "name the team accountable for the branch and the escalation path to it. An unowned branch design is a document, not an operation." },
+        { "lead": "Watch the two unmated devices first", "text": "the WAN edge and the firewall have no partner. Their loss is a site outage, not a degraded state, so alert on them differently from everything else." },
+        { "lead": "The signal that fails quietly", "text": "the switch uplink is an aggregate. Monitor member state, not just the logical interface, or half the bandwidth disappears without an alarm." },
+        { "lead": "Power", "text": "the cabinet UPS protects the entire site. Branch circuit, protected load and runtime are unmeasured, so no continuity claim can be made from this document." },
+        { "lead": "Validation", "text": "this document asserts intent. Reconcile it against the running configuration before treating any value here as fact." }
       ]
     },
     "findings": {
-      "id": "gaps",
-      "label": "Gaps \u0026 open items",
-      "noun": "gaps and open items",
-      "heading": "Gaps and open items \u2014 what this document does not know",
+      "id": "key-gaps",
+      "label": "Key gaps",
+      "noun": "gaps and unknowns",
+      "heading": "Key gaps — what a branch this small gives up",
       "flavour": "gaps",
       "items": [
-        { "title": "Every address is illustrative", "detail": "No range here has been reconciled against a live device. Replace them before this document is used to make a change.", "atZone": "internal" },
-        { "title": "No provider or circuit detail", "detail": "Both uplinks are drawn as a pattern. Carrier, bandwidth and demarcation are unrecorded.", "at": ["edge-rtr-01", "edge-rtr-02"] },
-        { "title": "Firewall failover is unproven", "detail": "The HA pair is drawn as active/standby, but no failover test is recorded against this design.", "at": "edge-fw-02" },
-        { "title": "Rack schedule is partial", "detail": "Power, cooling and cable management are not modelled, so the elevation shows placement only, not capacity." }
+        {
+          "title": "Single firewall, no HA mate",
+          "detail": "One perimeter node carries NAT, egress policy and remote access. Its loss is a site outage rather than a degraded state. Accept that with a stated recovery target, or budget a second unit.",
+          "at": "branch-fw-01"
+        },
+        {
+          "title": "One access switch carries every service",
+          "detail": "Users, voice, building IoT and the access point all land on the same 48-port PoE switch. Neither port count nor PoE budget has been quantified against a real endpoint population.",
+          "at": "branch-sw-01"
+        },
+        {
+          "title": "Both transports terminate on one router",
+          "detail": "The broadband circuit and the standby overlay share a single edge chassis, so the backup path does not survive the failure it exists to cover. Either accept it in writing or terminate the overlay elsewhere.",
+          "at": ["branch-rtr-01", "wan-backup"]
+        },
+        {
+          "title": "Perimeter policy is not written down",
+          "detail": "NAT, egress filtering, guest isolation and remote-access rules are implied by the drawing and defined nowhere. A zone shows where policy applies, never what it says.",
+          "atZone": "perimeter"
+        },
+        {
+          "title": "Wireless has no controller of record",
+          "detail": "The access point is drawn as one symbol and its management plane is unstated — cloud-managed, switch-embedded, or homed to a controller at another site. Record which before anything is ordered.",
+          "at": "branch-ap-01"
+        },
+        {
+          "title": "The backup transport has no ordered service behind it",
+          "detail": "No access technology, carrier, committed rate or tunnel headend is recorded. The drawing states only that the branch holds no address on it, which is a design position and not a delivered circuit."
+        },
+        {
+          "title": "Every address here is illustrative",
+          "detail": "No prefix, VLAN ID or host address in this file has been reconciled against a live device. Replace every row marked Assumed in section 2 before this document is used to make a change."
+        },
+        {
+          "title": "Power, circuit and runtime are unvalidated",
+          "detail": "The cabinet UPS has a nameplate rating and nothing else: no branch-circuit identifier, no measured load, no runtime calculation. No continuity or capacity claim is supportable from this file."
+        },
+        {
+          "title": "No reviewer, approver or change history",
+          "detail": "The document-control block ships unassigned and there is no revision record behind it. A starter kit is not an approved design; the governance around it is the adopter's to add."
+        }
       ]
     },
     "equipment": {
       "cards": [
-        { "model": "Cisco Catalyst 9500X-28C8D", "u": "1U", "why": "Collapsed core \u2014 two members, port-channelled to every access switch.", "asset": "c9500" },
-        { "model": "Cisco Catalyst 9300-48P", "u": "1U", "why": "User and voice access with PoE for the wireless estate.", "asset": "c9300" },
-        { "model": "Cisco FPR4215-NGFW-K9", "u": "1U", "why": "Perimeter pair, active and standby.", "asset": "fpr4215" }
+        {
+          "model": "Cisco Catalyst 8300-1N1S-6T",
+          "u": "1U",
+          "why": "WAN edge — terminates both transports. No orthographic artwork is supplied here, so it draws as a plain labelled face rather than a stand-in.",
+          "asset": "generic"
+        },
+        {
+          "model": "Cisco Secure Firewall 4215",
+          "u": "1U",
+          "why": "The only routed boundary at the site. One unit, no HA mate — see finding 1.",
+          "asset": "fpr4215"
+        },
+        {
+          "model": "Cisco Catalyst 9300-48P",
+          "u": "1U",
+          "why": "PoE access for users, voice, building IoT and the wireless estate on a single chassis.",
+          "asset": "c9300"
+        },
+        {
+          "model": "Dell PowerEdge R750",
+          "u": "2U",
+          "why": "Local services host — DHCP, DNS and print, so the branch stays usable during a WAN outage.",
+          "asset": "r750"
+        },
+        {
+          "model": "APC SMT3000RMI2UC",
+          "u": "2U",
+          "why": "Cabinet UPS. Nameplate rating only; protected load and runtime are unmeasured.",
+          "asset": "ups"
+        }
       ],
       "costs": []
     }
   }
 }
+
 </script>
 <!-- PROOF-DATA:END -->
 

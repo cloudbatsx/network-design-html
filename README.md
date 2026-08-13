@@ -36,7 +36,7 @@ outside the data block is copied through **byte for byte**.
 
 No Node. No npm. No command line. Just a browser and an AI chat window.
 
-1. **Download two files** — [`network-design-template.edit.html`](templates/network-design-template.edit.html) and [`edit-with-ai.html`](tools/edit-with-ai.html)
+1. **Download two files** — a [starter kit](#starter-kits) (or the [blank template](templates/network-design-template.edit.html)) and [`edit-with-ai.html`](tools/edit-with-ai.html)
 2. **Open `edit-with-ai.html`** and pick your design file
 3. **Type your change** in plain English → click **Copy prompt** → paste into your AI chat
 4. **Paste the reply back** → click **Check it**
@@ -77,6 +77,38 @@ No Node. No npm. No command line. Just a browser and an AI chat window.
 | 🖨️ **Prints properly** | Letter-size PDF with the sidebar dropped and hidden sections revealed. |
 | 🎨 **Your branding** | Swap the logo with one line of JSON. |
 | 📦 **Zero dependencies** | No CDN, no fonts, no build step, no server. Works on a plane. |
+
+## Starter kits
+
+Don't start from a blank page. Copy the one closest to your network.
+
+| Kit | Shape | Size |
+|---|---|---|
+| [**Branch site**](starters/NET-BR-001.edit.html) | One WAN edge, one firewall, one switch, wireless, 12U cabinet | 9 nodes — **start here** |
+| [Enterprise edge, DMZ & services](starters/NET-ENT-001.edit.html) | Three zones with a DMZ hanging off the perimeter | 15 nodes |
+| [Leaf-spine fabric](starters/NET-FAB-001.edit.html) | Non-hierarchical: every leaf to every spine, north-south via border leaf | 15 nodes |
+| [Campus + rack](starters/NET-LAB-002.edit.html) | Two independent gateways, peer link, MLAG downstream | 17 nodes |
+| [Headquarters](starters/NET-HQ-001.edit.html) | Collapsed core, out-of-band zone, 22-device 42U rack | 20 nodes |
+
+Every kit is one self-contained file with no images, no fonts and no network calls.
+Each one records **its own gaps** — because a document that renders perfectly while
+hiding its own uncertainty is worse than no document.
+
+### Gaps you can point at
+
+A finding can name the device it's about:
+
+```json
+{ "title": "Firewall failover is unproven", "detail": "...", "at": "edge-fw-02" }
+```
+
+A numbered marker then appears on that device, and the number is the finding's
+position in the list — so the drawing and the list can never disagree. Click the
+marker to jump to the finding. `"atZone": "perimeter"` outlines a whole area instead.
+
+One control hides the section, the markers, and every table row marked as an
+assumption, together. Printing reveals all of it anyway: the toggle is a
+presentation control, not a redaction control.
 
 ### It catches your mistakes
 
@@ -164,6 +196,7 @@ and packaging contract — the rules for rewriting the template itself, *not* th
 for editing a diagram.
 
 ```text
+starters/                five ready-made designs to copy
 templates/               the editable template
 symbols/                 canonical SVG sprite + semantic map
 tools/edit-with-ai.html  offline AI editing helper

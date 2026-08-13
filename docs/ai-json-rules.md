@@ -137,12 +137,16 @@ document; anchoring everything makes the drawing unreadable.
   of no gaps, say what has not been verified.
 - `footer.caveat` and `footer.redaction` are mandatory. Never drop them.
 
-Fields you may see but must never add yourself: `iconAsset` on a node, `via` on
-a link. If one is already there, copy it through unchanged.
+Some fields are **hand-tuned drawing geometry**: `via` on a link (waypoints that
+route a line around a device it would otherwise cut through), `labelX`/`labelY`
+on a link, and `iconAsset` on a node.
 
-`label`, `labelX`, and `labelY` on a link are optional. If a link already has
-them, keep them exactly as they are. Do not add `labelX`/`labelY` to a new link
-— leave them out and the label positions itself.
+**If one is already there, copy it through exactly. Never add a new one.**
+
+They exist because a straight line between two devices sometimes crosses a third.
+Someone positioned those waypoints against a real render; removing one puts a
+cable through the middle of a switch. Adding one blind usually makes it worse —
+leave them out on new links and the drawing routes and labels itself.
 
 ## Numbers
 
