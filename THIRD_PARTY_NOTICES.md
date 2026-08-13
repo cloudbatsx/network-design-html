@@ -36,6 +36,19 @@ part of this first repository version.
 
 ## Project license status
 
-No license has been selected for the original project code and documentation.
-All rights are reserved unless and until the repository owner adds an explicit
-license. Third-party materials, if locally supplied, retain their own terms.
+The original project code and documentation are released under the MIT License;
+see [`LICENSE`](LICENSE).
+
+That grant is deliberately scoped. It does not cover the vector symbol artwork
+in `symbols/network-symbols.svg` or its synchronized copies in the template and
+showcase, because the question raised above — whether interpretations informed
+by Cisco reference silhouettes fall inside Cisco's permission for unmodified
+icons — is not resolved. Licensing that geometry under MIT would purport to
+grant rights that have not been established.
+
+The clean resolution is to replace the 19 symbols with project-owned artwork.
+That removes the question permanently and brings the whole repository under one
+license. Until then, the exclusion in `LICENSE` stands.
+
+Third-party materials, if locally supplied under `vendor-local/`, retain the
+terms of their own sources.

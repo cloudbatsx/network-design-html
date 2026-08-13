@@ -214,11 +214,13 @@ dist/                   generated untracked outputs
 
 ## Publication status
 
-This is a pre-release working repository. The vector symbols are experimental
+This is a pre-release working repository. The code, tooling, and documentation
+are MIT licensed; see [`LICENSE`](LICENSE).
+
+That grant excludes the vector symbol artwork. The symbols are experimental
 interpretations informed by Cisco reference silhouettes, not official
-Cisco-distributed SVG files. No project license has been selected, and the
-third-party/artwork review is not complete. Do not treat the current tree as
-permission to redistribute Cisco artwork or close derivatives; see
-[`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md).
+Cisco-distributed SVG files, and the artwork review is not complete. Do not
+treat the current tree as permission to redistribute Cisco artwork or close
+derivatives; see [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md).
 
 This project is independent and is not affiliated with or endorsed by Cisco.

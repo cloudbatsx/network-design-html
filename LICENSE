@@ -1,0 +1,49 @@
+MIT License
+
+Copyright (c) 2026 Sayed Haque
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+---
+
+## Scope of this license
+
+The MIT grant above covers the original work in this repository: the HTML
+templates and their renderer code, the CSS, the tooling under `tools/` and
+`scripts/`, the JSON schemas and maps, and the documentation.
+
+It does **not** grant any rights in third-party material, which is not the
+copyright holder's to license:
+
+- **The vector symbol artwork** in `symbols/network-symbols.svg`, and the
+  synchronized copies of it embedded in `templates/network-design-template.edit.html`
+  and `examples/vector-symbol-showcase.html`. These symbols are experimental
+  interpretations informed by Cisco PMS 3015 reference silhouettes. Whether they
+  are covered by Cisco's permission for unmodified networking icons has not been
+  determined. Until that review is complete, treat the symbol geometry as
+  reserved and excluded from the grant above.
+- **Any binary artwork** supplied locally under `vendor-local/`, and any
+  generated file under `dist/` that embeds it. These are excluded from this
+  repository and retain the terms of their own sources.
+
+Cisco and Cisco product names are trademarks of Cisco Systems, Inc. This project
+is independent and is not affiliated with or endorsed by Cisco.
+
+See [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md) for the full artwork
+provenance discussion.
