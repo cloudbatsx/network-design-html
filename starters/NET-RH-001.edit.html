@@ -1,0 +1,2552 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>cloudbats &mdash; Reference Design: Seattle regional hub | NET-RH-001 v2.1</title>
+  <meta name="author" content="Sayed Haque &mdash; cloudbats">
+  <meta name="document-id" content="CB-ND-SEA-RH-001">
+  <meta name="revision" content="2.0">
+  <meta name="date" content="2026-08-13">
+  <meta name="classification" content="SAMPLE / REFERENCE">
+  <meta name="document-status" content="NOT ASSIGNED">
+  <meta name="description" content="Seattle regional-hub SD-WAN, campus and local-services topology with a 24U SEA.MDF.R01 rack elevation, presented in the CloudBats documentation shell. Official Cisco topology symbols and orthographic rack faces retained from revision 1.6.">
+<style>
+/* ===== LAYER 0 - CB-ND-SEA-RH-001 engineering component layer (from v1.6) ===== */
+
+:root{
+  --ink:#102532;--muted:#5c6d77;--faint:#8b9aa3;--rule:#ccd6dc;--paper:#fff;--canvas:#edf2f5;
+  --accent:#007da3;--accent-dark:#006b8c;--orange:#e39b2f;--green:#2d8b57;--red:#c84848;
+  --status-up:#16a34a;--status-warn:#d97706;--status-down:#dc2626;--status-planned:#9ca3af;
+  --f-os2:#f5c518;--f-om4:#4fd1c5;--f-cu:#6b7280;--f-dac:#374151;
+  --zone-ext:#fff2ee;--zone-edge:#fff8ef;--zone-core:#eef8fb;--zone-access:#f3faf6;--zone-service:#f7f3fb;
+  --font-ui:Inter,Segoe UI,Arial,sans-serif;--font-mono:Consolas,Menlo,monospace;
+}
+*{box-sizing:border-box}html{scroll-behavior:auto}body{margin:0;background:var(--canvas);color:var(--ink);font-family:var(--font-ui);font-size:15px;line-height:1.55}
+button{font:inherit}.page{max-width:1740px;margin:18px auto;padding:0 20px 56px}
+.titleblock{border:2px solid #243641;border-radius:7px;background:#fff;padding:16px 20px;box-shadow:0 2px 7px rgba(18,32,43,.08)}
+.brandrow{display:flex;justify-content:space-between;padding-bottom:12px;border-bottom:1px solid var(--rule);font-size:12px;font-weight:800;letter-spacing:.18em;text-transform:uppercase}
+.brandrow span:last-child{color:var(--muted);font-weight:600}.titleblock h1{font-size:25px;margin:14px 0 4px}.subtitle{margin:0;color:var(--muted)}
+.nd-meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px 24px;margin-top:15px;font-size:12px}.nd-meta span{color:var(--muted);text-transform:uppercase;letter-spacing:.08em}.nd-meta b{display:block;margin-top:3px;font-family:var(--font-mono);color:var(--ink)}
+.conventions{margin-top:14px;padding-top:11px;border-top:1px solid var(--rule);color:var(--muted);font-size:12px}.conventions b{color:var(--ink)}
+.nd-badge{display:inline-block!important;min-width:0!important;width:max-content;padding:2px 7px;border-radius:3px;background:var(--accent);color:#fff!important;font:700 11px var(--font-ui)!important;letter-spacing:.05em}
+.tabs{position:sticky;top:0;z-index:50;display:flex;gap:4px;align-items:center;margin:20px 0 22px;padding:7px;background:#fff;border:1px solid var(--rule);border-radius:7px;box-shadow:0 5px 18px rgba(18,32,43,.09)}
+.tab{border:0;border-radius:6px;background:transparent;padding:10px 15px;color:var(--muted);font-weight:650;cursor:pointer}.tab:hover{background:#f2f6f8}.tab[aria-selected=true]{background:var(--accent);color:#fff}.print{margin-left:auto;border:1px solid var(--rule);background:#fff;color:var(--ink)}
+.panel{display:none}.panel.active{display:block}.panel h2{font-size:21px;margin:32px 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}.panel.active:first-of-type h2{margin-top:0}.panel h3{font-size:16px;margin:26px 0 8px}.panel h4{font-size:13px;margin:18px 0 5px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.lede{color:var(--muted);line-height:1.55;max-width:1050px}.card{background:#fff;border:1px solid var(--rule);border-radius:8px;padding:16px;box-shadow:0 2px 8px rgba(18,32,43,.06)}
+.overview-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:18px}.overview-grid h3{margin-top:0}.overview-grid li{margin:7px 0;line-height:1.4}
+.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:18px}.stat{background:#fff;border:1px solid var(--rule);border-radius:7px;padding:14px}.stat strong{display:block;font-size:24px;color:var(--accent)}.stat span{font-size:12px;color:var(--muted)}
+figure{margin:0;background:#fff;border:1px solid var(--rule);border-radius:8px;overflow:hidden}figcaption{padding:12px 16px;background:#f7fafb;border-bottom:1px solid var(--rule);font-size:13px;line-height:1.4}
+.logical-wrap{position:relative;padding:12px}.logical-svg{display:block;width:100%;height:auto}.zone{stroke-width:1.4;stroke-dasharray:7 5}.zone-label{font-size:13px;font-weight:800;letter-spacing:.07em;text-transform:uppercase}.link{fill:none;stroke-linecap:butt;stroke-linejoin:round}.connection{vector-effect:non-scaling-stroke}.link.l3{stroke:#006b8c;stroke-width:3}.link.lag{stroke:var(--f-om4);stroke-width:3}.link.ha{stroke:#c84848;stroke-width:2.5;stroke-dasharray:9 7}.link.access{stroke:var(--f-cu);stroke-width:2.2}.link.tunnel{stroke:#7457a5;stroke-width:2;stroke-dasharray:6 5}.link.dac{stroke:var(--f-dac);stroke-width:4}.link.os2{stroke:var(--f-os2)}.link-halo{fill:none;stroke:#fff;stroke-width:8;stroke-linecap:butt;stroke-linejoin:round;vector-effect:non-scaling-stroke}.bundle{cursor:default}.bundle .member{pointer-events:stroke;transition:stroke-width .14s ease,filter .14s ease}.bundle:hover .member,.bundle:focus .member{stroke-width:4.2;filter:drop-shadow(0 0 1.5px rgba(0,105,145,.55))}.bundle:focus{outline:none}.label-bg{fill:#fff;stroke:#d5dfe4;opacity:.96}.link-label{font-size:11px;fill:#40545f;font-weight:650;text-anchor:middle}.node-name{font-size:13px;fill:#132630;font-weight:800;text-anchor:middle}.node-meta{font-size:10.5px;fill:#5e707a;text-anchor:middle}.node-role{font-size:9.5px;fill:#006b8c;text-anchor:middle;font-weight:800;letter-spacing:.05em}.logical-node{cursor:pointer;outline:none}.logical-node use{transition:none;transform:none}.logical-node:hover use,.logical-node:focus use,.logical-node.selected use{filter:drop-shadow(0 0 2px rgba(0,105,145,.8));transform:none}
+.hover-label{position:absolute;z-index:20;display:none;width:225px;padding:9px 11px;border-radius:7px;color:#fff;background:rgba(17,31,39,.97);box-shadow:0 5px 16px rgba(0,0,0,.24);font-size:12px;line-height:1.4;pointer-events:none}.hover-label.visible{display:block}.hover-label strong{display:block;font-size:13px;margin-bottom:2px}.hover-label .detail{color:inherit}
+.rack-controls{display:flex;justify-content:flex-end;gap:8px;margin:0 0 12px}.tool{border:1px solid var(--rule);border-radius:6px;background:#fff;padding:7px 12px;font-size:12px;font-weight:650;cursor:pointer}.tool:hover,.tool:focus{border-color:var(--accent);background:#f3f8fa;outline:none}
+.rack-note{margin:0 0 16px;padding:10px 12px;border-left:4px solid var(--accent);background:#eef8fb;color:#36515f;font-size:13px}
+#physical-view{--u:34px;--bay:390px}.rack-grid{display:grid;grid-template-columns:repeat(2,minmax(560px,1fr));gap:26px;overflow-x:auto;align-items:start}.rack-figure{min-width:560px}.rack-figure h3{text-align:center;font-size:15px;margin:0 0 9px}.rack-wrap{position:relative;width:calc(var(--bay) + 180px);height:calc(var(--u) * 24 + 40px);margin:0 auto;padding-top:16px}.rack-bay{box-sizing:content-box;position:absolute;top:16px;left:90px;width:var(--bay);height:calc(var(--u) * 24);border:8px solid #26343d;border-top-width:12px;border-bottom-width:12px;background:repeating-linear-gradient(to bottom,transparent 0 calc(var(--u) - 1px),rgba(31,52,64,.22) calc(var(--u) - 1px) var(--u)),#e9eef1;box-shadow:inset 0 0 0 2px #788892,0 5px 20px rgba(18,32,43,.18)}
+.rack-bay:before,.rack-bay:after{content:"";position:absolute;z-index:8;top:-2px;bottom:-2px;width:10px;background:repeating-linear-gradient(to bottom,#485861 0 6px,#8a979e 6px 9px,#485861 9px 18px);opacity:.72;pointer-events:none}.rack-bay:before{left:0}.rack-bay:after{right:0}
+.ruler{position:absolute;z-index:12;top:28px;width:42px;height:calc(var(--u) * 24);color:#526671;font:650 10px var(--font-mono)}.ruler.left{left:42px;text-align:right}.ruler.right{right:42px;text-align:left}.u-mark{position:absolute;display:flex;align-items:center;width:100%;height:var(--u);border-top:1px solid #c7d1d7}.ruler.left .u-mark{justify-content:flex-end;padding-right:7px}.ruler.right .u-mark{justify-content:flex-start;padding-left:7px}
+.device-face{position:absolute;z-index:5;left:10px;right:10px;display:grid;place-items:center;overflow:hidden;border:1px solid #111b20;background:#151d22;cursor:pointer;outline:none}.device-face img{display:block;width:100%;height:100%;object-fit:contain}.device-face:hover,.device-face:focus,.device-face.selected{z-index:15;outline:2px solid var(--orange);outline-offset:1px}.generic{position:relative;width:100%;height:100%;background:linear-gradient(#29343a,#151d22)}.generic:before{content:"";position:absolute;left:8%;right:32%;top:35%;height:30%;background:repeating-linear-gradient(90deg,#111 0 8px,#73828a 8px 10px);border:1px solid #87959c}.generic:after{content:"";position:absolute;right:7%;top:28%;width:18%;height:44%;background:repeating-linear-gradient(90deg,#263238 0 5px,#596870 5px 7px);border:1px solid #87959c}
+.passive{position:absolute;z-index:3;left:10px;right:10px;display:grid;place-items:center;border:1px solid #9aa9b1;background:repeating-linear-gradient(135deg,rgba(255,255,255,.82) 0 7px,rgba(217,226,231,.78) 7px 14px);color:#566a75;text-align:center;font:700 10px var(--font-mono)}.passive.reserved{border:2px dashed #91a2ab;background:rgba(255,255,255,.72);text-transform:uppercase}
+.rack-label{position:absolute;z-index:20;display:none;width:175px;padding:8px 10px;border-radius:6px;color:#fff;background:rgba(17,31,39,.97);box-shadow:0 4px 15px rgba(0,0,0,.22);font-size:11px;line-height:1.4;pointer-events:none}.rack-label.visible{display:block}.rack-label strong{display:block;font-size:12px;margin-bottom:2px}.rack-label.front{left:calc(90px + var(--bay) + 10px)}.rack-label.rear{left:0}
+table{width:100%;border-collapse:collapse;background:#fff;font-size:13px;margin:10px 0 22px}caption{text-align:left;font-weight:800;font-size:15px;padding:0 0 9px}th,td{padding:8px 9px;border:1px solid var(--rule);text-align:left;vertical-align:top}thead{background:#edf3f6}.mono,.m{font-family:var(--font-mono)}.num{text-align:right;font-variant-numeric:tabular-nums}.note{margin:12px 0;padding:10px 12px;border-left:4px solid var(--accent);background:#eef8fb;color:#36515f;font-size:13px}.pill{display:inline-block;padding:1px 7px;border:1px solid currentColor;border-radius:999px;font-size:10px;font-weight:800;letter-spacing:.05em}.pill-pass{color:var(--status-up)}.pill-warn{color:var(--status-warn)}.pill-fail{color:var(--status-down)}
+.figure-legend,.rack-legend{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px 22px;margin-top:12px;padding:13px 15px;border:1px solid var(--rule);border-radius:7px;background:#fff;color:var(--muted);font-size:12px}.figure-legend h3,.rack-legend h3{grid-column:1/-1;margin:0;color:var(--ink);font-size:14px}.figure-legend h4,.rack-legend h4{margin:0 0 5px}.figure-legend ul,.rack-legend ul{list-style:none;margin:0;padding:0}.figure-legend li,.rack-legend li{margin:5px 0}.legend-note{grid-column:1/-1;margin:0;padding-top:9px;border-top:1px solid var(--rule)}.swatch{display:inline-block;width:28px;height:5px;margin-right:6px;vertical-align:middle;border-radius:3px}.line-key{display:inline-block;width:34px;height:14px;margin-right:5px;vertical-align:middle}
+footer{margin-top:22px;padding:12px 2px;color:var(--muted);font-size:12px;border-top:1px solid var(--rule)}
+@media (max-width: 900px){.overview-grid,.summary{grid-template-columns:1fr 1fr}.rack-grid{grid-template-columns:1fr}.rack-figure{min-width:560px}.nd-meta{grid-template-columns:1fr 1fr}.figure-legend,.rack-legend{grid-template-columns:1fr}}
+.link.om4{stroke:var(--f-om4);stroke-width:3}.link.cu{stroke:var(--f-cu);stroke-width:2.2}.link.os2{stroke:var(--f-os2);stroke-width:3}.table-wrap{overflow-x:auto}.warn{margin:12px 0;padding:11px 13px;border-left:4px solid var(--status-warn);background:#fff7ed;color:#6d4510;font-size:13px}.warn b,.note b{display:block;color:var(--ink);margin-bottom:2px}.status{font-weight:800;font-size:10px;letter-spacing:.05em;white-space:nowrap}.status.pass{color:var(--status-up)}.status.open,.status.notrun{color:var(--status-warn)}.status.info{color:var(--accent)}
+@page{size:letter landscape;margin:.35in}
+@media print{body{background:#fff;font-size:10px}.page{max-width:none;margin:0;padding:0}.tabs,.rack-controls{display:none!important}.panel{display:block!important;break-before:page}.panel:first-of-type{break-before:auto}.hover-label,.rack-label{display:none!important}thead{display:table-header-group}tr,figure,.figure-legend,.rack-legend,.note,.warn{break-inside:avoid}table{font-size:9px}th,td{padding:4px 5px}a{color:inherit;text-decoration:none}.table-wrap{overflow:visible}#physical-view{--u:23px;--bay:270px}.rack-grid{grid-template-columns:repeat(2,minmax(430px,1fr));gap:12px;overflow:visible}.rack-figure{min-width:430px}.rack-wrap{transform:scale(.86);transform-origin:top left;margin-bottom:-90px}.card,figure{box-shadow:none}}
+
+/* Shared page-shell token contract */
+:root{
+  --shell-font-ui:Inter,"Segoe UI",Arial,sans-serif;
+  --shell-font-mono:Consolas,"Cascadia Mono",Menlo,monospace;
+  --shell-font-size:15px;--shell-line-height:1.5;
+  --shell-ink:#102532;--shell-muted:#5c6d77;--shell-rule:#ccd6dc;
+  --shell-surface:#fff;--shell-surface-glass:rgba(255,255,255,.97);--shell-surface-hover:#eef4f7;
+  --shell-accent:#006c91;--shell-on-accent:#fff;--shell-focus:#c96f00;--shell-skip-surface:#102532;
+  --shell-panel-radius:8px;--shell-control-radius:6px;--shell-shadow:0 5px 18px rgba(18,32,43,.09);
+  --shell-header-padding:18px 20px;--shell-header-padding-compact:14px;
+  --shell-brand-gap:6px 16px;--shell-meta-gap:10px 24px;
+  --shell-nav-gap:8px;--shell-tab-gap:5px;--shell-nav-margin:18px 0 22px;--shell-nav-padding:8px;
+  --shell-control-min-height:44px;--shell-control-padding:10px 15px;
+}
+
+/* Shared document-control header contract */
+.document-header{
+  --document-ink:var(--shell-ink);--document-muted:var(--shell-muted);--document-rule:var(--shell-rule);
+  --document-accent:#006c91;--document-warning:#b45309;--document-neutral:#5f6b73;--document-reference:#2d6f5e;
+  margin:0;padding:var(--shell-header-padding);border:2px solid var(--document-ink);border-radius:var(--shell-panel-radius);
+  background:var(--shell-surface);color:var(--document-ink);box-shadow:var(--shell-shadow);
+  font-family:var(--shell-font-ui);font-size:var(--shell-font-size);line-height:var(--shell-line-height);
+}
+.document-brand{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:var(--shell-brand-gap);margin:0 0 12px;padding:0 0 10px;border-bottom:1px solid var(--document-rule);font-size:12px;text-transform:uppercase}
+.document-brand__name{color:var(--document-ink);font-weight:800;letter-spacing:.18em}
+.document-brand__type{color:var(--document-muted);font-weight:600;letter-spacing:.14em}
+.document-header h1{margin:0 0 4px;color:var(--document-ink);font-size:25px;line-height:1.25}
+.document-subtitle{max-width:none;margin:0;color:var(--document-muted);line-height:1.5}
+.document-meta{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--shell-meta-gap);margin:15px 0 0;font-size:12px}
+.document-field{min-width:0}
+.document-meta dt{color:var(--document-muted);font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+.document-meta dd{margin:3px 0 0;color:var(--document-ink);font-size:13px;font-weight:650;overflow-wrap:anywhere}
+.document-code{font-family:var(--shell-font-mono);font-variant-numeric:tabular-nums}
+.document-badge{display:inline-block;width:max-content;max-width:100%;padding:2px 7px;border-radius:3px;color:#fff;font-size:11px;font-weight:750;letter-spacing:.05em;line-height:1.45;text-transform:uppercase;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.document-badge--classification{background:var(--document-accent)}
+.document-badge--neutral{background:var(--document-neutral)}
+.document-badge--warning{background:var(--document-warning)}
+.document-badge--reference{background:var(--document-reference)}
+.document-conventions{display:block;margin:14px 0 0;padding:11px 0 0;border-top:1px solid var(--document-rule);color:var(--document-muted);font-size:12px;line-height:1.5}
+.document-conventions b{color:var(--document-ink)}
+@media (max-width: 900px){.document-meta{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width: 620px){.document-header{padding:var(--shell-header-padding-compact)}.document-brand{align-items:flex-start}.document-brand__name,.document-brand__type{letter-spacing:.11em}.document-meta{grid-template-columns:1fr}}
+@media print{.document-header{break-inside:avoid;box-shadow:none}.document-meta{grid-template-columns:repeat(3,minmax(0,1fr))}.document-conventions{display:block}}
+
+/* Shared five-view navigation contract */
+.skip-link{position:fixed;left:12px;top:8px;z-index:100;transform:translateY(-160%);padding:9px 12px;border-radius:var(--shell-control-radius);background:var(--shell-skip-surface);color:var(--shell-on-accent);font-family:var(--shell-font-ui);font-size:var(--shell-font-size);line-height:var(--shell-line-height);font-weight:800;text-decoration:none;transition:transform .16s ease}
+.skip-link:focus-visible{transform:translateY(0)}
+.view-bar{position:sticky;top:0;z-index:50;display:flex;align-items:stretch;gap:var(--shell-nav-gap);margin:var(--shell-nav-margin);padding:var(--shell-nav-padding);background:var(--shell-surface-glass);border:1px solid var(--shell-rule);border-radius:var(--shell-panel-radius);box-shadow:var(--shell-shadow);backdrop-filter:blur(8px);font-family:var(--shell-font-ui);font-size:var(--shell-font-size);line-height:var(--shell-line-height)}
+.view-tabs{position:static;top:auto;z-index:auto;display:flex;flex:1 1 auto;flex-wrap:nowrap;min-width:0;gap:var(--shell-tab-gap);margin:0;padding:0;overflow-x:auto;background:transparent;border:0;border-radius:0;box-shadow:none;backdrop-filter:none;scrollbar-width:thin}
+.view-tab,.print-action{min-height:var(--shell-control-min-height);flex:0 0 auto;border:0;border-radius:var(--shell-control-radius);background:transparent;padding:var(--shell-control-padding);color:var(--shell-muted);font:inherit;font-weight:700;white-space:nowrap;cursor:pointer}
+.view-tab:hover,.print-action:hover{background:var(--shell-surface-hover);color:var(--shell-ink)}
+.view-tab[aria-selected="true"]{background:var(--shell-accent);color:var(--shell-on-accent)}
+.view-tab:focus-visible,.print-action:focus-visible,.skip-link:focus-visible{outline:3px solid var(--shell-focus);outline-offset:2px}
+.print-action{margin-left:auto;border:1px solid var(--shell-rule);background:var(--shell-surface);color:var(--shell-ink)}
+@media (max-width: 620px){.view-bar{position:static;display:grid;grid-template-columns:minmax(0,1fr);gap:var(--shell-nav-gap)}.view-tabs{width:100%}.print-action{width:100%;margin-left:0}}
+@media (prefers-reduced-motion: reduce){.skip-link,.view-tab,.print-action{transition:none!important;scroll-behavior:auto!important}}
+@media print{.view-bar,.skip-link{display:none!important}section[data-view][hidden]{display:block!important}}
+
+/* Shared Figure 1 legend contract */
+.logical-figure-legend{display:grid;grid-template-columns:1.25fr 1.15fr .8fr;gap:16px 28px;margin-top:12px;padding:16px;border:1px solid var(--shell-rule);border-radius:var(--shell-panel-radius);background:var(--shell-surface);color:var(--shell-muted);font-family:var(--shell-font-ui);font-size:12.5px;line-height:1.45}
+.logical-figure-legend>h3{grid-column:1/-1;margin:0;color:var(--shell-ink);font-size:14px;line-height:1.3}
+.logical-figure-legend h4{margin:0 0 8px;color:var(--shell-ink);font-size:13px;line-height:1.3}
+.logical-figure-legend ul{list-style:none;margin:0;padding:0}
+.logical-figure-legend li{display:flex;align-items:center;gap:9px;margin:0;padding:2.5px 0;min-width:0}
+.logical-figure-legend svg{display:block;flex:0 0 auto}
+.logical-figure-legend .legend-device-icon{width:30px;height:30px}
+.logical-figure-legend .device-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 14px}
+.logical-figure-legend .legend-swatch{display:inline-block;flex:0 0 auto;width:34px;height:14px;border:1px solid var(--shell-rule);border-radius:3px}
+.logical-figure-legend .legend-note{grid-column:1/-1;margin:0;padding-top:10px;border-top:1px solid var(--shell-rule);color:var(--shell-muted);font-size:11.5px;line-height:1.45}
+.logical-figure-legend .legend-note b{color:var(--shell-ink)}
+@media (max-width: 900px){.logical-figure-legend{grid-template-columns:1fr}.logical-figure-legend>h3,.logical-figure-legend .legend-note{grid-column:1}}
+@media (max-width: 520px){.logical-figure-legend .device-list{grid-template-columns:1fr}}
+@media print{.logical-figure-legend{break-inside:avoid;gap:8px 14px;margin-top:7px;padding:10px;font-size:8pt}.logical-figure-legend>h3,.logical-figure-legend h4{font-size:9pt}.logical-figure-legend li{gap:5px;padding:1px 0}.logical-figure-legend .legend-device-icon{width:20px;height:20px}.logical-figure-legend .legend-note{padding-top:5px;font-size:7.5pt}}
+
+
+
+/* ============================================================================
+   CLOUDBATS NETWORK-DESIGN DOCUMENT — EXTRACTED TEMPLATE v1
+   Extracted 2026-08-13 from the four cloudbats-*.html topology documents:
+     cloudbats-meta_v1j  ·  cloudbats-iqt_v1k  ·  cloudbats-wisk_v1z  ·  cloudbats-wisk_v2k
+
+   The stylesheet is TWO STACKED LAYERS. Do not merge them — the ordering is the
+   mechanism that makes one file both a screen document and a Letter PDF.
+
+     LAYER 1  "print/legacy"  — pt units, @page Letter, Segoe UI, hex colors.
+                                Defines every CONTENT PRIMITIVE (.note/.figwrap/
+                                tables/cards). This is what survives to PDF.
+     LAYER 2  "shell"         — px units, :root vars, Inter/Sora, flex sidebar.
+                                Overrides Layer 1 typography for screen and adds
+                                the chrome (sidebar, TOC, badges, toggles).
+                                Its @media print block hands control back to L1.
+   ========================================================================= */
+
+/* ===== LAYER 1 — PRINT / LEGACY BASE ===================================== */
+
+  @page { size: Letter; margin: 14mm 14mm 14mm 14mm; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif; font-size: 10.2pt; line-height: 1.5; color: #1e293b; max-width: 1200px; margin: 0 auto; padding: 22px; }
+  header { border-bottom: 3px solid #14324e; padding-bottom: 10px; margin-bottom: 14px; }
+  header h1 { font-size: 20pt; color: #14324e; margin: 0 0 4px 0; font-weight: 700; }
+  header .sub { font-size: 11pt; color: #0e7490; font-weight: 600; margin: 2px 0 8px 0; }
+  header .meta { font-size: 8.4pt; color: #64748b; font-style: italic; }
+  h2 { font-size: 12.5pt; color: #14324e; margin: 22px 0 8px 0; border-left: 4px solid #0e7490; padding-left: 8px; }
+  h3 { font-size: 10.6pt; color: #0e7490; margin: 14px 0 6px 0; }
+  p { margin: 6px 0; }
+  ul { margin: 6px 0; padding-left: 20px; }
+  li { margin: 5px 0; }
+
+  /* -- figures: the only sanctioned way to place a diagram -- */
+  .figwrap { margin: 10px 0 6px 0; }
+  .figwrap svg { width: 100%; height: auto; display: block; }
+  .caption { font-size: 8.2pt; color: #64748b; font-style: italic; margin: 2px 0 4px 0; }
+
+  /* -- callout boxes: semantic, NOT decorative. See PARAMETERS block below. -- */
+  .note { background: #f0f9ff; border: 1px solid #bae6fd; border-left: 4px solid #0e7490; padding: 8px 12px; font-size: 9.4pt; margin: 8px 0 16px 0; border-radius: 4px; }
+  .warn { background: #fffbeb; border: 1px solid #fde68a; border-left: 4px solid #b45309; padding: 8px 12px; font-size: 9.4pt; margin: 8px 0 16px 0; border-radius: 4px; }
+  .notes { list-style: disc; }
+  .notes li { margin: 4px 0; }
+  .stack { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 14px; font-size: 9.6pt; }
+  footer { margin-top: 22px; border-top: 1px solid #cbd5e1; padding-top: 8px; font-size: 8pt; color: #94a3b8; }
+  .tag { display:inline-block; font-size:7.6pt; font-weight:700; padding:1px 7px; border-radius:8px; background:#0e7490; color:#fff; vertical-align:middle; margin-left:6px; }
+
+  /* -- tables -- */
+  .data-table { width:100%; border-collapse:collapse; font-size:8.8pt; margin:10px 0 12px 0; }
+  .data-table th, .data-table td { border:1px solid #dbe4ee; padding:6px 7px; vertical-align:top; text-align:left; }
+  .data-table th { background:#14324e; color:#fff; font-weight:700; }
+  .data-table tr:nth-child(even) td { background:#f8fafc; }
+  .data-table code, p code, li code, .map-table code, .stack code { font-family: Consolas, 'Courier New', monospace; font-size: 8.6pt; background:#eef2f7; border-radius:3px; padding:0 4px; color:#0f172a; white-space:nowrap; }
+  .map-table { width:100%; border-collapse:collapse; font-size:8.9pt; margin:10px 0 12px 0; }
+  .map-table th, .map-table td { border:1px solid #dbe4ee; padding:6px 8px; vertical-align:top; text-align:left; }
+  .map-table th { background:#14324e; color:#fff; font-weight:700; }
+  .map-table td:first-child { font-weight:700; color:#14324e; width:230px; }
+  .cover-ok td { background:#ecfdf5 !important; }
+  .cover-todo td { background:#fff7ed !important; }
+  .legend { font-size:8.2pt; color:#475569; margin:4px 0 14px 0; }
+  .legend b { color:#14324e; }
+
+  /* -- document-control / revision-history strip (footer area) -- */
+  .doc-control { width:100%; border-collapse:collapse; font-size:8.2pt; margin:8px 0 4px 0; }
+  .doc-control th, .doc-control td { border:1px solid #dbe4ee; padding:3px 7px; text-align:left; vertical-align:top; font-style:normal; color:#334155; }
+  .doc-control th { background:#f8fafc; color:#14324e; white-space:nowrap; width:1%; }
+  .revhist-title { font-size:8.4pt; color:#64748b; font-weight:700; margin:8px 0 0 0; font-style:normal; }
+
+  /* -- series strip: the 4-document breadcrumb, present in every doc -- */
+  .series-strip { font-size: 8.8pt; color: #475569; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 7px 12px; margin: 0 0 14px 0; }
+  .series-strip .ss-here { color: #0e7490; font-weight: 700; }
+  .series-strip .ss-rev { color: #94a3b8; font-size: 8pt; font-weight: 600; }
+  .series-strip .ss-arrow { color: #94a3b8; padding: 0 5px; }
+
+  /* ==== TOGGLEABLE LAYERS ==================================================
+     EXACTLY TWO per document, no more, no fewer. Slot A is the evidence /
+     candour layer, Slot B is always the equipment exhibit. The body carries
+     the state class; @media print force-reveals so nothing is lost in PDF.
+     Slot A class is renamed per document — pick ONE row and delete the other:
+        .mem-layer   + body.show-mem     (evidence-provenance docs)
+        .gap-layer   + body.show-gaps    (gap / assumption / design-callout docs)
+     ====================================================================== */
+  body:not(.show-gaps) .gap-layer { display:none !important; }
+  body:not(.show-gaps) .mem       { display:none !important; }
+  @media print { .gap-layer { display:revert !important; } .mem { display:block !important; } }
+
+  body:not(.show-equip) .equip-layer { display:none !important; }
+
+  /* -- Slot A accent box. Recolor per document; keep the shape. -- */
+  .mem { background: #fdf4ff; border: 1px solid #f0abfc; border-left: 4px solid #a21caf; padding: 8px 12px; font-size: 9.4pt; margin: 8px 0 16px 0; border-radius: 4px; }
+
+  /* -- numbered finding list. ONE flavour per document:
+        .patterns/.patnum (teal, "what worked")  |  .gaps/.gapnum (red, "what's missing")
+        |  .gains/.gainnum (blue, "what this buys you")  -- */
+  .gaps  { list-style: none; padding-left: 0; margin: 10px 0; }
+  .gaps li { display: flex; gap: 10px; align-items: flex-start; margin: 8px 0; padding: 8px 10px; background: #fef2f2; border-left: 3px solid #dc2626; border-radius: 4px; }
+  .gapnum { flex: 0 0 auto; display: inline-flex; align-items:center; justify-content:center; background:#dc2626; color:#fff; font-weight:700; font-size: 10pt; border-radius:50%; width:22px; height:22px; }
+  .gaps b { color: #7f1d1d; }
+
+  /* -- Slot B: equipment exhibit cards + cost table (invariant across all four) -- */
+  .equip-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap:12px; margin:12px 0 14px 0; }
+  .equip-card { border:1px solid #e2e8f0; border-radius:6px; background:#fff; overflow:hidden; display:flex; flex-direction:column; min-height:292px; }
+  .equip-card img { width:100%; height:132px; object-fit:contain; background:#f8fafc; border-bottom:1px solid #e2e8f0; padding:8px; }
+  .equip-body { padding:9px 10px 10px 10px; display:flex; flex-direction:column; gap:5px; flex:1; }
+  .equip-card h3 { margin:0; font-size:9.8pt; color:#14324e; }
+  .u-badge { align-self:flex-start; display:inline-block; background:#14324e; color:#fff; font-size:7.7pt; font-weight:800; border-radius:999px; padding:2px 8px; letter-spacing:0; }
+  .price { font-weight:800; color:#0f766e; font-size:10.6pt; }
+  .why { font-size:8.5pt; color:#475569; }
+  .source { margin-top:auto; font-size:7.8pt; color:#64748b; }
+  .source a { color:#0e7490; text-decoration:none; border-bottom:1px dotted #0e7490; }
+  .imgfb { display:none; height:132px; background:#f8fafc; border-bottom:1px solid #e2e8f0; align-items:center; justify-content:center; text-align:center; flex-direction:column; color:#94a3b8; font-size:8.4pt; font-weight:700; letter-spacing:.5px; padding:8px; }
+  .imgfb .fbmodel { font-size:9.6pt; color:#64748b; }
+  .cost-table { width:100%; border-collapse:collapse; font-size:8.8pt; margin:10px 0 12px 0; }
+  .cost-table th, .cost-table td { border:1px solid #dbe4ee; padding:6px 7px; vertical-align:top; }
+  .cost-table th { background:#14324e; color:#fff; text-align:left; font-weight:700; }
+  .cost-table .money { text-align:right; white-space:nowrap; }
+  .cost-table tfoot td { background:#ecfeff; font-weight:800; color:#14324e; }
+
+
+/* ===== LAYER 2 — CLOUDBATS STANDARD DOCUMENTATION SHELL ================== */
+/*  Everything below is IDENTICAL in all four documents. Copy verbatim.
+    The only per-document edits are the --red/--green/--purple status vars
+    and the matching .badge.<status> rule.                                   */
+
+  :root {
+    --navy:#0f172a;
+    --navy-2:#1e293b;
+    --slate-600:#475569;
+    --slate-500:#64748b;
+    --slate-300:#cbd5e1;
+    --slate-100:#f1f5f9;
+    --slate-50:#f8fafc;
+    --teal:#06b6d4;
+    --teal-dark:#0891b2;
+    --amber:#d97706;
+    --amber-bg:#fffbeb;
+    --amber-bd:#fde68a;
+    --purple:#7c3aed;
+    --purple-bg:#f5f3ff;
+    --purple-bd:#ddd6fe;
+    --red:#dc2626;
+    --red-bg:#fef2f2;
+    --red-bd:#fecaca;
+    --green:#0f766e;
+    --green-bg:#ecfdf5;
+    --green-bd:#a7f3d0;
+    --border:#e2e8f0;
+    --maxw:1160px;
+    --sidebar-w:272px;
+  }
+  html { scroll-behavior:smooth; }
+  body {
+    max-width:none;
+    margin:0;
+    padding:0;
+    font-family:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
+    font-size:16px;
+    line-height:1.65;
+    color:var(--navy);
+    background:var(--slate-50);
+  }
+  h1, h2, h3, h4 { font-family:'Sora',system-ui,sans-serif; line-height:1.25; }
+  code, pre, .mono { font-family:'JetBrains Mono',ui-monospace,Consolas,monospace; }
+  a { color:var(--teal-dark); }
+  a:focus-visible, button:focus-visible { outline:3px solid rgba(6,182,212,.35); outline-offset:2px; }
+
+  .shell { display:flex; max-width:1540px; margin:0 auto; }
+  .sidebar {
+    width:var(--sidebar-w);
+    flex-shrink:0;
+    position:sticky;
+    top:0;
+    align-self:flex-start;
+    height:100vh;
+    overflow-y:auto;
+    padding:28px 20px 40px 28px;
+    border-right:1px solid var(--border);
+  }
+  .sidebar .brand { display:flex; align-items:center; gap:10px; margin-bottom:22px; }
+  .sidebar .brand svg { width:28px; height:28px; min-width:0; flex-shrink:0; }
+  .sidebar .brand span { font-family:'Sora',sans-serif; font-weight:700; font-size:17px; letter-spacing:-.02em; }
+  .sidebar .doclabel {
+    font-size:11px;
+    line-height:1.45;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    color:var(--slate-500);
+    font-weight:600;
+    margin:0 0 18px 0;
+    padding-bottom:14px;
+    border-bottom:1px solid var(--border);
+  }
+  .toc { list-style:none; margin:0; padding:0; font-size:13.5px; }
+  .toc > li { margin:0 0 2px 0; }
+  .toc a { display:block; color:var(--slate-600); text-decoration:none; padding:6px 10px; border-radius:6px; font-weight:500; }
+  .toc a:hover { background:var(--slate-100); color:var(--navy); }
+  .toc .num { color:var(--teal-dark); font-weight:700; margin-right:6px; }
+
+  .toc-control { margin:2px 0 0; }
+  .sidebar-control {
+    display:grid;
+    grid-template-columns:minmax(0,1fr) 40px;
+    align-items:center;
+    gap:6px;
+    min-height:44px;
+  }
+  .sidebar-control > span,
+  .sidebar-control > a {
+    min-width:0;
+    padding:6px 10px;
+    border-radius:6px;
+    color:var(--slate-600);
+    font-size:13.5px;
+    line-height:1.35;
+    font-weight:500;
+    text-decoration:none;
+  }
+  .sidebar-control > a:hover { background:var(--slate-100); color:var(--navy); }
+  .sidebar-control .num { color:var(--teal-dark); font-weight:700; margin-right:6px; }
+  .visibility-toggle {
+    width:40px;
+    height:40px;
+    display:grid;
+    place-items:center;
+    padding:0;
+    border:1px solid transparent;
+    border-radius:7px;
+    background:transparent;
+    color:var(--slate-500);
+    cursor:pointer;
+  }
+  .visibility-toggle:hover { background:var(--slate-100); color:var(--navy); }
+  .visibility-toggle svg {
+    width:19px;
+    height:19px;
+    fill:none;
+    stroke:currentColor;
+    stroke-width:2;
+    stroke-linecap:round;
+    stroke-linejoin:round;
+  }
+  .visibility-toggle .eye-slash { display:none; }
+  .visibility-toggle[aria-pressed="false"] .eye-slash { display:block; }
+  /* ON-state tint identifies the layer. Slot A = status colour, Slot B = amber. */
+  #gapToggle[aria-pressed="true"]   { color:var(--red); background:var(--red-bg); border-color:var(--red-bd); }
+  #equipToggle[aria-pressed="true"] { color:var(--amber); background:var(--amber-bg); border-color:var(--amber-bd); }
+
+  main { flex:1; min-width:0; padding:44px 48px 100px; }
+  .content { max-width:var(--maxw); }
+
+  .doc-header { border:0; padding:0; margin:0 0 8px 0; }
+  .doc-header h1 { font-size:34px; color:var(--navy); margin:14px 0 6px; letter-spacing:-.02em; }
+  .doc-header .tagline { font-size:16.5px; line-height:1.6; color:var(--slate-600); font-weight:400; margin:0 0 18px; max-width:900px; }
+  .meta-row { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:6px; }
+  .badge {
+    display:inline-flex;
+    align-items:center;
+    gap:5px;
+    font-size:12px;
+    line-height:1.4;
+    font-weight:600;
+    padding:4px 10px;
+    border-radius:999px;
+    background:var(--slate-100);
+    color:var(--slate-600);
+    border:1px solid var(--border);
+  }
+  .badge.navy   { background:var(--navy); color:#fff; border-color:var(--navy); }
+  .badge.teal   { background:#ecfeff; color:var(--teal-dark); border-color:#a5f3fc; }
+  .badge.amber  { background:var(--amber-bg); color:var(--amber); border-color:var(--amber-bd); }
+  .badge.purple { background:var(--purple-bg); color:var(--purple); border-color:var(--purple-bd); }
+  .badge.red    { background:var(--red-bg); color:var(--red); border-color:var(--red-bd); }
+  .badge.green  { background:var(--green-bg); color:var(--green); border-color:var(--green-bd); }
+
+  hr.rule { border:0; border-top:1px solid var(--border); margin:36px 0; }
+  section { scroll-margin-top:20px; margin-bottom:52px; }
+  .kicker { font-size:12px; line-height:1.4; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:var(--teal-dark); margin:0 0 6px; }
+  section > h2 { font-size:26px; color:var(--navy); margin:0 0 14px; border:0; padding:0; }
+  section > h3, .gap-layer > h3, .equip-layer > h3 { font-size:19px; color:var(--navy); margin:30px 0 10px; }
+
+  .series-strip { font-size:13px; line-height:1.55; margin:0 0 30px; padding:9px 12px; }
+  .note, .warn, .mem { font-size:14px; line-height:1.55; }
+  .gaps { font-size:14px; }
+  .caption { font-size:12.5px; line-height:1.5; margin:5px 0 14px; }
+  .data-table, .map-table, .cost-table { font-size:13px; }
+  .doc-control { font-size:12px; }
+  .legend { font-size:12px; }
+  .figwrap { max-width:100%; overflow-x:auto; overscroll-behavior-inline:contain; }
+  .figwrap > svg { min-width:760px; }
+
+  footer.doc-footer { border-top:1px solid var(--border); margin-top:60px; padding-top:22px; font-size:12.5px; line-height:1.6; color:var(--slate-500); }
+
+  /* -- tablet/mobile: sidebar collapses to a control bar; TOC links hide,
+        the two layer toggles survive (they are functional, not navigational) -- */
+  @media (max-width:980px) {
+    .shell { display:block; }
+    .sidebar {
+      display:block;
+      position:static;
+      width:auto;
+      height:auto;
+      overflow:visible;
+      padding:12px 20px;
+      border-right:0;
+      border-bottom:1px solid var(--border);
+      background:#fff;
+    }
+    .sidebar > .brand,
+    .sidebar > .doclabel { display:none; }
+    .sidebar-nav { display:block; }
+    .sidebar-nav .toc {
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:8px;
+    }
+    .sidebar-nav .toc > li:not(.toc-control) { display:none; }
+    .toc-control { margin:0; }
+    .sidebar-control { border:1px solid var(--border); border-radius:8px; background:var(--slate-50); padding-left:2px; }
+    main { padding:32px 20px 80px; }
+    .doc-header h1 { font-size:30px; }
+    table { display:block; max-width:100%; overflow-x:auto; }
+  }
+
+  @media (max-width:560px) {
+    .doc-header h1 { font-size:27px; }
+    .sidebar-nav .toc { grid-template-columns:1fr; }
+  }
+
+  /* -- print: drop the chrome, hand typography back to Layer 1, and
+        FORCE-REVEAL the hidden layers so the PDF is the complete document -- */
+  @media print {
+    body { background:#fff; font-size:9.5pt; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+    .sidebar { display:none !important; }
+    .shell { display:block; max-width:none; }
+    main { padding:0; }
+    .content { max-width:none; }
+    .doc-header h1 { font-size:20pt; }
+    .doc-header .tagline { font-size:10pt; }
+    section { margin-bottom:24px; }
+    .figwrap { overflow:visible; }
+    .figwrap > svg { min-width:0; }
+    body:not(.show-gaps) .gap-layer { display:revert !important; }
+    body:not(.show-gaps) .mem { display:block !important; }
+  }
+
+
+
+
+/* ===== LAYER 3 — v2.8 / shell bridge =====================================
+   Layer 0 is the NET-LAB-002 engineering component layer, carried over from
+   revision 2.8 unchanged apart from three namespaced class tokens
+   (.badge -> .nd-badge, .legend -> .nd-legend, .meta -> .nd-meta) which the
+   CloudBats shell also defines. Layers 1 and 2 are the shell. This block
+   resolves the remaining conflicts and adds the two behaviours the shell
+   never had: scroll-spy and a mobile-visible table of contents.
+   ====================================================================== */
+
+  /* -- the v2.8 title block now lives inside section 0 -- */
+  .content .document-header { margin: 6px 0 4px; }
+  .content .document-header h1 { font-size: 21px; line-height: 1.3; }
+  .content .document-subtitle { font-size: 14px; }
+
+  /* -- section furniture the shell expects -- */
+  .section-lede { font-size: 14.5px; line-height: 1.6; color: var(--slate-600); margin: -4px 0 18px; max-width: 940px; }
+  section > h3 { font-family: 'Sora', system-ui, sans-serif; }
+
+  /* -- the rack is wider than the content column; let it scroll in place -- */
+  .content .rack-grid { overflow-x: auto; overscroll-behavior-inline: contain; padding-bottom: 6px; }
+  .content .logical-scroll, .content #logical-scroll { overscroll-behavior-inline: contain; }
+
+  /* -- the retired tab bar used to supply this spacing -- */
+  .content .section-head { display: none; }
+
+  /* -- scroll-spy: exactly one entry current -- */
+  .toc a[aria-current="true"],
+  .sidebar-control > a[aria-current="true"] {
+    background: var(--slate-100);
+    color: var(--navy);
+    box-shadow: inset 2px 0 0 var(--teal-dark);
+  }
+  .toc a[aria-current="true"] .num { color: var(--navy); }
+
+  /* -- ten sections cannot be navigated on a phone with the TOC hidden -- */
+  @media (max-width: 980px) {
+    .sidebar-nav .toc > li:not(.toc-control) { display: block; }
+    .sidebar { max-height: 45vh; overflow-y: auto; }
+  }
+
+  /* -- WEB-006: the shell declares scroll-behavior:smooth unguarded -- */
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+  /* -- equipment exhibit, built at load from the embedded rack faces -- */
+  .equip-card .equip-faces { display: grid; grid-template-columns: 1fr; gap: 6px; padding: 8px; background: #f8fafc; border-bottom: 1px solid var(--border); }
+  .equip-card .equip-faces figure { margin: 0; }
+  .equip-card .equip-faces img { width: 100%; height: 58px; object-fit: contain; display: block; }
+  .equip-card .equip-faces figcaption { font-size: 10px; letter-spacing: .06em; text-transform: uppercase; color: var(--slate-500); font-weight: 700; margin-top: 2px; }
+
+  @media print {
+    .skip-link { display: none !important; }
+    .content .rack-grid { overflow: visible; }
+    thead { display: table-header-group; }
+    .figwrap, .note, .warn, .gaps, .figure-legend { break-inside: avoid; }
+  }
+
+</style>
+</head>
+<a class="skip-link" href="#document-content">Skip to content</a>
+<body class="show-gaps">
+<svg id="network-vector-symbols" width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute">
+<defs id="vector-symbol-library">
+            <filter id="card-shadow" x="-25%" y="-25%" width="150%" height="165%">
+              <feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#26485c" flood-opacity=".12"/>
+            </filter>
+
+            <!--
+              Shared switch-top glyph: four parallel arrows, alternating two
+              right and two left, as shown by the Cisco workgroup-switch and
+              WLAN-controller references. The rows are staggered to follow the
+              isometric top plane without crossing or touching.
+            -->
+            <g id="nd-switch-arrow-glyph" class="sym-detail">
+              <path data-direction="right" d="M63 14h28v-2.8l10 3.8-10 3.8V16H63Z"/>
+              <path data-direction="left" d="M75 18.8H45V16l-10 3.8 10 3.8v-2.8h30Z"/>
+              <path data-direction="right" d="M49 23.3h30v-2.8l10 3.8-10 3.8v-2.8H49Z"/>
+              <path data-direction="left" d="M61 27.5H32v-2.8l-10 3.8 10 3.8v-2.8h29Z"/>
+            </g>
+
+            <!-- Seven symbols carried forward from experiment 01. -->
+            <symbol id="nd-cloud" viewBox="0 0 150 88">
+              <title>Network cloud</title>
+              <path class="sym-outline" stroke-width="2.4" d="M26 72C14 72 6 64 6 54c0-9 6-17 16-20 3-13 15-22 30-22 8 0 15 2 21 7 6-5 14-7 23-7 15 0 27 8 30 20 10 2 17 10 17 20 0 11-9 20-22 20H26Z"/>
+            </symbol>
+
+            <symbol id="nd-firewall" viewBox="0 0 86 108">
+              <title>Firewall</title>
+              <polygon class="sym-light" points="15,22 29,10 74,10 60,22"/>
+              <polygon class="sym-dark" points="60,22 74,10 74,82 60,94"/>
+              <rect class="sym-primary" x="15" y="22" width="45" height="72"/>
+              <g class="sym-detail-stroke" stroke-width="2">
+                <path d="M15 40H60M15 58H60M15 76H60"/>
+                <path d="M29 22V40M47 22V40M23 40V58M41 40V58M29 58V76M47 58V76M23 76V94M41 76V94"/>
+                <path d="M60 40 74 28M60 58 74 46M60 76 74 64"/>
+              </g>
+            </symbol>
+
+            <symbol id="nd-router" viewBox="0 0 120 88">
+              <title>Router</title>
+              <path class="sym-dark" d="M12 36v22c0 12 21 21 48 21s48-9 48-21V36c-8 9-26 15-48 15S20 45 12 36Z"/>
+              <ellipse class="sym-primary" cx="60" cy="35" rx="48" ry="20"/>
+              <path class="sym-light" d="M18 30c7-8 23-13 42-13 21 0 38 6 44 15-10-6-25-9-42-9-19 0-35 3-44 7Z" opacity=".75"/>
+              <g class="sym-detail"><path d="M60 18 70 27h-7v10h-7V27h-7Z"/><path d="m60 52-10-9h7V33h7v10h7Z"/><path d="m32 35 10-9v6h13v6H42v6Z"/><path d="m88 35-10 9v-6H65v-6h13v-6Z"/></g>
+            </symbol>
+
+            <symbol id="nd-l3-switch" viewBox="0 0 106 106">
+              <title>Layer 3 switch</title>
+              <polygon class="sym-light" points="14,26 28,14 91,14 77,26"/>
+              <polygon class="sym-dark" points="77,26 91,14 91,78 77,92"/>
+              <rect class="sym-primary" x="14" y="26" width="63" height="66"/>
+              <circle class="sym-detail" cx="45.5" cy="59" r="9"/>
+              <g class="sym-detail" transform="translate(45.5 59)">
+                <path id="l3-arrow" d="M-3-12v-13h-5l8-9 8 9H3v13Z"/>
+                <use href="#l3-arrow" transform="rotate(45)"/><use href="#l3-arrow" transform="rotate(90)"/><use href="#l3-arrow" transform="rotate(135)"/><use href="#l3-arrow" transform="rotate(180)"/><use href="#l3-arrow" transform="rotate(225)"/><use href="#l3-arrow" transform="rotate(270)"/><use href="#l3-arrow" transform="rotate(315)"/>
+              </g>
+            </symbol>
+
+            <symbol id="nd-server" viewBox="0 0 92 108">
+              <title>Server</title>
+              <polygon class="sym-light" points="14,20 27,9 75,9 62,20"/>
+              <polygon class="sym-dark" points="62,20 75,9 75,88 62,99"/>
+              <rect class="sym-primary" x="14" y="20" width="48" height="79"/>
+              <g class="sym-detail-stroke" stroke-width="2"><rect x="20" y="29" width="14" height="12" rx="1"/><rect x="41" y="29" width="14" height="12" rx="1"/><rect x="20" y="50" width="14" height="14" rx="1"/><rect x="41" y="50" width="14" height="14" rx="1"/><rect x="20" y="73" width="14" height="17" rx="1"/><rect x="41" y="73" width="14" height="17" rx="1"/></g>
+            </symbol>
+
+            <symbol id="nd-access-point" viewBox="0 0 120 76">
+              <title>Wireless access point</title>
+              <polygon class="sym-light" points="12,28 30,13 108,13 90,28"/><polygon class="sym-dark" points="90,28 108,13 108,51 90,66"/><polygon class="sym-primary" points="12,28 90,28 90,66 12,66"/>
+              <g class="sym-detail-stroke" stroke-width="2.6"><circle cx="27" cy="47" r="7"/><circle cx="42" cy="47" r="7"/><circle cx="57" cy="47" r="7"/><circle cx="72" cy="47" r="7"/></g><circle class="sym-detail" cx="82" cy="47" r="2.6"/>
+            </symbol>
+
+            <symbol id="nd-workstation" viewBox="0 0 126 104">
+              <title>Workstation</title>
+              <polygon class="sym-dark" points="25,12 92,12 84,62 18,62"/><polygon class="sym-primary" points="29,16 88,16 81,57 22,57"/><polygon class="sym-light" points="33,20 83,20 78,52 27,52" opacity=".38"/>
+              <path class="sym-primary" d="M45 62h15l3 10h16l7 7H31l8-7h8Z"/><polygon class="sym-dark" points="24,80 89,80 105,94 9,94"/><polygon class="sym-light" points="28,83 86,83 96,91 18,91"/><path class="sym-primary" d="M104 78c10 0 15 5 15 10s-4 9-10 9c-5 0-8-3-8-7 0-3 2-6 6-7-3-1-6-1-9 0l-2-3c3-1 5-2 8-2Z"/>
+            </symbol>
+
+            <!-- Twelve new clean-vector interpretations for experiment 02. -->
+            <symbol id="nd-access-switch" viewBox="0 0 120 72">
+              <title>Access switch</title>
+              <polygon class="sym-light" points="10,33 34,11 110,11 86,33"/><polygon class="sym-dark" points="86,33 110,11 110,37 86,59"/><polygon class="sym-primary" points="10,33 86,33 86,59 10,59"/>
+              <use href="#nd-switch-arrow-glyph"/>
+            </symbol>
+
+            <symbol id="nd-wlan-controller" viewBox="0 0 120 76">
+              <title>Wireless LAN controller</title>
+              <polygon class="sym-light" points="10,33 34,11 110,11 86,33"/><polygon class="sym-dark" points="86,33 110,11 110,43 86,65"/><polygon class="sym-primary" points="10,33 86,33 86,65 10,65"/>
+              <use href="#nd-switch-arrow-glyph"/>
+              <g class="sym-detail-stroke" stroke-width="2.2"><circle cx="21" cy="49" r="6.5"/><circle cx="34.5" cy="49" r="6.5"/><circle cx="48" cy="49" r="6.5"/><circle cx="61.5" cy="49" r="6.5"/><circle cx="75" cy="49" r="6.5"/></g>
+            </symbol>
+
+            <symbol id="nd-vpn-headend" viewBox="0 0 100 106">
+              <title>VPN headend</title>
+              <polygon class="sym-light" points="14,20 27,9 82,9 69,20"/><polygon class="sym-dark" points="69,20 82,9 82,91 69,102"/><rect class="sym-primary" x="14" y="20" width="55" height="82" rx="2"/>
+              <g class="sym-detail-stroke" stroke-width="2"><rect x="20" y="31" width="42" height="22" rx="2"/><rect x="20" y="65" width="42" height="22" rx="2"/></g>
+              <g class="sym-detail"><path d="M26 38h22v-5l10 9-10 9v-5H26Z"/><path d="M56 72H34v-5l-10 9 10 9v-5h22Z"/></g>
+              <g class="sym-detail-stroke" stroke-width="1.8"><ellipse cx="75.5" cy="43" rx="3" ry="7"/><ellipse cx="75.5" cy="77" rx="3" ry="7"/></g>
+            </symbol>
+
+            <symbol id="nd-dc-switch" viewBox="0 0 104 104">
+              <title>Data-center server-access switch</title>
+              <polygon class="sym-light" points="13,26 28,12 91,12 76,26"/><polygon class="sym-dark" points="76,26 91,12 91,77 76,91"/><rect class="sym-primary" x="13" y="26" width="63" height="65"/>
+              <g class="sym-detail-stroke" stroke-width="1.8"><path d="M28 42H61M28 58H61M28 74H61M28 42V74M44.5 42V74M61 42V74"/></g>
+              <g class="sym-detail"><circle cx="28" cy="42" r="4"/><circle cx="44.5" cy="42" r="4"/><circle cx="61" cy="42" r="4"/><circle cx="28" cy="58" r="4"/><circle cx="44.5" cy="58" r="4"/><circle cx="61" cy="58" r="4"/><circle cx="28" cy="74" r="4"/><circle cx="44.5" cy="74" r="4"/><circle cx="61" cy="74" r="4"/></g>
+            </symbol>
+
+            <symbol id="nd-ip-phone" viewBox="0 0 126 88">
+              <title>IP phone</title>
+              <polygon class="sym-primary" points="21,38 101,38 116,70 8,70"/><polygon class="sym-light" points="31,25 92,25 101,38 21,38"/><polygon class="sym-dark" points="101,38 116,70 106,80 99,53"/>
+              <polygon class="sym-detail" points="66,42 94,42 99,53 69,53"/><polygon class="sym-light" points="69,44 91,44 94,50 71,50"/>
+              <g class="sym-detail"><circle cx="45" cy="49" r="2.2"/><circle cx="52" cy="49" r="2.2"/><circle cx="59" cy="49" r="2.2"/><circle cx="45" cy="56" r="2.2"/><circle cx="52" cy="56" r="2.2"/><circle cx="59" cy="56" r="2.2"/><circle cx="45" cy="63" r="2.2"/><circle cx="52" cy="63" r="2.2"/><circle cx="59" cy="63" r="2.2"/></g>
+              <path class="sym-primary" d="M20 19c6-7 14-11 23-11l11 8-10 14-10-5c-3 4-5 8-6 13l-13-2c0-7 2-12 5-17Z"/><path class="sym-detail-stroke" stroke-width="2" d="m22 22 12 5M39 12l8 8"/>
+            </symbol>
+
+            <symbol id="nd-laptop" viewBox="0 0 126 96">
+              <title>Laptop</title>
+              <polygon class="sym-dark" points="31,10 104,10 91,62 19,62"/><polygon class="sym-primary" points="34,14 99,14 88,57 24,57"/><polygon class="sym-light" points="39,19 94,19 85,52 30,52" opacity=".4"/>
+              <polygon class="sym-primary" points="19,63 91,63 117,87 5,87"/><polygon class="sym-light" points="24,66 87,66 105,82 13,82"/>
+              <g class="sym-detail-stroke" stroke-width="1.2" opacity=".9"><path d="M31 69h53M25 73h66M19 77h80"/></g>
+            </symbol>
+
+            <symbol id="nd-printer" viewBox="0 0 126 82">
+              <title>Printer</title>
+              <polygon class="sym-light" points="12,24 28,10 96,10 80,24"/><polygon class="sym-dark" points="80,24 96,10 96,61 80,75"/><rect class="sym-primary" x="12" y="24" width="68" height="51"/>
+              <path class="sym-detail-stroke" stroke-width="2" d="M18 48H74"/><polygon class="sym-primary" points="96,43 120,35 111,49 96,56"/><polygon class="sym-light" points="98,42 116,36 108,43 98,48"/>
+            </symbol>
+
+            <symbol id="nd-database" viewBox="0 0 110 90">
+              <title>Relational database</title>
+              <path class="sym-dark" d="M13 30v33c0 12 19 21 42 21s42-9 42-21V30c-8 9-23 14-42 14S21 39 13 30Z"/><rect class="sym-primary" x="13" y="27" width="84" height="36"/><ellipse class="sym-primary" cx="55" cy="28" rx="42" ry="18"/><ellipse class="sym-light" cx="55" cy="25" rx="35" ry="11" opacity=".25"/>
+            </symbol>
+
+            <symbol id="nd-storage-array" viewBox="0 0 126 98">
+              <title>Storage array</title>
+              <polygon class="sym-light" points="10,26 27,10 113,10 96,26"/><polygon class="sym-dark" points="96,26 113,10 113,76 96,92"/><rect class="sym-primary" x="10" y="26" width="86" height="66"/>
+              <g class="sym-detail-stroke" stroke-width="2"><ellipse cx="29" cy="49" rx="10" ry="5"/><path d="M19 49v21c0 3 4 5 10 5s10-2 10-5V49"/><ellipse cx="54" cy="49" rx="10" ry="5"/><path d="M44 49v21c0 3 4 5 10 5s10-2 10-5V49"/><ellipse cx="79" cy="49" rx="10" ry="5"/><path d="M69 49v21c0 3 4 5 10 5s10-2 10-5V49"/></g>
+            </symbol>
+
+            <symbol id="nd-nms" viewBox="0 0 108 106">
+              <title>Network management system</title>
+              <polygon class="sym-light" points="13,25 28,11 94,11 79,25"/><polygon class="sym-dark" points="79,25 94,11 94,78 79,92"/><rect class="sym-primary" x="13" y="25" width="66" height="67"/>
+              <rect class="sym-detail-stroke" stroke-width="2" x="27" y="37" width="38" height="33" rx="2"/><circle class="sym-detail-stroke" stroke-width="4" cx="48" cy="52" r="11"/><path class="sym-detail-stroke" stroke-width="5" d="m40 61-16 17"/>
+            </symbol>
+
+            <symbol id="nd-branch-office" viewBox="0 0 90 114">
+              <title>Branch office</title>
+              <polygon class="sym-light" points="14,23 28,10 76,10 62,23"/><polygon class="sym-dark" points="62,23 76,10 76,96 62,108"/><rect class="sym-primary" x="14" y="23" width="48" height="85"/>
+              <g class="sym-detail"><rect x="20" y="31" width="5" height="8"/><rect x="31" y="31" width="5" height="8"/><rect x="42" y="31" width="5" height="8"/><rect x="53" y="31" width="5" height="8"/><rect x="20" y="47" width="5" height="8"/><rect x="31" y="47" width="5" height="8"/><rect x="42" y="47" width="5" height="8"/><rect x="53" y="47" width="5" height="8"/><rect x="20" y="63" width="5" height="8"/><rect x="31" y="63" width="5" height="8"/><rect x="42" y="63" width="5" height="8"/><rect x="53" y="63" width="5" height="8"/><rect x="20" y="79" width="5" height="8"/><rect x="31" y="79" width="5" height="8"/><rect x="42" y="79" width="5" height="8"/><rect x="53" y="79" width="5" height="8"/></g>
+            </symbol>
+
+            <symbol id="nd-wireless-router" viewBox="0 0 120 110">
+              <title>Wireless router</title>
+              <g class="sym-detail-stroke" stroke="var(--symbol-main, #0076a8)" stroke-width="4"><path d="M26 28V5M94 28V5"/></g><g class="sym-primary"><rect x="22" y="3" width="8" height="5"/><rect x="90" y="3" width="8" height="5"/></g>
+              <path class="sym-dark" d="M12 54v22c0 12 21 21 48 21s48-9 48-21V54c-8 9-26 15-48 15S20 63 12 54Z"/><ellipse class="sym-primary" cx="60" cy="53" rx="48" ry="20"/>
+              <g class="sym-detail"><path d="M60 36 70 45h-7v10h-7V45h-7Z"/><path d="m60 70-10-9h7V51h7v10h7Z"/><path d="m32 53 10-9v6h13v6H42v6Z"/><path d="m88 53-10 9v-6H65v-6h13v-6Z"/></g>
+            </symbol>
+          </defs>
+</svg>
+<div class="shell">
+  <aside class="sidebar" aria-label="Document sidebar">
+    <div class="brand">
+      <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M112 72 H400 V352 Q400 400 376 424 Q356 440 336 424 Q316 400 296 400 H216 Q196 400 176 424 Q156 440 136 424 Q112 400 112 352 Z M312 136 A40 40 0 0 1 352 176 V304 A40 40 0 0 1 312 344 A40 40 0 0 1 272 304 V176 A40 40 0 0 1 312 136 Z" fill-rule="evenodd" fill="#0F172A"/></svg>
+      <span>cloudbats</span>
+    </div>
+    <p class="doclabel">Systems &middot; Network Design<br>NET-SEA-RH-001 &middot; Seattle Hub</p>
+
+    <nav class="sidebar-nav" aria-label="Document sections">
+      <ul class="toc">
+        <li><a href="#overview"><span class="num">0</span>Overview</a></li>
+        <li><a href="#logical-topology"><span class="num">1</span>Logical topology</a></li>
+        <li><a href="#identity-addressing"><span class="num">2</span>Identity &amp; addressing</a></li>
+        <li><a href="#physical-view"><span class="num">3</span>Physical view &middot; SEA.MDF.R01</a></li>
+        <li><a href="#change-management"><span class="num">4</span>Change management</a></li>
+        <li><a href="#operations-observability"><span class="num">5</span>Ops &amp; observability</a></li>
+
+        <li class="toc-control">
+          <div class="sidebar-control">
+            <a id="gapLink" href="#open-items"><span class="num">6</span>Open items</a>
+            <button class="visibility-toggle" id="gapToggle" type="button" aria-labelledby="gapLink" aria-controls="open-items" aria-pressed="true" title="Hide open items and risks">
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path d="M2.3 12s3.4-5.5 9.7-5.5 9.7 5.5 9.7 5.5-3.4 5.5-9.7 5.5S2.3 12 2.3 12Z"/>
+                <circle cx="12" cy="12" r="3"/>
+                <path class="eye-slash" d="M4 4l16 16"/>
+              </svg>
+            </button>
+          </div>
+        </li>
+
+        <li><a href="#validation-plan"><span class="num">7</span>Validation plan</a></li>
+        <li><a href="#standards-sources"><span class="num">8</span>Standards &amp; sources</a></li>
+
+        <li class="toc-control">
+          <div class="sidebar-control">
+            <a id="equipmentExhibitLink" href="#equipment-exhibit"><span class="num">A</span>Equipment exhibit</a>
+            <button class="visibility-toggle" id="equipToggle" type="button" aria-labelledby="equipmentExhibitLink" aria-controls="equipment-exhibit" aria-pressed="false" title="Show equipment exhibit">
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path d="M2.3 12s3.4-5.5 9.7-5.5 9.7 5.5 9.7 5.5-3.4 5.5-9.7 5.5S2.3 12 2.3 12Z"/>
+                <circle cx="12" cy="12" r="3"/>
+                <path class="eye-slash" d="M4 4l16 16"/>
+              </svg>
+            </button>
+          </div>
+        </li>
+      </ul>
+    </nav>
+  </aside>
+
+
+  <main id="document-content">
+    <div class="content">
+
+
+<header class="doc-header">
+  <div class="meta-row">
+    <span class="badge navy">Network &amp; Security</span>
+    <span class="badge teal">Reference Design &middot; Seattle regional hub</span>
+    <span class="badge">v2.0 &middot; 2026-08-13</span>
+    <span class="badge red">Assumptions &middot; validation required</span>
+  </div>
+  <h1>NET-RH-001 &mdash; Seattle regional hub &amp; SEA.MDF.R01 rack elevation</h1>
+  <p class="tagline">Dual SD-WAN transports into an active/standby security pair and a two-member collapsed core, reconciled against an exact 24U elevation &mdash; a comparison artifact at a deliberately smaller scale, with every unverified port, circuit and feed left visibly open.</p>
+</header>
+
+<div class="series-strip"><b>Network design set</b> &mdash;&nbsp; <span>NET-SJC-HQ-001 &middot; San Jose HQ</span><span class="ss-arrow">&rarr;</span><span class="ss-here">NET-SEA-RH-001 &middot; Seattle hub &mdash; this document</span><span class="ss-arrow">&rarr;</span><span>NET-LAB-002 &middot; Enterprise campus</span><span class="ss-arrow">&rarr;</span><span>NET-FAB-001 &middot; Private cloud fabric</span><span class="ss-arrow">&rarr;</span><span>NET-ENT-001 &middot; Edge, DMZ &amp; services</span></div>
+
+
+<section id="overview">
+<p class="kicker">Section 0</p>
+<h2>Overview &mdash; what this document is</h2>
+<div class="overview-grid">
+    <article class="card"><h3>What is different from SJC-HQ?</h3><ul>
+      <li>A compact <b>24U regional-hub rack</b> instead of a 42U headquarters cabinet.</li>
+      <li>Two <b>SD-WAN transports</b>: Internet DIA and private WAN, with LTE as an overlay backup.</li>
+      <li>A smaller campus with two PoE access switches, voice, wireless and IoT endpoints.</li>
+      <li>One local virtualization host for survivable infrastructure services.</li>
+      <li>Product faces and neutral chassis placeholders coexist in the same rack without changing U arithmetic.</li>
+    </ul></article>
+    <article class="card"><h3>Design intent</h3><p>This is a fictional comparison artifact, not an as-built network. The topology deliberately changes scale, hierarchy and equipment density while keeping the interaction pattern identical: recognizable symbols, restrained hover details, exact rack-unit placement and matched front/rear elevations.</p><p><b>Result to review:</b> whether the template remains readable without relying on the original HQ layout.</p></article>
+  </div>
+  <div class="summary"><div class="stat"><strong>24U</strong><span>Rack height</span></div><div class="stat"><strong>11</strong><span>Installed rack devices</span></div><div class="stat"><strong>0U</strong><span>Open rack capacity</span></div><div class="stat"><strong>3</strong><span>WAN paths</span></div></div>
+
+<h3>0.1 &middot; Document control</h3>
+<header class="document-header" aria-labelledby="document-title" aria-describedby="document-subtitle">
+  <div class="document-brand"><span class="document-brand__name">CLOUDBATS</span><span class="document-brand__type">Network Design Document</span></div>
+  <h1 id="document-title">Seattle Regional Hub — SD-WAN, Campus &amp; Local Services</h1>
+  <p id="document-subtitle" class="document-subtitle">Seattle regional-hub reference design · logical topology, rack elevation and engineering schedules.</p>
+  <dl class="document-meta" aria-label="Document control">
+    <div class="document-field"><dt>Document ID</dt><dd class="document-code" data-doc-field="document-id">CB-ND-SEA-RH-001</dd></div>
+  <div class="document-field"><dt>Revision</dt><dd class="document-code" data-doc-field="revision">2.0</dd></div>
+    <div class="document-field"><dt>Release date</dt><dd><time class="document-code" datetime="2026-08-13" data-doc-field="date">2026-08-13</time></dd></div>
+    <div class="document-field"><dt>Site</dt><dd>SEA-RH — Seattle, WA</dd></div>
+    <div class="document-field"><dt>Author</dt><dd>Sayed Haque</dd></div>
+    <div class="document-field"><dt>Reviewed by</dt><dd>NOT ASSIGNED</dd></div>
+    <div class="document-field"><dt>Approved by</dt><dd>NOT ASSIGNED</dd></div>
+    <div class="document-field"><dt>Classification</dt><dd><span class="document-badge document-badge--classification" data-doc-field="classification">SAMPLE / REFERENCE</span></dd></div>
+    <div class="document-field"><dt>Status</dt><dd><span class="document-badge document-badge--neutral" data-doc-field="status">NOT ASSIGNED</span></dd></div>
+  </dl>
+  <p class="document-conventions"><b>Conventions.</b> Racks per EIA/ECA-310 and IEC 60297 (1U = 44.45 mm) · <b>U1 = bottom of rack</b>, all ranges inclusive · link labels use IEEE 802.3 nomenclature where media and speed are known · identifiers follow ANSI/TIA-606-D · schematic and orthographic faces are distinguished in the Figure 2 legend.</p>
+</header>
+</section>
+
+<hr class="rule">
+
+<section id="logical-topology">
+<p class="kicker">Section 1</p>
+<h2>Layer 3 logical topology</h2>
+<p class="section-lede">The regional hub uses dual SD-WAN edges, an active/standby security pair, a two-member collapsed core, two access switches, controller-based wireless and a small local service tier. Hover, focus or click a symbol for concise device context.</p>
+<figure><figcaption><b>Figure 1 — SEA-RH logical topology.</b> All physical paths terminate on explicit symbol-edge anchors. Paired paths show individual port-channel, StackWise Virtual and firewall-HA members. The Engineering schedules identify the adopted ports and the remaining hardware-validation dependencies.</figcaption>
+  <div class="logical-wrap">
+  <svg class="logical-svg" viewBox="0 0 1400 1020" role="img" aria-labelledby="lt ld" preserveAspectRatio="xMidYMid meet">
+</svg>
+  <div class="hover-label" id="logical-label" role="status" aria-live="polite"></div>
+  </div></figure>
+  <aside class="nd-legend figure-legend logical-figure-legend" aria-labelledby="logical-legend-title">
+    <h3 id="logical-legend-title">Figure 1 legend</h3>
+    <div><h4>Devices and symbols</h4><ul class="device-list">
+      <li><svg class="legend-device-icon" viewBox="0 0 64 64" aria-hidden="true"><use href="#nd-cloud"/></svg>External transport / cloud</li>
+      <li><svg class="legend-device-icon" viewBox="0 0 64 64" aria-hidden="true"><use href="#nd-router"/></svg>SD-WAN edge router</li>
+      <li><svg class="legend-device-icon" viewBox="0 0 64 64" aria-hidden="true"><use href="#nd-firewall"/></svg>Active / standby firewall</li>
+      <li><svg class="legend-device-icon" viewBox="0 0 64 64" aria-hidden="true"><use href="#nd-l3-switch"/></svg>Collapsed-core L3 switch</li>
+      <li><svg class="legend-device-icon" viewBox="0 0 64 64" aria-hidden="true"><use href="#nd-access-switch"/></svg>Campus L2 access switch</li>
+      <li><svg class="legend-device-icon" viewBox="0 0 64 64" aria-hidden="true"><use href="#nd-wlan-controller"/></svg>Wireless controller</li>
+      <li><svg class="legend-device-icon" viewBox="0 0 64 64" aria-hidden="true"><use href="#nd-access-point"/></svg>Wireless AP group</li>
+      <li><svg class="legend-device-icon" viewBox="0 0 64 64" aria-hidden="true"><use href="#nd-server"/></svg>Server / virtualization host</li>
+      <li><svg class="legend-device-icon" viewBox="0 0 64 64" aria-hidden="true"><use href="#nd-workstation"/></svg>User / IoT / guest endpoints</li>
+      <li><svg class="legend-device-icon" viewBox="0 0 64 64" aria-hidden="true"><use href="#nd-ip-phone"/></svg>IP phone / voice endpoint</li>
+    </ul></div>
+    <div><h4>Links and media</h4><ul>
+      <li><span class="legend-swatch" style="background:#f5c518"></span>OS2 single-mode carrier fibre</li>
+      <li><svg class="line-key" viewBox="0 0 34 14" aria-hidden="true"><line x1="1" y1="4" x2="33" y2="4" stroke="#4fd1c5" stroke-width="2.6"/><line x1="1" y1="10" x2="33" y2="10" stroke="#4fd1c5" stroke-width="2.6"/></svg>OM4 physical pair or MEC members</li>
+      <li><svg class="line-key" viewBox="0 0 34 14" aria-hidden="true"><line x1="1" y1="4" x2="33" y2="4" stroke="#374151" stroke-width="3"/><line x1="1" y1="10" x2="33" y2="10" stroke="#374151" stroke-width="3"/></svg>DAC StackWise Virtual link</li>
+      <li><span class="legend-swatch" style="background:#7457a5"></span>Overlay tunnel</li>
+      <li><span class="legend-swatch" style="background:#6b7280"></span>Cat6A or access-layer abstraction</li>
+      <li><svg class="line-key" viewBox="0 0 34 14" aria-hidden="true"><line x1="17" y1="1" x2="17" y2="13" stroke="#006b8c" stroke-width="2"/><line x1="1" y1="7" x2="33" y2="7" stroke="white" stroke-width="7"/><line x1="1" y1="7" x2="33" y2="7" stroke="#4fd1c5" stroke-width="2.6"/></svg>White gap — paths cross, not connected</li>
+    </ul></div>
+    <div><h4>Trust and service zones</h4><ul>
+      <li><span class="legend-swatch" style="background:var(--zone-ext);border-color:#d18972"></span>External transports</li>
+      <li><span class="legend-swatch" style="background:var(--zone-edge);border-color:#d1a36d"></span>SD-WAN edge and security</li>
+      <li><span class="legend-swatch" style="background:var(--zone-core);border-color:#79acbb"></span>Collapsed core</li>
+      <li><span class="legend-swatch" style="background:var(--zone-access);border-color:#7aac8c"></span>Campus access and wireless</li>
+      <li><span class="legend-swatch" style="background:var(--zone-service);border-color:#9a82bd"></span>Local services</li>
+    </ul></div>
+    <p class="legend-note"><b>Member convention.</b> Po1–Po4 and Po10–Po11 show two physical members. For downstream bundles, the left destination anchor originates on SEA-CORE-01 and the right anchor on SEA-CORE-02. Hover or focus either member to emphasize its pair. C9500X service ports use breakout-child notation; optics and breakout BOM remain a commissioning dependency.</p>
+  </aside>
+
+<h3>1.1 &middot; Physical adjacency and routing schedule</h3>
+<p class="section-lede">This is the authoritative physical/backbone companion to Figure 1. A row marked TBD or assumed is a design dependency, not an installation instruction. If the drawing and an approved row disagree, correct the drawing.</p>
+<div class="warn"><b>Breakout-port and BOM dependency</b>The C9500X child interfaces below are the adopted design assumption. Confirm installed modules/CVRs, optics, IOS XE breakout support and resulting CLI names; also confirm the C9300 uplink modules, C9800-L SKU and server NIC before issue for construction.</div>
+  <div class="table-wrap"><table><caption>Backbone link schedule</caption><thead><tr><th scope="col">#</th><th scope="col">Figure ID</th><th scope="col">A end</th><th scope="col">A port</th><th scope="col">B end</th><th scope="col">B port</th><th scope="col">Media</th><th scope="col">Speed</th><th scope="col">Logical use / Layer 3</th></tr></thead><tbody>
+    <tr><td class="num">1</td><td class="m">DIA-SDW1</td><td>DIA Internet</td><td class="m">Carrier demarc — TBD</td><td class="m">SEA-SDW-01</td><td class="m">Gi0/0/4</td><td>OS2 SM</td><td class="m">1000BASE-LX</td><td>1 Gbps DIA / eBGP; <span class="m">198.51.100.0/30</span>; assignments and policy TBD</td></tr>
+    <tr><td class="num">2</td><td class="m">WAN-SDW2</td><td>Private WAN</td><td class="m">Provider demarc — TBD</td><td class="m">SEA-SDW-02</td><td class="m">Gi0/0/4</td><td>OS2 SM</td><td class="m">1000BASE-LX</td><td>500 Mbps CIR on 1G PHY / BGP; <span class="m">10.44.254.0/30</span>; assignments TBD</td></tr>
+    <tr><td class="num">3</td><td class="m">LTE-SDW2</td><td>LTE Backup</td><td class="m">Carrier underlay — TBD</td><td class="m">SEA-SDW-02</td><td class="m">Tunnel100</td><td>Logical overlay</td><td class="m">TBD</td><td>IPsec backup; modem/PIM, antenna, endpoints, preference and tracking TBD</td></tr>
+    <tr><td class="num">4</td><td class="m">SDW-TRANSIT</td><td class="m">SEA-SDW-01</td><td class="m">Gi0/0/2</td><td class="m">SEA-SDW-02</td><td class="m">Gi0/0/2</td><td>Cat6A</td><td class="m">1000BASE-T</td><td>Inter-edge transit; iBGP/BFD shown; policy and addressing TBD</td></tr>
+    <tr><td class="num">5</td><td class="m">SDW1-FW1</td><td class="m">SEA-SDW-01</td><td class="m">Gi0/0/5</td><td class="m">SEA-FW-01</td><td class="m">Eth1/1</td><td>OM4 MM</td><td class="m">1000BASE-SX</td><td>Primary edge-to-security transit; forwarding mode/prefix TBD</td></tr>
+    <tr><td class="num">6</td><td class="m">SDW2-FW2</td><td class="m">SEA-SDW-02</td><td class="m">Gi0/0/5</td><td class="m">SEA-FW-02</td><td class="m">Eth1/1</td><td>OM4 MM</td><td class="m">1000BASE-SX</td><td>Secondary edge-to-security transit; forwarding mode/prefix TBD</td></tr>
+    <tr><td class="num">7</td><td class="m">FW-HA-M1</td><td class="m">SEA-FW-01</td><td class="m">Eth1/7 — assumed</td><td class="m">SEA-FW-02</td><td class="m">Eth1/7 — assumed</td><td>OM4 MM</td><td class="m">10GBASE-SR</td><td>Dedicated stateful-HA member 1; role and port assignment must be validated</td></tr>
+    <tr><td class="num">8</td><td class="m">FW-HA-M2</td><td class="m">SEA-FW-01</td><td class="m">Eth1/8 — assumed</td><td class="m">SEA-FW-02</td><td class="m">Eth1/8 — assumed</td><td>OM4 MM</td><td class="m">10GBASE-SR</td><td>Dedicated stateful-HA member 2; role and port assignment must be validated</td></tr>
+    <tr><td class="num">9</td><td class="m">PO10-M1</td><td class="m">SEA-FW-01</td><td class="m">Eth1/3</td><td class="m">SEA-CORE-01</td><td class="m">Hu1/0/1/1</td><td>OM4 MM</td><td class="m">10GBASE-SR</td><td rowspan="2">Po10: firewall 1 dual-homed to the logical core; routed/trunk mode, protocol and transit prefix TBD</td></tr>
+    <tr><td class="num">10</td><td class="m">PO10-M2</td><td class="m">SEA-FW-01</td><td class="m">Eth1/4</td><td class="m">SEA-CORE-02</td><td class="m">Hu2/0/1/1</td><td>OM4 MM</td><td class="m">10GBASE-SR</td></tr>
+    <tr><td class="num">11</td><td class="m">PO11-M1</td><td class="m">SEA-FW-02</td><td class="m">Eth1/3</td><td class="m">SEA-CORE-01</td><td class="m">Hu1/0/1/2</td><td>OM4 MM</td><td class="m">10GBASE-SR</td><td rowspan="2">Po11: firewall 2 dual-homed to the logical core; routed/trunk mode, protocol and transit prefix TBD</td></tr>
+    <tr><td class="num">12</td><td class="m">PO11-M2</td><td class="m">SEA-FW-02</td><td class="m">Eth1/4</td><td class="m">SEA-CORE-02</td><td class="m">Hu2/0/1/2</td><td>OM4 MM</td><td class="m">10GBASE-SR</td></tr>
+    <tr><td class="num">13</td><td class="m">SVL-M1</td><td class="m">SEA-CORE-01</td><td class="m">Hu1/0/25</td><td class="m">SEA-CORE-02</td><td class="m">Hu2/0/25</td><td>DAC</td><td class="m">100GBASE-CR4</td><td rowspan="2">SVL Po1; no Layer 3. An independent dual-active-detection design remains TBD</td></tr>
+    <tr><td class="num">14</td><td class="m">SVL-M2</td><td class="m">SEA-CORE-01</td><td class="m">Hu1/0/26</td><td class="m">SEA-CORE-02</td><td class="m">Hu2/0/26</td><td>DAC</td><td class="m">100GBASE-CR4</td></tr>
+    <tr><td class="num">15</td><td class="m">PO1-M1</td><td class="m">SEA-CORE-01</td><td class="m">Hu1/0/1/3</td><td class="m">SEA-ACC-01</td><td class="m">Te1/1/1</td><td>OM4 MM</td><td class="m">10GBASE-SR</td><td rowspan="2">Po1 MEC; intended 802.1Q trunk; allowed/native VLANs and LACP mode TBD</td></tr>
+    <tr><td class="num">16</td><td class="m">PO1-M2</td><td class="m">SEA-CORE-02</td><td class="m">Hu2/0/1/3</td><td class="m">SEA-ACC-01</td><td class="m">Te1/1/2</td><td>OM4 MM</td><td class="m">10GBASE-SR</td></tr>
+    <tr><td class="num">17</td><td class="m">PO2-M1</td><td class="m">SEA-CORE-01</td><td class="m">Hu1/0/1/4</td><td class="m">SEA-ACC-02</td><td class="m">Te1/1/1</td><td>OM4 MM</td><td class="m">10GBASE-SR</td><td rowspan="2">Po2 MEC; intended 802.1Q trunk; allowed/native VLANs and LACP mode TBD</td></tr>
+    <tr><td class="num">18</td><td class="m">PO2-M2</td><td class="m">SEA-CORE-02</td><td class="m">Hu2/0/1/4</td><td class="m">SEA-ACC-02</td><td class="m">Te1/1/2</td><td>OM4 MM</td><td class="m">10GBASE-SR</td></tr>
+    <tr><td class="num">19</td><td class="m">PO3-M1</td><td class="m">SEA-CORE-01</td><td class="m">Hu1/0/3/1</td><td class="m">SEA-WLC-01</td><td class="m">Te0/0/0</td><td>OM4 MM</td><td class="m">10GBASE-SR</td><td rowspan="2">Po3 MEC; exact C9800-L SKU, switching mode, VLANs and LACP mode TBD</td></tr>
+    <tr><td class="num">20</td><td class="m">PO3-M2</td><td class="m">SEA-CORE-02</td><td class="m">Hu2/0/3/1</td><td class="m">SEA-WLC-01</td><td class="m">Te0/0/1</td><td>OM4 MM</td><td class="m">10GBASE-SR</td></tr>
+    <tr><td class="num">21</td><td class="m">PO4-M1</td><td class="m">SEA-CORE-01</td><td class="m">Hu1/0/3/2</td><td class="m">SEA-ESX-01</td><td class="m">vmnic0</td><td>OM4 MM</td><td class="m">10GBASE-SR</td><td rowspan="2">Po4 MEC intent; server NIC, optics, vmnic map, vSwitch/LACP and VLANs TBD</td></tr>
+    <tr><td class="num">22</td><td class="m">PO4-M2</td><td class="m">SEA-CORE-02</td><td class="m">Hu2/0/3/2</td><td class="m">SEA-ESX-01</td><td class="m">vmnic1</td><td>OM4 MM</td><td class="m">10GBASE-SR</td></tr>
+  </tbody></table></div>
+  <p class="note"><b>Figure scope</b>Office Users, IP Phones, Building IoT, Guest Devices and SEA-AP x8 are service-group summaries, not claims that one physical cable serves each population. Horizontal-cabling switchport, patch-panel and individual AP schedules remain separate deliverables.</p>
+  <table><caption>Routing and control-plane intent</caption><thead><tr><th scope="col">Domain</th><th scope="col">Design intent</th><th scope="col">Open commissioning detail</th></tr></thead><tbody>
+    <tr><td>DIA</td><td>SEA-SDW-01 to ISP-A; eBGP; 1 Gbps committed</td><td>ASNs, peer addresses, authentication, prefix limits and route policy</td></tr>
+    <tr><td>Private WAN</td><td>SEA-SDW-02 to provider VRF; BGP; 500 Mbps CIR</td><td>ASNs/session type, route targets and policy</td></tr>
+    <tr><td>LTE</td><td>IPsec backup via SEA-SDW-02</td><td>Cellular hardware, underlay/tunnel endpoints, NAT, SLA tracking, preference and data cap</td></tr>
+    <tr><td>SD-WAN pair</td><td>Inter-edge iBGP/BFD relationship</td><td>SD-WAN platform/controller policy, addressing and convergence targets</td></tr>
+    <tr><td>Security</td><td>Active/standby stateful pair; two dedicated HA links</td><td>Exact HA/state interface roles, failover timers and validation procedure</td></tr>
+    <tr><td>Firewall/core</td><td>Po10 and Po11 each dual-home one firewall to both physical core chassis</td><td>Layer 2/3 mode, protocol and transit prefixes; no OSPF/static claim is made</td></tr>
+    <tr><td>Core</td><td>StackWise Virtual over two 100G DAC members</td><td>Independent dual-active-detection method, ports, media and failure test</td></tr>
+    <tr><td>Campus/services</td><td>Po1–Po4 are direct two-member MECs, one member per core chassis</td><td>802.1Q/LACP, WLC SKU and server vSwitch/NIC details</td></tr>
+  </tbody></table>
+</section>
+
+<hr class="rule">
+
+<section id="identity-addressing">
+<p class="kicker">Section 2</p>
+<h2>Addressing, VLAN and capacity plan</h2>
+<p class="section-lede">Only labels already present in Figure 1 are treated as allocated. A host address without a prefix length is not promoted to a subnet; absent masks, gateways, scopes and policy remain TBD.</p>
+<table><caption>Known address labels</caption><thead><tr><th scope="col">Object</th><th scope="col">Address/prefix shown</th><th scope="col">Validation note</th></tr></thead><tbody>
+    <tr><td class="m">SEA-CORE-01</td><td class="m">10.44.10.1</td><td>Prefix length, VLAN/interface and gateway TBD</td></tr>
+    <tr><td class="m">SEA-CORE-02</td><td class="m">10.44.10.2</td><td>Prefix length, VLAN/interface and gateway TBD</td></tr>
+    <tr><td class="m">SEA-SDW-01</td><td class="m">10.44.10.11</td><td>Prefix length, VLAN/interface and gateway TBD</td></tr>
+    <tr><td class="m">SEA-SDW-02</td><td class="m">10.44.10.12</td><td>Prefix length, VLAN/interface and gateway TBD</td></tr>
+    <tr><td class="m">SEA-FW-01</td><td class="m">10.44.10.21</td><td>Prefix length, VLAN/interface and gateway TBD</td></tr>
+    <tr><td class="m">SEA-FW-02</td><td class="m">10.44.10.22</td><td>Prefix length, VLAN/interface and gateway TBD</td></tr>
+    <tr><td class="m">SEA-ESX-01</td><td class="m">10.44.50.11</td><td>Prefix length, VLAN/interface and gateway TBD</td></tr>
+    <tr><td>DIA handoff</td><td class="m">198.51.100.0/30</td><td>RFC 5737 documentation prefix; provider/customer assignments TBD</td></tr>
+    <tr><td>Private-WAN handoff</td><td class="m">10.44.254.0/30</td><td>Provider-VRF transit shown; endpoint assignments TBD</td></tr>
+  </tbody></table>
+  <table><caption>VLAN and service intent</caption><thead><tr><th scope="col">VLAN</th><th scope="col">Service</th><th scope="col">Addressing</th><th scope="col">Policy/capacity note</th></tr></thead><tbody>
+    <tr><td class="m">20</td><td>Office Users</td><td>Prefix/gateway/DHCP TBD</td><td>96 planned outlets or users shown as demand; active port/PoE capacity review is open</td></tr>
+    <tr><td class="m">30</td><td>IP Phones</td><td>Prefix/gateway/DHCP/call control TBD</td><td>Voice endpoints; QoS EF stated; pass-through-port demand TBD</td></tr>
+    <tr><td class="m">41</td><td>Guest Devices</td><td>Prefix/gateway/DHCP TBD</td><td>Internet-only; firewall egress only; exact policy TBD</td></tr>
+    <tr><td class="m">60</td><td>AP management</td><td>Prefix/gateway/DHCP TBD</td><td>Eight Cisco CW9166I APs / CAPWAP</td></tr>
+    <tr><td class="m">70</td><td>Building IoT</td><td>Prefix/gateway/DHCP TBD</td><td>Cameras/sensors; ACL and PoE demand TBD</td></tr>
+    <tr><td class="m">TBD</td><td>Corporate wireless</td><td>Prefix/gateway TBD</td><td>Corporate SSID named; VLAN not assigned in source</td></tr>
+    <tr><td class="m">TBD</td><td>Infrastructure management</td><td>Includes <span class="m">10.44.10.1/.2/.11/.12/.21/.22</span></td><td>VLAN, prefix and gateway TBD</td></tr>
+    <tr><td class="m">TBD</td><td>Local services</td><td>Includes <span class="m">SEA-ESX-01 10.44.50.11</span></td><td>VLAN, prefix and gateway TBD</td></tr>
+  </tbody></table>
+  <div class="warn"><b>Access-capacity dependency</b>One C9300-48P cannot supply 96 simultaneous office-user switchports, and the same switch also serves phones. Clarify whether 96 means outlets, users or concurrent switchports; quantify phone pass-through and PoE demand; then add switching capacity or reduce the requirement.</div>
+</section>
+
+<hr class="rule">
+
+<section id="physical-view">
+<p class="kicker">Section 3</p>
+<h2>Rack elevation — SEA.MDF.R01</h2>
+<p class="section-lede">The physical view uses exact 24U arithmetic and a single device schedule for both faces. Cisco’s FPR-4215 specification was revalidated for this revision and the two firewall allocations were corrected from 3U to 1U.</p>
+<div class="rack-controls"><button class="tool" id="compact">Compact</button><button class="tool" id="full">Full size</button></div>
+  <p class="rack-note"><b>Exact 24U interior.</b> U24 begins at the inner top rail and U1 ends at the inner bottom rail. Product faces retain source proportions; neutral chassis faces identify models without supplied orthographic assets. The four units exposed by the firewall correction are explicitly assigned to blanking panels; they are not counted as open growth capacity.</p>
+  <figure><figcaption><b>Figure 2 — SEA.MDF.R01 front and rear rack elevation.</b> U1 is the bottom of the rack; all ranges are inclusive. Hover, focus or click an installed device for model, role, U range and view.</figcaption>
+    <div class="rack-grid">
+      <div class="rack-figure"><h3>Front elevation — cold aisle</h3><div class="rack-wrap" id="front-wrap"><div class="ruler left" aria-hidden="true"></div><div class="rack-bay" id="front" role="img" aria-label="Front elevation of 24U rack SEA.MDF.R01"></div><div class="ruler right" aria-hidden="true"></div><div class="rack-label front"></div></div></div>
+      <div class="rack-figure"><h3>Rear elevation — hot aisle</h3><div class="rack-wrap" id="rear-wrap"><div class="ruler left" aria-hidden="true"></div><div class="rack-bay" id="rear" role="img" aria-label="Rear elevation of 24U rack SEA.MDF.R01"></div><div class="ruler right" aria-hidden="true"></div><div class="rack-label rear"></div></div></div>
+    </div>
+  </figure>
+  <aside class="rack-legend" aria-labelledby="rack-legend-title">
+    <h3 id="rack-legend-title">Figure 2 legend</h3>
+    <div><h4>Face treatment</h4><ul><li>Orthographic face — model-specific front or rear asset</li><li>Neutral chassis — exact orthographic asset not supplied</li><li>Front and rear headings state the aisle orientation</li></ul></div>
+    <div><h4>Occupancy</h4><ul><li>Dark outlined face — installed equipment</li><li>Hatched light face — passive panel, manager or blanking</li><li>Every one of the 24 units is assigned; no open U is encoded</li></ul></div>
+    <div><h4>U convention</h4><ul><li>U1 is the bottom rack unit</li><li>Device position is the lowest occupied U</li><li>All U ranges are inclusive</li></ul></div>
+    <p class="legend-note"><b>Not encoded in Figure 2.</b> Power-feed assignment and verified airflow direction are not yet available for every Seattle device. They remain explicit commissioning dependencies rather than inferred colors or arrows.</p>
+  </aside>
+
+<h3>3.1 &middot; Rack-device schedule and occupancy</h3>
+<p class="section-lede">Position is the lowest occupied U. The front and rear views are generated from this same 24U schedule; unknown power, airflow and mounting values remain explicit dependencies.</p>
+<table><caption>SEA.MDF.R01 rack-device schedule — top to bottom</caption><thead><tr><th scope="col">U</th><th scope="col">Pos.</th><th scope="col">H</th><th scope="col">Name</th><th scope="col">Model</th><th scope="col">Role</th><th scope="col">Engineering note</th></tr></thead><tbody>
+    <tr><td class="m">24</td><td class="num">24</td><td class="num">1</td><td class="m">PP-WAN</td><td>Fibre patch panel — type/port count TBD</td><td>Passive</td><td>Carrier termination and panel-port schedule TBD</td></tr>
+    <tr><td class="m">23</td><td class="num">23</td><td class="num">1</td><td class="m">CM-01</td><td>1U horizontal cable manager</td><td>Passive</td><td>Installed</td></tr>
+    <tr><td class="m">22</td><td class="num">22</td><td class="num">1</td><td class="m">SEA-SDW-01</td><td>Cisco C8300-1N1S-6T</td><td>Primary SD-WAN edge</td><td>Installed PSU, draw and airflow option TBD</td></tr>
+    <tr><td class="m">21</td><td class="num">21</td><td class="num">1</td><td class="m">SEA-SDW-02</td><td>Cisco C8300-1N1S-6T</td><td>Secondary SD-WAN edge</td><td>Installed PSU, draw and airflow option TBD</td></tr>
+    <tr><td class="m">20</td><td class="num">20</td><td class="num">1</td><td class="m">CM-02</td><td>1U horizontal cable manager</td><td>Passive</td><td>Installed</td></tr>
+    <tr><td class="m">19</td><td class="num">19</td><td class="num">1</td><td class="m">SEA-FW-01</td><td>Cisco FPR-4215</td><td>NGFW — active</td><td><b>Corrected to 1RU</b>; front-to-rear platform airflow; installed PSU/load TBD</td></tr>
+    <tr><td class="m">17–18</td><td class="num">17</td><td class="num">2</td><td class="m">BP-01</td><td>Blanking panels</td><td>Passive</td><td>Fills space formerly consumed by the incorrect 3U firewall assumption</td></tr>
+    <tr><td class="m">16</td><td class="num">16</td><td class="num">1</td><td class="m">CM-03</td><td>1U horizontal cable manager</td><td>Passive</td><td>Installed</td></tr>
+    <tr><td class="m">15</td><td class="num">15</td><td class="num">1</td><td class="m">SEA-FW-02</td><td>Cisco FPR-4215</td><td>NGFW — standby</td><td><b>Corrected to 1RU</b>; front-to-rear platform airflow; installed PSU/load TBD</td></tr>
+    <tr><td class="m">13–14</td><td class="num">13</td><td class="num">2</td><td class="m">BP-02</td><td>Blanking panels</td><td>Passive</td><td>Fills space formerly consumed by the incorrect 3U firewall assumption</td></tr>
+    <tr><td class="m">12</td><td class="num">12</td><td class="num">1</td><td class="m">CM-04</td><td>1U horizontal cable manager</td><td>Passive</td><td>Installed</td></tr>
+    <tr><td class="m">11</td><td class="num">11</td><td class="num">1</td><td class="m">SEA-CORE-01</td><td>Cisco C9500X-28C8D</td><td>Collapsed-core member 1</td><td>Installed fan direction, PSU configuration and load TBD</td></tr>
+    <tr><td class="m">10</td><td class="num">10</td><td class="num">1</td><td class="m">SEA-CORE-02</td><td>Cisco C9500X-28C8D</td><td>Collapsed-core member 2</td><td>Installed fan direction, PSU configuration and load TBD</td></tr>
+    <tr><td class="m">9</td><td class="num">9</td><td class="num">1</td><td class="m">CM-05</td><td>1U horizontal cable manager</td><td>Passive</td><td>Installed</td></tr>
+    <tr><td class="m">8</td><td class="num">8</td><td class="num">1</td><td class="m">SEA-ACC-01</td><td>Cisco C9300-48P</td><td>West-office PoE access</td><td>PoE load, PSU configuration and 10G uplink module TBD</td></tr>
+    <tr><td class="m">7</td><td class="num">7</td><td class="num">1</td><td class="m">SEA-ACC-02</td><td>Cisco C9300-48P</td><td>East-office PoE access</td><td>PoE load, PSU configuration and 10G uplink module TBD</td></tr>
+    <tr><td class="m">6</td><td class="num">6</td><td class="num">1</td><td class="m">SEA-WLC-01</td><td>Cisco C9800-L — exact SKU TBD</td><td>Wireless controller</td><td>Half-width; supported shelf/bracket and dual-10G-capable SKU must be confirmed</td></tr>
+    <tr><td class="m">5</td><td class="num">5</td><td class="num">1</td><td class="m">CM-06</td><td>1U horizontal cable manager</td><td>Passive</td><td>Installed</td></tr>
+    <tr><td class="m">3–4</td><td class="num">3</td><td class="num">2</td><td class="m">SEA-ESX-01</td><td>Dell PowerEdge R750</td><td>Local virtualization host</td><td>Dual-port 10G SFP+ NIC, optics, PSU/feed and vSwitch design TBD</td></tr>
+    <tr><td class="m">1–2</td><td class="num">1</td><td class="num">2</td><td class="m">SEA-UPS-01</td><td>APC SMT3000RMI2UC</td><td>Rack UPS</td><td>2U; 230 V; 3 kVA / 2.7 kW platform rating; installed circuit/load/runtime TBD</td></tr>
+    <tr><td colspan="7"><b>24U accounted for exactly once:</b> 13U active equipment · 7U passive infrastructure · 4U blanked · 0U reserved/open.</td></tr>
+  </tbody></table>
+  <table><caption>Occupancy summary</caption><thead><tr><th scope="col">Class</th><th scope="col">U</th><th scope="col">Share</th><th scope="col">Note</th></tr></thead><tbody>
+    <tr><td>Active equipment</td><td class="num">13</td><td class="num">54.2%</td><td>Includes the UPS and all installed devices</td></tr>
+    <tr><td>Passive infrastructure</td><td class="num">7</td><td class="num">29.2%</td><td>PP-WAN and six cable managers</td></tr>
+    <tr><td>Blanked</td><td class="num">4</td><td class="num">16.7%</td><td>U17–18 and U13–14</td></tr>
+    <tr><td>Reserved/open</td><td class="num">0</td><td class="num">0%</td><td>No rack-unit growth capacity</td></tr>
+    <tr><td><b>Total</b></td><td class="num"><b>24</b></td><td class="num"><b>100%</b></td><td>Zero overlap; zero unaccounted U</td></tr>
+  </tbody></table>
+</section>
+
+<hr class="rule">
+
+<section id="change-management">
+<p class="kicker">Section 4</p>
+<h2>Configuration &amp; change management</h2>
+<p class="section-lede">Document control, QA evidence, and the configuration record that does not exist.</p>
+<h3>4.1 &middot; Revision history</h3>
+<table><caption>Document control</caption><thead><tr><th scope="col">Revision</th><th scope="col">Date</th><th scope="col">Author</th><th scope="col">Change summary</th></tr></thead><tbody>
+    <tr><td class="m">1.1</td><td class="m">2026-08-12</td><td>Sayed Haque</td><td>Clean-connection Seattle comparison topology with logical, rack and inventory views.</td></tr>
+    <tr><td class="m">1.2</td><td class="m">2026-08-12</td><td>Sayed Haque / Codex</td><td>Unified SJC-style five-view shell; direct paired physical members; local legends; engineering, rack, power, patch, risk and QA schedules; standards/resources; embedded design data; FPR-4215 corrected from 3U to 1U.</td></tr>
+    <tr><td class="m">1.3</td><td class="m">2026-08-12</td><td>OpenAI Codex</td><td>Standardized the five-view navigation contract with a separate print action, 44px controls, visible keyboard focus, roving tab focus, responsive horizontal scrolling, deep-link routing, and Back/Forward support. Topology, rack placement, engineering data, and embedded assets are unchanged.</td></tr>
+    <tr><td class="m">1.4</td><td class="m">2026-08-13</td><td>OpenAI Codex</td><td>Standardized the document-control header as a shared, accessible nine-field component with a consistent brand, title, subtitle, metadata order, explicit classification and status, visible conventions, responsive stacking, and print treatment. Seattle identity and conventions are preserved; topology, rack placement, engineering data, navigation, and embedded assets are unchanged.</td></tr>
+<tr><td class="m">1.5</td><td class="m">2026-08-13</td><td>OpenAI Codex</td><td>Introduced the shared page-shell token contract for the common document header, view navigation, print action, and skip link: standardized UI and monospace type stacks, neutral shell surfaces, spacing, radii, elevation shadow, focus treatment, and 44-pixel control sizing. Seattle identity, conventions, semantic status colors, topology, rack placement, engineering data, and embedded assets are unchanged.</td></tr>
+<tr><td class="m">1.6</td><td class="m">2026-08-13</td><td>OpenAI Codex</td><td>Standardized Figure 1 as the shared three-column legend for devices and symbols, links and media, and trust and service zones; added visual symbols for every Seattle device class and raised the shared shell focus ring to a higher-contrast color. Seattle-specific topology semantics, geometry, rack placement, engineering data, embedded assets, navigation, and runtime behavior are unchanged.</td></tr>
+  </tbody></table>
+
+<h3>4.2 &middot; Document QA checklist</h3>
+<p class="section-lede">PASS means tool- or render-verified in this revision. OPEN and NOT RUN remain visible wherever source evidence or a validation run is absent.</p>
+<table><caption>Correctness, rendering and document-control checks</caption><thead><tr><th scope="col">#</th><th scope="col">Check</th><th scope="col">Result</th><th scope="col">Evidence / limitation</th></tr></thead><tbody>
+    <tr><td class="num">1</td><td>Named infrastructure devices agree across logical, rack, schedule, JavaScript and embedded JSON data</td><td class="status pass">PASS</td><td>Name-set audit in rev 1.2</td></tr>
+    <tr><td class="num">2</td><td>Po10, Po11 and Po1–Po4 each have two individually drawn/scheduled members</td><td class="status pass">PASS</td><td>12 MEC paths; one member from each required physical core where applicable</td></tr>
+    <tr><td class="num">3</td><td>SVL and firewall HA are each drawn as two distinct physical members</td><td class="status pass">PASS</td><td>Two SVL and two HA IDs; HA ports remain assumed</td></tr>
+    <tr><td class="num">4</td><td>No physical member terminates on a zone boundary or pseudo-core</td><td class="status pass">PASS</td><td>All declared endpoints land on named symbol boundaries</td></tr>
+    <tr><td class="num">5</td><td>Scheduled core ports are unique</td><td class="status pass">PASS</td><td>Per-chassis /1/1, /1/2, /1/3, /1/4, /3/1 and /3/2; no reuse</td></tr>
+    <tr><td class="num">6</td><td>C9500X breakout syntax/hardware validated</td><td class="status open">OPEN</td><td>Requires ordered BOM and IOS XE validation</td></tr>
+    <tr><td class="num">7</td><td>All 24 rack units accounted for exactly once on both faces</td><td class="status pass">PASS</td><td>13 active + 7 passive + 4 blanked = 24; zero gaps/overlaps</td></tr>
+    <tr><td class="num">8</td><td>FPR-4215 geometry is 1U everywhere</td><td class="status pass">PASS</td><td>U19 and U15; stale 3U spans removed</td></tr>
+    <tr><td class="num">9</td><td>Access-port/PoE capacity meets documented concurrent demand</td><td class="status open">OPEN</td><td>96-outlet/user meaning and phone/PoE demand unresolved</td></tr>
+    <tr><td class="num">10</td><td>Direct-member paths have unique lanes; crossings use white gaps</td><td class="status pass">PASS</td><td>Geometry audit: 7 proper crossings, 0 coincident segments</td></tr>
+    <tr><td class="num">11</td><td>Logical and rack legends list only visible encodings</td><td class="status pass">PASS</td><td>Local semantic asides reviewed</td></tr>
+    <tr><td class="num">12</td><td>Hover/focus/click/Enter/Space and tooltip contrast</td><td class="status pass">PASS</td><td>Shared interaction audit; detail line inherits readable text color</td></tr>
+    <tr><td class="num">13</td><td>Grayscale conversion preserves meaning</td><td class="status notrun">NOT RUN</td><td>Requires print-production review</td></tr>
+    <tr><td class="num">14</td><td>Letter-landscape print preview has no clipping</td><td class="status notrun">NOT RUN</td><td>Requires final printer/PDF-driver preview</td></tr>
+    <tr><td class="num">15</td><td>Five tab views and deep hashes reveal same-view sections</td><td class="status pass">PASS</td><td>DOM, keyboard, history and deep-link audit in rev 1.3</td></tr>
+    <tr><td class="num">16</td><td>No duplicate IDs; JSON and JavaScript parse; no network fetch required to open</td><td class="status pass">PASS</td><td>Static validation in rev 1.3</td></tr>
+    <tr><td class="num">17</td><td>Revision agrees across filename, title, meta, title block, history, JSON and footer</td><td class="status pass">PASS</td><td>Seven-touchpoint revision audit</td></tr>
+    <tr><td class="num">18</td><td>Power, print, grayscale and BOM validation are not overclaimed</td><td class="status pass">PASS</td><td>Unresolved checks remain OPEN/NOT RUN</td></tr>
+  </tbody></table>
+</section>
+
+<hr class="rule">
+
+<section id="operations-observability">
+<p class="kicker">Section 5</p>
+<h2>Power and thermal validation</h2>
+<p class="section-lede">Circuit capacity and thermal headroom for SEA.MDF.R01, and what remains unmeasured.</p>
+<table><caption>SEA.MDF.R01 validation status</caption><thead><tr><th scope="col">Check</th><th scope="col">Known value</th><th scope="col">Interpretation/dependency</th><th scope="col">Status</th></tr></thead><tbody>
+    <tr><td>UPS platform rating</td><td>230 V; 3 kVA / 2.7 kW</td><td>Manufacturer platform fact only; not the protected installed load</td><td class="status info">INFO</td></tr>
+    <tr><td>UPS input circuit</td><td>Circuit ID, breaker, receptacle and upstream source TBD</td><td>230 V is the platform rating, not proof of the installed branch circuit</td><td class="status open">OPEN</td></tr>
+    <tr><td>PDU/feed topology</td><td>No A/B PDU or device-to-feed schedule supplied</td><td>Power-path redundancy cannot be inferred</td><td class="status open">OPEN</td></tr>
+    <tr><td>Normal-state rack load</td><td>Not calculated</td><td>Installed PSU, PoE, optics and workload data missing</td><td class="status notrun">NOT RUN</td></tr>
+    <tr><td>Failed-feed capacity</td><td>Not calculable</td><td>No documented redundant-feed architecture</td><td class="status notrun">NOT RUN</td></tr>
+    <tr><td>UPS runtime/autonomy</td><td>Not calculated</td><td>Battery condition and actual protected load unknown</td><td class="status notrun">NOT RUN</td></tr>
+    <tr><td>Thermal rejection</td><td>Not calculated</td><td>Actual rack watts unknown</td><td class="status notrun">NOT RUN</td></tr>
+    <tr><td>Airflow compatibility</td><td>FPR-4215 platform is front-to-rear; configurable/other installed directions TBD</td><td>Confirm every ordered airflow SKU against aisle orientation</td><td class="status open">OPEN</td></tr>
+  </tbody></table>
+  <div class="warn"><b>No power PASS claim is supportable</b>Obtain circuit/PDU identifiers, installed PSU and PoE configuration, approved or measured loads and device-to-feed mapping before commissioning or capacity sign-off.</div>
+</section>
+
+<hr class="rule">
+
+<section id="open-items" class="gap-layer">
+<p class="kicker">Section 6</p>
+<h2>Open items, assumptions &amp; risk register</h2>
+<p class="section-lede">Open items are part of the reference-design record; fictional/sample status does not hide the work required before construction.</p>
+<div class="table-wrap"><table><caption>Open risk register</caption><thead><tr><th scope="col">ID</th><th scope="col">Item</th><th scope="col">Impact</th><th scope="col">Severity</th><th scope="col">Required action</th></tr></thead><tbody>
+    <tr><td class="m">R1</td><td>C9500X breakout design is provisional</td><td>Scheduled child interfaces or intended media may be unsupported</td><td class="status open">HIGH</td><td>Validate ordered PID/modules, IOS XE release, breakout CLI result and optic compatibility</td></tr>
+    <tr><td class="m">R2</td><td>StackWise Virtual dual-active detection is not scheduled</td><td>Split-brain risk during control-link failure</td><td class="status open">HIGH</td><td>Select supported DAD method, ports/media and failure-test procedure</td></tr>
+    <tr><td class="m">R3</td><td>Carrier, cellular, firewall-HA and transit records are incomplete</td><td>Drawing cannot yet drive patching or configuration</td><td class="status open">HIGH</td><td>Confirm handoffs and platform configuration; replace each TBD before construction</td></tr>
+    <tr><td class="m">R4</td><td>Power resiliency and capacity are unvalidated</td><td>Overload, inadequate runtime or a single point of failure cannot be excluded</td><td class="status open">HIGH</td><td>Produce circuit/PDU/load/feed schedule and calculate normal, failed-source and runtime cases</td></tr>
+    <tr><td class="m">R5</td><td>No open rack-unit capacity</td><td>New hardware may require re-racking or another cabinet</td><td class="status open">MEDIUM</td><td>Accept the density constraint or reserve/grow the physical footprint</td></tr>
+    <tr><td class="m">R6</td><td>SEA-WLC-01 mounting hardware/SKU not documented</td><td>Unsafe mounting or unsupported Po3 interfaces</td><td class="status open">MEDIUM</td><td>Add supported shelf/bracket and exact dual-10G SKU to the BOM</td></tr>
+    <tr><td class="m">R7</td><td>Thermal/airflow state is incomplete</td><td>Containment mismatch or cooling shortfall may be missed</td><td class="status open">MEDIUM</td><td>Validate airflow SKU per device and calculate heat rejection</td></tr>
+    <tr><td class="m">R8</td><td>Cable administration is incomplete</td><td>Ambiguous installation and poor maintainability</td><td class="status open">MEDIUM</td><td>Complete panel, cable, path, length and TIA-606-D-style label records</td></tr>
+    <tr><td class="m">R9</td><td>Addressing and segmentation are not implementation-complete</td><td>Conflicting configuration assumptions</td><td class="status open">HIGH</td><td>Approve IPAM/VLAN/ACL/DHCP plan and synchronize the diagram and schedules</td></tr>
+    <tr><td class="m">R10</td><td>One ESX host and one WLC are shown</td><td>A device failure removes that local service</td><td class="status open">MEDIUM</td><td>Accept with recovery targets or add redundancy</td></tr>
+    <tr><td class="m">R11</td><td>Private WAN and LTE both depend on SEA-SDW-02</td><td>Loss of SDW-02 removes both paths</td><td class="status open">MEDIUM</td><td>Accept/document or terminate backup through an independent edge</td></tr>
+    <tr><td class="m">R12</td><td>96 office outlets/users exceed one C9300-48P before phone demand</td><td>Insufficient concurrent access ports and potentially insufficient PoE</td><td class="status open">HIGH</td><td>Quantify concurrent demand/pass-through and add capacity or reduce the requirement</td></tr>
+  </tbody></table></div>
+</section>
+
+<hr class="rule">
+
+<section id="validation-plan">
+<p class="kicker">Section 7</p>
+<h2>Patch, cabling and BOM dependencies</h2>
+<p class="section-lede">Cable IDs and lengths are withheld until hardware ports and panel positions are validated; never infer an installation record from line geometry.</p>
+<table><caption>Open cabling and bill-of-material records</caption><thead><tr><th scope="col">#</th><th scope="col">Scope</th><th scope="col">Required completion</th></tr></thead><tbody>
+    <tr><td class="num">1</td><td>Carrier demarc → PP-WAN → SDW routers</td><td>Demarc IDs, panel ports, fibre type, connectors, lengths, pathways and labels</td></tr>
+    <tr><td class="num">2</td><td>C9500X breakout schedule</td><td>Parent ports, breakout mode, child-interface CLI names, CVR/adapters, optics and panel mapping</td></tr>
+    <tr><td class="num">3</td><td>Po10/Po11 and Po1–Po4</td><td>Endpoints/media/speed are adopted; add cable IDs, patch positions, lengths and pathways</td></tr>
+    <tr><td class="num">4</td><td>SVL Po1</td><td>Two 100GBASE-CR4 DAC members scheduled; add DAC SKU/length/routing and independent DAD path</td></tr>
+    <tr><td class="num">5</td><td>Firewall HA</td><td>Validate Eth1/7–8 assumption, functional separation, optics, cable IDs and failure procedure</td></tr>
+    <tr><td class="num">6</td><td>SEA-WLC-01</td><td>Exact dual-10G-capable SKU, supported half-width shelf/bracket/retention kit, clearance and Po3 optics</td></tr>
+    <tr><td class="num">7</td><td>SEA-ESX-01</td><td>Dual-port 10G SFP+ NIC, transceivers, vmnic mapping and vSwitch/LACP design</td></tr>
+    <tr><td class="num">8</td><td>LTE</td><td>Modem/PIM, antenna, coax/SIM, carrier underlay and failover-test procedure</td></tr>
+    <tr><td class="num">9</td><td>Endpoint/AP horizontal cabling</td><td>Separate access-port, outlet, phone, AP placement and PoE schedule</td></tr>
+    <tr><td class="num">10</td><td>Administration labels</td><td>Assign ANSI/TIA-606-D-compatible cable IDs and both-end labels after endpoints are final</td></tr>
+  </tbody></table>
+</section>
+
+<hr class="rule">
+
+<section id="standards-sources">
+<p class="kicker">Section 8</p>
+<h2>Standards, sources and resources</h2>
+<p class="section-lede">These references establish notation, traceability and manufacturer facts. A citation identifies the design basis; it does not claim facility certification, installed configuration or commissioning approval. Live legends remain beside Figures 1 and 2.</p>
+<div class="table-wrap"><table><caption>Published standards and source assets</caption><thead><tr><th scope="col">Standard/source</th><th scope="col">Scope</th><th scope="col">Seattle application and verification status</th></tr></thead><tbody>
+    <tr><td class="m">EIA/ECA-310<br>IEC 60297-3-100</td><td>19-inch rack conventions</td><td>1U = 44.45 mm; U1 is lowest; ranges inclusive; one coordinate system drives both 24U faces.</td></tr>
+    <tr><td class="m">ANSI/TIA-606-D-2021</td><td>Infrastructure administration</td><td>Consistent site, rack, device, panel, manager and link identifiers. Rack: <span class="m">SEA.MDF.R01</span>.</td></tr>
+    <tr><td class="m">ANSI/TIA-942-C</td><td>Computer-room infrastructure</td><td>Current revision used as guidance for aisle orientation, rack-space administration and future power/cooling review; no TIA-942 rating claimed. <a href="https://tiaonline.org/standard/tia-942/">TIA source</a>.</td></tr>
+    <tr><td class="m">TIA-598-D</td><td>Optical-fibre color identification</td><td>Reference for future fibre administration; cable IDs and jacket/connector records remain TBD.</td></tr>
+    <tr><td class="m">ASHRAE TC 9.9</td><td>Thermal guidance</td><td>Cold-aisle front / hot-aisle rear orientation documented; installed airflow and thermal capacity remain unverified. <a href="https://www.ashrae.org/technical-resources/ai-data-center-framework/site-planning">ASHRAE source</a>.</td></tr>
+    <tr><td class="m">NFPA 70<br>210.19 / 210.20</td><td>Branch-circuit sizing</td><td>Basis for future power calculation; no circuit, PDU, feed or measured-load result is asserted.</td></tr>
+    <tr><td class="m">IEEE 802.3</td><td>Ethernet terminology</td><td>Formal PHY names used where known; unknown optic, cable and distance details remain TBD.</td></tr>
+    <tr><td class="m">IEEE 802.1Q / 802.1AX</td><td>VLAN tagging and aggregation</td><td>Each adopted physical bundle member has a unique endpoint and schedule row.</td></tr>
+    <tr><td class="m">RFC 4271</td><td>BGP-4</td><td>Basis for DIA/private-WAN annotations; peer policy remains TBD. <a href="https://www.rfc-editor.org/rfc/rfc4271">RFC 4271</a>.</td></tr>
+    <tr><td class="m">RFC 1918 / RFC 5737</td><td>Private/documentation address space</td><td>Internal labels use private space; <span class="m">198.51.100.0/30</span> is TEST-NET documentation space. <a href="https://www.rfc-editor.org/rfc/rfc1918">RFC 1918</a> · <a href="https://www.rfc-editor.org/rfc/rfc5737">RFC 5737</a>.</td></tr>
+    <tr><td>Cisco Network Topology Icons</td><td>Network-symbol grammar</td><td>Transparent Cisco-derived symbols are retained for transports and devices. <a href="https://www.cisco.com/c/en/us/about/brand-center/network-topology-icons.html">Cisco source</a>.</td></tr>
+    <tr><td>Cisco Secure Firewall 4200</td><td>FPR-4215 chassis</td><td>Confirms <b>1RU</b> and front-to-rear airflow; corrects the old 3U representation. <a href="https://www.cisco.com/c/en/us/products/collateral/security/firewalls/secure-firewall-4200-ds.html">Official datasheet</a>.</td></tr>
+    <tr><td>Cisco Catalyst 8300</td><td>C8300-1N1S-6T chassis and ports</td><td>Confirms 1RU; the adopted schedule uses SFP Gi0/0/4–5 and copper Gi0/0/2. <a href="https://www.cisco.com/c/en/us/products/collateral/routers/catalyst-8300-series-edge-platforms/datasheet-c78-744088.html">Official datasheet</a>.</td></tr>
+    <tr><td>Cisco Catalyst 9500X</td><td>C9500X-28C8D chassis</td><td>Confirms 1RU; installed airflow and breakout/CVR design remain open. <a href="https://www.cisco.com/c/en/us/products/collateral/switches/catalyst-9500-series-switches/nb-06-cat9500-ser-data-sheet-cte-en.html">Official datasheet</a>.</td></tr>
+    <tr><td>Cisco Catalyst 9300</td><td>C9300-48P chassis</td><td>Confirms 1U; installed PSU, PoE demand and 10G network module remain unverified. <a href="https://www.cisco.com/c/en/us/products/collateral/switches/catalyst-9300-series-switches/nb-06-cat9300-ser-data-sheet-cte-en.html">Official datasheet</a>.</td></tr>
+    <tr><td>Cisco Catalyst 9800-L</td><td>Wireless-controller chassis</td><td>Confirms half-width 1RU; exact SKU and shelf/bracket remain open. <a href="https://www.cisco.com/c/en/us/products/collateral/wireless/catalyst-9800-series-wireless-controllers/datasheet-c78-742434.html">Official datasheet</a>.</td></tr>
+    <tr><td>Dell PowerEdge R750</td><td>Server chassis</td><td>Confirms a 2U rack system; installed NIC, PSU and workload remain unknown. <a href="https://www.dell.com/support/manuals/en-us/oth-r750/per750_ism_pub/system-overview?guid=guid-4a392b44-3192-440f-8dfe-850376351f00&amp;lang=en-us">Dell manual</a>.</td></tr>
+    <tr><td>APC SMT3000RMI2UC</td><td>UPS chassis/nameplate</td><td>Confirms 2U, 230 V and 3 kVA / 2.7 kW rated output; protected load and runtime remain unknown. <a href="https://www.se.com/us/en/product/SMT3000RMI2UC/">Schneider Electric source</a>.</td></tr>
+    <tr><td>NetBox Community Device Type Library</td><td>Rack-elevation faces</td><td>Embedded CC0 assets are pinned for reproducibility. <a href="https://github.com/netbox-community/devicetype-library/tree/5efffb4a613402a37a7daf616f081e56147662c0/elevation-images">Pinned source · 5efffb4</a>.</td></tr>
+    <tr><td>NetBox data model</td><td>DCIM-shaped embedded data</td><td>Site → rack → device type → device; multi-U position is the lowest occupied U. <a href="https://netboxlabs.com/docs/netbox/v4.1/models/dcim/device/">NetBox device model</a>.</td></tr>
+  </tbody></table></div>
+</section>
+
+<hr class="rule">
+
+<!-- ============ APPENDIX A — SLOT B: equipment exhibit ============ -->
+<section id="equipment-exhibit" class="equip-layer">
+<p class="kicker">Appendix A</p>
+<h2>Equipment exhibit</h2>
+<p class="section-lede">The five device types with an orthographic face in rack SEA.MDF.R01, front and rear. Hidden by default; this is illustration, not record.</p>
+
+<div class="note"><p style="margin:0">These are the same embedded orthographic faces used to draw Figure&nbsp;2, presented at card scale so each chassis can be recognised on its own. They are built at page load from the figure's own asset set, so the exhibit adds no weight to the file and cannot drift from the rack.</p></div>
+
+<div class="warn"><p style="margin:0"><b>This exhibit is not a complete bill of materials.</b> Three of the eleven devices installed in SEA.MDF.R01 &mdash; <code>SEA-SDW-01</code>, <code>SEA-SDW-02</code> and <code>SEA-WLC-01</code> &mdash; have no orthographic face in the supplied reference. They are drawn as a neutral chassis in Figure&nbsp;2 at their correct rack units, and are omitted here rather than represented by a stand-in image.</p></div><div class="equip-grid" id="equip-grid"></div>
+
+<div class="warn"><p style="margin:0"><b>No pricing table is shown.</b> This document carries no cost data and none has been invented to fill the slot. Datasheet values &mdash; depth, weight, airflow, PSU rating &mdash; are not attached to any card; they remain open items in &sect;5.</p></div>
+</section>
+
+<footer class="doc-footer">
+  Prepared by Sayed Haque &middot; 2026-08-10 &middot; Presentation edition &middot; revision 2.1 &mdash; presented in the CloudBats documentation shell 2026-08-13; the five-view tab structure is replaced by a sidebar index and a numbered spine, while the Layer&nbsp;3 figure, the shared vector symbols, the SEA.MDF.R01 rack elevation, the document-control block and every engineering schedule are carried over unchanged from revision 1.6 &middot; full method and worked examples live in the archived working versions (v1.6 and earlier) &middot; Every element is a design assumption to validate, not a recorded fact: no configuration, measurement or as-built survey stands behind any value in this file &middot; Fictional training campus; all addressing is RFC&nbsp;1918 / RFC&nbsp;5737 documentation range, and facility, serial and personal identifiers are redacted throughout.
+</footer>
+
+
+    </div>
+  </main>
+</div>
+
+<!-- PROOF-DATA:BEGIN -->
+<script id="proof-data" type="application/json">
+{
+  "document": {
+    "title": "Seattle Regional Hub",
+    "subtitle": "A regional hub: three diverse transports into an SD-WAN edge pair, an active/standby firewall pair, a two-member collapsed core, campus access and wireless, and a fully scheduled 24U rack whose every unit is accounted for.",
+    "drawing": "NET-RH-001",
+    "revision": "2.1",
+    "status": "Proposed / training",
+    "date": "2026-08-13",
+    "classification": "SAMPLE / REFERENCE",
+    "docClass": "Reference Design",
+    "subject": "Regional hub",
+    "sheet": "L3-SEA-01 - sheet 1 of 1",
+    "site": "Seattle Regional Hub - fictional",
+    "lineage": {
+      "source": "cloudbats-NET-SEA-RH-001-v2.0.html",
+      "note": "Ported from the finished CloudBats deliverable. Figure 1's geometry, the port-level link model and the rack schedule are the source's own; only the artwork moved from embedded raster to the shared vector library, and the figure now renders from this data block."
+    },
+    "evidence": { "text": "Proposed - validation required", "color": "amber" },
+    "brand": {
+      "name": "cloudbats",
+      "label": "Systems - Network Design - Starter kit",
+      "logoViewBox": "0 0 512 512",
+      "logoFill": "#0F172A",
+      "logoPath": "M112 72 H400 V352 Q400 400 376 424 Q356 440 336 424 Q316 400 296 400 H216 Q196 400 176 424 Q156 440 136 424 Q112 400 112 352 Z M312 136 A40 40 0 0 1 352 176 V304 A40 40 0 0 1 312 344 A40 40 0 0 1 272 304 V176 A40 40 0 0 1 312 136 Z"
+    }
+  },
+  "topology": {
+    "canvas": { "viewBox": "0 0 1400 1020" },
+    "title": "Seattle regional hub logical topology",
+    "desc": "Internet, private WAN and LTE attach to two SD-WAN routers. The routers connect to an active standby firewall pair, then to a two-member collapsed core. The core stack is shown with two physical members. Each access switch, the wireless controller and the local compute host have a two-member port-channel to their scheduled physical core switch.",
+    "zones": [
+      {
+        "id": "ext",
+        "label": "External transports",
+        "x": 60,
+        "y": 35,
+        "width": 1280,
+        "height": 130,
+        "rx": 9,
+        "fill": "var(--zone-ext)",
+        "stroke": "#d18972",
+        "lx": 76,
+        "ly": 58,
+        "lfill": "#ad513c"
+      },
+      {
+        "id": "edge",
+        "label": "SD-WAN edge and security",
+        "x": 200,
+        "y": 195,
+        "width": 1000,
+        "height": 250,
+        "rx": 9,
+        "fill": "var(--zone-edge)",
+        "stroke": "#d1a36d",
+        "lx": 216,
+        "ly": 219,
+        "lfill": "#9c672c"
+      },
+      {
+        "id": "core",
+        "label": "Collapsed core",
+        "x": 430,
+        "y": 475,
+        "width": 540,
+        "height": 160,
+        "rx": 9,
+        "fill": "var(--zone-core)",
+        "stroke": "#79acbb",
+        "lx": 446,
+        "ly": 499,
+        "lfill": "#176c83"
+      },
+      {
+        "id": "access",
+        "label": "Campus access and wireless",
+        "x": 55,
+        "y": 680,
+        "width": 985,
+        "height": 145,
+        "rx": 9,
+        "fill": "var(--zone-access)",
+        "stroke": "#7aac8c",
+        "lx": 71,
+        "ly": 704,
+        "lfill": "#39764f"
+      },
+      {
+        "id": "service",
+        "label": "Local services",
+        "x": 1070,
+        "y": 680,
+        "width": 270,
+        "height": 145,
+        "rx": 9,
+        "fill": "var(--zone-service)",
+        "stroke": "#9a82bd",
+        "lx": 1086,
+        "ly": 704,
+        "lfill": "#6c5095"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "dia-internet",
+        "label": "DIA Internet",
+        "role": "Public Internet transport",
+        "details": "1 Gbps committed / eBGP handoff",
+        "icon": "cloud",
+        "art": [425, 80, 70, 58],
+        "text": [
+          { "t": "DIA Internet", "x": 413, "y": 96, "c": "node-name", "a": "end" },
+          { "t": "ISP-A / 198.51.100.0/30", "x": 413, "y": 111, "c": "node-meta", "a": "end" }
+        ]
+      },
+      {
+        "id": "private-wan",
+        "label": "Private WAN",
+        "role": "Corporate MPLS transport",
+        "details": "500 Mbps / BGP handoff",
+        "icon": "cloud",
+        "art": [905, 80, 70, 58],
+        "text": [
+          { "t": "Private WAN", "x": 893, "y": 96, "c": "node-name", "a": "end" },
+          { "t": "Provider VRF / 10.44.254.0/30", "x": 893, "y": 111, "c": "node-meta", "a": "end" }
+        ]
+      },
+      {
+        "id": "lte-backup",
+        "label": "LTE Backup",
+        "role": "Out-of-band WAN transport",
+        "details": "Metered IPsec failover path",
+        "icon": "cloud",
+        "art": [1145, 80, 70, 58],
+        "text": [
+          { "t": "LTE Backup", "x": 1227, "y": 96, "c": "node-name", "a": "start" },
+          { "t": "Carrier NAT / tunnel only", "x": 1227, "y": 111, "c": "node-meta", "a": "start" }
+        ]
+      },
+      {
+        "id": "sea-sdw-01",
+        "label": "SEA-SDW-01",
+        "role": "SD-WAN edge router",
+        "details": "Cisco C8300-1N1S-6T / 10.44.10.11",
+        "icon": "router",
+        "art": [425, 230, 70, 58],
+        "text": [
+          { "t": "SEA-SDW-01", "x": 413, "y": 250, "c": "node-name", "a": "end" },
+          { "t": "Primary DIA edge", "x": 413, "y": 265, "c": "node-meta", "a": "end" }
+        ]
+      },
+      {
+        "id": "sea-sdw-02",
+        "label": "SEA-SDW-02",
+        "role": "SD-WAN edge router",
+        "details": "Cisco C8300-1N1S-6T / 10.44.10.12",
+        "icon": "router",
+        "art": [905, 230, 70, 58],
+        "text": [
+          { "t": "SEA-SDW-02", "x": 987, "y": 250, "c": "node-name", "a": "start" },
+          { "t": "Private WAN / LTE edge", "x": 987, "y": 265, "c": "node-meta", "a": "start" }
+        ]
+      },
+      {
+        "id": "sea-fw-01",
+        "label": "SEA-FW-01",
+        "role": "Next-generation firewall - active",
+        "details": "Cisco FPR-4215 / 10.44.10.21",
+        "icon": "firewall",
+        "art": [505, 355, 70, 58],
+        "text": [
+          { "t": "SEA-FW-01", "x": 493, "y": 376, "c": "node-name", "a": "end" },
+          { "t": "ACTIVE", "x": 493, "y": 391, "c": "node-role", "a": "end" }
+        ]
+      },
+      {
+        "id": "sea-fw-02",
+        "label": "SEA-FW-02",
+        "role": "Next-generation firewall - standby",
+        "details": "Cisco FPR-4215 / 10.44.10.22",
+        "icon": "firewall",
+        "art": [825, 355, 70, 58],
+        "text": [
+          { "t": "SEA-FW-02", "x": 907, "y": 376, "c": "node-name", "a": "start" },
+          { "t": "STANDBY", "x": 907, "y": 391, "c": "node-role", "a": "start" }
+        ]
+      },
+      {
+        "id": "sea-core-01",
+        "label": "SEA-CORE-01",
+        "role": "Collapsed core switch",
+        "details": "Cisco C9500X-28C8D / 10.44.10.1",
+        "icon": "core-switch",
+        "art": [555, 510, 70, 58],
+        "text": [
+          { "t": "SEA-CORE-01", "x": 543, "y": 531, "c": "node-name", "a": "end" },
+          { "t": "Core member 1", "x": 543, "y": 546, "c": "node-meta", "a": "end" }
+        ]
+      },
+      {
+        "id": "sea-core-02",
+        "label": "SEA-CORE-02",
+        "role": "Collapsed core switch",
+        "details": "Cisco C9500X-28C8D / 10.44.10.2",
+        "icon": "core-switch",
+        "art": [775, 510, 70, 58],
+        "text": [
+          { "t": "SEA-CORE-02", "x": 857, "y": 531, "c": "node-name", "a": "start" },
+          { "t": "Core member 2", "x": 857, "y": 546, "c": "node-meta", "a": "start" }
+        ]
+      },
+      {
+        "id": "sea-acc-01",
+        "label": "SEA-ACC-01",
+        "role": "PoE access switch",
+        "details": "Cisco C9300-48P / Users and voice",
+        "icon": "access-switch",
+        "art": [185, 705, 70, 58],
+        "text": [
+          { "t": "SEA-ACC-01", "x": 267, "y": 727, "c": "node-name", "a": "start" },
+          { "t": "West office", "x": 267, "y": 742, "c": "node-meta", "a": "start" }
+        ]
+      },
+      {
+        "id": "sea-acc-02",
+        "label": "SEA-ACC-02",
+        "role": "PoE access switch",
+        "details": "Cisco C9300-48P / IoT and facilities",
+        "icon": "access-switch",
+        "art": [465, 705, 70, 58],
+        "text": [
+          { "t": "SEA-ACC-02", "x": 547, "y": 727, "c": "node-name", "a": "start" },
+          { "t": "East office", "x": 547, "y": 742, "c": "node-meta", "a": "start" }
+        ]
+      },
+      {
+        "id": "sea-wlc-01",
+        "label": "SEA-WLC-01",
+        "role": "Wireless LAN controller",
+        "details": "Cisco C9800-L / 8 access points",
+        "icon": "wlan-controller",
+        "art": [785, 705, 70, 58],
+        "text": [
+          { "t": "SEA-WLC-01", "x": 867, "y": 727, "c": "node-name", "a": "start" },
+          { "t": "Corp + guest SSIDs", "x": 867, "y": 742, "c": "node-meta", "a": "start" }
+        ]
+      },
+      {
+        "id": "sea-esx-01",
+        "label": "SEA-ESX-01",
+        "role": "Local virtualization host",
+        "details": "Dell PowerEdge R750 / 10.44.50.11",
+        "icon": "server",
+        "art": [1125, 705, 70, 58],
+        "text": [
+          { "t": "SEA-ESX-01", "x": 1207, "y": 727, "c": "node-name", "a": "start" },
+          { "t": "DHCP / DNS / print", "x": 1207, "y": 742, "c": "node-meta", "a": "start" }
+        ]
+      },
+      {
+        "id": "office-users",
+        "label": "Office Users",
+        "role": "Wired endpoint group",
+        "details": "VLAN 20 / 96 planned outlets or users; active switch capacity review open",
+        "icon": "workstation",
+        "art": [95, 865, 70, 58],
+        "text": [
+          { "t": "Office Users", "x": 130, "y": 942, "c": "node-name" },
+          { "t": "VLAN 20", "x": 130, "y": 957, "c": "node-meta" }
+        ]
+      },
+      {
+        "id": "ip-phones",
+        "label": "IP Phones",
+        "role": "Voice endpoint group",
+        "details": "VLAN 30 / QoS EF",
+        "icon": "ip-phone",
+        "art": [275, 865, 70, 58],
+        "text": [
+          { "t": "IP Phones", "x": 310, "y": 942, "c": "node-name" },
+          { "t": "VLAN 30", "x": 310, "y": 957, "c": "node-meta" }
+        ]
+      },
+      {
+        "id": "building-iot",
+        "label": "Building IoT",
+        "role": "Restricted IoT endpoint group",
+        "details": "VLAN 70 / cameras and sensors",
+        "icon": "workstation",
+        "art": [455, 865, 70, 58],
+        "text": [
+          { "t": "Building IoT", "x": 490, "y": 942, "c": "node-name" },
+          { "t": "VLAN 70", "x": 490, "y": 957, "c": "node-meta" }
+        ]
+      },
+      {
+        "id": "guest-devices",
+        "label": "Guest Devices",
+        "role": "Internet-only endpoint group",
+        "details": "VLAN 41 / firewall egress only",
+        "icon": "workstation",
+        "art": [635, 865, 70, 58],
+        "text": [
+          { "t": "Guest Devices", "x": 670, "y": 942, "c": "node-name" },
+          { "t": "VLAN 41", "x": 670, "y": 957, "c": "node-meta" }
+        ]
+      },
+      {
+        "id": "sea-ap-group",
+        "label": "SEA-AP Group",
+        "role": "Wireless access point group",
+        "details": "8 x Cisco CW9166I / CAPWAP",
+        "icon": "access-point",
+        "art": [865, 865, 70, 58],
+        "text": [
+          { "t": "SEA-AP x8", "x": 900, "y": 942, "c": "node-name" },
+          { "t": "VLAN 60", "x": 900, "y": 957, "c": "node-meta" }
+        ]
+      }
+    ],
+    "links": [
+      {
+        "id": "DIA-SDW1",
+        "from": "dia-internet",
+        "to": "sea-sdw-01",
+        "fromPort": "provider handoff — TBD",
+        "toPort": "Gi0/0/4",
+        "media": "os2",
+        "member": false,
+        "d": "M460 138V230",
+        "start": "460,138",
+        "end": "460,230"
+      },
+      {
+        "id": "WAN-SDW2",
+        "from": "private-wan",
+        "to": "sea-sdw-02",
+        "fromPort": "provider handoff — TBD",
+        "toPort": "Gi0/0/4",
+        "media": "os2",
+        "member": false,
+        "d": "M940 138V230",
+        "start": "940,138",
+        "end": "940,230"
+      },
+      {
+        "id": "LTE-SDW2",
+        "from": "lte-backup",
+        "to": "sea-sdw-02",
+        "fromPort": "IPsec underlay — TBD",
+        "toPort": "Tunnel100",
+        "media": "tunnel",
+        "member": false,
+        "d": "M1180 138V205H975V245",
+        "start": "1180,138",
+        "end": "975,245"
+      },
+      {
+        "id": "SDW-TRANSIT",
+        "from": "sea-sdw-01",
+        "to": "sea-sdw-02",
+        "fromPort": "Gi0/0/2",
+        "toPort": "Gi0/0/2",
+        "media": "cu",
+        "member": false,
+        "d": "M495 259H905",
+        "start": "495,259",
+        "end": "905,259"
+      },
+      {
+        "id": "SDW1-FW1",
+        "from": "sea-sdw-01",
+        "to": "sea-fw-01",
+        "fromPort": "Gi0/0/5",
+        "toPort": "Eth1/1",
+        "media": "om4",
+        "member": false,
+        "d": "M460 288V325H540V355",
+        "start": "460,288",
+        "end": "540,355"
+      },
+      {
+        "id": "SDW2-FW2",
+        "from": "sea-sdw-02",
+        "to": "sea-fw-02",
+        "fromPort": "Gi0/0/5",
+        "toPort": "Eth1/1",
+        "media": "om4",
+        "member": false,
+        "d": "M940 288V325H860V355",
+        "start": "940,288",
+        "end": "860,355"
+      },
+      {
+        "id": "FW-HA-M1",
+        "from": "sea-fw-01",
+        "to": "sea-fw-02",
+        "fromPort": "Eth1/7 — assumed",
+        "toPort": "Eth1/7 — assumed",
+        "media": "om4",
+        "member": true,
+        "d": "M575 381H825",
+        "start": "575,381",
+        "end": "825,381",
+        "bundle": "FW-HA"
+      },
+      {
+        "id": "FW-HA-M2",
+        "from": "sea-fw-01",
+        "to": "sea-fw-02",
+        "fromPort": "Eth1/8 — assumed",
+        "toPort": "Eth1/8 — assumed",
+        "media": "om4",
+        "member": true,
+        "d": "M575 387H825",
+        "start": "575,387",
+        "end": "825,387",
+        "bundle": "FW-HA"
+      },
+      {
+        "id": "PO10-M1",
+        "from": "sea-fw-01",
+        "to": "sea-core-01",
+        "fromPort": "Eth1/3",
+        "toPort": "Hu1/0/1/1",
+        "media": "lag",
+        "member": true,
+        "d": "M529 413V448H563V510",
+        "start": "529,413",
+        "end": "563,510",
+        "bundle": "Po10"
+      },
+      {
+        "id": "PO10-M2",
+        "from": "sea-fw-01",
+        "to": "sea-core-02",
+        "fromPort": "Eth1/4",
+        "toPort": "Hu2/0/1/1",
+        "media": "lag",
+        "member": true,
+        "d": "M569 413V460H787V510",
+        "start": "569,413",
+        "end": "787,510",
+        "bundle": "Po10"
+      },
+      {
+        "id": "PO11-M1",
+        "from": "sea-fw-02",
+        "to": "sea-core-01",
+        "fromPort": "Eth1/3",
+        "toPort": "Hu1/0/1/2",
+        "media": "lag",
+        "member": true,
+        "d": "M831 413V472H613V510",
+        "start": "831,413",
+        "end": "613,510",
+        "bundle": "Po11"
+      },
+      {
+        "id": "PO11-M2",
+        "from": "sea-fw-02",
+        "to": "sea-core-02",
+        "fromPort": "Eth1/4",
+        "toPort": "Hu2/0/1/2",
+        "media": "lag",
+        "member": true,
+        "d": "M871 413V448H833V510",
+        "start": "871,413",
+        "end": "833,510",
+        "bundle": "Po11"
+      },
+      {
+        "id": "SVL-M1",
+        "from": "sea-core-01",
+        "to": "sea-core-02",
+        "fromPort": "Hu1/0/25",
+        "toPort": "Hu2/0/25",
+        "media": "dac",
+        "member": true,
+        "d": "M625 536H775",
+        "start": "625,536",
+        "end": "775,536",
+        "bundle": "SVL-Po1"
+      },
+      {
+        "id": "SVL-M2",
+        "from": "sea-core-01",
+        "to": "sea-core-02",
+        "fromPort": "Hu1/0/26",
+        "toPort": "Hu2/0/26",
+        "media": "dac",
+        "member": true,
+        "d": "M625 542H775",
+        "start": "625,542",
+        "end": "775,542",
+        "bundle": "SVL-Po1"
+      },
+      {
+        "id": "PO1-M1",
+        "from": "sea-core-01",
+        "to": "sea-acc-01",
+        "fromPort": "Hu1/0/1/3",
+        "toPort": "Te1/1/1",
+        "media": "lag",
+        "member": true,
+        "d": "M563 568V618H209V705",
+        "start": "563,568",
+        "end": "209,705",
+        "bundle": "Po1"
+      },
+      {
+        "id": "PO1-M2",
+        "from": "sea-core-02",
+        "to": "sea-acc-01",
+        "fromPort": "Hu2/0/1/3",
+        "toPort": "Te1/1/2",
+        "media": "lag",
+        "member": true,
+        "d": "M783 568V624H231V705",
+        "start": "783,568",
+        "end": "231,705",
+        "bundle": "Po1"
+      },
+      {
+        "id": "PO2-M1",
+        "from": "sea-core-01",
+        "to": "sea-acc-02",
+        "fromPort": "Hu1/0/1/4",
+        "toPort": "Te1/1/1",
+        "media": "lag",
+        "member": true,
+        "d": "M575 568V630H489V705",
+        "start": "575,568",
+        "end": "489,705",
+        "bundle": "Po2"
+      },
+      {
+        "id": "PO2-M2",
+        "from": "sea-core-02",
+        "to": "sea-acc-02",
+        "fromPort": "Hu2/0/1/4",
+        "toPort": "Te1/1/2",
+        "media": "lag",
+        "member": true,
+        "d": "M795 568V636H511V705",
+        "start": "795,568",
+        "end": "511,705",
+        "bundle": "Po2"
+      },
+      {
+        "id": "PO4-M2",
+        "from": "sea-core-02",
+        "to": "sea-esx-01",
+        "fromPort": "Hu2/0/3/2",
+        "toPort": "vmnic1",
+        "media": "lag",
+        "member": true,
+        "d": "M819 568V642H1171V705",
+        "start": "819,568",
+        "end": "1171,705",
+        "bundle": "Po4"
+      },
+      {
+        "id": "PO4-M1",
+        "from": "sea-core-01",
+        "to": "sea-esx-01",
+        "fromPort": "Hu1/0/3/2",
+        "toPort": "vmnic0",
+        "media": "lag",
+        "member": true,
+        "d": "M599 568V654H1149V705",
+        "start": "599,568",
+        "end": "1149,705",
+        "bundle": "Po4"
+      },
+      {
+        "id": "PO3-M2",
+        "from": "sea-core-02",
+        "to": "sea-wlc-01",
+        "fromPort": "Hu2/0/3/1",
+        "toPort": "Te0/0/1",
+        "media": "lag",
+        "member": true,
+        "d": "M807 568V648H831V705",
+        "start": "807,568",
+        "end": "831,705",
+        "bundle": "Po3"
+      },
+      {
+        "id": "PO3-M1",
+        "from": "sea-core-01",
+        "to": "sea-wlc-01",
+        "fromPort": "Hu1/0/3/1",
+        "toPort": "Te0/0/0",
+        "media": "lag",
+        "member": true,
+        "d": "M587 568V660H809V705",
+        "start": "587,568",
+        "end": "809,705",
+        "bundle": "Po3"
+      },
+      {
+        "id": "ACC1-USERS",
+        "from": "sea-acc-01",
+        "to": "office-users",
+        "fromPort": "VLAN 20 access group",
+        "toPort": "logical population",
+        "media": "access",
+        "member": false,
+        "d": "M209 763V829H130V865",
+        "start": "209,763",
+        "end": "130,865"
+      },
+      {
+        "id": "ACC1-PHONES",
+        "from": "sea-acc-01",
+        "to": "ip-phones",
+        "fromPort": "VLAN 30 voice group",
+        "toPort": "logical population",
+        "media": "access",
+        "member": false,
+        "d": "M231 763V841H310V865",
+        "start": "231,763",
+        "end": "310,865"
+      },
+      {
+        "id": "ACC2-IOT",
+        "from": "sea-acc-02",
+        "to": "building-iot",
+        "fromPort": "VLAN 70 access group",
+        "toPort": "logical population",
+        "media": "access",
+        "member": false,
+        "d": "M489 763V829H490V865",
+        "start": "489,763",
+        "end": "490,865"
+      },
+      {
+        "id": "ACC2-GUEST",
+        "from": "sea-acc-02",
+        "to": "guest-devices",
+        "fromPort": "VLAN 41 access group",
+        "toPort": "logical population",
+        "media": "access",
+        "member": false,
+        "d": "M511 763V841H670V865",
+        "start": "511,763",
+        "end": "670,865"
+      },
+      {
+        "id": "WLC-APS",
+        "from": "sea-wlc-01",
+        "to": "sea-ap-group",
+        "fromPort": "CAPWAP control plane",
+        "toPort": "CAPWAP tunnels",
+        "media": "tunnel",
+        "member": false,
+        "d": "M820 763V835H900V865",
+        "start": "820,763",
+        "end": "900,865"
+      }
+    ],
+    "bundles": [
+      {
+        "id": "FW-HA",
+        "label": "Two dedicated physical high-availability links between SEA-FW-01 and SEA-FW-02; interface assignment is a design assumption pending platform validation",
+        "title": "Stateful HA pair: FW-01 Eth1/7–8 ↔ FW-02 Eth1/7–8; validate exact interface roles before construction",
+        "halos": ["M575 381H825", "M575 387H825"]
+      },
+      {
+        "id": "Po10",
+        "label": "Po10: SEA-FW-01 Eth1/3 to SEA-CORE-01 Hu1/0/1/1 and SEA-FW-01 Eth1/4 to SEA-CORE-02 Hu2/0/1/1",
+        "title": "Po10: FW-01 Eth1/3 → CORE-01 Hu1/0/1/1; FW-01 Eth1/4 → CORE-02 Hu2/0/1/1",
+        "halos": ["M529 413V448H563V510", "M569 413V460H787V510"]
+      },
+      {
+        "id": "Po11",
+        "label": "Po11: SEA-FW-02 Eth1/3 to SEA-CORE-01 Hu1/0/1/2 and SEA-FW-02 Eth1/4 to SEA-CORE-02 Hu2/0/1/2",
+        "title": "Po11: FW-02 Eth1/3 → CORE-01 Hu1/0/1/2; FW-02 Eth1/4 → CORE-02 Hu2/0/1/2",
+        "halos": ["M831 413V472H613V510", "M871 413V448H833V510"]
+      },
+      {
+        "id": "SVL-Po1",
+        "label": "StackWise Virtual link: two 100G DAC members between SEA-CORE-01 and SEA-CORE-02",
+        "title": "SVL Po1: CORE-01 Hu1/0/25-26 ↔ CORE-02 Hu2/0/25-26; 2 × 100GBASE-CR4",
+        "halos": []
+      },
+      {
+        "id": "Po1",
+        "label": "Po1: one 10G member from each physical core to SEA-ACC-01",
+        "title": "Po1: CORE-01 Hu1/0/1/3 → ACC-01 Te1/1/1; CORE-02 Hu2/0/1/3 → ACC-01 Te1/1/2",
+        "halos": ["M563 568V618H209V705", "M783 568V624H231V705"]
+      },
+      {
+        "id": "Po2",
+        "label": "Po2: one 10G member from each physical core to SEA-ACC-02",
+        "title": "Po2: CORE-01 Hu1/0/1/4 → ACC-02 Te1/1/1; CORE-02 Hu2/0/1/4 → ACC-02 Te1/1/2",
+        "halos": ["M575 568V630H489V705", "M795 568V636H511V705"]
+      },
+      {
+        "id": "Po4",
+        "label": "Po4: one 10G member from each physical core to SEA-ESX-01",
+        "title": "Po4: CORE-01 Hu1/0/3/2 → ESX-01 vmnic0; CORE-02 Hu2/0/3/2 → ESX-01 vmnic1",
+        "halos": ["M819 568V642H1171V705", "M599 568V654H1149V705"]
+      },
+      {
+        "id": "Po3",
+        "label": "Po3: one 10G member from each physical core to SEA-WLC-01",
+        "title": "Po3: CORE-01 Hu1/0/3/1 → WLC-01 Te0/0/0; CORE-02 Hu2/0/3/1 → WLC-01 Te0/0/1",
+        "halos": ["M807 568V648H831V705", "M587 568V660H809V705"]
+      }
+    ],
+    "labels": [
+      { "x": 385, "y": 166, "w": 150, "h": 18, "t": "1G DIA · 1000BASE-LX", "tx": 460, "ty": 179 },
+      { "x": 857, "y": 166, "w": 166, "h": 18, "t": "500M CIR · 1000BASE-LX", "tx": 940, "ty": 179 },
+      { "x": 1020, "y": 196, "w": 132, "h": 18, "t": "LTE IPsec backup", "tx": 1086, "ty": 209 },
+      { "x": 613, "y": 250, "w": 174, "h": 18, "t": "iBGP/BFD · 1000BASE-T", "tx": 700, "ty": 263 },
+      { "x": 437, "y": 307, "w": 126, "h": 18, "t": "1000BASE-SX · OM4", "tx": 500, "ty": 320 },
+      { "x": 837, "y": 307, "w": 126, "h": 18, "t": "1000BASE-SX · OM4", "tx": 900, "ty": 320 },
+      { "x": 605, "y": 375, "w": 190, "h": 18, "t": "Stateful HA · 2×10GBASE-SR", "tx": 700, "ty": 388 },
+      { "x": 624, "y": 530, "w": 152, "h": 18, "t": "SVL Po1 · 2×100GBASE-CR4", "tx": 700, "ty": 543 },
+      { "x": 504, "y": 430, "w": 142, "h": 18, "t": "Po10 · 2×10GBASE-SR", "tx": 575, "ty": 443 },
+      { "x": 754, "y": 430, "w": 142, "h": 18, "t": "Po11 · 2×10GBASE-SR", "tx": 825, "ty": 443 },
+      { "x": 149, "y": 661, "w": 142, "h": 18, "t": "Po1 · 2×10GBASE-SR", "tx": 220, "ty": 674 },
+      { "x": 429, "y": 661, "w": 142, "h": 18, "t": "Po2 · 2×10GBASE-SR", "tx": 500, "ty": 674 },
+      { "x": 749, "y": 661, "w": 142, "h": 18, "t": "Po3 · 2×10GBASE-SR", "tx": 820, "ty": 674 },
+      { "x": 1089, "y": 661, "w": 142, "h": 18, "t": "Po4 · 2×10GBASE-SR", "tx": 1160, "ty": 674 }
+    ]
+  },
+  "rack": {
+    "id": "SEA.MDF.R01",
+    "location": "MDF",
+    "units": 24,
+    "frontAisle": "cold aisle",
+    "rearAisle": "hot aisle",
+    "reserved": [
+      { "position": 24, "height": 1, "label": "PP-WAN - patch panel" },
+      { "position": 23, "height": 1, "label": "CM-01 - cable manager" },
+      { "position": 20, "height": 1, "label": "CM-02 - cable manager" },
+      { "position": 17, "height": 2, "label": "BP-01 - blanking panel" },
+      { "position": 16, "height": 1, "label": "CM-03 - cable manager" },
+      { "position": 13, "height": 2, "label": "BP-02 - blanking panel" },
+      { "position": 12, "height": 1, "label": "CM-04 - cable manager" },
+      { "position": 9, "height": 1, "label": "CM-05 - cable manager" },
+      { "position": 5, "height": 1, "label": "CM-06 - cable manager" }
+    ],
+    "devices": [
+      {
+        "id": "SEA-SDW-01",
+        "model": "Cisco C8300-1N1S-6T",
+        "role": "Primary SD-WAN edge",
+        "position": 22,
+        "height": 1,
+        "asset": "generic",
+        "address": "10.44.10.11"
+      },
+      {
+        "id": "SEA-SDW-02",
+        "model": "Cisco C8300-1N1S-6T",
+        "role": "Secondary SD-WAN edge",
+        "position": 21,
+        "height": 1,
+        "asset": "generic",
+        "address": "10.44.10.12"
+      },
+      {
+        "id": "SEA-FW-01",
+        "model": "Cisco FPR-4215",
+        "role": "NGFW - active",
+        "position": 19,
+        "height": 1,
+        "asset": "fpr4215",
+        "address": "10.44.10.21"
+      },
+      {
+        "id": "SEA-FW-02",
+        "model": "Cisco FPR-4215",
+        "role": "NGFW - standby",
+        "position": 15,
+        "height": 1,
+        "asset": "fpr4215",
+        "address": "10.44.10.22"
+      },
+      {
+        "id": "SEA-CORE-01",
+        "model": "Cisco C9500X-28C8D",
+        "role": "Collapsed core member 1",
+        "position": 11,
+        "height": 1,
+        "asset": "c9500",
+        "address": "10.44.10.1"
+      },
+      {
+        "id": "SEA-CORE-02",
+        "model": "Cisco C9500X-28C8D",
+        "role": "Collapsed core member 2",
+        "position": 10,
+        "height": 1,
+        "asset": "c9500",
+        "address": "10.44.10.2"
+      },
+      {
+        "id": "SEA-ACC-01",
+        "model": "Cisco C9300-48P",
+        "role": "West-office PoE access",
+        "position": 8,
+        "height": 1,
+        "asset": "c9300",
+        "address": null
+      },
+      {
+        "id": "SEA-ACC-02",
+        "model": "Cisco C9300-48P",
+        "role": "East-office PoE access",
+        "position": 7,
+        "height": 1,
+        "asset": "c9300",
+        "address": null
+      },
+      {
+        "id": "SEA-WLC-01",
+        "model": "Cisco C9800-L",
+        "role": "Wireless LAN controller",
+        "position": 6,
+        "height": 1,
+        "asset": "generic",
+        "address": null
+      },
+      {
+        "id": "SEA-ESX-01",
+        "model": "Dell PowerEdge R750",
+        "role": "Local virtualization host",
+        "position": 3,
+        "height": 2,
+        "asset": "r750",
+        "address": "10.44.50.11"
+      },
+      {
+        "id": "SEA-UPS-01",
+        "model": "APC by Schneider Electric SMT3000RMI2UC",
+        "role": "Rack UPS",
+        "position": 1,
+        "height": 2,
+        "asset": "ups",
+        "address": null
+      }
+    ]
+  },
+  "sections": {
+    "findings": {
+      "id": "open-items",
+      "label": "Open items",
+      "noun": "open items and risks",
+      "heading": "Open items, assumptions & risk register",
+      "flavour": "gaps",
+      "items": [
+        {
+          "id": "R1",
+          "severity": "HIGH",
+          "title": "C9500X breakout design is provisional",
+          "detail": "Scheduled child interfaces or intended media may be unsupported",
+          "action": "Validate ordered PID/modules, IOS XE release, breakout CLI result and optic compatibility",
+          "at": ["sea-core-01", "sea-core-02"]
+        },
+        {
+          "id": "R2",
+          "severity": "HIGH",
+          "title": "StackWise Virtual dual-active detection is not scheduled",
+          "detail": "Split-brain risk during control-link failure",
+          "action": "Select supported DAD method, ports/media and failure-test procedure",
+          "at": ["sea-core-01", "sea-core-02"]
+        },
+        {
+          "id": "R3",
+          "severity": "HIGH",
+          "title": "Carrier, cellular, firewall-HA and transit records are incomplete",
+          "detail": "Drawing cannot yet drive patching or configuration",
+          "action": "Confirm handoffs and platform configuration; replace each TBD before construction",
+          "atZone": "ext"
+        },
+        {
+          "id": "R4",
+          "severity": "HIGH",
+          "title": "Power resiliency and capacity are unvalidated",
+          "detail": "Overload, inadequate runtime or a single point of failure cannot be excluded",
+          "action": "Produce circuit/PDU/load/feed schedule and calculate normal, failed-source and runtime cases"
+        },
+        {
+          "id": "R5",
+          "severity": "MEDIUM",
+          "title": "No open rack-unit capacity",
+          "detail": "New hardware may require re-racking or another cabinet",
+          "action": "Accept the density constraint or reserve/grow the physical footprint"
+        },
+        {
+          "id": "R6",
+          "severity": "MEDIUM",
+          "title": "SEA-WLC-01 mounting hardware/SKU not documented",
+          "detail": "Unsafe mounting or unsupported Po3 interfaces",
+          "action": "Add supported shelf/bracket and exact dual-10G SKU to the BOM",
+          "at": ["sea-wlc-01"]
+        },
+        {
+          "id": "R7",
+          "severity": "MEDIUM",
+          "title": "Thermal/airflow state is incomplete",
+          "detail": "Containment mismatch or cooling shortfall may be missed",
+          "action": "Validate airflow SKU per device and calculate heat rejection"
+        },
+        {
+          "id": "R8",
+          "severity": "MEDIUM",
+          "title": "Cable administration is incomplete",
+          "detail": "Ambiguous installation and poor maintainability",
+          "action": "Complete panel, cable, path, length and TIA-606-D-style label records"
+        },
+        {
+          "id": "R9",
+          "severity": "HIGH",
+          "title": "Addressing and segmentation are not implementation-complete",
+          "detail": "Conflicting configuration assumptions",
+          "action": "Approve IPAM/VLAN/ACL/DHCP plan and synchronize the diagram and schedules",
+          "atZone": "access"
+        },
+        {
+          "id": "R10",
+          "severity": "MEDIUM",
+          "title": "One ESX host and one WLC are shown",
+          "detail": "A device failure removes that local service",
+          "action": "Accept with recovery targets or add redundancy",
+          "at": ["sea-esx-01", "sea-wlc-01"]
+        },
+        {
+          "id": "R11",
+          "severity": "MEDIUM",
+          "title": "Private WAN and LTE both depend on SEA-SDW-02",
+          "detail": "Loss of SDW-02 removes both paths",
+          "action": "Accept/document or terminate backup through an independent edge",
+          "at": ["private-wan", "lte-backup", "sea-sdw-02"]
+        },
+        {
+          "id": "R12",
+          "severity": "HIGH",
+          "title": "96 office outlets/users exceed one C9300-48P before phone demand",
+          "detail": "Insufficient concurrent access ports and potentially insufficient PoE",
+          "action": "Quantify concurrent demand/pass-through and add capacity or reduce the requirement",
+          "at": ["sea-acc-01", "sea-acc-02"]
+        }
+      ]
+    }
+  },
+  "validation": {
+    "named_objects": 18,
+    "links": 27,
+    "zones": 5,
+    "rack_units": 24,
+    "rack_devices": 11,
+    "u_coverage": "24/24",
+    "power_status": "not-validated",
+    "print_review": "not run",
+    "grayscale_review": "not run"
+  }
+}
+</script>
+<!-- PROOF-DATA:END -->
+
+<!-- NETWORK-PACKAGER-CONTRACT:BEGIN -->
+<script id="network-packager-contract" type="application/json">
+{
+  "schema": "network-design-package/v2",
+  "assetReferences": "asset-uri/v1",
+  "assetUriSchemes": {
+    "cisco": "icons/cisco-pms3015/",
+    "rack": "rack-assets/"
+  }
+}
+</script>
+<!-- NETWORK-PACKAGER-CONTRACT:END -->
+
+<!-- NETWORK-ASSET-VAULT:BEGIN -->
+<script id="network-asset-vault" type="application/json">
+{}
+</script>
+<!-- NETWORK-ASSET-VAULT:END -->
+
+<!-- EDITABLE-SOURCE-CAPSULE:BEGIN -->
+<script id="editable-source-capsule" type="application/octet-stream">
+
+</script>
+<!-- EDITABLE-SOURCE-CAPSULE:END -->
+<style>
+  /* Gap overlay: a numbered marker per pinned open item. The number is the
+     item's position in the register, so figure and list cannot disagree. */
+  .gap-mark { pointer-events: none; }
+  .gap-dot  { fill: #b42318; stroke: #ffffff; stroke-width: 2; }
+  .gap-num  { fill: #ffffff; font-size: 12px; font-weight: 700; text-anchor: middle; font-family: var(--font-ui, system-ui, sans-serif); }
+  .gap-zone { fill: none; stroke: #b42318; stroke-width: 2; stroke-dasharray: 7 5; opacity: .75; }
+</style>
+<script>
+/* Draws Figure 1 from the proof-data block, in this document's own grammar:
+   labelled trust zones, port-level connections carrying their media class,
+   bundles whose members share a halo, and endpoint groups summarised as one
+   glyph. Revision 2.0 hand-authored that geometry and embedded its artwork as
+   raster PNGs. The geometry is unchanged; it is now data, and the artwork comes
+   from the shared vector library, so the file carries no image bytes.
+
+   Editable mode draws the inline vector symbols, so an unpackaged file is still
+   a complete, shareable drawing. Portable mode swaps in the official artwork the
+   packager embedded. Every icon this figure uses has a vector counterpart, so
+   nothing falls through to a placeholder. */
+(function () {
+  "use strict";
+  var SVG_NS = "http://www.w3.org/2000/svg";
+
+  function readJson(id) {
+    var node = document.getElementById(id);
+    return node ? JSON.parse(node.textContent) : null;
+  }
+  var contract = readJson("network-packager-contract") || {};
+  var vault = readJson("network-asset-vault") || {};
+  var portable = vault.schema === "network-asset-vault/v2";
+
+  /* Semantic key -> inline vector symbol + official asset identifier.
+     Mirrors symbols/symbol-map.json; the official ids are what the packager scans for. */
+  var ICONS = {
+    "cloud":{vector:"nd-cloud",official:"asset:cisco/cloud.jpg"},
+    "router":{vector:"nd-router",official:"asset:cisco/router.jpg"},
+    "firewall":{vector:"nd-firewall",official:"asset:cisco/firewall.jpg"},
+    "core-switch":{vector:"nd-l3-switch",official:"asset:cisco/layer 3 switch.jpg"},
+    "access-switch":{vector:"nd-access-switch",official:"asset:cisco/workgroup switch.jpg"},
+    "access-point":{vector:"nd-access-point",official:"asset:cisco/lightweight ap.jpg"},
+    "server":{vector:"nd-server",official:"asset:cisco/fileserver.jpg"},
+    "pc":{vector:"nd-workstation",official:"asset:cisco/pc.jpg"},
+    "workstation":{vector:"nd-workstation",official:"asset:cisco/pc.jpg"},
+    "wlan-controller":{vector:"nd-wlan-controller",official:"asset:cisco/wlan controller.jpg"},
+    "vpn-headend":{vector:"nd-vpn-headend",official:"asset:cisco/vpn concentrator.jpg"},
+    "dc-switch":{vector:"nd-dc-switch",official:"asset:cisco/server switch.jpg"},
+    "ip-phone":{vector:"nd-ip-phone",official:"asset:cisco/ip phone.jpg"},
+    "laptop":{vector:"nd-laptop",official:"asset:cisco/laptop.jpg"},
+    "printer":{vector:"nd-printer",official:"asset:cisco/printer.jpg"},
+    "database":{vector:"nd-database",official:"asset:cisco/relational database.jpg"},
+    "storage-array":{vector:"nd-storage-array",official:"asset:cisco/fc storage.jpg"},
+    "network-management":{vector:"nd-nms",official:"asset:cisco/network management.jpg"},
+    "branch-office":{vector:"nd-branch-office",official:"asset:cisco/branch office.jpg"},
+    "wireless-router":{vector:"nd-wireless-router",official:"asset:cisco/wireless router.jpg"}
+  };
+
+  /* Official rack artwork, resolved the same way. Two of this rack's models have
+     no orthographic face in the shared set and draw as generic chassis, exactly
+     as they did in revision 2.0. */
+  var RACK_ASSETS = {
+    "c9500":{"front":"asset:rack/cisco-c9500x-28c8d.front.png","rear":"asset:rack/cisco-c9500x-28c8d.rear.png"},
+    "c9300":{"front":"asset:rack/cisco-c9300-48p.front.png","rear":"asset:rack/cisco-c9300-48p.rear.png"},
+    "fpr4215":{"front":"asset:rack/cisco-fpr4215-ngfw-k9.front.png","rear":"asset:rack/cisco-fpr4215-ngfw-k9.rear.png"},
+    "r750":{"front":"asset:rack/dell-poweredge-r750.front.png","rear":"asset:rack/dell-poweredge-r750.rear.png"},
+    "ups":{"front":"asset:rack/apc-smt3000rmi2uc.front.png","rear":"asset:rack/apc-smt3000rmi2uc.rear.png"}
+  };
+
+  /* Every glyph in this figure sits in an identical 70x58 slot. Equal visual
+     area across a mixed-aspect set keeps a tall-narrow firewall from shrinking
+     to fit its width while a wide cloud fills its box edge to edge. */
+  var GLYPH_MASS = 66;
+
+  function assetUrl(uri) {
+    if (portable) {
+      var hash = vault.keys && vault.keys[uri];
+      var packed = hash && vault.blobs && vault.blobs[hash];
+      if (!packed) { throw new Error("Portable asset is missing from the vault: " + uri); }
+      return "data:" + packed.mime + ";base64," + packed.base64;
+    }
+    var parts = /^asset:(cisco|rack)\/([^/]+)$/.exec(uri);
+    var folder = parts && contract.assetUriSchemes && contract.assetUriSchemes[parts[1]];
+    if (parts && folder) { return folder + parts[2]; }
+    throw new Error("Unsupported asset URI: " + uri);
+  }
+  window.networkDesignAssetUrl = assetUrl;
+  window.networkDesignRackAssets = RACK_ASSETS;
+
+  function round(v) { return Math.round(v * 100) / 100; }
+  function list(v) { return Array.isArray(v) ? v : (v === null || v === undefined ? [] : [v]); }
+
+  function el(name, attrs, text) {
+    var node = document.createElementNS(SVG_NS, name);
+    if (attrs) {
+      Object.keys(attrs).forEach(function (key) {
+        var value = attrs[key];
+        if (value === null || value === undefined || value === "") { return; }
+        node.setAttribute(key, String(value));
+      });
+    }
+    if (text !== undefined && text !== null && text !== "") { node.textContent = text; }
+    return node;
+  }
+
+  /* Read the symbol's own viewBox so the aspect ratio can never drift from the
+     sprite, then fit it to the slot the figure cut, centred. */
+  function boxFor(symbolId, slot) {
+    var symbol = document.getElementById(symbolId);
+    var viewBox = symbol && symbol.getAttribute("viewBox");
+    var aspect = 1;
+    if (viewBox) {
+      var p = viewBox.split(/[\s,]+/);
+      var vw = parseFloat(p[2]), vh = parseFloat(p[3]);
+      if (vw > 0 && vh > 0) { aspect = vw / vh; }
+    }
+    var root = Math.sqrt(aspect);
+    var w = GLYPH_MASS * root, h = GLYPH_MASS / root;
+    return { x: slot[0] + slot[2] / 2 - w / 2, y: slot[1] + slot[3] / 2 - h / 2, width: w, height: h };
+  }
+
+  var data = readJson("proof-data") || {};
+  var topo = data.topology || {};
+  var svg = document.querySelector("svg.logical-svg");
+  var renderErrors = [];
+
+  while (svg.firstChild) { svg.removeChild(svg.firstChild); }
+  svg.setAttribute("viewBox", (topo.canvas && topo.canvas.viewBox) || "0 0 1400 1020");
+  svg.appendChild(el("title", { id: "lt" }, topo.title));
+  svg.appendChild(el("desc", { id: "ld" }, topo.desc));
+
+  /* zones */
+  var zoneLayer = el("g", { "aria-label": "Topology zones" });
+  list(topo.zones).forEach(function (z) {
+    zoneLayer.appendChild(el("rect", { "class": "zone", x: z.x, y: z.y, width: z.width, height: z.height, rx: z.rx, fill: z.fill, stroke: z.stroke }));
+    zoneLayer.appendChild(el("text", { "class": "zone-label", x: z.lx, y: z.ly, fill: z.lfill }, z.label));
+  });
+  svg.appendChild(zoneLayer);
+
+  var nodes = {};
+  list(topo.nodes).forEach(function (n) {
+    if (nodes[n.id]) { renderErrors.push("Duplicate node id: " + n.id + "."); return; }
+    nodes[n.id] = n;
+  });
+
+  /* connections. Links are emitted in data order; a bundle is emitted whole at
+     the position of its first member, so document order -- and therefore
+     z-order against the halos -- matches the source. */
+  function linkPath(link) {
+    var path = el("path", {
+      "class": "link " + link.media + " connection" + (link.member ? " member" : ""),
+      "data-link-id": link.id, "data-from-node": nodes[link.from] && nodes[link.from].label,
+      "data-from-port": link.fromPort, "data-to-node": nodes[link.to] && nodes[link.to].label,
+      "data-to-port": link.toPort, "data-start": link.start, "data-end": link.end, d: link.d
+    });
+    if (link.title) { path.appendChild(el("title", null, link.title)); }
+    return path;
+  }
+  var wires = el("g", { "aria-label": "Network connections" });
+  var bundleById = {};
+  list(topo.bundles).forEach(function (b) { bundleById[b.id] = b; });
+  var emitted = {};
+  list(topo.links).forEach(function (link) {
+    if (!nodes[link.from] || !nodes[link.to]) { renderErrors.push("Link " + link.id + " references a missing object."); return; }
+    if (!link.bundle) { wires.appendChild(linkPath(link)); return; }
+    if (emitted[link.bundle]) { return; }
+    emitted[link.bundle] = true;
+    var b = bundleById[link.bundle] || {};
+    var group = el("g", { "class": "bundle", "data-bundle": link.bundle, tabindex: 0, role: "img", "aria-label": b.label });
+    if (b.title) { group.appendChild(el("title", null, b.title)); }
+    list(b.halos).forEach(function (d) { group.appendChild(el("path", { "class": "link-halo", d: d })); });
+    list(topo.links).forEach(function (m) { if (m.bundle === link.bundle) { group.appendChild(linkPath(m)); } });
+    wires.appendChild(group);
+  });
+  svg.appendChild(wires);
+
+  /* connection labels, drawn above the wires they describe */
+  var labels = el("g", { "aria-label": "Connection labels" });
+  list(topo.labels).forEach(function (l) {
+    var pair = el("g");
+    pair.appendChild(el("rect", { "class": "label-bg", x: l.x, y: l.y, width: l.w, height: l.h }));
+    pair.appendChild(el("text", { "class": "link-label", x: l.tx, y: l.ty, style: l.a ? "text-anchor:" + l.a : null }, l.t));
+    labels.appendChild(pair);
+  });
+  svg.appendChild(labels);
+
+  /* named objects */
+  var nodeLayer = el("g");
+  list(topo.nodes).forEach(function (n) {
+    var g = el("g", {
+      "class": "logical-node", "data-id": n.id, "data-name": n.label,
+      "data-role": n.role, "data-details": n.details, tabindex: 0
+    });
+    var profile = ICONS[n.icon];
+    if (!profile) {
+      renderErrors.push("Unknown icon \"" + n.icon + "\" on " + n.id + ".");
+    } else {
+      var box = boxFor(profile.vector, n.art);
+      if (portable) {
+        g.appendChild(el("image", { href: assetUrl(profile.official), x: round(box.x), y: round(box.y), width: round(box.width), height: round(box.height), preserveAspectRatio: "xMidYMid meet" }));
+      } else {
+        g.appendChild(el("use", { href: "#" + profile.vector, x: round(box.x), y: round(box.y), width: round(box.width), height: round(box.height) }));
+      }
+    }
+    list(n.text).forEach(function (t) {
+      g.appendChild(el("text", { "class": t.c, x: t.x, y: t.y, style: t.a ? "text-anchor:" + t.a : null }, t.t));
+    });
+    nodeLayer.appendChild(g);
+  });
+  svg.appendChild(nodeLayer);
+
+  /* ---- gap overlay ----
+     A finding that names something drawn gets a numbered marker on it, and the
+     number IS its position in the register, so the drawing and the list cannot
+     disagree. Revision 2.0 kept the register in prose only; a reader had to
+     hold twelve risks in their head while looking at the figure. The whole
+     layer carries .gap-layer, so the existing show-gaps toggle governs it. */
+  var findings = list(data.sections && data.sections.findings && data.sections.findings.items);
+  var overlay = el("g", { "class": "gap-layer", "aria-label": "Open items pinned to the drawing" });
+  var zoneById = {};
+  list(topo.zones).forEach(function (z) { zoneById[z.id] = z; });
+
+  findings.forEach(function (item, index) {
+    var number = index + 1;
+    var label = item.id ? item.id + " " + item.title : item.title;
+    list(item.at).forEach(function (id) {
+      var n = nodes[id];
+      if (!n) { renderErrors.push("Open item " + number + " pins to missing object " + id + "."); return; }
+      var mark = el("g", { "class": "gap-mark", role: "img", "aria-label": label });
+      mark.appendChild(el("title", null, label));
+      mark.appendChild(el("circle", { "class": "gap-dot", cx: n.art[0] + n.art[2] + 2, cy: n.art[1] - 2, r: 11 }));
+      mark.appendChild(el("text", { "class": "gap-num", x: n.art[0] + n.art[2] + 2, y: n.art[1] + 2.5 }, String(number)));
+      overlay.appendChild(mark);
+    });
+    if (item.atZone) {
+      var z = zoneById[item.atZone];
+      if (!z) { renderErrors.push("Open item " + number + " pins to missing zone " + item.atZone + "."); return; }
+      var zm = el("g", { "class": "gap-mark", role: "img", "aria-label": label });
+      zm.appendChild(el("title", null, label));
+      zm.appendChild(el("rect", { "class": "gap-zone", x: z.x, y: z.y, width: z.width, height: z.height, rx: z.rx }));
+      zm.appendChild(el("circle", { "class": "gap-dot", cx: z.x + z.width - 18, cy: z.y + 18, r: 11 }));
+      zm.appendChild(el("text", { "class": "gap-num", x: z.x + z.width - 18, y: z.y + 22.5 }, String(number)));
+      overlay.appendChild(zm);
+    }
+  });
+  svg.appendChild(overlay);
+
+  window.networkDesignAssetMode = portable ? "portable" : "vector-placeholder";
+  window.networkDesignRenderErrors = renderErrors;
+})();
+</script>
+<script>
+
+(function(){
+  
+
+  const map=document.querySelector('.logical-wrap'),label=document.getElementById('logical-label'),nodes=[...document.querySelectorAll('.logical-node')];
+  function showNode(node){label.innerHTML=`<strong>${node.dataset.name}</strong>${node.dataset.role}<br><span class="detail">${node.dataset.details}</span>`;label.classList.add('visible');const a=(node.querySelector('use')||node).getBoundingClientRect(),m=map.getBoundingClientRect();let left=a.right-m.left+12,top=a.top-m.top+(a.height-label.offsetHeight)/2;if(left+label.offsetWidth>m.width-8)left=a.left-m.left-label.offsetWidth-12;left=Math.max(8,Math.min(left,m.width-label.offsetWidth-8));top=Math.max(8,Math.min(top,m.height-label.offsetHeight-8));label.style.left=left+'px';label.style.top=top+'px'}
+  function hideNode(){label.classList.remove('visible')}
+  nodes.forEach(n=>{n.setAttribute('role','img');n.setAttribute('aria-label',`${n.dataset.name}, ${n.dataset.role}, ${n.dataset.details}`);n.addEventListener('mouseenter',()=>showNode(n));n.addEventListener('mouseleave',hideNode);n.addEventListener('focus',()=>showNode(n));n.addEventListener('blur',hideNode);n.addEventListener('click',()=>{nodes.forEach(x=>x.classList.remove('selected'));n.classList.add('selected');showNode(n)});n.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();n.click()}})});
+
+  const proofData=JSON.parse(document.getElementById('proof-data').textContent);
+  const devices=(proofData.rack&&proofData.rack.devices||[]).map(d=>({id:d.id,model:d.model,role:d.role,u:d.position,span:d.height,asset:(d.asset&&d.asset!=='generic')?d.asset:null}));
+  const passive=(proofData.rack&&proofData.rack.reserved||[]).map(s=>({u:s.position,span:s.height,label:s.label}));
+  function rulers(w){w.querySelectorAll('.ruler').forEach(r=>{r.replaceChildren();for(let u=24;u>=1;u--){const m=document.createElement('span');m.className='u-mark';m.style.top=`calc((24 - ${u}) * var(--u))`;m.textContent='U'+u;r.appendChild(m)}})}
+  function position(e,u,span){e.style.bottom=`calc((${u} - 1) * var(--u))`;e.style.height=`calc(${span} * var(--u))`}
+  function uri(asset,view){if(window.networkDesignAssetMode!=='portable')return null;const a=asset&&window.networkDesignRackAssets[asset];return a?window.networkDesignAssetUrl(a[view]):null}
+  function showRack(w,f,d,view){const l=w.querySelector('.rack-label'),range=d.span===1?`U${d.u}`:`U${d.u}-U${d.u+d.span-1}`;l.innerHTML=`<strong>${d.id} &middot; ${range}</strong>${d.model}<br>${d.role}<br>${view} view`;l.style.top=Math.max(18,f.offsetTop+10)+'px';l.classList.add('visible')}
+  function build(view){const bay=document.getElementById(view),wrap=document.getElementById(view+'-wrap');rulers(wrap);passive.forEach(s=>{const e=document.createElement('div');e.className='passive';e.textContent=s.label;position(e,s.u,s.span);bay.appendChild(e)});devices.forEach(d=>{const f=document.createElement('div');f.className='device-face';f.tabIndex=0;f.setAttribute('role','img');const range=d.span===1?`U${d.u}`:`U${d.u} through U${d.u+d.span-1}`;f.setAttribute('aria-label',`${d.id}, ${d.model}, ${d.role}, ${range}, ${view} view`);position(f,d.u,d.span);const src=uri(d.asset,view);if(src){const img=document.createElement('img');img.src=src;img.alt='';img.draggable=false;f.appendChild(img)}else{const g=document.createElement('div');g.className='generic';f.appendChild(g)}const show=()=>showRack(wrap,f,d,view);f.addEventListener('mouseenter',show);f.addEventListener('mouseleave',()=>wrap.querySelector('.rack-label').classList.remove('visible'));f.addEventListener('focus',show);f.addEventListener('blur',()=>wrap.querySelector('.rack-label').classList.remove('visible'));f.addEventListener('click',()=>{document.querySelectorAll('.device-face.selected').forEach(x=>x.classList.remove('selected'));f.classList.add('selected');show()});bay.appendChild(f)})}
+  build('front');build('rear');
+  document.querySelectorAll('.device-face').forEach(f=>f.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();f.click()}}));
+  document.getElementById('compact').addEventListener('click',()=>{const p=document.getElementById('physical-view');p.style.setProperty('--u','24px');p.style.setProperty('--bay','270px')});
+  document.getElementById('full').addEventListener('click',()=>{const p=document.getElementById('physical-view');p.style.setProperty('--u','34px');p.style.setProperty('--bay','390px')});
+
+
+  /* ===================================================================
+     CloudBats shell behaviour, appended inside the same IIFE as the
+     v2.8 rack builder, logical inspector and integrity preflight.
+     Nothing above this line was rewritten except the retired tab router.
+     =================================================================== */
+
+  var _body = document.body;
+  var gapButton = document.getElementById('gapToggle');
+  var exhibitButton = document.getElementById('equipToggle');
+  var gapLink = document.getElementById('gapLink');
+  var exhibitLink = document.getElementById('equipmentExhibitLink');
+
+  function setGapVisibility(on){
+    _body.classList.toggle('show-gaps', on);
+    gapButton.setAttribute('aria-pressed', on ? 'true' : 'false');
+    gapButton.title = on ? 'Hide open items and risks' : 'Show open items and risks';
+  }
+  function setExhibitVisibility(on){
+    _body.classList.toggle('show-equip', on);
+    exhibitButton.setAttribute('aria-pressed', on ? 'true' : 'false');
+    exhibitButton.title = on ? 'Hide equipment exhibit' : 'Show equipment exhibit';
+  }
+
+  /* ---- Appendix A built from the rack faces already embedded for Fig. 2,
+          so the exhibit costs no additional bytes.
+          Two artwork mechanisms exist across the NET family: a rackAssets
+          object literal (LAB-002, FAB-001) and a <symbol> sprite resolved by
+          productUri() (SJC-HQ-001, SEA-RH-001). Support both. ---- */
+  /* Four naming conventions exist across the NET family:
+       LAB-002 / FAB-001 : rackDevices + rackAssets object
+       SJC-HQ-001        : rackDevices + productUri() sprite lookup
+       SEA-RH-001        : devices     + uri() sprite lookup
+     Resolve both the device list and the face lookup by capability, not by name. */
+  function faceUri(assetKey, view){
+    if(typeof rackAssets !== 'undefined' && rackAssets && rackAssets[assetKey]){
+      return rackAssets[assetKey][view] || null;
+    }
+    if(typeof productUri === 'function'){ return productUri(assetKey, view); }
+    if(typeof uri === 'function'){ return uri(assetKey, view); }
+    return null;
+  }
+  function deviceList(){
+    if(typeof rackDevices !== 'undefined' && rackDevices && rackDevices.length) return rackDevices;
+    if(typeof devices !== 'undefined' && devices && devices.length) return devices;
+    return null;
+  }
+
+  function buildEquipmentExhibit(){
+    var host = document.getElementById('equip-grid');
+    var list = deviceList();
+    if(!host || !list) return;
+    var seen = {};
+    list.forEach(function(d){
+      if(!d.asset) return;               /* generic chassis - no orthographic face to show */
+      if(seen[d.asset]) { seen[d.asset].count++; return; }
+      seen[d.asset] = { device:d, count:1 };
+    });
+    Object.keys(seen).forEach(function(key){
+      var e = seen[key], d = e.device;
+      var art = { front: faceUri(key,'front'), rear: faceUri(key,'rear') };
+      var card = document.createElement('div');
+      card.className = 'equip-card';
+      var faces = document.createElement('div');
+      faces.className = 'equip-faces';
+      [['front','Front'],['rear','Rear']].forEach(function(pair){
+        if(!art || !art[pair[0]]) return;
+        var fig = document.createElement('figure');
+        var img = document.createElement('img');
+        img.src = art[pair[0]];
+        img.alt = d.model + ', ' + pair[1].toLowerCase() + ' face';
+        img.draggable = false;
+        var cap = document.createElement('figcaption');
+        cap.textContent = pair[1];
+        fig.appendChild(img); fig.appendChild(cap);
+        faces.appendChild(fig);
+      });
+      var bodyEl = document.createElement('div');
+      bodyEl.className = 'equip-body';
+      var h3 = document.createElement('h3'); h3.textContent = d.model;
+      var u = document.createElement('span'); u.className = 'u-badge';
+      u.textContent = d.span + 'U · ×' + e.count;
+      var why = document.createElement('div'); why.className = 'why'; why.textContent = d.role + '.';
+      var src = document.createElement('div'); src.className = 'source';
+      src.textContent = 'Orthographic face as installed in ' + ((proofData.rack && proofData.rack.id) || 'the rack') + ' · rack position declared, datasheet values not attached';
+      bodyEl.appendChild(h3); bodyEl.appendChild(u); bodyEl.appendChild(why); bodyEl.appendChild(src);
+      card.appendChild(faces); card.appendChild(bodyEl);
+      host.appendChild(card);
+    });
+  }
+
+  /* ---- legacy deep links from the retired five-view build ---- */
+  var ALIAS = {
+    'summary':'overview','logical-panel':'logical-topology','rack-panel':'physical-view',
+    'adjacency':'logical-topology','addressing':'identity-addressing','rackdev':'physical-view',
+    'power':'operations-observability','patch':'validation-plan','risks':'open-items',
+    'qa':'change-management','sources-panel':'standards-sources','revisions':'change-management',
+    'logical':'logical-topology','rack':'physical-view','engineering':'identity-addressing',
+    'sources':'standards-sources','overview':'overview'
+  };
+
+  function revealHashTarget(){
+    var raw;
+    try { raw = decodeURIComponent(window.location.hash.slice(1)); }
+    catch (e) { raw = window.location.hash.slice(1); }
+    if(!raw) return;
+    var id = ALIAS[raw] || raw;
+    var target = document.getElementById(id);
+    if(!target) return;
+    if(id === 'open-items') setGapVisibility(true);
+    if(id === 'equipment-exhibit') setExhibitVisibility(true);
+    window.requestAnimationFrame(function(){
+      window.requestAnimationFrame(function(){ target.scrollIntoView(); });
+    });
+  }
+
+  /* ---- scroll-spy over the numbered spine ---- */
+  function initScrollSpy(){
+    var sections = [].slice.call(document.querySelectorAll('main .content section[id]'));
+    var links = {};
+    [].slice.call(document.querySelectorAll('.toc a[href^="#"]')).forEach(function(a){
+      links[a.getAttribute('href').slice(1)] = a;
+    });
+    if(!sections.length || !('IntersectionObserver' in window)) return;
+    var visible = {};
+    function paint(){
+      var current = null, i;
+      for(i = 0; i < sections.length; i++){ if(visible[sections[i].id]){ current = sections[i].id; break; } }
+      if(!current && (window.innerHeight + window.pageYOffset) >= (document.body.scrollHeight - 4)){
+        current = sections[sections.length - 1].id;
+      }
+      for(var k in links){ if(links[k]) links[k].removeAttribute('aria-current'); }
+      if(current && links[current]) links[current].setAttribute('aria-current','true');
+    }
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){ visible[e.target.id] = e.isIntersecting; });
+      paint();
+    }, { rootMargin: '-15% 0px -70% 0px', threshold: 0 });
+    sections.forEach(function(s){ io.observe(s); });
+    window.addEventListener('scroll', paint, { passive: true });
+    paint();
+  }
+
+  gapButton.addEventListener('click', function(){ setGapVisibility(!_body.classList.contains('show-gaps')); });
+  exhibitButton.addEventListener('click', function(){ setExhibitVisibility(!_body.classList.contains('show-equip')); });
+  gapLink.addEventListener('click', function(){ setGapVisibility(true); });
+  exhibitLink.addEventListener('click', function(){ setExhibitVisibility(true); });
+  window.addEventListener('hashchange', revealHashTarget);
+
+  buildEquipmentExhibit();
+  setGapVisibility(_body.classList.contains('show-gaps'));
+  setExhibitVisibility(_body.classList.contains('show-equip'));
+  initScrollSpy();
+  revealHashTarget();
+
+})();
+
+</script>
+</body>
+</html>
