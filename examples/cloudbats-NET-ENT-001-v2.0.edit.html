@@ -895,6 +895,7 @@
 .sym-dark{fill:var(--symbol-dark,#005779)}
 .sym-light{fill:var(--symbol-light,#51bde6)}
 .sym-detail{fill:var(--symbol-detail,#fff)}
+.sym-outline{fill:#fff;stroke:var(--symbol-main,#0076a8);stroke-width:4;stroke-linecap:round;stroke-linejoin:round}
 .sym-detail-stroke{fill:none;stroke:var(--symbol-detail,#fff);stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
 .topology-vector-icon{pointer-events:none}
 .node-generic{fill:#f4f8fa;stroke:#7c929e;stroke-width:1.5;stroke-dasharray:4 3}
@@ -1713,12 +1714,19 @@
 <!-- EDITABLE-SOURCE-CAPSULE:END -->
 
 <script>
-/* Chooses each device symbol before the document's own preflight runs.
+/* Chooses and sizes each device symbol before the document's own preflight runs.
 
    Editable mode draws the inline vector placeholder symbols, so an unpackaged
    file is still a complete, shareable drawing. Portable mode swaps in the
-   official artwork the packager embedded. A device with no vector equivalent
-   says so plainly rather than borrowing a symbol that means something else. */
+   official artwork the packager embedded.
+
+   Sizing note. The slots in this figure were cut for the original raster
+   artwork, whose proportions differ from the vector symbols. Reusing those
+   slots verbatim made a tall-narrow firewall shrink to fit its width while a
+   wide cloud filled its box edge to edge -- glyphs ranging from 37 to 123 in
+   visual mass on one drawing. Each symbol is therefore re-sized from its own
+   viewBox and re-centred on the slot it came from, so position stays where the
+   figure put it and size becomes consistent. Aspect ratio is never distorted. */
 (function () {
   "use strict";
   var SVG_NS = "http://www.w3.org/2000/svg";
@@ -1745,6 +1753,27 @@
     "network-management": { vector: "nd-nms",         official: "asset:cisco/network management.jpg" }
   };
 
+  /* Two size tiers, because the drawing has two kinds of object.
+
+     mass   - equal visual area, the usual way to balance a mixed-aspect icon
+              set. 76 matches the edge routers and core switches, which are the
+              glyphs this figure already sized well.
+     height - equal height. The three VLAN markers sit on stacked segment lines
+              only 46 apart, so equal area would overlap them. Equal height is
+              the most they can take and still read as a set. */
+  var SIZE = {
+    "nd-cloud":       { mode: "mass",   value: 100 },
+    "nd-router":      { mode: "mass",   value: 76 },
+    "nd-firewall":    { mode: "mass",   value: 76 },
+    "nd-l3-switch":   { mode: "mass",   value: 76 },
+    "nd-server":      { mode: "mass",   value: 76 },
+    "nd-nms":         { mode: "mass",   value: 76 },
+    "nd-workstation": { mode: "height", value: 48 },
+    "nd-ip-phone":    { mode: "height", value: 48 },
+    "nd-database":    { mode: "height", value: 48 }
+  };
+  var PLACEHOLDER = { mass: 73, aspect: 1.35 };
+
   function assetUrl(uri) {
     if (portable) {
       var hash = vault.keys && vault.keys[uri];
@@ -1758,44 +1787,96 @@
     throw new Error("Unsupported asset URI: " + uri);
   }
 
-  function geometryOf(node) {
-    return {
-      x: parseFloat(node.getAttribute("x")) || 0,
-      y: parseFloat(node.getAttribute("y")) || 0,
-      width: parseFloat(node.getAttribute("width")) || 0,
-      height: parseFloat(node.getAttribute("height")) || 0
-    };
+  function slotOf(node) {
+    var x = parseFloat(node.getAttribute("x")) || 0;
+    var y = parseFloat(node.getAttribute("y")) || 0;
+    var w = parseFloat(node.getAttribute("width")) || 0;
+    var h = parseFloat(node.getAttribute("height")) || 0;
+    return { cx: x + w / 2, cy: y + h / 2, bottom: y + h };
   }
+
+  /* Devices in the mass tier carry their name label directly underneath, so a
+     glyph taller than the slot it replaced would run into that label. Growth is
+     taken upward instead: centre the box, then lift it if it would cross the
+     slot's bottom edge.
+
+     The height tier is seated differently. Those three sit on stacked segment
+     lines and are labelled to the right, not below, so nothing is under them to
+     protect -- and clamping them upward would press them into each other. They
+     stay centred on their line. */
+  function seat(box, slot) {
+    if (box.y + box.height > slot.bottom) { box.y = slot.bottom - box.height; }
+    return box;
+  }
+
+  /* Read the symbol's own viewBox so the aspect ratio can never drift from the
+     sprite, and derive the box from the size tier. */
+  function boxFor(symbolId, centre) {
+    var symbol = document.getElementById(symbolId);
+    var viewBox = symbol && symbol.getAttribute("viewBox");
+    var aspect = 1;
+    if (viewBox) {
+      var parts = viewBox.split(/[\s,]+/);
+      var vw = parseFloat(parts[2]);
+      var vh = parseFloat(parts[3]);
+      if (vw > 0 && vh > 0) { aspect = vw / vh; }
+    }
+    var spec = SIZE[symbolId] || { mode: "mass", value: 76 };
+    var width;
+    var height;
+    if (spec.mode === "height") {
+      height = spec.value;
+      width = height * aspect;
+    } else {
+      var root = Math.sqrt(aspect);
+      width = spec.value * root;
+      height = spec.value / root;
+    }
+    var box = {
+      x: centre.cx - width / 2,
+      y: centre.cy - height / 2,
+      width: width,
+      height: height
+    };
+    return spec.mode === "height" ? box : seat(box, centre);
+  }
+
+  function round(value) { return Math.round(value * 100) / 100; }
 
   function vectorFor(box, symbolId) {
     var use = document.createElementNS(SVG_NS, "use");
     use.setAttribute("class", "topology-vector-icon");
     use.setAttribute("href", "#" + symbolId);
-    use.setAttribute("x", box.x);
-    use.setAttribute("y", box.y);
-    use.setAttribute("width", box.width);
-    use.setAttribute("height", box.height);
+    use.setAttribute("x", round(box.x));
+    use.setAttribute("y", round(box.y));
+    use.setAttribute("width", round(box.width));
+    use.setAttribute("height", round(box.height));
     return use;
   }
 
-  function placeholderFor(box) {
+  function placeholderFor(centre) {
+    var width = PLACEHOLDER.mass * Math.sqrt(PLACEHOLDER.aspect);
+    var height = PLACEHOLDER.mass / Math.sqrt(PLACEHOLDER.aspect);
+    var seated = seat({ x: centre.cx - width / 2, y: centre.cy - height / 2, width: width, height: height }, centre);
+    var x = seated.x;
+    var y = seated.y;
     var group = document.createElementNS(SVG_NS, "g");
     group.setAttribute("class", "topology-vector-icon");
     var rect = document.createElementNS(SVG_NS, "rect");
     rect.setAttribute("class", "node-generic");
-    rect.setAttribute("x", box.x);
-    rect.setAttribute("y", box.y);
-    rect.setAttribute("width", box.width);
-    rect.setAttribute("height", box.height);
+    rect.setAttribute("x", round(x));
+    rect.setAttribute("y", round(y));
+    rect.setAttribute("width", round(width));
+    rect.setAttribute("height", round(height));
     rect.setAttribute("rx", 6);
     group.appendChild(rect);
-    var size = Math.max(5, Math.min(9, box.height / 6));
+    var size = 9;
     var lines = ["OFFICIAL", "AFTER PACKAGE"];
     for (var i = 0; i < lines.length; i++) {
       var label = document.createElementNS(SVG_NS, "text");
       label.setAttribute("class", "node-generic-label");
-      label.setAttribute("x", box.x + box.width / 2);
-      label.setAttribute("y", box.y + box.height / 2 + (i === 0 ? -1 : size + 1));
+      label.setAttribute("x", round(x + width / 2));
+      label.setAttribute("y", round(y + height / 2 + (i === 0 ? -1 : size + 2)));
       label.setAttribute("font-size", size);
       label.textContent = lines[i];
       group.appendChild(label);
@@ -1822,10 +1903,10 @@
       return;
     }
 
-    var box = geometryOf(img);
+    var centre = slotOf(img);
     var replacement = (profile && profile.vector)
-      ? vectorFor(box, profile.vector)
-      : placeholderFor(box);
+      ? vectorFor(boxFor(profile.vector, centre), profile.vector)
+      : placeholderFor(centre);
     if (img.parentNode) { img.parentNode.replaceChild(replacement, img); }
   });
 
