@@ -31,6 +31,21 @@ function check(label, operation) {
   }
 }
 
+// A broken starter is usually broken in more than one way. `check` stops at the
+// first throw, which means fixing and re-running once per problem. This reports
+// every independent failure in one pass; a throw still ends the run, because a
+// file whose data will not parse cannot be checked any further.
+function checkEvery(label, operation) {
+  const problems = [];
+  try {
+    operation((condition, message) => { if (!condition) problems.push(message); });
+  } catch (error) {
+    problems.push(error.message);
+  }
+  if (problems.length) failures.push(`${label}: ${problems.join(" · ")}`);
+  else passes.push(label);
+}
+
 function count(source, token) {
   return source.split(token).length - 1;
 }
@@ -162,46 +177,65 @@ check("starter kits exist", () => {
 // this loop they drift apart silently, which is exactly how a documentation set
 // ends up with the stylesheet no longer describing the document.
 for (const name of starterNames) {
-  check(`starter ${name}`, () => {
+  checkEvery(`starter ${name}`, (want) => {
     const source = validateEditable(`starters/${name}`);
     starters.push(source);
-    assert(extractDefs(source, name) === extractDefs(sprite, "sprite"), "sprite drifted from symbols/network-symbols.svg");
-    assert(symbolIds(source).length === 19, `expected 19 symbols, found ${symbolIds(source).length}`);
-    assert(!/<image\b/i.test(source), "contains an SVG image element");
+    want(extractDefs(source, name) === extractDefs(sprite, "sprite"), "sprite drifted from symbols/network-symbols.svg");
+    want(symbolIds(source).length === 19, `expected 19 symbols, found ${symbolIds(source).length}`);
+    want(!/<image\b/i.test(source), "contains an SVG image element");
 
     const embedded = embeddedIconMap(source);
-    assert(Object.keys(embedded).length === Object.keys(map.symbols).length, "semantic key count differs from symbol-map.json");
-    for (const [key, record] of Object.entries(map.symbols)) {
-      assert(JSON.stringify(embedded[key]) === JSON.stringify(record), `${key} differs from symbol-map.json`);
-    }
+    want(Object.keys(embedded).length === Object.keys(map.symbols).length, "semantic key count differs from symbol-map.json");
+    // Reported as one line, not one per key: a drifted map fails all twenty at
+    // once, and twenty identical messages bury the failures that differ.
+    const drifted = Object.entries(map.symbols)
+      .filter(([key, record]) => JSON.stringify(embedded[key]) !== JSON.stringify(record))
+      .map(([key]) => key);
+    want(drifted.length === 0, `differs from symbol-map.json: ${drifted.join(", ")}`);
 
     const data = JSON.parse(scriptById(source, "proof-data"));
     const nodeIds = new Set((data.topology?.nodes || []).map((node) => node.id));
     const zoneIds = new Set((data.topology?.zones || []).map((zone) => zone.id));
-    assert(nodeIds.size === (data.topology?.nodes || []).length, "duplicate topology node id");
+    want(nodeIds.size === (data.topology?.nodes || []).length, "duplicate topology node id");
+
+    // An icon key with no entry in the semantic map draws as an empty
+    // "OFFICIAL AFTER PACKAGE" box -- in the editable mode a starter is opened
+    // in. A starter must not ship a node that renders as a placeholder.
+    for (const node of data.topology?.nodes || []) {
+      if (!node.icon || node.iconAsset) continue;
+      want(Object.hasOwn(embedded, node.icon), `${node.id} uses icon "${node.icon}", which is not a semantic key`);
+    }
+
     for (const link of data.topology?.links || []) {
-      assert(nodeIds.has(link.from), `link references missing node ${link.from}`);
-      assert(nodeIds.has(link.to), `link references missing node ${link.to}`);
+      want(nodeIds.has(link.from), `link references missing node ${link.from}`);
+      want(nodeIds.has(link.to), `link references missing node ${link.to}`);
     }
     const occupied = new Map();
     for (const device of data.rack?.devices || []) {
-      assert(typeof device.position === "number" && typeof device.height === "number", `${device.id} position/height must be numbers`);
-      assert(device.position >= 1 && device.position + device.height - 1 <= (data.rack.units || 42), `${device.id} does not fit the rack`);
+      want(typeof device.position === "number" && typeof device.height === "number", `${device.id} position/height must be numbers`);
+      want(device.position >= 1 && device.position + device.height - 1 <= (data.rack.units || 42), `${device.id} does not fit the rack`);
       for (let unit = device.position; unit < device.position + device.height; unit++) {
-        assert(!occupied.has(unit), `${device.id} overlaps ${occupied.get(unit)} at U${unit}`);
+        want(!occupied.has(unit), `${device.id} overlaps ${occupied.get(unit)} at U${unit}`);
         occupied.set(unit, device.id);
       }
     }
     const findings = data.sections?.findings?.items || [];
-    assert(findings.length > 0, "a starter kit must record its own gaps");
+    want(findings.length > 0, "a starter kit must record its own gaps");
     findings.forEach((item, index) => {
       const anchors = item.at == null ? [] : (Array.isArray(item.at) ? item.at : [item.at]);
-      for (const id of anchors) assert(nodeIds.has(id), `gap ${index + 1} pins to missing device ${id}`);
-      if (item.atZone !== undefined) assert(zoneIds.has(item.atZone), `gap ${index + 1} pins to missing zone ${item.atZone}`);
+      for (const id of anchors) want(nodeIds.has(id), `gap ${index + 1} pins to missing device ${id}`);
+      if (item.atZone !== undefined) want(zoneIds.has(item.atZone), `gap ${index + 1} pins to missing zone ${item.atZone}`);
     });
-    assert(findings.some((item) => item.at != null || item.atZone !== undefined), "no gap is pinned to the drawing");
+    want(findings.some((item) => item.at != null || item.atZone !== undefined), "no gap is pinned to the drawing");
   });
 }
+
+// A starter nobody can find is a starter nobody copies.
+check("every starter is listed in the README", () => {
+  const readme = read("README.md");
+  const missing = starterNames.filter((name) => !readme.includes(`starters/${name}`));
+  assert(missing.length === 0, `missing from the starter table: ${missing.join(", ")}`);
+});
 
 check("editable vector files contain no raster image payloads", () => {
   for (const [label, source] of [["primary", primary], ["showcase", showcase], ["sprite", sprite]]) {
