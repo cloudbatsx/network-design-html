@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>cloudbats &mdash; Reference Design: Enterprise edge, DMZ &amp; services | NET-ENT-001 v2.0</title>
+  <title>cloudbats &mdash; Reference Design: Enterprise edge, DMZ &amp; services | NET-ENT-002 v2.1</title>
   <meta name="author" content="Sayed Haque &mdash; cloudbats">
-  <meta name="document-id" content="NET-ENT-001">
-  <meta name="revision" content="2.0">
+  <meta name="document-id" content="NET-ENT-002">
+  <meta name="revision" content="2.1">
   <meta name="date" content="2026-08-13">
   <meta name="classification" content="SAMPLE / REFERENCE">
   <meta name="document-status" content="PROPOSED / TRAINING">
@@ -1146,8 +1146,8 @@
       <h1 id="document-title">Enterprise Edge, DMZ &amp; Services — L3 Logical Topology</h1>
       <p id="document-subtitle" class="document-subtitle">Fictional enterprise reference · provider edge, redundant perimeter, DMZ services, collapsed core, routed user/service segments, and out-of-band management.</p>
       <dl class="document-meta" aria-label="Document control">
-        <div class="document-field"><dt>Document ID</dt><dd class="document-code" data-doc-field="document-id">NET-ENT-001</dd></div>
-  <div class="document-field"><dt>Revision</dt><dd class="document-code" data-doc-field="revision">2.0</dd></div>
+        <div class="document-field"><dt>Document ID</dt><dd class="document-code" data-doc-field="document-id">NET-ENT-002</dd></div>
+  <div class="document-field"><dt>Revision</dt><dd class="document-code" data-doc-field="revision">2.1</dd></div>
         <div class="document-field"><dt>Release date</dt><dd><time class="document-code" datetime="2026-08-13" data-doc-field="date">2026-08-13</time></dd></div>
         <div class="document-field"><dt>Site</dt><dd>LAB-ENTERPRISE · FICTIONAL</dd></div>
         <div class="document-field"><dt>Author</dt><dd>Sayed Haque</dd></div>
@@ -1173,196 +1173,11 @@
 <article class="sheet" aria-labelledby="sheet-title">
       <div class="sheet-heading">
         <span id="sheet-title">Figure 1 · L3 Logical · LAB-ENTERPRISE · Edge, Security, Core &amp; Services</span>
-        <span>NET-ENT-001 · v2.0 · Drawing L3-LAB-01</span>
+        <span>NET-ENT-002 · v2.1 · Drawing L3-LAB-01</span>
       </div>
 
       <div class="diagram-scroll" id="logical-scroll" tabindex="0" aria-label="Scrollable enterprise Layer 3 topology diagram">
         <svg id="topology" viewBox="0 0 1360 1140" role="img" aria-labelledby="topology-title topology-desc">
-          <title id="topology-title">Proposed enterprise edge, DMZ, core, and services Layer 3 topology</title>
-          <desc id="topology-desc">Internet and private WAN clouds connect to two edge routers. The edge routers connect redundantly to an active standby firewall pair. A DMZ subnet serves a load balancer and two web servers. Both firewalls connect to a collapsed core pair. The cores provide redundant Layer 3 connectivity to user, voice, application, and management subnets. Link styles identify bandwidth, logical adjacencies, port channels, and out-of-band management.</desc>
-
-          <!-- Security and ownership boundaries are labeled as well as patterned. -->
-          <rect class="zone zone-untrusted" x="18" y="18" width="1324" height="405" rx="16"/>
-          <text class="zone-label" x="36" y="43" style="fill:var(--untrusted)">Security zone: outside / untrusted</text>
-          <rect class="zone zone-dmz" x="942" y="438" width="400" height="225" rx="14"/>
-          <text class="zone-label" x="960" y="462" style="fill:var(--dmz)">Zone: DMZ / semi-trusted</text>
-          <rect class="zone zone-trusted" x="18" y="680" width="1324" height="440" rx="16"/>
-          <text class="zone-label" x="36" y="705" style="fill:var(--trusted)">Zone: inside / enterprise managed / trusted</text>
-          <rect class="zone zone-management" x="36" y="995" width="300" height="110" rx="12"/>
-          <text class="zone-label" x="52" y="1018" style="fill:var(--mgmt)">Out-of-band management</text>
-
-          <!-- All connection paths are behind nodes and use no arrowheads. -->
-          <g aria-label="Connections">
-            <path id="L01" class="line physical-1g" d="M356 146H470V250"><title>L01 · Internet to LAB-EDGE-RTR01 · ISP-A · 1 GbE · CID LAB-1001</title></path>
-            <path id="L02" class="line physical-1g" d="M1010 146H860V250"><title>L02 · MPLS-CORP to LAB-EDGE-RTR02 · 1 GbE handoff · 500 Mb/s service · VRF CORP</title></path>
-            <rect class="label-card" x="338" y="166" width="264" height="26" rx="6"/>
-            <text class="link-label" x="470" y="184" text-anchor="middle">ISP-A · 1 GbE · CID LAB-1001</text>
-            <rect class="label-card" x="784" y="166" width="306" height="26" rx="6"/>
-            <text class="link-label" x="937" y="184" text-anchor="middle">MPLS L3VPN · 500 Mb/s · VRF CORP</text>
-
-            <path class="demarc" d="M70 216H1290"/>
-            <text class="ownership-label" x="72" y="207">PROVIDER OWNERSHIP</text>
-            <text class="ownership-label" x="72" y="237">ENTERPRISE OWNERSHIP</text>
-            <rect class="label-card" x="610" y="205" width="140" height="22" rx="6"/>
-            <text class="ownership-label" x="680" y="220" text-anchor="middle">DEMARCATION</text>
-
-            <path id="L03" class="line logical" d="M520 286H810"><title>L03 · LAB-EDGE-RTR01 to LAB-EDGE-RTR02 · iBGP · AS 65020</title></path>
-            <rect class="label-card" x="600" y="264" width="130" height="24" rx="6"/>
-            <text class="link-label" x="665" y="281" text-anchor="middle">iBGP · AS 65020</text>
-
-            <path id="L04" class="line physical-10g" d="M470 318V448"><title>L04 · LAB-EDGE-RTR01 to LAB-FW-01A · routed transit · details OPEN</title></path>
-            <path id="L05" class="line physical-10g" d="M860 318V448"><title>L05 · LAB-EDGE-RTR02 to LAB-FW-01B · routed transit · details OPEN</title></path>
-            <path class="line-halo" d="M450 318V372H840V448"/>
-            <path id="L06" class="line physical-10g" d="M450 318V372H840V448"><title>L06 · LAB-EDGE-RTR01 to LAB-FW-01B · routed transit · details OPEN</title></path>
-            <path class="line-halo" d="M880 318V396H490V448"/>
-            <path id="L07" class="line physical-10g" d="M880 318V396H490V448"><title>L07 · LAB-EDGE-RTR02 to LAB-FW-01A · routed transit · details OPEN</title></path>
-            <rect class="label-card" x="496" y="330" width="338" height="26" rx="6"/>
-            <text class="link-label" x="665" y="348" text-anchor="middle">Routed transit · 10.255.0.0/29 · OSPF area 0</text>
-
-            <path id="L08" class="line physical-10g" d="M492 520H838"><title>L08 · Firewall HA state/session synchronization · 2 × 10 GbE</title></path>
-            <rect class="label-card" x="530" y="507" width="270" height="26" rx="6"/>
-            <text class="link-label" x="665" y="525" text-anchor="middle">HA state / session sync · 2 × 10 GbE</text>
-
-            <path id="L09" class="line physical-10g" d="M470 548V720"><title>L09 · LAB-FW-01A to LAB-CORE-SW01 · routed inside transit · /31 addressing OPEN</title></path>
-            <path id="L10" class="line physical-10g" d="M860 548V720"><title>L10 · LAB-FW-01B to LAB-CORE-SW02 · routed inside transit · /31 addressing OPEN</title></path>
-            <path class="line-halo" d="M454 548V622H844V720"/>
-            <path id="L11" class="line physical-10g" d="M454 548V622H844V720"><title>L11 · LAB-FW-01A to LAB-CORE-SW02 · routed inside transit · /31 addressing OPEN</title></path>
-            <path class="line-halo" d="M876 548V650H486V720"/>
-            <path id="L12" class="line physical-10g" d="M876 548V650H486V720"><title>L12 · LAB-FW-01B to LAB-CORE-SW01 · routed inside transit · /31 addressing OPEN</title></path>
-            <rect class="label-card" x="488" y="574" width="354" height="26" rx="6"/>
-            <text class="link-label" x="665" y="592" text-anchor="middle">Four routed links · /31 addressing · OSPF area 0</text>
-
-            <path id="L13" class="line lag" d="M522 762H808"><title>L13 · LAB-CORE-SW01 to LAB-CORE-SW02 · StackWise Virtual link · 2 × 40 GbE</title></path>
-            <rect class="label-card" x="520" y="739" width="290" height="26" rx="6"/>
-            <text class="link-label" x="665" y="757" text-anchor="middle">StackWise Virtual link · 2 × 40 GbE</text>
-
-            <!-- DMZ is a shared subnet bar because more than two devices attach. -->
-            <path id="L14" class="line physical-10g" d="M882 520H928V575H966"><title>L14 · Firewall HA pair to DMZ shared segment · visible attachment through LAB-FW-01B · validate virtual ownership</title></path>
-            <path id="S210" class="subnet" d="M966 575H1310" style="stroke:var(--dmz)"/>
-            <circle class="junction" cx="1015" cy="575" r="7" style="stroke:var(--dmz)"/>
-            <circle class="junction" cx="1165" cy="575" r="7" style="stroke:var(--dmz)"/>
-            <circle class="junction" cx="1270" cy="575" r="7" style="stroke:var(--dmz)"/>
-            <path id="L15" class="line physical-10g" d="M1015 575V523" style="stroke:var(--dmz)"><title>L15 · LAB-DMZ-LB01 to VLAN 210 · 10 GbE</title></path>
-            <path id="L16" class="line physical-1g" d="M1165 575V521" style="stroke:var(--dmz)"><title>L16 · LAB-DMZ-WEB01 to VLAN 210 · 1 GbE</title></path>
-            <path id="L17" class="line physical-1g" d="M1270 575V521" style="stroke:var(--dmz)"><title>L17 · LAB-DMZ-WEB02 to VLAN 210 · 1 GbE</title></path>
-            <rect class="label-card" x="958" y="590" width="360" height="26" rx="6"/>
-            <text class="addr" x="972" y="608" style="fill:var(--dmz)">VLAN 210 · 203.0.113.0/28 · firewall VIP .1</text>
-
-            <!-- Core routed connections tap shared subnet bars. -->
-            <path id="L18" class="line physical-10g" d="M446 804V873H470"><title>L18 · LAB-CORE-SW01 to VLAN 10 USERS</title></path>
-            <path id="L19" class="line physical-10g" d="M836 804V873H860"><title>L19 · LAB-CORE-SW02 to VLAN 10 USERS</title></path>
-            <path id="L20" class="line physical-10g" d="M458 804V920H470"><title>L20 · LAB-CORE-SW01 to VLAN 20 VOICE</title></path>
-            <path id="L21" class="line physical-10g" d="M848 804V920H860"><title>L21 · LAB-CORE-SW02 to VLAN 20 VOICE</title></path>
-            <path id="L22" class="line physical-10g" d="M470 804V967"><title>L22 · LAB-CORE-SW01 to VLAN 50 APPLICATIONS</title></path>
-            <path id="L23" class="line physical-10g" d="M860 804V967"><title>L23 · LAB-CORE-SW02 to VLAN 50 APPLICATIONS</title></path>
-            <path id="S10" class="subnet" d="M320 873H1045"/>
-            <path id="S20" class="subnet" d="M320 920H1045"/>
-            <path id="S50" class="subnet" d="M320 967H1045"/>
-            <circle class="junction" cx="470" cy="873" r="7"/><circle class="junction" cx="860" cy="873" r="7"/>
-            <circle class="junction" cx="470" cy="920" r="7"/><circle class="junction" cx="860" cy="920" r="7"/>
-            <circle class="junction" cx="470" cy="967" r="7"/><circle class="junction" cx="860" cy="967" r="7"/>
-
-            <path id="L27" class="line mgmt" d="M236 1042H430V804"><title>L27 · LAB-OOB-NMS01 to LAB-CORE-SW01 · dedicated OOB Ethernet</title></path>
-            <path id="L28" class="line mgmt" d="M236 1054H900V804"><title>L28 · LAB-OOB-NMS01 to LAB-CORE-SW02 · dedicated OOB Ethernet</title></path>
-            <rect class="label-card" x="520" y="1016" width="290" height="26" rx="6"/>
-            <text class="link-label" x="665" y="1034" text-anchor="middle">Dedicated OOB Ethernet · 10.99.0.0/24</text>
-          </g>
-
-          <!-- Official Cisco conceptual icons are embedded as unmodified PNG artwork. -->
-          <g class="node" role="button" tabindex="0" data-id="internet" data-name="Internet" data-role="External routed service" data-address="Documentation-only provider cloud" data-notes="Opaque network outside the organization; the cloud is not used for anything the enterprise administers.">
-            <rect class="focus-ring" x="260" y="48" width="192" height="122" rx="12"/>
-            <image data-symbol="cloud" x="274" y="52" width="164" height="94" preserveAspectRatio="xMidYMid meet"/>
-            <text class="host" x="356" y="160" text-anchor="middle">INTERNET</text>
-          </g>
-          <g class="node" role="button" tabindex="0" data-id="mpls-corp" data-name="MPLS-CORP" data-role="Private WAN service" data-address="Provider VRF CORP" data-notes="Carrier-managed L3VPN represented as an opaque network. Circuit bandwidth and VRF are stated on the link.">
-            <rect class="focus-ring" x="914" y="48" width="192" height="122" rx="12"/>
-            <image data-symbol="cloud" x="928" y="52" width="164" height="94" preserveAspectRatio="xMidYMid meet"/>
-            <text class="host" x="1010" y="160" text-anchor="middle">MPLS-CORP</text>
-          </g>
-
-          <g class="node" transform="translate(0 66)" role="button" tabindex="0" data-id="lab-edge-rtr01" data-name="LAB-EDGE-RTR01" data-role="Internet edge router" data-address="Lo0 10.0.0.1/32 · eBGP AS 65020" data-notes="Primary Internet edge. The exact configured hostname is shown in monospace; the router icon denotes routing, not a specific chassis model.">
-            <rect class="focus-ring" x="405" y="176" width="130" height="91" rx="10"/>
-            <image data-symbol="router" x="420" y="184" width="100" height="68" preserveAspectRatio="xMidYMid meet"/>
-            <text class="host" x="398" y="204" text-anchor="end">LAB-EDGE-RTR01</text>
-            <text class="role" x="398" y="222" text-anchor="end">Internet edge</text>
-            <text class="addr" x="398" y="240" text-anchor="end">Lo0 10.0.0.1/32</text>
-          </g>
-          <g class="node" transform="translate(0 66)" role="button" tabindex="0" data-id="lab-edge-rtr02" data-name="LAB-EDGE-RTR02" data-role="Private WAN edge router" data-address="Lo0 10.0.0.2/32 · iBGP AS 65020" data-notes="MPLS edge peer. Redundant devices are placed side-by-side at the same hierarchy level.">
-            <rect class="focus-ring" x="795" y="176" width="130" height="91" rx="10"/>
-            <image data-symbol="router" x="810" y="184" width="100" height="68" preserveAspectRatio="xMidYMid meet"/>
-            <text class="host" x="932" y="204">LAB-EDGE-RTR02</text>
-            <text class="role" x="932" y="222">MPLS edge</text>
-            <text class="addr" x="932" y="240">Lo0 10.0.0.2/32</text>
-          </g>
-
-          <g class="node" transform="translate(0 142)" role="button" tabindex="0" data-id="lab-fw-01a" data-name="LAB-FW-01A" data-role="Perimeter firewall · active" data-address="Outside transit .3 · inside 10.255.1.0/31" data-notes="Active member of the HA pair. Security policy, NAT, and remote access terminate at this boundary.">
-            <rect class="focus-ring" x="430" y="298" width="80" height="126" rx="10"/>
-            <image data-symbol="firewall" x="448" y="306" width="44" height="100" preserveAspectRatio="xMidYMid meet"/>
-            <text class="host" x="420" y="324" text-anchor="end">LAB-FW-01A</text>
-            <text class="role" x="420" y="342" text-anchor="end">active · policy / NAT / VPN</text>
-          </g>
-          <g class="node" transform="translate(0 142)" role="button" tabindex="0" data-id="lab-fw-01b" data-name="LAB-FW-01B" data-role="Perimeter firewall · standby" data-address="Outside transit .4 · inside 10.255.1.2/31" data-notes="Standby member of the HA pair. Its state is stated in text instead of relying on color.">
-            <rect class="focus-ring" x="820" y="298" width="80" height="126" rx="10"/>
-            <image data-symbol="firewall" x="838" y="306" width="44" height="100" preserveAspectRatio="xMidYMid meet"/>
-            <text class="host" x="820" y="324" text-anchor="end">LAB-FW-01B</text>
-            <text class="role" x="820" y="342" text-anchor="end">standby · synchronized</text>
-          </g>
-
-          <g class="node" transform="translate(0 145)" role="button" tabindex="0" data-id="lab-dmz-lb01" data-name="LAB-DMZ-LB01" data-role="DMZ load balancer" data-address="203.0.113.2/28 · VIPs .8–.10" data-notes="Internet-facing virtual services. The vendor-neutral role is carried by the official Cisco load-balancer symbol; a product model would belong in text or inventory.">
-            <rect class="focus-ring" x="973" y="326" width="84" height="78" rx="9"/>
-            <image data-asset="asset:cisco/localdirector.jpg" x="980" y="330" width="70" height="48" preserveAspectRatio="xMidYMid meet"/>
-            <text class="host" x="1015" y="392" text-anchor="middle">LAB-DMZ-LB01</text>
-          </g>
-          <g class="node" transform="translate(0 145)" role="button" tabindex="0" data-id="lab-dmz-web01" data-name="LAB-DMZ-WEB01" data-role="DMZ web server" data-address="203.0.113.3/28" data-notes="First member of the public web tier. The logical diagram shows service identity, not rack placement.">
-            <rect class="focus-ring" x="1136" y="312" width="58" height="92" rx="9"/>
-            <image data-symbol="server" x="1145" y="318" width="40" height="58" preserveAspectRatio="xMidYMid meet"/>
-            <text class="host" x="1165" y="392" text-anchor="middle">WEB01</text>
-          </g>
-          <g class="node" transform="translate(0 145)" role="button" tabindex="0" data-id="lab-dmz-web02" data-name="LAB-DMZ-WEB02" data-role="DMZ web server" data-address="203.0.113.4/28" data-notes="Second member of the public web tier. Repeated peers use identical artwork and layout.">
-            <rect class="focus-ring" x="1241" y="312" width="58" height="92" rx="9"/>
-            <image data-symbol="server" x="1250" y="318" width="40" height="58" preserveAspectRatio="xMidYMid meet"/>
-            <text class="host" x="1270" y="392" text-anchor="middle">WEB02</text>
-          </g>
-
-          <g class="node" transform="translate(0 155)" role="button" tabindex="0" data-id="lab-core-sw01" data-name="LAB-CORE-SW01" data-role="Collapsed core · HSRP active" data-address="Lo0 10.0.0.11/32 · OSPF area 0" data-notes="Multilayer switch providing routed SVIs. The HSRP state and priority are explicit; the icon is not recolored to encode status.">
-            <rect class="focus-ring" x="417" y="556" width="106" height="112" rx="10"/>
-            <image data-symbol="core-switch" x="430" y="565" width="80" height="80" preserveAspectRatio="xMidYMid meet"/>
-            <text class="host" x="410" y="670" text-anchor="end">LAB-CORE-SW01</text>
-            <text class="role" x="410" y="686" text-anchor="end">HSRP active · priority 110</text>
-            <text class="addr" x="410" y="702" text-anchor="end">Lo0 10.0.0.11/32</text>
-          </g>
-          <g class="node" transform="translate(0 155)" role="button" tabindex="0" data-id="lab-core-sw02" data-name="LAB-CORE-SW02" data-role="Collapsed core · HSRP standby" data-address="Lo0 10.0.0.12/32 · OSPF area 0" data-notes="Second collapsed-core switch. The pair is side-by-side and shares a clearly labeled peer link.">
-            <rect class="focus-ring" x="807" y="556" width="106" height="112" rx="10"/>
-            <image data-symbol="core-switch" x="820" y="565" width="80" height="80" preserveAspectRatio="xMidYMid meet"/>
-            <text class="host" x="920" y="670">LAB-CORE-SW02</text>
-            <text class="role" x="920" y="686">HSRP standby · priority 100</text>
-            <text class="addr" x="920" y="702">Lo0 10.0.0.12/32</text>
-          </g>
-
-          <g transform="translate(0 155)" aria-label="Abstract endpoint populations">
-          <!-- Endpoint glyphs summarize attached populations; L2 access switches are intentionally omitted. -->
-          <image data-symbol="pc" x="242" y="696" width="48" height="43" preserveAspectRatio="xMidYMid meet"/>
-          <path id="L24" class="line physical-1g" d="M290 718H320"><title>L24 · User endpoint population aggregate to VLAN 10</title></path>
-          <image data-symbol="ip-phone" x="236" y="748" width="57" height="31" preserveAspectRatio="xMidYMid meet"/>
-          <path id="L25" class="line physical-1g" d="M293 765H320"><title>L25 · Voice endpoint population aggregate to VLAN 20</title></path>
-          <image data-symbol="database" x="244" y="793" width="42" height="36" preserveAspectRatio="xMidYMid meet"/>
-          <path id="L26" class="line physical-1g" d="M286 812H320"><title>L26 · Application population aggregate to VLAN 50</title></path>
-          <text class="host" x="1064" y="714">VLAN 10 · USERS</text>
-          <text class="addr" x="1064" y="730">10.10.10.0/24 · HSRP VIP .1</text>
-          <text class="host" x="1064" y="761">VLAN 20 · VOICE</text>
-          <text class="addr" x="1064" y="777">10.10.20.0/24 · HSRP VIP .1</text>
-          <text class="host" x="1064" y="808">VLAN 50 · APPLICATIONS</text>
-          <text class="addr" x="1064" y="824">10.10.50.0/24 · HSRP VIP .1</text>
-          </g>
-
-          <g class="node" transform="translate(0 155)" role="button" tabindex="0" data-id="lab-oob-nms01" data-name="LAB-OOB-NMS01" data-role="Out-of-band network management" data-address="10.99.0.10/24" data-notes="Management paths are visually separated with dash-dot lines and pushed to the edge of the drawing.">
-            <rect class="focus-ring" x="162" y="866" width="124" height="82" rx="9"/>
-            <image data-symbol="network-management" x="184" y="870" width="52" height="46" preserveAspectRatio="xMidYMid meet"/>
-            <text class="host" x="210" y="924" text-anchor="middle">LAB-OOB-NMS01</text>
-            <text class="addr" x="210" y="940" text-anchor="middle">10.99.0.10/24</text>
-          </g>
-
-          <text class="annotation" x="352" y="1097">Layer 2 access switches are omitted on this L3 sheet. See a separate L2/STP sheet for trunks, access ports, and spanning-tree state.</text>
         </svg>
       </div>
 
@@ -1373,9 +1188,9 @@
           <div class="tb-row"><span class="tb-key">Layer</span><span class="tb-value">L3 logical</span></div>
           <div class="tb-row"><span class="tb-key">Scope</span><span class="tb-value">Edge, perimeter, collapsed core, routed segments</span></div>
           <div class="tb-row"><span class="tb-key">Site</span><span class="tb-value">LAB-ENTERPRISE · fictional</span></div>
-          <div class="tb-row"><span class="tb-key">Doc ID</span><span class="tb-value"><code>NET-ENT-001</code></span></div>
+          <div class="tb-row"><span class="tb-key">Doc ID</span><span class="tb-value"><code>NET-ENT-002</code></span></div>
           <div class="tb-row"><span class="tb-key">Status</span><span class="tb-value"><strong style="color:var(--dmz)">PROPOSED / TRAINING</strong></span></div>
-          <div class="tb-row"><span class="tb-key">Revision</span><span class="tb-value">2.0 · 2026-08-13</span></div>
+          <div class="tb-row"><span class="tb-key">Revision</span><span class="tb-value">2.1 · 2026-08-13</span></div>
           <div class="tb-row"><span class="tb-key">Drawing</span><span class="tb-value">L3-LAB-01 · sheet 1 of 1</span></div>
           <div class="tb-row"><span class="tb-key">Cross-ref</span><span class="tb-value">Create L2-LAB-01 and RACK-LAB-01 separately</span></div>
         </section>
@@ -1388,7 +1203,7 @@
         <li><svg class="legend-device-icon" viewBox="0 0 64 64" aria-hidden="true" data-legend-device="internet"></svg>Carrier / external network</li>
         <li><svg class="legend-device-icon" viewBox="0 0 64 64" aria-hidden="true" data-legend-device="lab-edge-rtr01"></svg>Edge router</li>
         <li><svg class="legend-device-icon" viewBox="0 0 64 64" aria-hidden="true" data-legend-device="lab-fw-01a"></svg>Next-gen firewall</li>
-        <li><svg class="legend-device-icon" viewBox="0 0 64 64" aria-hidden="true" data-legend-device="lab-dmz-lb01"></svg>Load balancer</li>
+        <li><svg class="legend-device-icon" viewBox="0 0 64 64" aria-hidden="true" data-legend-device="lab-dmz-lb01"></svg>Load balancer &mdash; drawn with the generic server symbol; see R7</li>
         <li><svg class="legend-device-icon" viewBox="0 0 64 64" aria-hidden="true" data-legend-device="lab-dmz-web01"></svg>Server</li>
         <li><svg class="legend-device-icon" viewBox="0 0 64 64" aria-hidden="true" data-legend-device="lab-core-sw01"></svg>L3 / multilayer switch</li>
         <li><svg class="legend-device-icon" viewBox="0 0 64 64" aria-hidden="true" data-legend-device="endpoint-population"></svg>Endpoint / service population</li>
@@ -1525,7 +1340,8 @@
 <h2>Configuration &amp; change management</h2>
 <p class="section-lede">Document control, release audit, and the configuration record that does not exist.</p>
 <h3>4.1 &middot; Revision history</h3>
-<div class="table-wrap"><table><caption>Document revision history</caption><thead><tr><th scope="col">Revision</th><th scope="col">Date</th><th scope="col">Status</th><th scope="col">Change summary</th><th scope="col">Owner</th></tr></thead><tbody><tr><td><code>2.0</code></td><td>2026-08-13</td><td>Proposed / training</td><td>Presented in the CloudBats documentation shell: the five-view tab structure is replaced by a sidebar index and a numbered spine with two toggleable layers. Figure&nbsp;1, the official topology artwork, the node inspector, the theme control, the document-control block and every engineering schedule are carried over unchanged from revision 1.3. Section&nbsp;5 and Appendix&nbsp;A are new, and both state an absence rather than assert a fact.</td><td>Claude Opus 5</td></tr>
+<div class="table-wrap"><table><caption>Document revision history</caption><thead><tr><th scope="col">Revision</th><th scope="col">Date</th><th scope="col">Status</th><th scope="col">Change summary</th><th scope="col">Owner</th></tr></thead><tbody><tr><td><code>2.1</code></td><td>2026-08-13</td><td>Proposed / training</td><td>Converted to a data-driven source and re-identified as <code>NET-ENT-002</code>, so it no longer collides with the separately authored <code>NET-ENT-001</code> starter. Figure&nbsp;1's geometry is unchanged &mdash; the same shared subnet bars, junction circles, orthogonal paths and halos &mdash; but it is now rendered from the <code>proof-data</code> block instead of hand-authored SVG, so a topology change is a reviewable data diff and the AI editing helper can open this file. The DMZ load balancer, which referenced a Cisco LocalDirector asset with no counterpart in the vector library and drew as an empty placeholder box, now uses the generic server symbol; that trade is recorded as R7. Objects, links, segments, addressing, zones, engineering records, rack exclusion and the risk register are unchanged.</td><td>Claude Opus 5</td></tr>
+<tr><td><code>2.0</code></td><td>2026-08-13</td><td>Proposed / training</td><td>Presented in the CloudBats documentation shell: the five-view tab structure is replaced by a sidebar index and a numbered spine with two toggleable layers. Figure&nbsp;1, the official topology artwork, the node inspector, the theme control, the document-control block and every engineering schedule are carried over unchanged from revision 1.3. Section&nbsp;5 and Appendix&nbsp;A are new, and both state an absence rather than assert a fact.</td><td>Claude Opus 5</td></tr>
 <tr><td><code>1.3</code></td><td>2026-08-13</td><td>Proposed / training</td><td>Standardized Figure 1 as the shared three-column legend with visual device symbols while preserving all enterprise link/speed encodings and the four actual trust zones; removed topology zoom controls and state code while retaining native responsive scrolling; and raised shared focus-ring contrast in light and dark themes. Topology geometry, objects, links, segments, addressing, engineering schedules, rack exclusion, risks, lifecycle status, theme, node selection, inspector, navigation, and embedded assets are unchanged.</td><td>OpenAI Codex</td></tr>
 <tr><td><code>1.2</code></td><td>2026-08-13</td><td>Proposed / training</td><td>Introduced the shared page-shell token contract for the common document header, view navigation, print action, and skip link: standardized UI and monospace type stacks, neutral shell surfaces, spacing, radii, elevation shadow, focus treatment, and 44-pixel control sizing, with the existing dark theme mapped to those shell tokens. Enterprise identity, semantic status colors, topology, addressing, engineering records, figure geometry, logical-node/zoom/theme behavior, and embedded assets are unchanged.</td><td>OpenAI Codex</td></tr>
         <tr><td><code>1.1</code></td><td>2026-08-13</td><td>Proposed / training</td><td>Aligned NET-ENT-001 to the shared document shell: standardized the accessible nine-field semantic document-control header and five-view navigation with a separate print action, 44-pixel controls, roving keyboard focus, responsive tab scrolling, native hidden-state panels, deep-link routing, and Back/Forward support. Reconciled the visible lifecycle status to the proposed/training source evidence. Enterprise topology, addressing, engineering records, risk register, scope exclusions, source lineage, figure geometry, logical-node/zoom/theme interactions, and embedded assets are unchanged.</td><td>OpenAI Codex</td></tr>
@@ -1592,7 +1408,7 @@
       </tbody></table></div>
       <div class="source-grid">
         <article class="source-card"><h3>Logical symbol source</h3><p>The topology uses the official Cisco conceptual icon vocabulary for clouds, routers, firewalls, a load balancer, servers, multilayer switches, endpoints, and network management.</p><ul><li><a href="https://www.cisco.com/c/en/us/about/brand-center/network-topology-icons.html" target="_blank" rel="noreferrer">Cisco Network Topology Icons</a></li><li>Artwork is embedded into this file; the citation is not a runtime dependency.</li></ul></article>
-        <article class="source-card"><h3>Reuse boundary</h3><p>Conceptual symbols identify roles, not exact models. Do not infer chassis, licensing, interface availability, transceivers, rack placement, or power from Figure 1. Product selection belongs in an approved inventory and physical design.</p></article>
+        <article class="source-card"><h3>Reuse boundary</h3><p>Conceptual symbols identify roles, not exact models. Do not infer chassis, licensing, interface availability, transceivers, rack placement, or power from Figure 1. The DMZ load balancer has no glyph of its own in the shared symbol library, so its role is carried by text and by the addressing table, not by its artwork. Product selection belongs in an approved inventory and physical design.</p></article>
         <article class="source-card"><h3>Topology grammar</h3><ul><li>Internet and WAN north; enterprise services south.</li><li>A/odd member left; B/even member right.</li><li>Orthogonal paths; white halo means crossing without connection.</li><li>Junction circles mean an intentional shared-segment attachment.</li><li>No arrowheads because links are bidirectional.</li></ul></article>
         <article class="source-card"><h3>Source lineage</h3><p>First formal standardized release derived from <code>standards-aligned-enterprise-l3-topology.html</code>, which identified itself as source revision 0.1 on 2026-08-12. The source file remains unchanged beside this version.</p></article>
       </div>
@@ -1613,81 +1429,889 @@
 <div class="warn"><p style="margin:0"><b>No pricing table is shown.</b> This document carries no cost data and none has been invented to fill the slot. Datasheet values &mdash; depth, weight, airflow, PSU rating &mdash; are not attached to any card; they remain open items in &sect;5.</p></div>
 </section>
 
-<footer class="doc-footer">NET-ENT-001 &middot; revision 2.0 &middot; sample/reference &middot; proposed/training &middot; 2026-08-13 &middot; Sayed Haque &mdash; cloudbats. Presented in the CloudBats documentation shell. Self-contained HTML &middot; official topology artwork embedded &middot; no CDN, font, image, or JavaScript runtime dependency &middot; source links are citations only. This document is a strictly Layer&nbsp;3 logical view and deliberately records no rack, power or physical placement. Replace all proposed names, addresses, protocols, circuits, interfaces, and design assumptions with approved as-built records before operational use.</footer>
+<footer class="doc-footer">NET-ENT-002 &middot; revision 2.1 &middot; sample/reference &middot; proposed/training &middot; 2026-08-13 &middot; Sayed Haque &mdash; cloudbats. Presented in the CloudBats documentation shell. Self-contained HTML &middot; figure rendered from the embedded design data &middot; official artwork resolved only when packaged &middot; no CDN, font, image, or network runtime dependency &middot; source links are citations only. This document is a strictly Layer&nbsp;3 logical view and deliberately records no rack, power or physical placement. Replace all proposed names, addresses, protocols, circuits, interfaces, and design assumptions with approved as-built records before operational use.</footer>
 
 
     </div>
   </main>
 </div>
 
-<script type="application/json" id="design-data">
-  {
-"meta": { "doc_id": "NET-ENT-001", "revision": "2.0", "date": "2026-08-13", "author": "Sayed Haque", "classification": "SAMPLE / REFERENCE", "status": "PROPOSED / TRAINING", "source_revision": "0.1" },
-    "site": { "slug": "lab-enterprise", "name": "LAB-ENTERPRISE", "fictional": true },
-    "logical_objects": [
-      { "id": "internet", "name": "Internet", "kind": "abstract-network", "role": "External routed service", "address": "documentation-only provider cloud" },
-      { "id": "mpls-corp", "name": "MPLS-CORP", "kind": "abstract-network", "role": "Private WAN service", "address": "provider VRF CORP" },
-      { "id": "lab-edge-rtr01", "name": "LAB-EDGE-RTR01", "kind": "router", "role": "Internet edge router", "address": "Lo0 10.0.0.1/32" },
-      { "id": "lab-edge-rtr02", "name": "LAB-EDGE-RTR02", "kind": "router", "role": "Private WAN edge router", "address": "Lo0 10.0.0.2/32" },
-      { "id": "lab-fw-01a", "name": "LAB-FW-01A", "kind": "firewall", "role": "Perimeter firewall active", "address": "outside .3; inside 10.255.1.0/31" },
-      { "id": "lab-fw-01b", "name": "LAB-FW-01B", "kind": "firewall", "role": "Perimeter firewall standby", "address": "outside .4; inside 10.255.1.2/31" },
-      { "id": "lab-dmz-lb01", "name": "LAB-DMZ-LB01", "kind": "load-balancer", "role": "DMZ load balancer", "address": "203.0.113.2/28; VIPs .8-.10" },
-      { "id": "lab-dmz-web01", "name": "LAB-DMZ-WEB01", "kind": "server", "role": "DMZ web server", "address": "203.0.113.3/28" },
-      { "id": "lab-dmz-web02", "name": "LAB-DMZ-WEB02", "kind": "server", "role": "DMZ web server", "address": "203.0.113.4/28" },
-      { "id": "lab-core-sw01", "name": "LAB-CORE-SW01", "kind": "layer-3-switch", "role": "Collapsed core; HSRP active", "address": "Lo0 10.0.0.11/32" },
-      { "id": "lab-core-sw02", "name": "LAB-CORE-SW02", "kind": "layer-3-switch", "role": "Collapsed core; HSRP standby", "address": "Lo0 10.0.0.12/32" },
-      { "id": "lab-oob-nms01", "name": "LAB-OOB-NMS01", "kind": "network-management", "role": "Out-of-band management", "address": "10.99.0.10/24" }
+<!-- PROOF-DATA:BEGIN -->
+<script id="proof-data" type="application/json">
+{
+  "document": {
+    "title": "Enterprise Edge, DMZ & Services",
+    "subtitle": "Provider edge, redundant perimeter, DMZ services, collapsed core and out-of-band management as a strictly Layer 3 logical view — a proposed training design that deliberately declines to invent physical placement, and says so.",
+    "drawing": "NET-ENT-002",
+    "revision": "2.1",
+    "status": "Proposed / training",
+    "date": "2026-08-13",
+    "classification": "SAMPLE / REFERENCE",
+    "docClass": "Reference Design",
+    "subject": "Edge, DMZ & services",
+    "sheet": "L3-LAB-01 · sheet 1 of 1",
+    "site": "LAB-ENTERPRISE · fictional",
+    "lineage": {
+      "source": "cloudbats-NET-ENT-001-v2.0.html",
+      "note": "Ported from the finished CloudBats deliverable. The drawing grammar is the source's own — shared subnet bars, junction circles, orthogonal paths, no arrowheads — and is now rendered from this data block rather than hand-authored."
+    },
+    "evidence": { "text": "Proposed · validation required", "color": "amber" },
+    "brand": {
+      "name": "cloudbats",
+      "label": "Systems · Network Design — Starter kit",
+      "logoViewBox": "0 0 512 512",
+      "logoFill": "#0F172A",
+      "logoPath": "M112 72 H400 V352 Q400 400 376 424 Q356 440 336 424 Q316 400 296 400 H216 Q196 400 176 424 Q156 440 136 424 Q112 400 112 352 Z M312 136 A40 40 0 0 1 352 176 V304 A40 40 0 0 1 312 344 A40 40 0 0 1 272 304 V176 A40 40 0 0 1 312 136 Z"
+    }
+  },
+  "topology": {
+    "canvas": { "viewBox": "0 0 1360 1140" },
+    "title": "Proposed enterprise edge, DMZ, core, and services Layer 3 topology",
+    "desc": "Internet and private WAN clouds connect to two edge routers. The edge routers connect redundantly to an active standby firewall pair. A DMZ subnet serves a load balancer and two web servers. Both firewalls connect to a collapsed core pair. The cores provide redundant Layer 3 connectivity to user, voice, application, and management subnets. Link styles identify bandwidth, logical adjacencies, port channels, and out-of-band management.",
+    "zones": [
+      {
+        "id": "untrusted",
+        "label": "Security zone: outside / untrusted",
+        "tone": "untrusted",
+        "x": 18,
+        "y": 18,
+        "width": 1324,
+        "height": 405,
+        "rx": 16,
+        "lx": 36,
+        "ly": 43
+      },
+      {
+        "id": "dmz",
+        "label": "Zone: DMZ / semi-trusted",
+        "tone": "dmz",
+        "x": 942,
+        "y": 438,
+        "width": 400,
+        "height": 225,
+        "rx": 14,
+        "lx": 960,
+        "ly": 462
+      },
+      {
+        "id": "trusted",
+        "label": "Zone: inside / enterprise managed / trusted",
+        "tone": "trusted",
+        "x": 18,
+        "y": 680,
+        "width": 1324,
+        "height": 440,
+        "rx": 16,
+        "lx": 36,
+        "ly": 705
+      },
+      {
+        "id": "management",
+        "label": "Out-of-band management",
+        "tone": "mgmt",
+        "x": 36,
+        "y": 995,
+        "width": 300,
+        "height": 110,
+        "rx": 12,
+        "lx": 52,
+        "ly": 1018
+      }
     ],
-    "aggregates": [
-      { "id": "users-population", "name": "User endpoint population", "kind": "aggregate", "segment": "S10" },
-      { "id": "voice-population", "name": "Voice endpoint population", "kind": "aggregate", "segment": "S20" },
-      { "id": "applications-population", "name": "Application population", "kind": "aggregate", "segment": "S50" }
-    ],
-    "segments": [
-      { "id": "S210", "name": "DMZ", "prefix": "203.0.113.0/28", "vlan": 210, "gateway": "203.0.113.1" },
-      { "id": "S10", "name": "USERS", "prefix": "10.10.10.0/24", "vlan": 10, "gateway": "10.10.10.1" },
-      { "id": "S20", "name": "VOICE", "prefix": "10.10.20.0/24", "vlan": 20, "gateway": "10.10.20.1" },
-      { "id": "S50", "name": "APPLICATIONS", "prefix": "10.10.50.0/24", "vlan": 50, "gateway": "10.10.50.1" }
+    "nodes": [
+      {
+        "id": "internet",
+        "kind": "abstract-network",
+        "shape": "device",
+        "label": "Internet",
+        "role": "External routed service",
+        "address": "Documentation-only provider cloud",
+        "notes": "Opaque network outside the organization; the cloud is not used for anything the enterprise administers.",
+        "icon": "cloud",
+        "ring": [260, 48, 192, 122, 12],
+        "art": [274, 52, 164, 94],
+        "text": [
+          { "t": "INTERNET", "x": 356, "y": 160, "c": "host", "a": "middle" }
+        ]
+      },
+      {
+        "id": "mpls-corp",
+        "kind": "abstract-network",
+        "shape": "device",
+        "label": "MPLS-CORP",
+        "role": "Private WAN service",
+        "address": "Provider VRF CORP",
+        "notes": "Carrier-managed L3VPN represented as an opaque network. Circuit bandwidth and VRF are stated on the link.",
+        "icon": "cloud",
+        "ring": [914, 48, 192, 122, 12],
+        "art": [928, 52, 164, 94],
+        "text": [
+          { "t": "MPLS-CORP", "x": 1010, "y": 160, "c": "host", "a": "middle" }
+        ]
+      },
+      {
+        "id": "lab-edge-rtr01",
+        "kind": "router",
+        "shape": "device",
+        "label": "LAB-EDGE-RTR01",
+        "role": "Internet edge router",
+        "address": "Lo0 10.0.0.1/32 · eBGP AS 65020",
+        "notes": "Primary Internet edge. The exact configured hostname is shown in monospace; the router icon denotes routing, not a specific chassis model.",
+        "icon": "router",
+        "ring": [405, 242, 130, 91, 10],
+        "art": [420, 250, 100, 68],
+        "text": [
+          { "t": "LAB-EDGE-RTR01", "x": 398, "y": 270, "c": "host", "a": "end" },
+          { "t": "Internet edge", "x": 398, "y": 288, "c": "role", "a": "end" },
+          { "t": "Lo0 10.0.0.1/32", "x": 398, "y": 306, "c": "addr", "a": "end" }
+        ]
+      },
+      {
+        "id": "lab-edge-rtr02",
+        "kind": "router",
+        "shape": "device",
+        "label": "LAB-EDGE-RTR02",
+        "role": "Private WAN edge router",
+        "address": "Lo0 10.0.0.2/32 · iBGP AS 65020",
+        "notes": "MPLS edge peer. Redundant devices are placed side-by-side at the same hierarchy level.",
+        "icon": "router",
+        "ring": [795, 242, 130, 91, 10],
+        "art": [810, 250, 100, 68],
+        "text": [
+          { "t": "LAB-EDGE-RTR02", "x": 932, "y": 270, "c": "host" },
+          { "t": "MPLS edge", "x": 932, "y": 288, "c": "role" },
+          { "t": "Lo0 10.0.0.2/32", "x": 932, "y": 306, "c": "addr" }
+        ]
+      },
+      {
+        "id": "lab-fw-01a",
+        "kind": "firewall",
+        "shape": "device",
+        "label": "LAB-FW-01A",
+        "role": "Perimeter firewall · active",
+        "address": "Outside transit .3 · inside 10.255.1.0/31",
+        "notes": "Active member of the HA pair. Security policy, NAT, and remote access terminate at this boundary.",
+        "icon": "firewall",
+        "ring": [430, 440, 80, 126, 10],
+        "art": [448, 448, 44, 100],
+        "text": [
+          { "t": "LAB-FW-01A", "x": 420, "y": 466, "c": "host", "a": "end" },
+          { "t": "active · policy / NAT / VPN", "x": 420, "y": 484, "c": "role", "a": "end" }
+        ]
+      },
+      {
+        "id": "lab-fw-01b",
+        "kind": "firewall",
+        "shape": "device",
+        "label": "LAB-FW-01B",
+        "role": "Perimeter firewall · standby",
+        "address": "Outside transit .4 · inside 10.255.1.2/31",
+        "notes": "Standby member of the HA pair. Its state is stated in text instead of relying on color.",
+        "icon": "firewall",
+        "ring": [820, 440, 80, 126, 10],
+        "art": [838, 448, 44, 100],
+        "text": [
+          { "t": "LAB-FW-01B", "x": 820, "y": 466, "c": "host", "a": "end" },
+          { "t": "standby · synchronized", "x": 820, "y": 484, "c": "role", "a": "end" }
+        ]
+      },
+      {
+        "id": "lab-dmz-lb01",
+        "kind": "load-balancer",
+        "shape": "device",
+        "label": "LAB-DMZ-LB01",
+        "role": "DMZ load balancer",
+        "address": "203.0.113.2/28 · VIPs .8–.10",
+        "notes": "Internet-facing virtual services. The vendor-neutral role is carried by the official Cisco load-balancer symbol; a product model would belong in text or inventory.",
+        "icon": "server",
+        "ring": [973, 471, 84, 78, 9],
+        "art": [980, 475, 70, 48],
+        "text": [
+          { "t": "LAB-DMZ-LB01", "x": 1015, "y": 537, "c": "host", "a": "middle" }
+        ]
+      },
+      {
+        "id": "lab-dmz-web01",
+        "kind": "server",
+        "shape": "device",
+        "label": "LAB-DMZ-WEB01",
+        "role": "DMZ web server",
+        "address": "203.0.113.3/28",
+        "notes": "First member of the public web tier. The logical diagram shows service identity, not rack placement.",
+        "icon": "server",
+        "ring": [1136, 457, 58, 92, 9],
+        "art": [1145, 463, 40, 58],
+        "text": [
+          { "t": "WEB01", "x": 1165, "y": 537, "c": "host", "a": "middle" }
+        ]
+      },
+      {
+        "id": "lab-dmz-web02",
+        "kind": "server",
+        "shape": "device",
+        "label": "LAB-DMZ-WEB02",
+        "role": "DMZ web server",
+        "address": "203.0.113.4/28",
+        "notes": "Second member of the public web tier. Repeated peers use identical artwork and layout.",
+        "icon": "server",
+        "ring": [1241, 457, 58, 92, 9],
+        "art": [1250, 463, 40, 58],
+        "text": [
+          { "t": "WEB02", "x": 1270, "y": 537, "c": "host", "a": "middle" }
+        ]
+      },
+      {
+        "id": "lab-core-sw01",
+        "kind": "layer-3-switch",
+        "shape": "device",
+        "label": "LAB-CORE-SW01",
+        "role": "Collapsed core · HSRP active",
+        "address": "Lo0 10.0.0.11/32 · OSPF area 0",
+        "notes": "Multilayer switch providing routed SVIs. The HSRP state and priority are explicit; the icon is not recolored to encode status.",
+        "icon": "core-switch",
+        "ring": [417, 711, 106, 112, 10],
+        "art": [430, 720, 80, 80],
+        "text": [
+          { "t": "LAB-CORE-SW01", "x": 410, "y": 825, "c": "host", "a": "end" },
+          { "t": "HSRP active · priority 110", "x": 410, "y": 841, "c": "role", "a": "end" },
+          { "t": "Lo0 10.0.0.11/32", "x": 410, "y": 857, "c": "addr", "a": "end" }
+        ]
+      },
+      {
+        "id": "lab-core-sw02",
+        "kind": "layer-3-switch",
+        "shape": "device",
+        "label": "LAB-CORE-SW02",
+        "role": "Collapsed core · HSRP standby",
+        "address": "Lo0 10.0.0.12/32 · OSPF area 0",
+        "notes": "Second collapsed-core switch. The pair is side-by-side and shares a clearly labeled peer link.",
+        "icon": "core-switch",
+        "ring": [807, 711, 106, 112, 10],
+        "art": [820, 720, 80, 80],
+        "text": [
+          { "t": "LAB-CORE-SW02", "x": 920, "y": 825, "c": "host" },
+          { "t": "HSRP standby · priority 100", "x": 920, "y": 841, "c": "role" },
+          { "t": "Lo0 10.0.0.12/32", "x": 920, "y": 857, "c": "addr" }
+        ]
+      },
+      {
+        "id": "lab-oob-nms01",
+        "kind": "network-management",
+        "shape": "device",
+        "label": "LAB-OOB-NMS01",
+        "role": "Out-of-band network management",
+        "address": "10.99.0.10/24",
+        "notes": "Management paths are visually separated with dash-dot lines and pushed to the edge of the drawing.",
+        "icon": "network-management",
+        "ring": [162, 1021, 124, 82, 9],
+        "art": [184, 1025, 52, 46],
+        "text": [
+          { "t": "LAB-OOB-NMS01", "x": 210, "y": 1079, "c": "host", "a": "middle" },
+          { "t": "10.99.0.10/24", "x": 210, "y": 1095, "c": "addr", "a": "middle" }
+        ]
+      },
+      {
+        "id": "users-population",
+        "kind": "aggregate",
+        "shape": "aggregate",
+        "label": "User endpoint population",
+        "role": "Summarized endpoint population",
+        "address": "Attaches to S10",
+        "notes": "Endpoint glyphs summarize attached populations; Layer 2 access switches are intentionally omitted from this sheet.",
+        "icon": "pc",
+        "art": [242, 851, 48, 43],
+        "text": []
+      },
+      {
+        "id": "voice-population",
+        "kind": "aggregate",
+        "shape": "aggregate",
+        "label": "Voice endpoint population",
+        "role": "Summarized endpoint population",
+        "address": "Attaches to S20",
+        "notes": "Endpoint glyphs summarize attached populations; Layer 2 access switches are intentionally omitted from this sheet.",
+        "icon": "ip-phone",
+        "art": [236, 903, 57, 31],
+        "text": []
+      },
+      {
+        "id": "applications-population",
+        "kind": "aggregate",
+        "shape": "aggregate",
+        "label": "Application population",
+        "role": "Summarized endpoint population",
+        "address": "Attaches to S50",
+        "notes": "Endpoint glyphs summarize attached populations; Layer 2 access switches are intentionally omitted from this sheet.",
+        "icon": "database",
+        "art": [244, 948, 42, 36],
+        "text": []
+      },
+      {
+        "id": "S210",
+        "kind": "segment",
+        "shape": "segment",
+        "label": "DMZ · VLAN 210",
+        "role": "Shared Layer 3 segment",
+        "address": "203.0.113.0/28 · gateway 203.0.113.1",
+        "notes": "Drawn as a shared subnet bar because more than two objects attach. Junction circles mark intentional attachments.",
+        "vlan": 210,
+        "prefix": "203.0.113.0/28",
+        "gateway": "203.0.113.1",
+        "d": "M966 575H1310",
+        "tone": "dmz",
+        "junctions": [1015, 1165, 1270],
+        "text": []
+      },
+      {
+        "id": "S10",
+        "kind": "segment",
+        "shape": "segment",
+        "label": "USERS · VLAN 10",
+        "role": "Shared Layer 3 segment",
+        "address": "10.10.10.0/24 · gateway 10.10.10.1",
+        "notes": "Drawn as a shared subnet bar because more than two objects attach. Junction circles mark intentional attachments.",
+        "vlan": 10,
+        "prefix": "10.10.10.0/24",
+        "gateway": "10.10.10.1",
+        "d": "M320 873H1045",
+        "tone": "",
+        "junctions": [470, 860],
+        "text": [
+          { "t": "VLAN 10 · USERS", "x": 1064, "y": 869, "c": "host" },
+          { "t": "10.10.10.0/24 · HSRP VIP .1", "x": 1064, "y": 885, "c": "addr" }
+        ]
+      },
+      {
+        "id": "S20",
+        "kind": "segment",
+        "shape": "segment",
+        "label": "VOICE · VLAN 20",
+        "role": "Shared Layer 3 segment",
+        "address": "10.10.20.0/24 · gateway 10.10.20.1",
+        "notes": "Drawn as a shared subnet bar because more than two objects attach. Junction circles mark intentional attachments.",
+        "vlan": 20,
+        "prefix": "10.10.20.0/24",
+        "gateway": "10.10.20.1",
+        "d": "M320 920H1045",
+        "tone": "",
+        "junctions": [470, 860],
+        "text": [
+          { "t": "VLAN 20 · VOICE", "x": 1064, "y": 916, "c": "host" },
+          { "t": "10.10.20.0/24 · HSRP VIP .1", "x": 1064, "y": 932, "c": "addr" }
+        ]
+      },
+      {
+        "id": "S50",
+        "kind": "segment",
+        "shape": "segment",
+        "label": "APPLICATIONS · VLAN 50",
+        "role": "Shared Layer 3 segment",
+        "address": "10.10.50.0/24 · gateway 10.10.50.1",
+        "notes": "Drawn as a shared subnet bar because more than two objects attach. Junction circles mark intentional attachments.",
+        "vlan": 50,
+        "prefix": "10.10.50.0/24",
+        "gateway": "10.10.50.1",
+        "d": "M320 967H1045",
+        "tone": "",
+        "junctions": [470, 860],
+        "text": [
+          { "t": "VLAN 50 · APPLICATIONS", "x": 1064, "y": 963, "c": "host" },
+          { "t": "10.10.50.0/24 · HSRP VIP .1", "x": 1064, "y": 979, "c": "addr" }
+        ]
+      }
     ],
     "links": [
-      { "id": "L01", "a": "internet", "b": "lab-edge-rtr01", "nature": "provider-circuit", "detail": "ISP-A; 1 GbE; CID LAB-1001" },
-      { "id": "L02", "a": "mpls-corp", "b": "lab-edge-rtr02", "nature": "mpls-l3vpn", "detail": "1 GbE handoff; 500 Mb/s service; VRF CORP" },
-      { "id": "L03", "a": "lab-edge-rtr01", "b": "lab-edge-rtr02", "nature": "ibgp", "detail": "AS 65020" },
-      { "id": "L04", "a": "lab-edge-rtr01", "b": "lab-fw-01a", "nature": "routed-transit" },
-      { "id": "L05", "a": "lab-edge-rtr02", "b": "lab-fw-01b", "nature": "routed-transit" },
-      { "id": "L06", "a": "lab-edge-rtr01", "b": "lab-fw-01b", "nature": "routed-transit" },
-      { "id": "L07", "a": "lab-edge-rtr02", "b": "lab-fw-01a", "nature": "routed-transit" },
-      { "id": "L08", "a": "lab-fw-01a", "b": "lab-fw-01b", "nature": "ha-state-session", "detail": "2 x 10 GbE summary" },
-      { "id": "L09", "a": "lab-fw-01a", "b": "lab-core-sw01", "nature": "routed-transit" },
-      { "id": "L10", "a": "lab-fw-01b", "b": "lab-core-sw02", "nature": "routed-transit" },
-      { "id": "L11", "a": "lab-fw-01a", "b": "lab-core-sw02", "nature": "routed-transit" },
-      { "id": "L12", "a": "lab-fw-01b", "b": "lab-core-sw01", "nature": "routed-transit" },
-      { "id": "L13", "a": "lab-core-sw01", "b": "lab-core-sw02", "nature": "stackwise-virtual", "detail": "2 x 40 GbE summary" },
-      { "id": "L14", "a": "firewall-ha-pair", "b": "S210", "nature": "shared-segment-attachment" },
-      { "id": "L15", "a": "lab-dmz-lb01", "b": "S210", "nature": "segment-attachment", "detail": "10 GbE" },
-      { "id": "L16", "a": "lab-dmz-web01", "b": "S210", "nature": "segment-attachment", "detail": "1 GbE" },
-      { "id": "L17", "a": "lab-dmz-web02", "b": "S210", "nature": "segment-attachment", "detail": "1 GbE" },
-      { "id": "L18", "a": "lab-core-sw01", "b": "S10", "nature": "routed-segment-attachment" },
-      { "id": "L19", "a": "lab-core-sw02", "b": "S10", "nature": "routed-segment-attachment" },
-      { "id": "L20", "a": "lab-core-sw01", "b": "S20", "nature": "routed-segment-attachment" },
-      { "id": "L21", "a": "lab-core-sw02", "b": "S20", "nature": "routed-segment-attachment" },
-      { "id": "L22", "a": "lab-core-sw01", "b": "S50", "nature": "routed-segment-attachment" },
-      { "id": "L23", "a": "lab-core-sw02", "b": "S50", "nature": "routed-segment-attachment" },
-      { "id": "L24", "a": "users-population", "b": "S10", "nature": "aggregate-attachment" },
-      { "id": "L25", "a": "voice-population", "b": "S20", "nature": "aggregate-attachment" },
-      { "id": "L26", "a": "applications-population", "b": "S50", "nature": "aggregate-attachment" },
-      { "id": "L27", "a": "lab-oob-nms01", "b": "lab-core-sw01", "nature": "oob-management" },
-      { "id": "L28", "a": "lab-oob-nms01", "b": "lab-core-sw02", "nature": "oob-management" }
+      {
+        "id": "L01",
+        "from": "internet",
+        "to": "lab-edge-rtr01",
+        "nature": "provider-circuit",
+        "kind": "physical-1g",
+        "d": "M356 146H470V250",
+        "title": "L01 · Internet to LAB-EDGE-RTR01 · ISP-A · 1 GbE · CID LAB-1001",
+        "detail": "ISP-A; 1 GbE; CID LAB-1001"
+      },
+      {
+        "id": "L02",
+        "from": "mpls-corp",
+        "to": "lab-edge-rtr02",
+        "nature": "mpls-l3vpn",
+        "kind": "physical-1g",
+        "d": "M1010 146H860V250",
+        "title": "L02 · MPLS-CORP to LAB-EDGE-RTR02 · 1 GbE handoff · 500 Mb/s service · VRF CORP",
+        "detail": "1 GbE handoff; 500 Mb/s service; VRF CORP"
+      },
+      {
+        "id": "L03",
+        "from": "lab-edge-rtr01",
+        "to": "lab-edge-rtr02",
+        "nature": "ibgp",
+        "kind": "logical",
+        "d": "M520 286H810",
+        "title": "L03 · LAB-EDGE-RTR01 to LAB-EDGE-RTR02 · iBGP · AS 65020",
+        "detail": "AS 65020"
+      },
+      {
+        "id": "L04",
+        "from": "lab-edge-rtr01",
+        "to": "lab-fw-01a",
+        "nature": "routed-transit",
+        "kind": "physical-10g",
+        "d": "M470 318V448",
+        "title": "L04 · LAB-EDGE-RTR01 to LAB-FW-01A · routed transit · details OPEN"
+      },
+      {
+        "id": "L05",
+        "from": "lab-edge-rtr02",
+        "to": "lab-fw-01b",
+        "nature": "routed-transit",
+        "kind": "physical-10g",
+        "d": "M860 318V448",
+        "title": "L05 · LAB-EDGE-RTR02 to LAB-FW-01B · routed transit · details OPEN"
+      },
+      {
+        "id": "L06",
+        "from": "lab-edge-rtr01",
+        "to": "lab-fw-01b",
+        "nature": "routed-transit",
+        "kind": "physical-10g",
+        "d": "M450 318V372H840V448",
+        "title": "L06 · LAB-EDGE-RTR01 to LAB-FW-01B · routed transit · details OPEN",
+        "halo": "M450 318V372H840V448"
+      },
+      {
+        "id": "L07",
+        "from": "lab-edge-rtr02",
+        "to": "lab-fw-01a",
+        "nature": "routed-transit",
+        "kind": "physical-10g",
+        "d": "M880 318V396H490V448",
+        "title": "L07 · LAB-EDGE-RTR02 to LAB-FW-01A · routed transit · details OPEN",
+        "halo": "M880 318V396H490V448"
+      },
+      {
+        "id": "L08",
+        "from": "lab-fw-01a",
+        "to": "lab-fw-01b",
+        "nature": "ha-state-session",
+        "kind": "physical-10g",
+        "d": "M492 520H838",
+        "title": "L08 · Firewall HA state/session synchronization · 2 × 10 GbE",
+        "detail": "2 x 10 GbE summary"
+      },
+      {
+        "id": "L09",
+        "from": "lab-fw-01a",
+        "to": "lab-core-sw01",
+        "nature": "routed-transit",
+        "kind": "physical-10g",
+        "d": "M470 548V720",
+        "title": "L09 · LAB-FW-01A to LAB-CORE-SW01 · routed inside transit · /31 addressing OPEN"
+      },
+      {
+        "id": "L10",
+        "from": "lab-fw-01b",
+        "to": "lab-core-sw02",
+        "nature": "routed-transit",
+        "kind": "physical-10g",
+        "d": "M860 548V720",
+        "title": "L10 · LAB-FW-01B to LAB-CORE-SW02 · routed inside transit · /31 addressing OPEN"
+      },
+      {
+        "id": "L11",
+        "from": "lab-fw-01a",
+        "to": "lab-core-sw02",
+        "nature": "routed-transit",
+        "kind": "physical-10g",
+        "d": "M454 548V622H844V720",
+        "title": "L11 · LAB-FW-01A to LAB-CORE-SW02 · routed inside transit · /31 addressing OPEN",
+        "halo": "M454 548V622H844V720"
+      },
+      {
+        "id": "L12",
+        "from": "lab-fw-01b",
+        "to": "lab-core-sw01",
+        "nature": "routed-transit",
+        "kind": "physical-10g",
+        "d": "M876 548V650H486V720",
+        "title": "L12 · LAB-FW-01B to LAB-CORE-SW01 · routed inside transit · /31 addressing OPEN",
+        "halo": "M876 548V650H486V720"
+      },
+      {
+        "id": "L13",
+        "from": "lab-core-sw01",
+        "to": "lab-core-sw02",
+        "nature": "stackwise-virtual",
+        "kind": "lag",
+        "d": "M522 762H808",
+        "title": "L13 · LAB-CORE-SW01 to LAB-CORE-SW02 · StackWise Virtual link · 2 × 40 GbE",
+        "detail": "2 x 40 GbE summary"
+      },
+      {
+        "id": "L14",
+        "from": "lab-fw-01b",
+        "to": "S210",
+        "nature": "shared-segment-attachment",
+        "kind": "physical-10g",
+        "d": "M882 520H928V575H966",
+        "title": "L14 · Firewall HA pair to DMZ shared segment · visible attachment through LAB-FW-01B · validate virtual ownership"
+      },
+      {
+        "id": "L15",
+        "from": "lab-dmz-lb01",
+        "to": "S210",
+        "nature": "segment-attachment",
+        "kind": "physical-10g",
+        "d": "M1015 575V523",
+        "title": "L15 · LAB-DMZ-LB01 to VLAN 210 · 10 GbE",
+        "tone": "dmz",
+        "detail": "10 GbE"
+      },
+      {
+        "id": "L16",
+        "from": "lab-dmz-web01",
+        "to": "S210",
+        "nature": "segment-attachment",
+        "kind": "physical-1g",
+        "d": "M1165 575V521",
+        "title": "L16 · LAB-DMZ-WEB01 to VLAN 210 · 1 GbE",
+        "tone": "dmz",
+        "detail": "1 GbE"
+      },
+      {
+        "id": "L17",
+        "from": "lab-dmz-web02",
+        "to": "S210",
+        "nature": "segment-attachment",
+        "kind": "physical-1g",
+        "d": "M1270 575V521",
+        "title": "L17 · LAB-DMZ-WEB02 to VLAN 210 · 1 GbE",
+        "tone": "dmz",
+        "detail": "1 GbE"
+      },
+      {
+        "id": "L18",
+        "from": "lab-core-sw01",
+        "to": "S10",
+        "nature": "routed-segment-attachment",
+        "kind": "physical-10g",
+        "d": "M446 804V873H470",
+        "title": "L18 · LAB-CORE-SW01 to VLAN 10 USERS"
+      },
+      {
+        "id": "L19",
+        "from": "lab-core-sw02",
+        "to": "S10",
+        "nature": "routed-segment-attachment",
+        "kind": "physical-10g",
+        "d": "M836 804V873H860",
+        "title": "L19 · LAB-CORE-SW02 to VLAN 10 USERS"
+      },
+      {
+        "id": "L20",
+        "from": "lab-core-sw01",
+        "to": "S20",
+        "nature": "routed-segment-attachment",
+        "kind": "physical-10g",
+        "d": "M458 804V920H470",
+        "title": "L20 · LAB-CORE-SW01 to VLAN 20 VOICE"
+      },
+      {
+        "id": "L21",
+        "from": "lab-core-sw02",
+        "to": "S20",
+        "nature": "routed-segment-attachment",
+        "kind": "physical-10g",
+        "d": "M848 804V920H860",
+        "title": "L21 · LAB-CORE-SW02 to VLAN 20 VOICE"
+      },
+      {
+        "id": "L22",
+        "from": "lab-core-sw01",
+        "to": "S50",
+        "nature": "routed-segment-attachment",
+        "kind": "physical-10g",
+        "d": "M470 804V967",
+        "title": "L22 · LAB-CORE-SW01 to VLAN 50 APPLICATIONS"
+      },
+      {
+        "id": "L23",
+        "from": "lab-core-sw02",
+        "to": "S50",
+        "nature": "routed-segment-attachment",
+        "kind": "physical-10g",
+        "d": "M860 804V967",
+        "title": "L23 · LAB-CORE-SW02 to VLAN 50 APPLICATIONS"
+      },
+      {
+        "id": "L27",
+        "from": "lab-oob-nms01",
+        "to": "lab-core-sw01",
+        "nature": "oob-management",
+        "kind": "mgmt",
+        "d": "M236 1042H430V804",
+        "title": "L27 · LAB-OOB-NMS01 to LAB-CORE-SW01 · dedicated OOB Ethernet"
+      },
+      {
+        "id": "L28",
+        "from": "lab-oob-nms01",
+        "to": "lab-core-sw02",
+        "nature": "oob-management",
+        "kind": "mgmt",
+        "d": "M236 1054H900V804",
+        "title": "L28 · LAB-OOB-NMS01 to LAB-CORE-SW02 · dedicated OOB Ethernet"
+      },
+      {
+        "id": "L24",
+        "from": "users-population",
+        "to": "S10",
+        "nature": "aggregate-attachment",
+        "kind": "physical-1g",
+        "d": "M290 873H320",
+        "title": "L24 · User endpoint population aggregate to VLAN 10"
+      },
+      {
+        "id": "L25",
+        "from": "voice-population",
+        "to": "S20",
+        "nature": "aggregate-attachment",
+        "kind": "physical-1g",
+        "d": "M293 920H320",
+        "title": "L25 · Voice endpoint population aggregate to VLAN 20"
+      },
+      {
+        "id": "L26",
+        "from": "applications-population",
+        "to": "S50",
+        "nature": "aggregate-attachment",
+        "kind": "physical-1g",
+        "d": "M286 967H320",
+        "title": "L26 · Application population aggregate to VLAN 50"
+      }
     ],
-    "zones": [
-      { "id": "outside", "label": "outside / untrusted" },
-      { "id": "dmz", "label": "DMZ / semi-trusted" },
-      { "id": "inside", "label": "inside / trusted" },
-      { "id": "oob", "label": "out-of-band management" }
-    ],
-    "validation": { "named_objects": 12, "aggregates": 3, "links": 28, "segments": 4, "rack_applicable": false, "external_resources_required": false, "print_review": "not run", "grayscale_review": "not run" }
+    "annotations": [
+      {
+        "kind": "card",
+        "x": 338,
+        "y": 166,
+        "w": 264,
+        "h": 26,
+        "rx": 6,
+        "t": "ISP-A · 1 GbE · CID LAB-1001",
+        "tx": 470,
+        "ty": 184,
+        "c": "link-label",
+        "a": "middle"
+      },
+      {
+        "kind": "card",
+        "x": 784,
+        "y": 166,
+        "w": 306,
+        "h": 26,
+        "rx": 6,
+        "t": "MPLS L3VPN · 500 Mb/s · VRF CORP",
+        "tx": 937,
+        "ty": 184,
+        "c": "link-label",
+        "a": "middle"
+      },
+      {
+        "kind": "card",
+        "x": 610,
+        "y": 205,
+        "w": 140,
+        "h": 22,
+        "rx": 6,
+        "t": "DEMARCATION",
+        "tx": 680,
+        "ty": 220,
+        "c": "ownership-label",
+        "a": "middle"
+      },
+      {
+        "kind": "card",
+        "x": 600,
+        "y": 264,
+        "w": 130,
+        "h": 24,
+        "rx": 6,
+        "t": "iBGP · AS 65020",
+        "tx": 665,
+        "ty": 281,
+        "c": "link-label",
+        "a": "middle"
+      },
+      {
+        "kind": "card",
+        "x": 496,
+        "y": 330,
+        "w": 338,
+        "h": 26,
+        "rx": 6,
+        "t": "Routed transit · 10.255.0.0/29 · OSPF area 0",
+        "tx": 665,
+        "ty": 348,
+        "c": "link-label",
+        "a": "middle"
+      },
+      {
+        "kind": "card",
+        "x": 530,
+        "y": 507,
+        "w": 270,
+        "h": 26,
+        "rx": 6,
+        "t": "HA state / session sync · 2 × 10 GbE",
+        "tx": 665,
+        "ty": 525,
+        "c": "link-label",
+        "a": "middle"
+      },
+      {
+        "kind": "card",
+        "x": 488,
+        "y": 574,
+        "w": 354,
+        "h": 26,
+        "rx": 6,
+        "t": "Four routed links · /31 addressing · OSPF area 0",
+        "tx": 665,
+        "ty": 592,
+        "c": "link-label",
+        "a": "middle"
+      },
+      {
+        "kind": "card",
+        "x": 520,
+        "y": 739,
+        "w": 290,
+        "h": 26,
+        "rx": 6,
+        "t": "StackWise Virtual link · 2 × 40 GbE",
+        "tx": 665,
+        "ty": 757,
+        "c": "link-label",
+        "a": "middle"
+      },
+      {
+        "kind": "card",
+        "x": 958,
+        "y": 590,
+        "w": 360,
+        "h": 26,
+        "rx": 6,
+        "t": "VLAN 210 · 203.0.113.0/28 · firewall VIP .1",
+        "tx": 972,
+        "ty": 608,
+        "c": "addr",
+        "tone": "dmz"
+      },
+      {
+        "kind": "card",
+        "x": 520,
+        "y": 1016,
+        "w": 290,
+        "h": 26,
+        "rx": 6,
+        "t": "Dedicated OOB Ethernet · 10.99.0.0/24",
+        "tx": 665,
+        "ty": 1034,
+        "c": "link-label",
+        "a": "middle"
+      },
+      { "kind": "path", "c": "demarc", "d": "M70 216H1290" },
+      { "kind": "text", "c": "ownership-label", "t": "PROVIDER OWNERSHIP", "x": 72, "y": 207 },
+      { "kind": "text", "c": "ownership-label", "t": "ENTERPRISE OWNERSHIP", "x": 72, "y": 237 },
+      {
+        "kind": "text",
+        "c": "annotation",
+        "t": "Layer 2 access switches are omitted on this L3 sheet. See a separate L2/STP sheet for trunks, access ports, and spanning-tree state.",
+        "x": 352,
+        "y": 1097
+      }
+    ]
+  },
+  "sections": {
+    "findings": {
+      "id": "open-items",
+      "label": "Open items",
+      "noun": "open items and risks",
+      "heading": "Open items, assumptions & risk register",
+      "flavour": "gaps",
+      "items": [
+        {
+          "id": "R1",
+          "severity": "HIGH",
+          "title": "The core pair is described two ways",
+          "detail": "It is drawn as a StackWise Virtual peer link and also as two independently addressed HSRP active/standby gateways. Those are different control-plane designs with different failure behaviour.",
+          "action": "Choose and document the approved architecture before either core is configured.",
+          "at": ["lab-core-sw01", "lab-core-sw02"]
+        },
+        {
+          "id": "R2",
+          "severity": "HIGH",
+          "title": "The four firewall-to-core transits carry no addresses",
+          "detail": "Each of the four routed paths needs its own point-to-point network. None has been allocated, so no interface on either side can be configured or reconciled.",
+          "action": "Allocate all point-to-point networks from IPAM.",
+          "at": ["lab-fw-01a", "lab-fw-01b"]
+        },
+        {
+          "id": "R3",
+          "severity": "HIGH",
+          "title": "Which firewall owns the DMZ gateway is unrecorded",
+          "detail": "The DMZ segment is drawn attached through the standby member while the other member is marked active. The virtual-interface behaviour across a failover is not stated, so the published services have no documented failure mode.",
+          "action": "Document HA virtual-interface behaviour and both physical members.",
+          "atZone": "dmz"
+        },
+        {
+          "id": "R4",
+          "severity": "HIGH",
+          "title": "There is no carrier record behind either uplink",
+          "detail": "Provider ASN, peer addresses, handoff prefix and demarcation are absent. The two clouds are a pattern, not a service.",
+          "action": "Add the approved carrier turn-up record.",
+          "atZone": "untrusted"
+        },
+        {
+          "id": "R5",
+          "severity": "MEDIUM",
+          "title": "The MPLS handoff states two different rates",
+          "detail": "A 1 GbE handoff and a 500 Mb/s service rate are both shown. Physical speed and committed bandwidth can be misread as one another.",
+          "action": "Confirm CIR/EIR and the handoff PHY explicitly.",
+          "at": ["lab-edge-rtr02"]
+        },
+        {
+          "id": "R6",
+          "severity": "HIGH",
+          "title": "No physical, power or cabling authority exists",
+          "detail": "There is no Layer 2 sheet, no rack, no power schedule, no airflow record and no BOM. Section 3 declares physical placement out of scope rather than inventing it, so this artifact cannot drive installation.",
+          "action": "Create the approved companion designs before construction."
+        },
+        {
+          "id": "R7",
+          "severity": "MEDIUM",
+          "title": "The load balancer is drawn with a generic server symbol",
+          "detail": "The 19-symbol vector library has no load-balancer glyph. Revision 2.0 referenced a Cisco LocalDirector asset directly, which rendered as an empty placeholder box in editable mode. The role is carried by text, not by the artwork.",
+          "action": "Add a load-balancer symbol to the shared library, or keep the role in text.",
+          "at": ["lab-dmz-lb01"]
+        }
+      ]
+    }
+  },
+  "validation": {
+    "named_objects": 12,
+    "aggregates": 3,
+    "segments": 4,
+    "links": 28,
+    "zones": 4,
+    "rack_applicable": false,
+    "external_resources_required": false,
+    "print_review": "not run",
+    "grayscale_review": "not run"
   }
-  </script>
+}
+</script>
+<!-- PROOF-DATA:END -->
 <!-- NETWORK-PACKAGER-CONTRACT:BEGIN -->
 <script id="network-packager-contract" type="application/json">
 {
@@ -1714,11 +2338,15 @@
 <!-- EDITABLE-SOURCE-CAPSULE:END -->
 
 <script>
-/* Chooses and sizes each device symbol before the document's own preflight runs.
+/* Draws Figure 1 from the proof-data block, in this document's own grammar:
+   shared subnet bars with junction circles, orthogonal paths, white halos at
+   crossings, no arrowheads. Revision 2.0 hand-authored that geometry; the
+   geometry is unchanged, but it is now data, so a topology change is a
+   reviewable diff instead of edited SVG.
 
-   Editable mode draws the inline vector placeholder symbols, so an unpackaged
-   file is still a complete, shareable drawing. Portable mode swaps in the
-   official artwork the packager embedded.
+   Editable mode draws the inline vector symbols, so an unpackaged file is still
+   a complete, shareable drawing. Portable mode swaps in the official artwork
+   the packager embedded.
 
    Sizing note. The slots in this figure were cut for the original raster
    artwork, whose proportions differ from the vector symbols. Reusing those
@@ -1742,15 +2370,26 @@
   /* Semantic key -> inline vector symbol + official asset identifier.
      Mirrors symbols/symbol-map.json; the official ids are what the packager scans for. */
   var ICONS = {
-    "cloud":              { vector: "nd-cloud",       official: "asset:cisco/cloud.jpg" },
-    "router":             { vector: "nd-router",      official: "asset:cisco/router.jpg" },
-    "firewall":           { vector: "nd-firewall",    official: "asset:cisco/firewall.jpg" },
-    "core-switch":        { vector: "nd-l3-switch",   official: "asset:cisco/layer 3 switch.jpg" },
-    "server":             { vector: "nd-server",      official: "asset:cisco/fileserver.jpg" },
-    "pc":                 { vector: "nd-workstation", official: "asset:cisco/pc.jpg" },
-    "ip-phone":           { vector: "nd-ip-phone",    official: "asset:cisco/ip phone.jpg" },
-    "database":           { vector: "nd-database",    official: "asset:cisco/relational database.jpg" },
-    "network-management": { vector: "nd-nms",         official: "asset:cisco/network management.jpg" }
+    "cloud":{vector:"nd-cloud",official:"asset:cisco/cloud.jpg"},
+    "router":{vector:"nd-router",official:"asset:cisco/router.jpg"},
+    "firewall":{vector:"nd-firewall",official:"asset:cisco/firewall.jpg"},
+    "core-switch":{vector:"nd-l3-switch",official:"asset:cisco/layer 3 switch.jpg"},
+    "access-switch":{vector:"nd-access-switch",official:"asset:cisco/workgroup switch.jpg"},
+    "access-point":{vector:"nd-access-point",official:"asset:cisco/lightweight ap.jpg"},
+    "server":{vector:"nd-server",official:"asset:cisco/fileserver.jpg"},
+    "pc":{vector:"nd-workstation",official:"asset:cisco/pc.jpg"},
+    "workstation":{vector:"nd-workstation",official:"asset:cisco/pc.jpg"},
+    "wlan-controller":{vector:"nd-wlan-controller",official:"asset:cisco/wlan controller.jpg"},
+    "vpn-headend":{vector:"nd-vpn-headend",official:"asset:cisco/vpn concentrator.jpg"},
+    "dc-switch":{vector:"nd-dc-switch",official:"asset:cisco/server switch.jpg"},
+    "ip-phone":{vector:"nd-ip-phone",official:"asset:cisco/ip phone.jpg"},
+    "laptop":{vector:"nd-laptop",official:"asset:cisco/laptop.jpg"},
+    "printer":{vector:"nd-printer",official:"asset:cisco/printer.jpg"},
+    "database":{vector:"nd-database",official:"asset:cisco/relational database.jpg"},
+    "storage-array":{vector:"nd-storage-array",official:"asset:cisco/fc storage.jpg"},
+    "network-management":{vector:"nd-nms",official:"asset:cisco/network management.jpg"},
+    "branch-office":{vector:"nd-branch-office",official:"asset:cisco/branch office.jpg"},
+    "wireless-router":{vector:"nd-wireless-router",official:"asset:cisco/wireless router.jpg"}
   };
 
   /* Two size tiers, because the drawing has two kinds of object.
@@ -1772,7 +2411,6 @@
     "nd-ip-phone":    { mode: "height", value: 48 },
     "nd-database":    { mode: "height", value: 48 }
   };
-  var PLACEHOLDER = { mass: 73, aspect: 1.35 };
 
   function assetUrl(uri) {
     if (portable) {
@@ -1787,13 +2425,22 @@
     throw new Error("Unsupported asset URI: " + uri);
   }
 
-  function slotOf(node) {
-    var x = parseFloat(node.getAttribute("x")) || 0;
-    var y = parseFloat(node.getAttribute("y")) || 0;
-    var w = parseFloat(node.getAttribute("width")) || 0;
-    var h = parseFloat(node.getAttribute("height")) || 0;
-    return { cx: x + w / 2, cy: y + h / 2, bottom: y + h };
+  function round(value) { return Math.round(value * 100) / 100; }
+
+  function el(name, attrs, text) {
+    var node = document.createElementNS(SVG_NS, name);
+    if (attrs) {
+      Object.keys(attrs).forEach(function (key) {
+        var value = attrs[key];
+        if (value === null || value === undefined || value === "") { return; }
+        node.setAttribute(key, String(value));
+      });
+    }
+    if (text !== undefined && text !== null && text !== "") { node.textContent = text; }
+    return node;
   }
+  function strokeTone(tone) { return tone ? "stroke:var(--" + tone + ")" : null; }
+  function fillTone(tone) { return tone ? "fill:var(--" + tone + ")" : null; }
 
   /* Devices in the mass tier carry their name label directly underneath, so a
      glyph taller than the slot it replaced would run into that label. Growth is
@@ -1832,85 +2479,154 @@
       width = spec.value * root;
       height = spec.value / root;
     }
-    var box = {
-      x: centre.cx - width / 2,
-      y: centre.cy - height / 2,
-      width: width,
-      height: height
-    };
+    var box = { x: centre.cx - width / 2, y: centre.cy - height / 2, width: width, height: height };
     return spec.mode === "height" ? box : seat(box, centre);
   }
 
-  function round(value) { return Math.round(value * 100) / 100; }
-
-  function vectorFor(box, symbolId) {
-    var use = document.createElementNS(SVG_NS, "use");
-    use.setAttribute("class", "topology-vector-icon");
-    use.setAttribute("href", "#" + symbolId);
-    use.setAttribute("x", round(box.x));
-    use.setAttribute("y", round(box.y));
-    use.setAttribute("width", round(box.width));
-    use.setAttribute("height", round(box.height));
-    return use;
+  /* The slot is the rectangle the source figure cut for this object's artwork.
+     Position comes from the slot; size comes from boxFor. */
+  function slotOf(art) {
+    return { cx: art[0] + art[2] / 2, cy: art[1] + art[3] / 2, bottom: art[1] + art[3] };
   }
 
-  function placeholderFor(centre) {
-    var width = PLACEHOLDER.mass * Math.sqrt(PLACEHOLDER.aspect);
-    var height = PLACEHOLDER.mass / Math.sqrt(PLACEHOLDER.aspect);
-    var seated = seat({ x: centre.cx - width / 2, y: centre.cy - height / 2, width: width, height: height }, centre);
-    var x = seated.x;
-    var y = seated.y;
-    var group = document.createElementNS(SVG_NS, "g");
-    group.setAttribute("class", "topology-vector-icon");
-    var rect = document.createElementNS(SVG_NS, "rect");
-    rect.setAttribute("class", "node-generic");
-    rect.setAttribute("x", round(x));
-    rect.setAttribute("y", round(y));
-    rect.setAttribute("width", round(width));
-    rect.setAttribute("height", round(height));
-    rect.setAttribute("rx", 6);
-    group.appendChild(rect);
-    var size = 9;
-    var lines = ["OFFICIAL", "AFTER PACKAGE"];
-    for (var i = 0; i < lines.length; i++) {
-      var label = document.createElementNS(SVG_NS, "text");
-      label.setAttribute("class", "node-generic-label");
-      label.setAttribute("x", round(x + width / 2));
-      label.setAttribute("y", round(y + height / 2 + (i === 0 ? -1 : size + 2)));
-      label.setAttribute("font-size", size);
-      label.textContent = lines[i];
-      group.appendChild(label);
-    }
-    return group;
-  }
+  var data = readJson("proof-data") || {};
+  var topo = data.topology || {};
+  var svg = document.getElementById("topology");
+  var renderErrors = [];
 
-  var targets = Array.prototype.slice.call(
-    document.querySelectorAll("#topology image[data-symbol], #topology image[data-asset]")
-  );
-
-  targets.forEach(function (img) {
-    var key = img.getAttribute("data-symbol");
-    var profile = key ? ICONS[key] : null;
-    var custom = img.getAttribute("data-asset");
-    var assetId = custom || (profile && profile.official) || null;
-
-    if (portable && assetId) {
-      try {
-        img.setAttribute("href", assetUrl(assetId));
-      } catch (error) {
-        console.error(error);
-      }
+  function appendArt(group, node) {
+    var profile = ICONS[node.icon];
+    if (!profile) {
+      renderErrors.push("Unknown icon \"" + node.icon + "\" on " + node.id + ".");
       return;
     }
+    var centre = slotOf(node.art);
+    if (portable) {
+      var href = assetUrl(profile.official);
+      var slot = boxFor(profile.vector, centre);
+      group.appendChild(el("image", {
+        href: href, x: round(slot.x), y: round(slot.y),
+        width: round(slot.width), height: round(slot.height),
+        preserveAspectRatio: "xMidYMid meet"
+      }));
+      return;
+    }
+    var box = boxFor(profile.vector, centre);
+    group.appendChild(el("use", {
+      "class": "topology-vector-icon", href: "#" + profile.vector,
+      x: round(box.x), y: round(box.y), width: round(box.width), height: round(box.height)
+    }));
+  }
 
-    var centre = slotOf(img);
-    var replacement = (profile && profile.vector)
-      ? vectorFor(boxFor(profile.vector, centre), profile.vector)
-      : placeholderFor(centre);
-    if (img.parentNode) { img.parentNode.replaceChild(replacement, img); }
+  /* A single-item list written as a bare object is the commonest shape error in
+     hand- or AI-edited JSON. Accept it rather than losing the whole figure. */
+  function list(value) {
+    if (Array.isArray(value)) { return value; }
+    return (value === null || value === undefined) ? [] : [value];
+  }
+
+  function appendText(host, runs) {
+    list(runs).forEach(function (run) {
+      host.appendChild(el("text", {
+        "class": run.c, x: run.x, y: run.y, "text-anchor": run.a, style: fillTone(run.tone)
+      }, run.t));
+    });
+  }
+
+  /* ---- build ---- */
+  while (svg.firstChild) { svg.removeChild(svg.firstChild); }
+  svg.setAttribute("viewBox", (topo.canvas && topo.canvas.viewBox) || "0 0 1360 1140");
+  svg.appendChild(el("title", { id: "topology-title" }, topo.title));
+  svg.appendChild(el("desc", { id: "topology-desc" }, topo.desc));
+
+  /* Security and ownership boundaries are labeled as well as patterned. */
+  list(topo.zones).forEach(function (zone) {
+    svg.appendChild(el("rect", {
+      "class": "zone zone-" + zone.id, x: zone.x, y: zone.y,
+      width: zone.width, height: zone.height, rx: zone.rx
+    }));
+    svg.appendChild(el("text", {
+      "class": "zone-label", x: zone.lx, y: zone.ly, style: fillTone(zone.tone)
+    }, zone.label));
+  });
+
+  var nodes = {};
+  list(topo.nodes).forEach(function (node) {
+    if (!node.id) { renderErrors.push("A topology node is missing an id."); return; }
+    if (nodes[node.id]) { renderErrors.push("Duplicate topology node id: " + node.id + "."); return; }
+    nodes[node.id] = node;
+  });
+
+  /* All connection paths are behind nodes and use no arrowheads. */
+  var wires = el("g", { "aria-label": "Connections" });
+  list(topo.links).forEach(function (link) {
+    if (!nodes[link.from] || !nodes[link.to]) {
+      renderErrors.push("Link " + link.id + " references a missing object.");
+      return;
+    }
+    /* A halo is a wider background stroke that makes a crossing read as a
+       crossing rather than a connection. */
+    if (link.halo) { wires.appendChild(el("path", { "class": "line-halo", d: link.halo })); }
+    var path = el("path", { id: link.id, "class": "line " + link.kind, d: link.d, style: strokeTone(link.tone) });
+    path.appendChild(el("title", null, link.title));
+    wires.appendChild(path);
+  });
+
+  /* Shared networks use subnet bars and junction circles instead of many
+     repeated point-to-point lines. */
+  list(topo.nodes).forEach(function (node) {
+    if (node.shape !== "segment") { return; }
+    wires.appendChild(el("path", { id: node.id, "class": "subnet", d: node.d, style: strokeTone(node.tone) }));
+    var y = parseFloat(/^M[\d.]+ ([\d.]+)/.exec(node.d)[1]);
+    list(node.junctions).forEach(function (cx) {
+      wires.appendChild(el("circle", { "class": "junction", cx: cx, cy: y, r: 7, style: strokeTone(node.tone) }));
+    });
+  });
+  svg.appendChild(wires);
+
+  /* Link labels, ownership demarcation and the sheet footnote. Drawn after the
+     wires so a label is never crossed by the line it describes. */
+  var marks = el("g", { "aria-label": "Annotations" });
+  list(topo.annotations).forEach(function (item) {
+    if (item.kind === "card") {
+      marks.appendChild(el("rect", { "class": "label-card", x: item.x, y: item.y, width: item.w, height: item.h, rx: item.rx }));
+      marks.appendChild(el("text", { "class": item.c, x: item.tx, y: item.ty, "text-anchor": item.a, style: fillTone(item.tone) }, item.t));
+      return;
+    }
+    if (item.kind === "path") { marks.appendChild(el("path", { "class": item.c, d: item.d })); return; }
+    marks.appendChild(el("text", { "class": item.c, x: item.x, y: item.y, "text-anchor": item.a }, item.t));
+  });
+  svg.appendChild(marks);
+
+  /* Named objects are focusable and drive the inspector. Aggregates and
+     segments are drawn but not focusable: they summarize, they are not devices. */
+  list(topo.nodes).forEach(function (node) {
+    if (node.shape === "segment") { appendText(svg, node.text); return; }
+    if (node.shape === "aggregate") {
+      var host = el("g", { "aria-label": node.label });
+      appendArt(host, node);
+      appendText(host, node.text);
+      svg.appendChild(host);
+      return;
+    }
+    var group = el("g", {
+      "class": "node", role: "button", tabindex: 0,
+      "data-id": node.id, "data-name": node.label, "data-role": node.role,
+      "data-address": node.address, "data-notes": node.notes
+    });
+    if (node.ring) {
+      group.appendChild(el("rect", {
+        "class": "focus-ring", x: node.ring[0], y: node.ring[1],
+        width: node.ring[2], height: node.ring[3], rx: node.ring[4]
+      }));
+    }
+    appendArt(group, node);
+    appendText(group, node.text);
+    svg.appendChild(group);
   });
 
   window.networkDesignAssetMode = portable ? "portable" : "vector-placeholder";
+  window.networkDesignRenderErrors = renderErrors;
 })();
 </script>
 <script>
@@ -1967,27 +2683,29 @@
 
     
 
+    /* Legend swatches mirror whatever the figure drew for that object, so the
+       legend cannot describe a symbol the drawing no longer uses. */
     document.querySelectorAll('[data-legend-device]').forEach(icon => {
       const key = icon.dataset.legendDevice;
       const source = key === 'endpoint-population'
-        ? document.querySelector('#topology g[aria-label="Abstract endpoint populations"] image')
-        : Array.from(document.querySelectorAll('#topology .node[data-id]')).find(node => node.dataset.id === key)?.querySelector('image');
-      const href = source?.getAttribute('href') || source?.getAttributeNS('http://www.w3.org/1999/xlink', 'href');
-      if (!href) return;
-      const image = document.createElementNS('http://www.w3.org/2000/svg', 'image');
-      image.setAttribute('href', href);
-      image.setAttribute('x', '4');
-      image.setAttribute('y', '4');
-      image.setAttribute('width', '56');
-      image.setAttribute('height', '56');
-      image.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-      icon.replaceChildren(image);
+        ? document.querySelector('#topology g[aria-label="User endpoint population"]')
+        : Array.from(document.querySelectorAll('#topology .node[data-id]')).find(node => node.dataset.id === key);
+      const art = source?.querySelector('use, image');
+      if (!art) return;
+      const copy = art.cloneNode(true);
+      copy.removeAttribute('class');
+      copy.setAttribute('x', '4');
+      copy.setAttribute('y', '4');
+      copy.setAttribute('width', '56');
+      copy.setAttribute('height', '56');
+      copy.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+      icon.replaceChildren(copy);
     });
 
     const expectedDocument = Object.freeze({
-      filename: 'cloudbats-NET-ENT-001-v2.0.edit.html',
-      documentId: 'NET-ENT-001',
-      revision: '2.0',
+      filename: 'NET-ENT-002.edit.html',
+      documentId: 'NET-ENT-002',
+      revision: '2.1',
       date: '2026-08-13',
       classification: 'SAMPLE / REFERENCE',
       status: 'PROPOSED / TRAINING'
@@ -1997,8 +2715,9 @@
       const status = document.getElementById('integrity-status');
       const failures = [];
       let data;
-      try { data = JSON.parse(document.getElementById('design-data').textContent); }
-      catch (error) { failures.push(`design-data JSON: ${error.message}`); }
+      try { data = JSON.parse(document.getElementById('proof-data').textContent); }
+      catch (error) { failures.push(`proof-data JSON: ${error.message}`); }
+      const shaped = kind => (data?.topology?.nodes || []).filter(node => node.shape === kind);
       const meta = name => document.querySelector(`meta[name="${name}"]`)?.content;
       const revision = meta('revision');
       const filename = decodeURIComponent(location.pathname.split('/').pop() || '');
@@ -2009,9 +2728,9 @@
       if (meta('classification') !== expectedDocument.classification) failures.push('classification metadata mismatch');
       if (meta('document-status') !== expectedDocument.status) failures.push('status metadata mismatch');
       if (!document.title.includes(`${expectedDocument.documentId} v${revision}`)) failures.push('title identity mismatch');
-      if (data?.meta?.doc_id !== expectedDocument.documentId || data?.meta?.revision !== revision ||
-          data?.meta?.date !== expectedDocument.date || data?.meta?.classification !== expectedDocument.classification ||
-          data?.meta?.status !== expectedDocument.status) failures.push('design-data identity mismatch');
+      if (data?.document?.drawing !== expectedDocument.documentId || data?.document?.revision !== revision ||
+          data?.document?.date !== expectedDocument.date || data?.document?.classification !== expectedDocument.classification ||
+          data?.document?.status?.toUpperCase() !== expectedDocument.status) failures.push('proof-data identity mismatch');
       const header = document.querySelector('.document-header');
       const headerFields = Array.from(document.querySelectorAll('.document-meta .document-field'));
       if (!header || header.getAttribute('aria-labelledby') !== 'document-title' || header.getAttribute('aria-describedby') !== 'document-subtitle') failures.push('document header semantics mismatch');
@@ -2040,14 +2759,15 @@
       const duplicateIds = ids.filter((id, index) => ids.indexOf(id) !== index);
       if (duplicateIds.length) failures.push(`duplicate IDs: ${Array.from(new Set(duplicateIds)).join(', ')}`);
       const figureNodes = Array.from(document.querySelectorAll('#topology .node'), node => node.dataset.id).sort();
-      const dataNodes = (data?.logical_objects || []).map(node => node.id).sort();
-      if (JSON.stringify(figureNodes) !== JSON.stringify(dataNodes)) failures.push('figure node ↔ design-data mismatch');
+      const dataNodes = shaped('device').map(node => node.id).sort();
+      if (JSON.stringify(figureNodes) !== JSON.stringify(dataNodes)) failures.push('figure node ↔ proof-data mismatch');
+      if ((window.networkDesignRenderErrors || []).length) failures.push(window.networkDesignRenderErrors.join(' '));
       const figureLinks = Array.from(document.querySelectorAll('#topology path[id^="L"]'), path => path.id).sort();
-      const dataLinks = (data?.links || []).map(link => link.id).sort();
-      if (JSON.stringify(figureLinks) !== JSON.stringify(dataLinks)) failures.push('figure link ↔ design-data mismatch');
+      const dataLinks = (data?.topology?.links || []).map(link => link.id).sort();
+      if (JSON.stringify(figureLinks) !== JSON.stringify(dataLinks)) failures.push('figure link ↔ proof-data mismatch');
       const figureSegments = Array.from(document.querySelectorAll('#topology path[id^="S"]'), path => path.id).sort();
-      const dataSegments = (data?.segments || []).map(segment => segment.id).sort();
-      if (JSON.stringify(figureSegments) !== JSON.stringify(dataSegments)) failures.push('figure segment ↔ design-data mismatch');
+      const dataSegments = shaped('segment').map(segment => segment.id).sort();
+      if (JSON.stringify(figureSegments) !== JSON.stringify(dataSegments)) failures.push('figure segment ↔ proof-data mismatch');
       const dependencies = document.querySelectorAll('script[src], link[rel="stylesheet"], img[src^="http"], image[href^="http"]');
       if (dependencies.length) failures.push(`${dependencies.length} external runtime dependencies`);
       const topologyImages = Array.from(document.querySelectorAll('#topology image'));

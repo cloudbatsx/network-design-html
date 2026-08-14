@@ -86,9 +86,15 @@ Don't start from a blank page. Copy the one closest to your network.
 |---|---|---|
 | [**Branch site**](starters/NET-BR-001.edit.html) | One WAN edge, one firewall, one switch, wireless, 12U cabinet | 9 nodes — **start here** |
 | [Enterprise edge, DMZ & services](starters/NET-ENT-001.edit.html) | Three zones with a DMZ hanging off the perimeter | 15 nodes |
+| [The same edge, as an engineering sheet](starters/NET-ENT-002.edit.html) | One network, drawn the other way — shared subnet bars and junction circles instead of repeated point-to-point lines, and no rack on purpose | 19 objects |
 | [Leaf-spine fabric](starters/NET-FAB-001.edit.html) | Non-hierarchical: every leaf to every spine, north-south via border leaf | 15 nodes |
 | [Campus + rack](starters/NET-LAB-002.edit.html) | Two independent gateways, peer link, MLAG downstream | 17 nodes |
 | [Headquarters](starters/NET-HQ-001.edit.html) | Collapsed core, out-of-band zone, 22-device 42U rack | 20 nodes |
+
+**NET-ENT-001 and NET-ENT-002 are the same network.** They exist as a pair because
+the drawing is a choice, not a consequence of the data: one spells out every link,
+the other collapses shared networks onto a subnet bar. Open both and copy whichever
+argues better to your reader.
 
 Every kit is one self-contained file with no images, no fonts and no network calls.
 Each one records **its own gaps** — because a document that renders perfectly while
