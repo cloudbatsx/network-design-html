@@ -2,7 +2,7 @@
 
 // The rack faceplate drawing core. Shared, verbatim, by three consumers:
 //
-//   * scripts/build-rack-faces.js, which expands it into an SVG sprite
+//   * tools/build-rack-faces.js, which expands it into an SVG sprite
 //   * examples/rack-face-preview.html, the review page
 //   * the design documents themselves, which inline this whole file and call
 //     faceMarkup() at render time
@@ -31,7 +31,7 @@
 // This file must run unchanged in Node and in a browser: no require, no fs, no
 // optional chaining on globals. Rebuild everything after editing it:
 //
-//   node scripts/build-rack-faces.js
+//   node tools/build-rack-faces.js
 
 var RACK_FACE_CORE = (function () {
   "use strict";

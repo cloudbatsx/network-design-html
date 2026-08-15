@@ -1,10 +1,4 @@
 /dist/**
-!/dist/README.md
-
-# Official artwork now lives in the tracked assets/ directory. vendor-local/ was
-# its untracked predecessor: still honoured if you keep a copy there, never
-# committed. Safe to delete once assets/ is in place.
-/vendor-local/**
 
 *.portable.html
 node_modules/

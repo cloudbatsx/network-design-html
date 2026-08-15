@@ -1,0 +1,1012 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Start here. A visual, step-by-step guide to designing your organisation's network as a self-contained HTML document, using a free AI model.">
+<title>Start here — design your first network document</title>
+<style>
+  :root{
+    --ink:#14242f; --muted:#5d707c; --page:#e8eef1; --paper:#fff; --line:#c9d4da;
+    --blue:#007fa8; --blue2:#006687; --blue-pale:#eaf4f8;
+    --ok:#26734d; --ok-pale:#f1f8f4; --warn:#a66300; --warn-pale:#fff8ed;
+    --bad:#a02d2d; --bad-pale:#fff3f3; --violet:#5b4b8a; --violet-pale:#f2effa;
+    color-scheme:light;
+    font-family:"Segoe UI",Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;color:var(--ink);background:var(--page);line-height:1.55}
+  code,kbd{font-family:Consolas,"Courier New",monospace}
+  .page{width:min(1000px,100%);margin:auto;background:var(--paper);box-shadow:0 0 34px #14242f1f}
+
+  header.hero{padding:40px 44px 34px;border-bottom:1px solid var(--line);
+    background:linear-gradient(135deg,#fbfdfe,#e7f2f6)}
+  .eyebrow{margin:0 0 8px;color:var(--blue2);font-size:.75rem;font-weight:750;letter-spacing:.14em;text-transform:uppercase}
+  h1{margin:0;font-size:clamp(1.8rem,4.4vw,2.9rem);line-height:1.06;letter-spacing:-.01em}
+  .lede{max-width:60ch;margin:14px 0 0;font-size:1.06rem;color:#33454f}
+  .badges{display:flex;flex-wrap:wrap;gap:7px;margin-top:20px}
+  .badge{padding:5px 11px;border-radius:999px;background:#fff;border:1px solid var(--line);
+    font-size:.78rem;font-weight:650;color:var(--blue2)}
+
+  main{padding:8px 44px 56px}
+  h2{margin:0;font-size:1.42rem;line-height:1.2;letter-spacing:-.01em}
+  h3{margin:26px 0 8px;font-size:1.05rem}
+  p{margin:12px 0}
+  a{color:var(--blue2)}
+
+  /* numbered steps with a left rail */
+  .step{position:relative;padding:30px 0 26px 74px;border-top:1px solid var(--line)}
+  .step:first-of-type{border-top:0}
+  .step > .num{position:absolute;left:0;top:30px;display:grid;place-items:center;
+    width:50px;height:50px;border-radius:50%;background:var(--blue2);color:#fff;
+    font-size:1.25rem;font-weight:750}
+  .step.optional > .num{background:var(--violet)}
+  .step .kicker{margin:2px 0 0;color:var(--muted);font-size:.86rem}
+
+  figure{margin:22px 0;padding:0}
+  figure svg{display:block;width:100%;height:auto;max-width:100%}
+  figcaption{margin-top:9px;color:var(--muted);font-size:.85rem}
+
+  .note{margin:18px 0;padding:14px 16px;border-left:4px solid var(--blue);
+    background:var(--blue-pale);border-radius:0 7px 7px 0}
+  .note.tip{border-color:var(--ok);background:var(--ok-pale)}
+  .note.warn{border-color:var(--warn);background:var(--warn-pale)}
+  .note.stop{border-color:var(--bad);background:var(--bad-pale)}
+  .note b{display:block;margin-bottom:3px}
+  .note p{margin:6px 0 0}
+  .note :first-child{margin-top:0}
+
+  table{width:100%;border-collapse:collapse;margin:18px 0;font-size:.92rem}
+  th,td{padding:9px 11px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+  th{background:#f6fafb;font-size:.78rem;text-transform:uppercase;letter-spacing:.05em;color:var(--blue2)}
+  td code{font-size:.85em}
+  .wrap{overflow-x:auto}
+
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:12px;margin:18px 0}
+  .card{padding:14px 15px;border:1px solid var(--line);border-radius:9px;background:#fafcfd}
+  .card b{display:block;margin-bottom:4px;color:var(--blue2)}
+  .card span{font-size:.88rem;color:#3d5261}
+
+  pre{margin:14px 0;padding:13px 15px;border:1px solid var(--line);border-radius:8px;
+    background:#f6fafb;overflow-x:auto;font-size:.83rem;line-height:1.5}
+  .say{margin:14px 0;padding:14px 16px;border:2px dashed #9fc0cd;border-radius:9px;
+    background:#fff;font-size:.97rem}
+  .say b{color:var(--blue2)}
+
+  ol.plain,ul.plain{margin:12px 0;padding-left:22px}
+  ol.plain li,ul.plain li{margin-bottom:7px}
+
+  .check{list-style:none;margin:14px 0;padding:0}
+  .check li{position:relative;margin-bottom:9px;padding-left:30px;font-size:.95rem}
+  .check li::before{content:"";position:absolute;left:0;top:2px;width:18px;height:18px;
+    border:2px solid var(--blue2);border-radius:4px}
+
+  .btn{display:inline-block;padding:2px 9px;border:1px solid var(--blue2);border-radius:5px;
+    background:var(--blue2);color:#fff;font-size:.83rem;font-weight:650;white-space:nowrap}
+  .btn.plain{background:#fff;color:var(--ink);border-color:var(--line)}
+
+  footer{padding:26px 44px 38px;border-top:1px solid var(--line);color:var(--muted);font-size:.85rem}
+
+  @media(max-width:720px){
+    header.hero,main,footer{padding-inline:18px}
+    .step{padding-left:0;padding-top:64px}
+    .step > .num{top:12px;width:42px;height:42px;font-size:1.05rem}
+  }
+  @media print{
+    body{background:#fff}
+    .page{box-shadow:none;width:100%}
+    .step{break-inside:avoid}
+    figure{break-inside:avoid}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+<header class="hero">
+  <p class="eyebrow">Network Design HTML · Start here</p>
+  <h1>Design your organisation's network,<br>one plain-English sentence at a time</h1>
+  <p class="lede">You do not need to be a senior engineer, own Visio, or install anything.
+  You need a browser, a free AI chat window, and about twenty minutes. This page walks you
+  through it from nothing to a finished document you can print, email, or hand to an auditor.</p>
+  <div class="badges">
+    <span class="badge">No installs</span>
+    <span class="badge">Works offline</span>
+    <span class="badge">A free AI model is enough</span>
+    <span class="badge">One HTML file per design</span>
+  </div>
+</header>
+
+<main>
+
+<!-- ============================================ WHAT YOU GET -->
+<section class="step">
+  <span class="num">✦</span>
+  <h2>What you are going to end up with</h2>
+  <p class="kicker">So you know what you are aiming at before you start.</p>
+
+  <p>One file. It opens in any browser, it prints to a clean PDF, and it holds four things
+  that normally live in four different tools:</p>
+
+  <figure>
+    <svg viewBox="0 0 900 380" role="img" aria-label="A finished design document: a title band, a topology drawing, a rack elevation, and written sections with numbered gap markers.">
+      <rect x="1" y="1" width="898" height="378" rx="10" fill="#fff" stroke="#c9d4da"/>
+      <!-- title band -->
+      <rect x="1" y="1" width="898" height="52" rx="10" fill="#14242f"/>
+      <rect x="1" y="40" width="898" height="13" fill="#14242f"/>
+      <circle cx="34" cy="27" r="12" fill="#51bde6"/>
+      <rect x="56" y="18" width="180" height="9" rx="4" fill="#ffffff" opacity=".92"/>
+      <rect x="56" y="32" width="120" height="7" rx="3" fill="#ffffff" opacity=".5"/>
+      <rect x="770" y="18" width="98" height="20" rx="10" fill="#a02d2d"/>
+      <text x="819" y="32" font-size="10" fill="#fff" text-anchor="middle" font-family="Segoe UI,Arial">UNVERIFIED</text>
+
+      <!-- topology panel -->
+      <text x="24" y="76" font-size="11" font-weight="700" fill="#006687" font-family="Segoe UI,Arial">LOGICAL TOPOLOGY</text>
+      <rect x="20" y="84" width="530" height="180" rx="8" fill="#fafcfd" stroke="#c9d4da"/>
+      <rect x="34" y="96" width="220" height="72" rx="6" fill="#fdf3ef" stroke="#d18972" stroke-dasharray="4 3"/>
+      <text x="42" y="110" font-size="9" fill="#a35b42" font-family="Segoe UI,Arial">PERIMETER</text>
+      <rect x="300" y="96" width="236" height="156" rx="6" fill="#eef6f2" stroke="#7fae95" stroke-dasharray="4 3"/>
+      <text x="308" y="110" font-size="9" fill="#3d7a5b" font-family="Segoe UI,Arial">INTERNAL</text>
+      <!-- devices -->
+      <g font-family="Segoe UI,Arial" font-size="9" text-anchor="middle">
+        <rect x="52" y="118" width="76" height="40" rx="5" fill="#fff" stroke="#8ca3ae"/>
+        <circle cx="90" cy="132" r="8" fill="#0076a8"/><text x="90" y="152" fill="#33454f">edge-fw-01</text>
+        <rect x="160" y="118" width="76" height="40" rx="5" fill="#fff" stroke="#8ca3ae"/>
+        <circle cx="198" cy="132" r="8" fill="#005779"/><text x="198" y="152" fill="#33454f">edge-rtr-01</text>
+        <rect x="318" y="118" width="76" height="40" rx="5" fill="#fff" stroke="#8ca3ae"/>
+        <circle cx="356" cy="132" r="8" fill="#0076a8"/><text x="356" y="152" fill="#33454f">core-sw-01</text>
+        <rect x="440" y="118" width="76" height="40" rx="5" fill="#fff" stroke="#8ca3ae"/>
+        <circle cx="478" cy="132" r="8" fill="#0076a8"/><text x="478" y="152" fill="#33454f">core-sw-02</text>
+        <rect x="378" y="196" width="76" height="40" rx="5" fill="#fff" stroke="#8ca3ae"/>
+        <circle cx="416" cy="210" r="8" fill="#51bde6"/><text x="416" y="230" fill="#33454f">acc-sw-01</text>
+      </g>
+      <g stroke="#5d707c" stroke-width="1.6" fill="none">
+        <path d="M128 138 H160"/><path d="M236 138 H318"/><path d="M394 138 H440"/>
+        <path d="M356 158 V196 H378"/><path d="M478 158 V180 H416 V196"/>
+      </g>
+      <!-- gap marker -->
+      <circle cx="128" cy="120" r="9" fill="#a02d2d"/><text x="128" y="123.5" font-size="10" fill="#fff" text-anchor="middle" font-family="Segoe UI,Arial">1</text>
+
+      <!-- rack panel -->
+      <text x="580" y="76" font-size="11" font-weight="700" fill="#006687" font-family="Segoe UI,Arial">RACK ELEVATION</text>
+      <rect x="576" y="84" width="130" height="270" rx="6" fill="#eef2f4" stroke="#c9d4da"/>
+      <g>
+        <rect x="588" y="96" width="106" height="16" rx="2" fill="#c2ccd2" stroke="#78848c"/>
+        <rect x="588" y="116" width="106" height="16" rx="2" fill="#c2ccd2" stroke="#78848c"/>
+        <rect x="588" y="136" width="106" height="30" rx="2" fill="#aab5bc" stroke="#78848c"/>
+        <rect x="588" y="170" width="106" height="16" rx="2" fill="#c2ccd2" stroke="#78848c"/>
+        <rect x="588" y="238" width="106" height="16" rx="2" fill="#c2ccd2" stroke="#78848c"/>
+        <rect x="588" y="318" width="106" height="30" rx="2" fill="#3d454c" stroke="#12171b"/>
+      </g>
+      <g font-family="Consolas,monospace" font-size="7" fill="#5d707c">
+        <text x="710" y="107">U42</text><text x="710" y="127">U41</text>
+        <text x="710" y="155">U39</text><text x="710" y="181">U38</text>
+        <text x="710" y="249">U34</text><text x="710" y="337">U01</text>
+      </g>
+
+      <!-- sections -->
+      <text x="748" y="76" font-size="11" font-weight="700" fill="#006687" font-family="Segoe UI,Arial">THE WRITE-UP</text>
+      <g>
+        <rect x="744" y="86" width="134" height="7" rx="3" fill="#33454f"/>
+        <rect x="744" y="100" width="120" height="5" rx="2" fill="#c9d4da"/>
+        <rect x="744" y="110" width="128" height="5" rx="2" fill="#c9d4da"/>
+        <rect x="744" y="120" width="96" height="5" rx="2" fill="#c9d4da"/>
+        <rect x="744" y="140" width="110" height="7" rx="3" fill="#33454f"/>
+        <rect x="744" y="154" width="128" height="5" rx="2" fill="#c9d4da"/>
+        <rect x="744" y="164" width="104" height="5" rx="2" fill="#c9d4da"/>
+      </g>
+      <rect x="744" y="190" width="134" height="90" rx="6" fill="#fff3f3" stroke="#e0b3b3"/>
+      <text x="752" y="206" font-size="9" font-weight="700" fill="#a02d2d" font-family="Segoe UI,Arial">KEY GAPS</text>
+      <g>
+        <circle cx="757" cy="222" r="7" fill="#a02d2d"/><text x="757" y="225" font-size="8" fill="#fff" text-anchor="middle" font-family="Segoe UI,Arial">1</text>
+        <rect x="770" y="218" width="98" height="5" rx="2" fill="#c99"/>
+        <circle cx="757" cy="244" r="7" fill="#a02d2d"/><text x="757" y="247" font-size="8" fill="#fff" text-anchor="middle" font-family="Segoe UI,Arial">2</text>
+        <rect x="770" y="240" width="86" height="5" rx="2" fill="#c99"/>
+      </g>
+      <text x="24" y="292" font-size="10" fill="#5d707c" font-family="Segoe UI,Arial">Click any device to inspect it · the file checks its own maths when it opens</text>
+      <rect x="20" y="304" width="530" height="50" rx="6" fill="#f1f8f4" stroke="#a9cdbb"/>
+      <text x="36" y="326" font-size="11" font-weight="700" fill="#26734d" font-family="Segoe UI,Arial">PASS · 0 data errors</text>
+      <text x="36" y="342" font-size="9.5" fill="#3d5261" font-family="Segoe UI,Arial">no rack collisions · no dangling links · every gap marker points at a real device</text>
+    </svg>
+    <figcaption>One file: the drawing, the rack, the written record, and the list of things you
+    are <em>not</em> sure about — with numbered markers tying that list back to the picture.</figcaption>
+  </figure>
+
+  <div class="note tip">
+    <b>The one idea to hold on to</b>
+    <p>You never edit the drawing. You never touch HTML. You describe a change in a sentence,
+    a free AI writes a small block of <em>data</em>, and the file draws itself from that data.
+    Everything else in the file is copied across untouched, character for character.</p>
+  </div>
+</section>
+
+<!-- ============================================ BEFORE YOU START -->
+<section class="step">
+  <span class="num">0</span>
+  <h2>Before you open anything, write down what you know</h2>
+  <p class="kicker">Ten minutes here saves an hour of arguing with an AI later.</p>
+
+  <p>You are documenting a network you already have (or one you are proposing). Get it out of
+  your head and onto a scrap of paper first. You need four short lists:</p>
+
+  <div class="cards">
+    <div class="card"><b>Devices</b><span>Every box you want on the picture. A short id and what it is: firewall, router, core switch, access point, server.</span></div>
+    <div class="card"><b>Connections</b><span>What plugs into what. You do not need port numbers — just "this one connects to that one".</span></div>
+    <div class="card"><b>Areas</b><span>The groupings a reader needs: outside, perimeter/DMZ, internal, management.</span></div>
+    <div class="card"><b>Rack contents</b><span>Only if you are documenting a physical rack: what is mounted, how tall it is in U, and where.</span></div>
+  </div>
+
+  <h3>Pick device ids now, and keep them boring</h3>
+  <p>An id is the short name the document uses everywhere. <code>core-sw-01</code>. <code>edge-fw-02</code>.
+  <code>sea-acc-01</code>. Lower case, no spaces, numbered. This matters more than it looks:</p>
+
+  <div class="note warn">
+    <b>The same device uses the same id in the drawing and in the rack</b>
+    <p>That shared id is the thread tying the two views together. If the picture calls it
+    <code>core-sw-01</code> and the rack calls it <code>coresw1</code>, the document thinks they
+    are two different machines — and so will the next person to read it.</p>
+  </div>
+
+  <h3>Write down what you are not sure about</h3>
+  <p>Seriously. "Nobody has tested the firewall failover." "I think that link is 1 Gbps but I
+  have not checked." These go in the document as <b>gaps</b>, and they are the most valuable
+  part of it. A drawing that looks confident about something nobody verified is worse than no
+  drawing at all.</p>
+</section>
+
+<!-- ============================================ GET THE FILES -->
+<section class="step">
+  <span class="num">1</span>
+  <h2>Get the files, and ignore almost all of them</h2>
+  <p class="kicker">The repository has a lot in it. You need three things.</p>
+
+  <p>Download or clone this repository anywhere on your machine — Desktop is fine. Then forget
+  most of what you see. As a beginner, exactly three items matter:</p>
+
+  <figure>
+    <svg viewBox="0 0 900 300" role="img" aria-label="Map of the repository highlighting the three items a beginner needs: the starters folder, the AI helper tool, and the assets folder.">
+      <rect x="1" y="1" width="898" height="298" rx="10" fill="#fafcfd" stroke="#c9d4da"/>
+      <text x="26" y="34" font-size="13" font-weight="700" fill="#14242f" font-family="Consolas,monospace">network-design-html/</text>
+
+      <!-- highlighted: starters -->
+      <rect x="40" y="48" width="410" height="52" rx="7" fill="#eaf4f8" stroke="#007fa8" stroke-width="2"/>
+      <text x="58" y="70" font-size="12.5" font-weight="700" fill="#006687" font-family="Consolas,monospace">starters/</text>
+      <text x="58" y="88" font-size="10.5" fill="#3d5261" font-family="Segoe UI,Arial">10 ready-made designs, plus the blank template. Copy the closest one.</text>
+      <circle cx="470" cy="74" r="13" fill="#007fa8"/><text x="470" y="78.5" font-size="12" fill="#fff" text-anchor="middle" font-family="Segoe UI,Arial">1</text>
+
+      <!-- highlighted: tool -->
+      <rect x="40" y="110" width="410" height="52" rx="7" fill="#eaf4f8" stroke="#007fa8" stroke-width="2"/>
+      <text x="58" y="132" font-size="12.5" font-weight="700" fill="#006687" font-family="Consolas,monospace">tools/edit-with-ai.html</text>
+      <text x="58" y="150" font-size="10.5" fill="#3d5261" font-family="Segoe UI,Arial">The helper. Writes the prompt, checks the reply, saves the file.</text>
+      <circle cx="470" cy="136" r="13" fill="#007fa8"/><text x="470" y="140.5" font-size="12" fill="#fff" text-anchor="middle" font-family="Segoe UI,Arial">2</text>
+
+      <!-- highlighted: assets -->
+      <rect x="40" y="172" width="410" height="52" rx="7" fill="#f2effa" stroke="#5b4b8a" stroke-width="2"/>
+      <text x="58" y="194" font-size="12.5" font-weight="700" fill="#5b4b8a" font-family="Consolas,monospace">assets/</text>
+      <text x="58" y="212" font-size="10.5" fill="#3d5261" font-family="Segoe UI,Arial">Official Cisco artwork. Optional — only for the last step.</text>
+      <circle cx="470" cy="198" r="13" fill="#5b4b8a"/><text x="470" y="202.5" font-size="12" fill="#fff" text-anchor="middle" font-family="Segoe UI,Arial">3</text>
+
+      <!-- greyed out -->
+      <g opacity=".5" font-family="Consolas,monospace" font-size="11" fill="#5d707c">
+        <text x="530" y="66">symbols/</text>
+        <text x="530" y="88">rack-faces/</text>
+        <text x="530" y="110">docs/</text>
+        <text x="530" y="132">tools/packager/</text>
+        <text x="530" y="154">examples/</text>
+        <text x="530" y="176">tests/</text>
+      </g>
+      <text x="530" y="228" font-size="10.5" fill="#8ca3ae" font-family="Segoe UI,Arial" font-style="italic">Everything else: for people changing how the tool works.</text>
+      <text x="530" y="246" font-size="10.5" fill="#8ca3ae" font-family="Segoe UI,Arial" font-style="italic">You can safely ignore all of it.</text>
+
+      <rect x="40" y="244" width="410" height="38" rx="7" fill="#f1f8f4" stroke="#a9cdbb"/>
+      <text x="58" y="268" font-size="11" fill="#26734d" font-family="Segoe UI,Arial">Nothing to install. No Node, no npm, no command line.</text>
+    </svg>
+    <figcaption>Three items. The greyed-out folders exist for people maintaining the project,
+    not for people using it.</figcaption>
+  </figure>
+</section>
+
+<!-- ============================================ PICK A STARTER -->
+<section class="step">
+  <span class="num">2</span>
+  <h2>Pick the starter closest to your network</h2>
+  <p class="kicker">Never start from a blank page. Start from something 70% right and bend it.</p>
+
+  <p>Open <code>starters/</code> and choose by <b>shape</b>, not by size. You will change the
+  device names and counts anyway — what you want is a document whose <em>structure</em>
+  already matches yours.</p>
+
+  <div class="wrap">
+  <table>
+    <thead><tr><th>If your network is…</th><th>Start with</th><th>What it already contains</th></tr></thead>
+    <tbody>
+      <tr><td><b>One office, one internet line</b><br><span style="color:var(--muted)">Most people start here</span></td><td><code>NET-BR-001</code></td><td>WAN edge, firewall, one switch, wireless, a 12U cabinet. 9 devices.</td></tr>
+      <tr><td>A bigger site feeding smaller ones</td><td><code>NET-HQ-001</code></td><td>Start here and adapt. <code>NET-RH-001</code> draws this exact shape as an engineering sheet — copy from it, but don't AI-edit it (see below).</td></tr>
+      <tr><td>An internet edge with a DMZ</td><td><code>NET-ENT-001</code></td><td>Three zones, DMZ hanging off the perimeter. 15 devices.</td></tr>
+      <tr><td>A campus with two of everything</td><td><code>NET-LAB-002</code></td><td>Two gateways, peer link, dual-homed access. 17 devices.</td></tr>
+      <tr><td>A head office</td><td><code>NET-HQ-001</code></td><td>Collapsed core, out-of-band zone, 22 devices in a 42U rack.</td></tr>
+      <tr><td>A data centre fabric</td><td><code>NET-FAB-001</code></td><td>Every leaf to every spine, north-south via border leaf.</td></tr>
+      <tr><td>A factory or plant floor</td><td><code>NET-OT-001</code></td><td>Purdue levels, an industrial DMZ, cell/area rings, a safety system.</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="note warn">
+    <b>Four starters behave differently — avoid them on your first go</b>
+    <p><code>NET-ENT-002</code>, <code>NET-HQ-002</code>, <code>NET-LAB-003</code> and
+    <code>NET-RH-001</code> are drawn as <em>engineering sheets</em>. They look superb, but they
+    use a different internal grammar: some of the automatic drawing checks do not apply to them,
+    and per-device custom artwork does not work. Learn the workflow on one of the others first.</p>
+  </div>
+
+  <p><b>Make a copy before you touch it.</b> Copy the starter to your own folder and rename it —
+  <code>acme-branch-melbourne.edit.html</code>. Leave the originals alone so you always have a
+  clean one to go back to.</p>
+</section>
+
+<!-- ============================================ OPEN IT -->
+<section class="step">
+  <span class="num">3</span>
+  <h2>Double-click it. It already works.</h2>
+  <p class="kicker">Before changing anything, look at what you have.</p>
+
+  <p>Your copy opens in your browser as a finished document — drawing, rack, write-up, gaps.
+  No server, no internet connection, no images to load. Click a device: it tells you what it is.
+  Look at the top: a <b>PASS</b> or <b>FAIL</b> badge, because the file checks its own maths
+  every time it opens.</p>
+
+  <p>Try printing it to PDF right now (<kbd>Ctrl</kbd>+<kbd>P</kbd>). The sidebar drops away and
+  hidden sections are revealed, because a printed document should not hide its own uncertainty.
+  That is the deliverable — you are about to make it say your network instead of the example one.</p>
+</section>
+
+<!-- ============================================ THE PARTS -->
+<section class="step">
+  <span class="num">4</span>
+  <h2>Understand the one screen you will live in</h2>
+  <p class="kicker">Open <code>tools/edit-with-ai.html</code>. Four steps, top to bottom.</p>
+
+  <p>This page never uploads anything. Your file stays on your machine; the helper just writes
+  the prompt, checks what comes back, and writes the new file.</p>
+
+  <figure>
+    <svg viewBox="0 0 900 470" role="img" aria-label="The editing loop: choose your file, pick the part and describe the change, copy the prompt into a free AI chat, paste the reply back, check it, review the changes, save.">
+      <rect x="1" y="1" width="898" height="468" rx="10" fill="#fff" stroke="#c9d4da"/>
+
+      <!-- step 1 -->
+      <g>
+        <circle cx="46" cy="52" r="17" fill="#006687"/><text x="46" y="58" font-size="14" fill="#fff" text-anchor="middle" font-family="Segoe UI,Arial">1</text>
+        <text x="76" y="48" font-size="13" font-weight="700" fill="#14242f" font-family="Segoe UI,Arial">Choose your design file</text>
+        <text x="76" y="66" font-size="11" fill="#5d707c" font-family="Segoe UI,Arial">Your renamed copy of the starter.</text>
+      </g>
+
+      <!-- step 2 -->
+      <g>
+        <circle cx="46" cy="128" r="17" fill="#006687"/><text x="46" y="134" font-size="14" fill="#fff" text-anchor="middle" font-family="Segoe UI,Arial">2</text>
+        <text x="76" y="118" font-size="13" font-weight="700" fill="#14242f" font-family="Segoe UI,Arial">Say what you want changed</text>
+        <text x="76" y="136" font-size="11" fill="#5d707c" font-family="Segoe UI,Arial">First pick the part. Then type one sentence.</text>
+      </g>
+      <rect x="76" y="148" width="330" height="30" rx="6" fill="#fff" stroke="#8ca3ae"/>
+      <text x="88" y="167" font-size="11" fill="#14242f" font-family="Segoe UI,Arial">Devices — add, remove, move, rename        ▾</text>
+      <rect x="76" y="184" width="330" height="44" rx="6" fill="#fff" stroke="#c9d4da"/>
+      <text x="88" y="203" font-size="10.5" fill="#3d5261" font-family="Segoe UI,Arial" font-style="italic">“Add a wireless LAN controller called wlc-01</text>
+      <text x="88" y="219" font-size="10.5" fill="#3d5261" font-family="Segoe UI,Arial" font-style="italic">in the internal area.”</text>
+      <rect x="76" y="236" width="104" height="26" rx="6" fill="#006687"/>
+      <text x="128" y="253" font-size="11" fill="#fff" text-anchor="middle" font-family="Segoe UI,Arial">Copy prompt</text>
+
+      <!-- arrow to AI -->
+      <path d="M420 200 H520" stroke="#007fa8" stroke-width="2.5" fill="none" marker-end="url(#ar)"/>
+      <defs><marker id="ar" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+        <path d="M0 0 L9 4.5 L0 9 z" fill="#007fa8"/></marker></defs>
+      <text x="470" y="192" font-size="10" fill="#006687" text-anchor="middle" font-family="Segoe UI,Arial">paste</text>
+
+      <!-- AI box -->
+      <rect x="530" y="120" width="330" height="160" rx="9" fill="#f2effa" stroke="#5b4b8a"/>
+      <text x="695" y="146" font-size="12.5" font-weight="700" fill="#5b4b8a" text-anchor="middle" font-family="Segoe UI,Arial">Any free AI chat window</text>
+      <text x="695" y="166" font-size="10.5" fill="#5b4b8a" text-anchor="middle" font-family="Segoe UI,Arial">It never sees your HTML file —</text>
+      <text x="695" y="182" font-size="10.5" fill="#5b4b8a" text-anchor="middle" font-family="Segoe UI,Arial">only a small block of data.</text>
+      <rect x="556" y="196" width="278" height="66" rx="6" fill="#fff" stroke="#c3b8dd"/>
+      <text x="568" y="214" font-size="9.5" fill="#5d707c" font-family="Consolas,monospace">{ "topology": { "nodes": [</text>
+      <text x="568" y="228" font-size="9.5" fill="#5d707c" font-family="Consolas,monospace">    { "id": "wlc-01", ... },</text>
+      <text x="568" y="242" font-size="9.5" fill="#5d707c" font-family="Consolas,monospace">  ] } }</text>
+      <text x="568" y="256" font-size="9" fill="#8ca3ae" font-family="Segoe UI,Arial">it replies with data only</text>
+
+      <!-- arrow back -->
+      <path d="M690 288 V318 H420" stroke="#007fa8" stroke-width="2.5" fill="none" marker-end="url(#ar)"/>
+      <text x="560" y="310" font-size="10" fill="#006687" text-anchor="middle" font-family="Segoe UI,Arial">paste the reply back</text>
+
+      <!-- step 3 -->
+      <g>
+        <circle cx="46" cy="330" r="17" fill="#006687"/><text x="46" y="336" font-size="14" fill="#fff" text-anchor="middle" font-family="Segoe UI,Arial">3</text>
+        <text x="76" y="326" font-size="13" font-weight="700" fill="#14242f" font-family="Segoe UI,Arial">Paste what the AI sent back</text>
+        <text x="76" y="344" font-size="11" fill="#5d707c" font-family="Segoe UI,Arial">Then press Check it.</text>
+      </g>
+      <rect x="76" y="354" width="80" height="24" rx="6" fill="#006687"/>
+      <text x="116" y="370" font-size="10.5" fill="#fff" text-anchor="middle" font-family="Segoe UI,Arial">Check it</text>
+
+      <!-- step 4 -->
+      <g>
+        <circle cx="46" cy="416" r="17" fill="#26734d"/><text x="46" y="422" font-size="14" fill="#fff" text-anchor="middle" font-family="Segoe UI,Arial">4</text>
+        <text x="76" y="406" font-size="13" font-weight="700" fill="#14242f" font-family="Segoe UI,Arial">Read what changed, then save</text>
+        <text x="76" y="424" font-size="11" fill="#5d707c" font-family="Segoe UI,Arial">A plain list of every difference, before you commit to it.</text>
+      </g>
+      <rect x="440" y="336" width="420" height="112" rx="8" fill="#fafcfd" stroke="#c9d4da"/>
+      <text x="456" y="357" font-size="10.5" font-weight="700" fill="#14242f" font-family="Segoe UI,Arial">About to change 2 things</text>
+      <text x="600" y="357" font-size="9.5" fill="#5d707c" font-family="Segoe UI,Arial">— check this is only what you asked for</text>
+      <text x="456" y="378" font-size="9" font-weight="700" fill="#006687" font-family="Segoe UI,Arial">DEVICES</text>
+      <text x="456" y="394" font-size="10" fill="#26734d" font-family="Consolas,monospace">+ wlc-01  wlan-controller  “WLC”</text>
+      <text x="456" y="410" font-size="9" font-weight="700" fill="#006687" font-family="Segoe UI,Arial">CONNECTIONS</text>
+      <text x="456" y="426" font-size="10" fill="#26734d" font-family="Consolas,monospace">+ core-sw-01 → wlc-01  l3</text>
+    </svg>
+    <figcaption>The whole loop. The AI only ever sees a small block of data — never your
+    HTML, never the drawing code, never your styling.</figcaption>
+  </figure>
+</section>
+
+<!-- ============================================ PICK THE PART -->
+<section class="step">
+  <span class="num">5</span>
+  <h2>Change one part at a time</h2>
+  <p class="kicker">This is the single most important habit. It is why a free model can do this.</p>
+
+  <p>Your whole design might be 39,000 characters of data. A free AI has a limit on how much it
+  can write in one reply — ask for everything and it gets cut off half way, which is the most
+  common way this goes wrong.</p>
+
+  <p>So the dropdown in step 2 lets you ask for <b>one part</b>. The AI only rewrites that part;
+  the helper puts it back into your untouched file.</p>
+
+  <figure>
+    <svg viewBox="0 0 900 260" role="img" aria-label="The design data split into parts: devices, connections, areas, rack, gaps, notes and cover details, each far smaller than the whole.">
+      <rect x="1" y="1" width="898" height="258" rx="10" fill="#fafcfd" stroke="#c9d4da"/>
+      <text x="26" y="32" font-size="12" font-weight="700" fill="#14242f" font-family="Segoe UI,Arial">Your whole design</text>
+      <rect x="26" y="42" width="848" height="26" rx="5" fill="#dbe4e9" stroke="#8ca3ae"/>
+      <text x="450" y="60" font-size="11" fill="#3d5261" text-anchor="middle" font-family="Segoe UI,Arial">≈ 39,000 characters — too much for one free reply</text>
+
+      <text x="26" y="100" font-size="12" font-weight="700" fill="#14242f" font-family="Segoe UI,Arial">Ask for one part instead</text>
+
+      <g font-family="Segoe UI,Arial">
+        <rect x="26" y="112" width="188" height="58" rx="7" fill="#eaf4f8" stroke="#007fa8"/>
+        <text x="40" y="133" font-size="11.5" font-weight="700" fill="#006687">Devices</text>
+        <text x="40" y="150" font-size="10" fill="#3d5261">add, remove, move, rename</text>
+        <text x="40" y="164" font-size="9.5" fill="#8ca3ae">2.7–12.8 KB</text>
+
+        <rect x="222" y="112" width="188" height="58" rx="7" fill="#eaf4f8" stroke="#007fa8"/>
+        <text x="236" y="133" font-size="11.5" font-weight="700" fill="#006687">Connections</text>
+        <text x="236" y="150" font-size="10" fill="#3d5261">what is wired to what</text>
+        <text x="236" y="164" font-size="9.5" fill="#8ca3ae">1.0–7.3 KB</text>
+
+        <rect x="418" y="112" width="188" height="58" rx="7" fill="#eaf4f8" stroke="#007fa8"/>
+        <text x="432" y="133" font-size="11.5" font-weight="700" fill="#006687">Areas</text>
+        <text x="432" y="150" font-size="10" fill="#3d5261">the boxes devices sit in</text>
+        <text x="432" y="164" font-size="9.5" fill="#8ca3ae">0.5–2.2 KB</text>
+
+        <rect x="614" y="112" width="260" height="58" rx="7" fill="#eaf4f8" stroke="#007fa8"/>
+        <text x="628" y="133" font-size="11.5" font-weight="700" fill="#006687">The rack</text>
+        <text x="628" y="150" font-size="10" fill="#3d5261">what is mounted where</text>
+        <text x="628" y="164" font-size="9.5" fill="#8ca3ae">1.7–5.1 KB</text>
+
+        <rect x="26" y="180" width="188" height="58" rx="7" fill="#fff8ed" stroke="#a66300"/>
+        <text x="40" y="201" font-size="11.5" font-weight="700" fill="#a66300">Gaps &amp; open items</text>
+        <text x="40" y="218" font-size="10" fill="#3d5261">what you are unsure of</text>
+        <text x="40" y="232" font-size="9.5" fill="#8ca3ae">2.8–4.3 KB</text>
+
+        <rect x="222" y="180" width="188" height="58" rx="7" fill="#fff8ed" stroke="#a66300"/>
+        <text x="236" y="201" font-size="11.5" font-weight="700" fill="#a66300">Notes &amp; tables</text>
+        <text x="236" y="218" font-size="10" fill="#3d5261">the written sections</text>
+
+        <rect x="418" y="180" width="188" height="58" rx="7" fill="#fff8ed" stroke="#a66300"/>
+        <text x="432" y="201" font-size="11.5" font-weight="700" fill="#a66300">Cover details</text>
+        <text x="432" y="218" font-size="10" fill="#3d5261">title, branding, footer</text>
+
+        <rect x="614" y="180" width="260" height="58" rx="7" fill="#f4f7f9" stroke="#c9d4da" stroke-dasharray="5 4"/>
+        <text x="628" y="201" font-size="11.5" font-weight="700" fill="#5d707c">Everything</text>
+        <text x="628" y="218" font-size="10" fill="#8ca3ae">only for small designs, or a last resort</text>
+      </g>
+    </svg>
+    <figcaption>Asking for the devices on the largest starter means the AI writes back about
+    3 KB instead of 39 KB — 80–90% less to produce, and far less it can break by accident.</figcaption>
+  </figure>
+
+  <div class="note tip">
+    <b>A second, quieter benefit</b>
+    <p>An AI asked only for the rack <em>cannot</em> reword your findings or move devices on the
+    drawing. Narrowing the request narrows the blast radius.</p>
+  </div>
+
+  <h3>So plan your work as a short list of small edits</h3>
+  <ol class="plain">
+    <li><b>Devices</b> — rename the example devices to yours, add and remove until the list is right.</li>
+    <li><b>Connections</b> — wire them up.</li>
+    <li><b>Areas</b> — adjust the zone boxes if your grouping differs.</li>
+    <li><b>The rack</b> — if you have one.</li>
+    <li><b>Cover details</b> — your title, drawing number, author, date.</li>
+    <li><b>Gaps</b> — everything you are not sure about.</li>
+    <li><b>Notes &amp; tables</b> — the written record, last.</li>
+  </ol>
+</section>
+
+<!-- ============================================ WRITE A GOOD REQUEST -->
+<section class="step">
+  <span class="num">6</span>
+  <h2>How to phrase the request</h2>
+  <p class="kicker">Plain English. Be specific about names, vague about everything else.</p>
+
+  <div class="say">
+    <b>Good</b> — “Rename <code>edge-fw-01</code> to <code>mel-fw-01</code>, and add a second
+    firewall <code>mel-fw-02</code> next to it in the perimeter area.”
+  </div>
+  <div class="say">
+    <b>Good</b> — “Remove the three example access switches. Add two: <code>mel-acc-01</code>
+    and <code>mel-acc-02</code>, both in the internal area.”
+  </div>
+  <div class="say" style="border-color:#e0b3b3">
+    <b style="color:var(--bad)">Weak</b> — “Make it match our network.” The AI has no idea what
+    your network is. It will invent one, confidently.
+  </div>
+
+  <p>You do not need to mention coordinates, icon names, colours or file formats. The prompt the
+  helper builds already contains the rules, the list of valid device types, your current data,
+  and the ids the rest of the document depends on.</p>
+
+  <h3>Choosing what a device looks like</h3>
+  <p>If you name the kind of thing it is, the AI will pick from the twenty available device
+  types. They are:</p>
+  <pre>cloud · router · firewall · core-switch · access-switch · access-point
+server · pc · workstation · wlan-controller · vpn-headend · dc-switch
+ip-phone · laptop · printer · database · storage-array
+network-management · branch-office · wireless-router</pre>
+  <p>Not on the list? Say the closest one — “treat the load balancer as a server”. Made-up types
+  draw a red error box, and the checker will catch it before you save.</p>
+</section>
+
+<!-- ============================================ CHECK IT -->
+<section class="step">
+  <span class="num">7</span>
+  <h2>Press <span class="btn">Check it</span> and read what it says</h2>
+  <p class="kicker">This is the step that makes the whole thing safe for a beginner.</p>
+
+  <p>Paste the AI's whole reply — code fences, a stray “Sure, here you go!”, a trailing comma,
+  it cleans all of that up. Then one of three things happens.</p>
+
+  <div class="wrap">
+  <table>
+    <thead><tr><th>What you see</th><th>What it means</th><th>What to do</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><b style="color:var(--ok)">No problems found</b></td>
+        <td>The data is complete and consistent.</td>
+        <td>Read the change list, then save.</td>
+      </tr>
+      <tr>
+        <td><b style="color:var(--warn)">Ready to save, with N warnings</b></td>
+        <td>It will draw, but something is off — devices overlapping, a device half in and half
+        out of an area, an empty gaps list.</td>
+        <td>Read them. Fix if they matter; save if they do not.</td>
+      </tr>
+      <tr>
+        <td><b style="color:var(--bad)">N problems must be fixed</b></td>
+        <td>Saving would produce a broken document.</td>
+        <td>Press <span class="btn plain">Copy problems</span>, paste it back to the AI, paste
+        its new reply, check again.</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <p>The messages are written for humans, not for engineers:</p>
+  <pre>access-sw-01 and edge-fw-02 both occupy U38.
+Free units are: 1, 2, 3, 12, 13, 30, 31.
+
+Connection 4 points at "acc-sw-03", which is not a device on
+this diagram. The connection will not be drawn.
+
+"wlc-01" is drawn off the right edge of the page.
+
+Gap 2 is pinned to "core-sw-09", which is not a device on this
+diagram. The marker will not be drawn.</pre>
+
+  <div class="note tip">
+    <b>You are never stuck in a loop</b>
+    <p><span class="btn plain">Copy problems</span> puts a ready-made message on your clipboard —
+    the problem <em>and</em> the instruction to fix it. Paste it straight into the same AI chat.
+    Two rounds is normal. If a third round fails, make your request smaller instead of louder.</p>
+  </div>
+</section>
+
+<!-- ============================================ REVIEW -->
+<section class="step">
+  <span class="num">8</span>
+  <h2>Read the change list before you save</h2>
+  <p class="kicker">Passing the checks proves the file is not broken. It does not prove the AI only did what you asked.</p>
+
+  <p>An AI told to add one switch can also reword a caption, renumber an address, or quietly drop
+  a device from your rack — and every check above would still pass, because the result is
+  perfectly valid data. So step 4 shows you a plain list of every single difference:</p>
+
+  <figure>
+    <svg viewBox="0 0 900 220" role="img" aria-label="The change list showing an added device, a changed label, and a removed rack device highlighted in red.">
+      <rect x="1" y="1" width="898" height="218" rx="10" fill="#fff" stroke="#c9d4da"/>
+      <rect x="1" y="1" width="898" height="40" rx="10" fill="#f6fafb"/>
+      <rect x="1" y="30" width="898" height="11" fill="#f6fafb"/>
+      <line x1="1" y1="41" x2="899" y2="41" stroke="#c9d4da"/>
+      <text x="24" y="27" font-size="13" font-weight="700" fill="#14242f" font-family="Segoe UI,Arial">About to change 3 things</text>
+      <text x="215" y="27" font-size="12" fill="#5d707c" font-family="Segoe UI,Arial">— check this is only what you asked for</text>
+
+      <text x="24" y="66" font-size="10" font-weight="750" fill="#006687" font-family="Segoe UI,Arial" letter-spacing="1">DEVICES</text>
+      <text x="24" y="88" font-size="12.5" fill="#26734d" font-family="Consolas,monospace">+  wlc-01   wlan-controller   “Wireless LAN Controller”</text>
+      <text x="24" y="110" font-size="12.5" fill="#14242f" font-family="Consolas,monospace">~  core-sw-01: label Core 1 → Core Switch One</text>
+
+      <text x="24" y="140" font-size="10" font-weight="750" fill="#006687" font-family="Segoe UI,Arial" letter-spacing="1">RACK</text>
+      <rect x="16" y="150" width="700" height="26" rx="5" fill="#fff3f3"/>
+      <text x="24" y="168" font-size="12.5" fill="#a02d2d" font-family="Consolas,monospace">−  ups-01   U1–U2   SMT3000</text>
+      <text x="470" y="168" font-size="11.5" font-weight="700" fill="#a02d2d" font-family="Segoe UI,Arial">← you did not ask for this</text>
+
+      <text x="24" y="200" font-size="11.5" fill="#5d707c" font-family="Segoe UI,Arial">Everything here is valid data. Only you can tell which parts you actually wanted.</text>
+    </svg>
+    <figcaption>Green <b>+</b> added, plain <b>~</b> changed, red <b>−</b> removed. Ten seconds of
+    reading here is the difference between a document you trust and one that is quietly wrong.</figcaption>
+  </figure>
+
+  <p>If you see something you did not ask for, do not save. Go back to the AI and say
+  “you also renamed <code>core-sw-01</code> — leave it alone and send that part again.”</p>
+
+  <div class="note">
+    <b>If it says “Nothing changed”</b>
+    <p>The AI sent back exactly what you already had. Either it agreed with you, or — far more
+    likely — it did not understand the request. Rephrase and try again.</p>
+  </div>
+</section>
+
+<!-- ============================================ SAVE -->
+<section class="step">
+  <span class="num">9</span>
+  <h2>Save, and open the result</h2>
+  <p class="kicker">Then go round again for the next part.</p>
+
+  <p>Press <span class="btn" style="background:var(--ok);border-color:var(--ok)">Save new design file</span>.
+  Your browser downloads a new <code>.edit.html</code>. Double-click it and look at the drawing.</p>
+
+  <p>Everything outside the data block is copied across byte for byte — the drawing code, the
+  symbols, the styling are all identical to what you started with. The helper refuses to save
+  at all if that is not true, so you cannot end up with a mangled file.</p>
+
+  <div class="note warn">
+    <b>Keep the new file, and feed it back in</b>
+    <p>Each save produces a <em>new</em> file. For your next edit, load that one in step 1 —
+    not the original starter. Keep the intermediate copies until you are happy; they are your
+    undo history.</p>
+  </div>
+</section>
+
+<!-- ============================================ GEOMETRY -->
+<section class="step">
+  <span class="num">10</span>
+  <h2>Two things about position that confuse everyone</h2>
+  <p class="kicker">You rarely need these — but when a drawing looks wrong, it is almost always one of them.</p>
+
+  <h3>On the drawing: a device's position is its centre</h3>
+  <figure>
+    <svg viewBox="0 0 900 300" role="img" aria-label="The canvas is 1280 by 930. A device's x,y is the centre of a box 176 wide and 104 tall. An area's x,y is its top-left corner.">
+      <rect x="1" y="1" width="898" height="298" rx="10" fill="#fafcfd" stroke="#c9d4da"/>
+      <!-- canvas -->
+      <rect x="40" y="46" width="520" height="220" rx="6" fill="#fff" stroke="#8ca3ae" stroke-dasharray="6 4"/>
+      <text x="300" y="36" font-size="11" fill="#5d707c" text-anchor="middle" font-family="Segoe UI,Arial">the page: 1280 wide × 930 tall</text>
+      <text x="46" y="62" font-size="9.5" fill="#8ca3ae" font-family="Consolas,monospace">0,0</text>
+
+      <!-- zone -->
+      <rect x="90" y="90" width="330" height="140" rx="6" fill="#eef6f2" stroke="#7fae95" stroke-dasharray="5 4"/>
+      <circle cx="90" cy="90" r="5" fill="#3d7a5b"/>
+      <text x="100" y="84" font-size="10" fill="#3d7a5b" font-family="Segoe UI,Arial">an area's x,y = its TOP-LEFT corner</text>
+
+      <!-- node box -->
+      <rect x="200" y="130" width="176" height="104" rx="6" fill="#fff" stroke="#007fa8" stroke-width="2"/>
+      <line x1="200" y1="182" x2="376" y2="182" stroke="#c9d4da"/>
+      <line x1="288" y1="130" x2="288" y2="234" stroke="#c9d4da"/>
+      <circle cx="288" cy="182" r="6" fill="#a02d2d"/>
+      <text x="288" y="204" font-size="10.5" fill="#a02d2d" text-anchor="middle" font-family="Segoe UI,Arial">x,y goes HERE</text>
+      <text x="288" y="126" font-size="10" fill="#006687" text-anchor="middle" font-family="Segoe UI,Arial">176 wide</text>
+      <text x="392" y="186" font-size="10" fill="#006687" font-family="Segoe UI,Arial">104 tall</text>
+
+      <!-- consequences -->
+      <text x="600" y="70" font-size="12" font-weight="700" fill="#14242f" font-family="Segoe UI,Arial">What goes wrong</text>
+      <rect x="600" y="82" width="270" height="58" rx="7" fill="#fff3f3" stroke="#e0b3b3"/>
+      <text x="614" y="102" font-size="10.5" font-weight="700" fill="#a02d2d" font-family="Segoe UI,Arial">Half the device hangs off the page</text>
+      <text x="614" y="120" font-size="10" fill="#762121" font-family="Segoe UI,Arial">The centre was put too close to an edge.</text>
+      <text x="614" y="134" font-size="10" fill="#762121" font-family="Segoe UI,Arial">The checker stops you saving this.</text>
+
+      <rect x="600" y="150" width="270" height="58" rx="7" fill="#fff8ed" stroke="#e6c78f"/>
+      <text x="614" y="170" font-size="10.5" font-weight="700" fill="#a66300" font-family="Segoe UI,Arial">Two devices on top of each other</text>
+      <text x="614" y="188" font-size="10" fill="#7a4d10" font-family="Segoe UI,Arial">Centres closer than 176 across</text>
+      <text x="614" y="202" font-size="10" fill="#7a4d10" font-family="Segoe UI,Arial">and 104 down.</text>
+
+      <rect x="600" y="218" width="270" height="58" rx="7" fill="#fff8ed" stroke="#e6c78f"/>
+      <text x="614" y="238" font-size="10.5" font-weight="700" fill="#a66300" font-family="Segoe UI,Arial">Half in, half out of an area</text>
+      <text x="614" y="256" font-size="10" fill="#7a4d10" font-family="Segoe UI,Arial">A reader cannot tell whether it is in</text>
+      <text x="614" y="270" font-size="10" fill="#7a4d10" font-family="Segoe UI,Arial">the DMZ or behind it.</text>
+    </svg>
+    <figcaption>You will never type these numbers yourself. But when the checker complains, this
+    is the picture it is complaining about.</figcaption>
+  </figure>
+
+  <h3>In the rack: units are counted from the bottom</h3>
+  <figure>
+    <svg viewBox="0 0 900 250" role="img" aria-label="A rack numbered from the bottom. A 2U device at position 30 fills U30 and U31, so nothing else may use either unit.">
+      <rect x="1" y="1" width="898" height="248" rx="10" fill="#fafcfd" stroke="#c9d4da"/>
+      <rect x="60" y="24" width="150" height="200" rx="5" fill="#eef2f4" stroke="#8ca3ae"/>
+      <g font-family="Consolas,monospace" font-size="9" fill="#5d707c">
+        <text x="216" y="42">U42 ← top</text>
+        <text x="216" y="212">U01 ← bottom</text>
+      </g>
+      <!-- 2U device -->
+      <rect x="70" y="96" width="130" height="34" rx="3" fill="#c2ccd2" stroke="#3d454c" stroke-width="1.5"/>
+      <text x="135" y="117" font-size="11" fill="#14242f" text-anchor="middle" font-family="Segoe UI,Arial">srv-01 · 2U</text>
+      <text x="216" y="108" font-size="9" fill="#a02d2d" font-family="Consolas,monospace">U31</text>
+      <text x="216" y="126" font-size="9" fill="#a02d2d" font-family="Consolas,monospace">U30 ← position</text>
+      <g stroke="#c9d4da">
+        <line x1="60" y1="60" x2="210" y2="60"/><line x1="60" y1="78" x2="210" y2="78"/>
+        <line x1="60" y1="148" x2="210" y2="148"/><line x1="60" y1="166" x2="210" y2="166"/>
+        <line x1="60" y1="184" x2="210" y2="184"/>
+      </g>
+
+      <rect x="330" y="40" width="530" height="70" rx="8" fill="#eaf4f8" stroke="#007fa8"/>
+      <text x="350" y="66" font-size="12.5" font-weight="700" fill="#006687" font-family="Segoe UI,Arial">“position” is the LOWEST unit the device occupies</text>
+      <text x="350" y="88" font-size="11" fill="#3d5261" font-family="Segoe UI,Arial">A 2U server at position 30 fills U30 and U31. Nothing else may use either one.</text>
+
+      <rect x="330" y="126" width="530" height="86" rx="8" fill="#f1f8f4" stroke="#a9cdbb"/>
+      <text x="350" y="152" font-size="12.5" font-weight="700" fill="#26734d" font-family="Segoe UI,Arial">This is checked for you, every time</text>
+      <text x="350" y="174" font-size="11" fill="#3d5261" font-family="Segoe UI,Arial">Visio and draw.io will happily let you stack two servers in the same slot forever.</text>
+      <text x="350" y="192" font-size="11" fill="#3d5261" font-family="Segoe UI,Arial">This will not — and it tells you exactly which units are still free.</text>
+    </svg>
+  </figure>
+
+  <div class="note warn">
+    <b>One thing to check yourself for now</b>
+    <p>When you name a drawn rack faceplate, its height has to match the device. A 2U faceplate
+    on a 1U device will save without complaint, then show a red FAIL badge when you open the
+    file. If that happens, either change the height or pick a faceplate ending in the right
+    number of U.</p>
+  </div>
+</section>
+
+<!-- ============================================ GAPS -->
+<section class="step">
+  <span class="num">11</span>
+  <h2>Say what you do not know</h2>
+  <p class="kicker">The part everyone skips, and the part that makes the document worth reading.</p>
+
+  <p>Every design has holes: things nobody tested, numbers nobody confirmed, decisions made years
+  ago for reasons nobody wrote down. This document has a place for exactly that, and it will
+  nag you if you leave it empty.</p>
+
+  <p>Pick <b>Gaps &amp; open items</b> in the dropdown and say something like:</p>
+
+  <div class="say">
+    “Add three gaps: firewall failover has never been tested; the link to the second core is
+    assumed to be 10 Gbps but unverified; there is no out-of-band management path. Pin the first
+    one to <code>mel-fw-01</code> and the last one to the internal area.”
+  </div>
+
+  <p>“Pinning” puts a numbered marker on the drawing, on the exact device the gap is about — so
+  the picture and the list can never disagree. Roughly half your gaps pinned is a good document;
+  pinning everything makes the drawing unreadable.</p>
+
+  <div class="note tip">
+    <b>Why this beats a confident-looking diagram</b>
+    <p>A reader can act on “we think this is 10 Gbps, nobody has checked”. They cannot act on a
+    clean line with a label. When you print the file, hidden gaps are revealed anyway — the
+    hide control is for presenting, not for hiding.</p>
+  </div>
+</section>
+
+<!-- ============================================ OFFICIAL ART -->
+<section class="step optional">
+  <span class="num">✦</span>
+  <h2>Optional: swap in official Cisco artwork</h2>
+  <p class="kicker">Only when a document needs it. Your file is already finished without this.</p>
+
+  <p>Your design draws with the project's own vector symbols. They are clean, they print
+  beautifully, and the whole file is about 100 KB. For a customer deliverable or a house
+  standard, you may want the official Cisco icons and photographic rack faces instead.</p>
+
+  <figure>
+    <svg viewBox="0 0 900 220" role="img" aria-label="The packager takes your design plus the assets folder and produces a portable file with real artwork embedded, and it can hand the light version back.">
+      <rect x="1" y="1" width="898" height="218" rx="10" fill="#fafcfd" stroke="#c9d4da"/>
+      <rect x="34" y="56" width="190" height="110" rx="8" fill="#fff" stroke="#007fa8" stroke-width="2"/>
+      <text x="129" y="86" font-size="12" font-weight="700" fill="#006687" text-anchor="middle" font-family="Segoe UI,Arial">Your design</text>
+      <text x="129" y="108" font-size="10.5" fill="#3d5261" text-anchor="middle" font-family="Segoe UI,Arial">vector symbols</text>
+      <text x="129" y="132" font-size="15" font-weight="700" fill="#26734d" text-anchor="middle" font-family="Segoe UI,Arial">~100 KB</text>
+      <text x="129" y="150" font-size="9.5" fill="#8ca3ae" text-anchor="middle" font-family="Segoe UI,Arial">emails cleanly</text>
+
+      <path d="M232 111 H322" stroke="#5b4b8a" stroke-width="2.5" fill="none" marker-end="url(#ar2)"/>
+      <defs><marker id="ar2" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+        <path d="M0 0 L9 4.5 L0 9 z" fill="#5b4b8a"/></marker></defs>
+
+      <rect x="330" y="46" width="230" height="130" rx="8" fill="#f2effa" stroke="#5b4b8a" stroke-width="2"/>
+      <text x="445" y="72" font-size="12" font-weight="700" fill="#5b4b8a" text-anchor="middle" font-family="Segoe UI,Arial">The packager</text>
+      <text x="445" y="94" font-size="10.5" fill="#5b4b8a" text-anchor="middle" font-family="Segoe UI,Arial">1 · point it at the assets folder</text>
+      <text x="445" y="112" font-size="10.5" fill="#5b4b8a" text-anchor="middle" font-family="Segoe UI,Arial">2 · choose your design file</text>
+      <text x="445" y="130" font-size="10.5" fill="#5b4b8a" text-anchor="middle" font-family="Segoe UI,Arial">3 · Build portable HTML</text>
+      <text x="445" y="156" font-size="9.5" fill="#8b82a8" text-anchor="middle" font-family="Segoe UI,Arial">still offline · still no install</text>
+
+      <path d="M568 111 H658" stroke="#5b4b8a" stroke-width="2.5" fill="none" marker-end="url(#ar2)"/>
+
+      <rect x="666" y="56" width="200" height="110" rx="8" fill="#fff" stroke="#8ca3ae" stroke-width="2"/>
+      <text x="766" y="86" font-size="12" font-weight="700" fill="#14242f" text-anchor="middle" font-family="Segoe UI,Arial">Portable file</text>
+      <text x="766" y="108" font-size="10.5" fill="#3d5261" text-anchor="middle" font-family="Segoe UI,Arial">real artwork inside</text>
+      <text x="766" y="132" font-size="15" font-weight="700" fill="#a66300" text-anchor="middle" font-family="Segoe UI,Arial">~3.7 MB</text>
+      <text x="766" y="150" font-size="9.5" fill="#8ca3ae" text-anchor="middle" font-family="Segoe UI,Arial">one self-contained file</text>
+
+      <path d="M766 176 V196 H129 V172" stroke="#26734d" stroke-width="2" fill="none" stroke-dasharray="5 4" marker-end="url(#ar3)"/>
+      <defs><marker id="ar3" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+        <path d="M0 0 L9 4.5 L0 9 z" fill="#26734d"/></marker></defs>
+      <text x="450" y="212" font-size="10.5" fill="#26734d" text-anchor="middle" font-family="Segoe UI,Arial">“Download editable source” hands the light version straight back — nothing is one-way</text>
+    </svg>
+  </figure>
+
+  <ol class="plain">
+    <li>Open <code>tools/packager/network-design-packager.html</code>.</li>
+    <li>Press <span class="btn plain">Choose artwork folder</span> and pick the <code>assets</code>
+      folder from this repository. Your browser will ask permission to read it; nothing is uploaded.</li>
+    <li>Press <span class="btn plain">Choose design file</span> and pick your saved design.</li>
+    <li>Press <span class="btn">Build portable HTML</span>, then download it.</li>
+  </ol>
+
+  <p>Got your own artwork — a company device photo, a vendor's icon? Drop the image files in with
+  <span class="btn plain">Add my own images</span> and refer to them by exact filename. Anything
+  the design asks for that you have not supplied is listed by name <em>before</em> the build runs,
+  so nothing fails silently.</p>
+</section>
+
+<!-- ============================================ SHIP -->
+<section class="step">
+  <span class="num">12</span>
+  <h2>Hand it over</h2>
+
+  <div class="cards">
+    <div class="card"><b>Print to PDF</b><span><kbd>Ctrl</kbd>+<kbd>P</kbd>. Letter size, sidebar dropped, hidden sections revealed.</span></div>
+    <div class="card"><b>Email it</b><span>It is one file with no attachments to lose. It still works in five years.</span></div>
+    <div class="card"><b>Attach it to a ticket</b><span>Or a change record, or an audit response.</span></div>
+    <div class="card"><b>Commit it to git</b><span>Adding a switch shows up as a readable diff, not a new binary blob.</span></div>
+  </div>
+</section>
+
+<!-- ============================================ TROUBLESHOOTING -->
+<section class="step">
+  <span class="num">!</span>
+  <h2>When something breaks</h2>
+  <p class="kicker">Every one of these has a boring cause and a two-minute fix.</p>
+
+  <div class="wrap">
+  <table>
+    <thead><tr><th>What you see</th><th>What it means, and what to do</th></tr></thead>
+    <tbody>
+      <tr><td><b>The AI's reply is rejected</b></td><td>Usually it added an explanation around
+        the JSON, or wrapped it in code fences. Say: <em>“Reply with only the JSON object,
+        nothing before or after.”</em></td></tr>
+      <tr><td><b>The AI ran out of room mid-reply</b></td><td>You asked for too much at once.
+        Pick a narrower part — that is exactly what the dropdown is for.</td></tr>
+      <tr><td><b>A red error box in the diagram</b></td><td>An icon name that does not exist.
+        There are exactly 20 valid ones; <code>switch</code>, <code>fw</code> and
+        <code>nas</code> are not among them. Tell the AI to use the closest name from the
+        allowed list.</td></tr>
+      <tr><td><b>A connection is invisible</b></td><td>An unrecognised link kind. The valid
+        ones are <code>l3</code>, <code>aggregate</code>, <code>ha</code>, <code>access</code>
+        and <code>backup</code>.</td></tr>
+      <tr><td><b>A black rectangle over the diagram</b></td><td>An unrecognised area kind. Use
+        <code>external</code>, <code>perimeter</code>, <code>internal</code> or
+        <code>other</code>.</td></tr>
+      <tr><td><b>Odd characters like <code>Â·</code> everywhere</b></td><td>The file got saved
+        in the wrong encoding. Always save as <b>UTF-8</b>, never open these files in Word,
+        and go back to your last good save.</td></tr>
+      <tr><td><b>The helper refuses your file</b></td><td>You picked one of the four
+        engineering sheets. Start from one of the other kits instead.</td></tr>
+      <tr><td><b>Everything looks broken after an edit</b></td><td>Close it. Open your previous
+        saved file — every save made a new file, so the old one is still there.</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="note stop">
+    <b>Four rules that prevent almost all of the above</b>
+    <p>Do not edit the HTML by hand. Do not change anything outside the two
+    <code>PROOF-DATA</code> marker lines. Do not open these files in Word, ever. And do not
+    send anyone a document whose badge says <b>FAIL</b>.</p>
+  </div>
+</section>
+
+<!-- ============================================ GLOSSARY -->
+<section class="step">
+  <span class="num">?</span>
+  <h2>Words this project uses</h2>
+
+  <div class="wrap">
+  <table>
+    <tbody>
+      <tr><td style="width:170px"><b>Topology</b></td><td>The logical diagram — what exists and
+        what connects to what. Not where it physically sits.</td></tr>
+      <tr><td><b>Rack elevation</b></td><td>The physical view — a front and rear picture of the
+        cabinet, drawn from one equipment list so the two faces can never disagree.</td></tr>
+      <tr><td><b>U / rack unit</b></td><td>1.75 inches of cabinet height. Devices are 1U, 2U,
+        3U and so on, and they are counted from the bottom.</td></tr>
+      <tr><td><b>Zone / area</b></td><td>A labelled box grouping devices that share a trust
+        level or a role — Internet, Perimeter, Office LAN.</td></tr>
+      <tr><td><b>HA pair</b></td><td>Two devices acting as one, so either can fail. Drawn with
+        the <code>ha</code> link kind.</td></tr>
+      <tr><td><b>Node / device id</b></td><td>The short name — <code>core-sw-01</code> — shared
+        by the diagram, the rack, the tables and the gaps list.</td></tr>
+      <tr><td><b>The data block</b></td><td>The JSON between the <code>PROOF-DATA</code>
+        markers. The only part that ever changes. The AI sees this and nothing else.</td></tr>
+      <tr><td><b>Editable vs portable</b></td><td><em>Editable</em> is the light file you work
+        in. <em>Portable</em> is the packaged one with official images inside, and it can hand
+        the editable version back at any time.</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- ============================================ CHECKLIST -->
+<section class="step">
+  <span class="num">✓</span>
+  <h2>Your first document, as a checklist</h2>
+
+  <ul class="check">
+    <li>Wrote down my devices, connections, areas and rack contents on paper</li>
+    <li>Chose ids that are short, lower case and consistent</li>
+    <li>Copied a starter and renamed it to my own file</li>
+    <li>Opened it and confirmed it draws, before changing anything</li>
+    <li>Edited <b>one part at a time</b>, saving between each</li>
+    <li>Read the change list before every save</li>
+    <li>Fixed anything the checker flagged as a problem</li>
+    <li>Filled in the gaps section honestly — including what I could not verify</li>
+    <li>Set the cover details: title, drawing number, author, date</li>
+    <li>Printed it to PDF and read it as a stranger would</li>
+  </ul>
+
+  <div class="note tip">
+    <b>If you only remember three things</b>
+    <p>Change one part at a time. Read the change list before saving. Never leave the gaps
+    section empty.</p>
+  </div>
+</section>
+
+<!-- ============================================ NEXT -->
+<section class="step">
+  <span class="num">→</span>
+  <h2>When you want more</h2>
+
+  <div class="wrap">
+  <table>
+    <thead><tr><th>Document</th><th>What it is for</th></tr></thead>
+    <tbody>
+      <tr><td><code>README.md</code></td><td>The overview, the full starter list, and what this project is not.</td></tr>
+      <tr><td><code>docs/ai-json-rules.md</code></td><td>The prompt itself, if you would rather work by hand than use the helper.</td></tr>
+      <tr><td><code>docs/document-shell.md</code></td><td>The layout standard: the section spine, the layers, the print contract.</td></tr>
+      <tr><td><code>symbols/README.md</code></td><td>The 19 vector symbols — reuse them anywhere, they are MIT licensed.</td></tr>
+      <tr><td><code>rack-faces/README.md</code></td><td>Every drawn rack faceplate, and which one to name for which device.</td></tr>
+      <tr><td><code>examples/vector-symbol-showcase.html</code></td><td>All 19 topology symbols on one page.</td></tr>
+      <tr><td><code>examples/rack-face-preview.html</code></td><td>Every faceplate drawn front and rear, at rack zoom.</td></tr>
+      <tr><td><code>docs/template-authoring-rules.md</code></td><td>For maintainers rebuilding the template. Needs a strong model — not a beginner's document.</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="note">
+    <b>A last word on what this is</b>
+    <p>This is documentation tooling, not discovery. It will not poll your network, monitor it,
+    or replace a source of truth like NetBox. What it does is make <em>intentional</em> design
+    documentation easy to write, easy to review, and honest about its own gaps — which is
+    normally the hardest kind to produce.</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  Network Design HTML · Start here · This page is self-contained: no fonts, no scripts, no
+  network calls. Print it, or keep it open in a tab while you work.
+</footer>
+
+</div>
+</body>
+</html>

@@ -20,7 +20,7 @@ vault; it renders the corresponding embedded raster bytes instead.
 
 - `symbols/network-symbols.svg` is the canonical vector geometry.
 - `symbols/symbol-map.json` is the reviewable semantic-to-renderer mapping.
-- `templates/network-design-template.edit.html` is the canonical user template
+- `starters/network-design-template.edit.html` is the canonical user template
   and carries synchronized runtime copies of both.
 - `examples/vector-symbol-showcase.html` is a synchronized visual QA surface.
 - `tools/packager/network-design-packager.html` is the packager itself: source in

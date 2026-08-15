@@ -14,7 +14,7 @@ in their own grammar of hand-tuned SVG geometry and are **not AI-editable yet**;
 prompting a model to edit one corrupts the drawing.
 
 > Keep the lists below in sync with the template. They are copied from `ICONS`
-> and `RACK_ASSETS` in `templates/network-design-template.edit.html` and from the
+> and `RACK_ASSETS` in `starters/network-design-template.edit.html` and from the
 > `.link.*` / `.zone.*` rules in its stylesheet. Only the drawn-faceplate table is
 > checked automatically, against `rack-faces/rack-face-map.json` — if the others
 > change, change this file too.

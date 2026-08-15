@@ -36,4 +36,5 @@ additionally asserts the packager has not drifted back into a built artifact: no
 build tokens, no embedded artwork, and a byte ceiling.
 
 Both write into `dist/`, which is Git-ignored — those outputs embed third-party
-artwork and are reproducible from the tree.
+artwork from `assets/` and are reproducible from the tree. Do not redistribute
+them without reading [`../../THIRD_PARTY_NOTICES.md`](../../THIRD_PARTY_NOTICES.md) first.
