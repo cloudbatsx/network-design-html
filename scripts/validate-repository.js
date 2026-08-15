@@ -560,7 +560,7 @@ check("generated files stay in excluded directories", () => {
   const portableOutsideDist = files.filter((file) => file.endsWith(".portable.html") && !file.startsWith("dist/"));
   assert(portableOutsideDist.length === 0, `portable output outside dist: ${portableOutsideDist.join(", ")}`);
   const binariesOutsidePermitted = files.filter((file) => /\.(?:jpe?g|png|gif|webp)$/i.test(file) &&
-    !file.startsWith("assets/") && !file.startsWith("vendor-local/") && !file.startsWith("dist/"));
+    !file.startsWith("assets/") && !file.startsWith("dist/"));
   assert(binariesOutsidePermitted.length === 0, `raster assets outside assets/: ${binariesOutsidePermitted.join(", ")}`);
 });
 
