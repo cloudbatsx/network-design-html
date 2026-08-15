@@ -45,8 +45,8 @@ Pick the entry whose **`U` matches the device's `height`** and whose shape is
 closest to the real hardware. Anything not on this list must be `generic`, which
 still appears in both rack views at the right height as a plain labelled face.
 
-*Official front and rear photography, five models:*
-`c9500` `c9300` `fpr4215` (1U) · `r750` `ups` (2U)
+*Official front and rear photography — use these only for that exact model:*
+`c9500` `c9300` `fpr4215` `r750` `ups`
 
 *Drawn faceplates, always available — no download, no packaging step:*
 

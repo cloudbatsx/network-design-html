@@ -8,9 +8,9 @@ same job, no download, and it works in editable mode where the PNGs do not.
 
 - `rack-face-core.js` — **the source.** Every faceplate is drawn here. This is
   the only file to edit.
-- `rack-faces.svg` — generated sprite, 50 `<symbol>` definitions, for use
+- `rack-faces.svg` — generated sprite, one `<symbol>` per face and view, for use
   outside this project.
-- `rack-face-map.json` — generated index: 25 semantic keys, each with its family,
+- `rack-face-map.json` — generated index: 26 semantic keys, each with its family,
   role, height in rack units, and symbol ids.
 
 After editing the core, rebuild everything:
@@ -55,7 +55,7 @@ artwork, where they render at true proportion.
 
 ## Two families
 
-`generic` is house artwork drawn to a role, not to a product — 17 of them, and
+`generic` is house artwork drawn to a role, not to a product — 18 of them, and
 the right default for anything whose vendor you have not decided yet.
 
 The vendor-shaped entries reproduce **port layout and chassis proportion**,
@@ -83,6 +83,17 @@ A rack slot is drawn three ways, in falling order of fidelity:
 The five official keys each declare a `vector` alias in the template's
 `RACK_ASSETS`, so a document written before this library existed draws real
 faceplates too. The alias is the nearest face, not a portrait of the model.
+
+An alias may be keyed by unit height, because one model can be scheduled at more
+than one height across a document set and no single face suits both:
+
+```js
+vector:{1:"generic-firewall-1u",3:"generic-security-appliance-3u"}
+```
+
+A height with no entry falls back to the labelled placeholder — better a blank
+than a 3U chassis crushed into 1U. The validator checks that each key agrees with
+the height of the face it names.
 
 `height` must match the face's unit height, and the document reports it as a
 data error when it does not — a 2U faceplate squeezed into a 1U slot is a

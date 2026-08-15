@@ -280,6 +280,20 @@ checkEvery("rack faceplate library", (want) => {
   const rules = read("docs/ai-json-rules.md");
   const undocumented = keys.filter((key) => !rules.includes(`\`${key}\``));
   want(undocumented.length === 0, `missing from docs/ai-json-rules.md: ${undocumented.join(", ")}`);
+
+  // Counts written out in prose. Adding one faceplate went out of date in three
+  // places at once, so they are asserted rather than remembered.
+  const generic = keys.filter((key) => faceMap.faces[key].family === "generic").length;
+  for (const [file, pattern, expected, what] of [
+    ["README.md", /(\d+) faceplates/, keys.length, "total faceplates"],
+    ["README.md", /(\d+) are vendor-neutral/, generic, "vendor-neutral faces"],
+    ["rack-faces/README.md", /(\d+) semantic keys/, keys.length, "total faceplates"],
+    ["rack-faces/README.md", /(\d+) of them, and/, generic, "vendor-neutral faces"]
+  ]) {
+    const found = read(file).match(pattern);
+    want(found, `${file} no longer states its ${what}`);
+    if (found) want(Number(found[1]) === expected, `${file} says ${found[1]} ${what}, there are ${expected}`);
+  }
   const documentedUnits = keys.filter((key) => {
     const row = rules.split("\n").find((line) => line.includes(`\`${key}\``) && line.startsWith("|"));
     return row && !new RegExp(`\\|\\s*${faceMap.faces[key].units}\\s*\\|`).test(row);
@@ -316,10 +330,21 @@ checkEvery("rack asset vector aliases resolve", (want) => {
   const keys = new Set(Object.keys(faceMap.faces || {}));
   for (const label of faceDocuments) {
     const source = read(label);
-    // Anchored to the trailing form used by RACK_ASSETS. The topology icon map
+    // Anchored to the trailing form used by RACK_ASSETS, in both spellings: a
+    // bare face name, or an object keyed by unit height. The topology icon map
     // opens its records with `{vector:"nd-..."`, which is a different namespace.
-    for (const match of source.matchAll(/,vector:"([^"]+)"\}/g)) {
-      want(keys.has(match[1]), `${label} aliases missing face "${match[1]}"`);
+    for (const match of source.matchAll(/,vector:(?:"([^"]+)"|\{([^}]*)\})/g)) {
+      const named = match[1] ? [match[1]] : [...match[2].matchAll(/"([^"]+)"/g)].map((face) => face[1]);
+      want(named.length > 0, `${label} has an empty vector alias`);
+      for (const face of named) want(keys.has(face), `${label} aliases missing face "${face}"`);
+    }
+    // A height-keyed alias whose key disagrees with the face it names draws the
+    // wrong shape at exactly the size it was meant to fix.
+    for (const match of source.matchAll(/,vector:\{([^}]*)\}/g)) {
+      for (const pair of match[1].matchAll(/(\d+):"([^"]+)"/g)) {
+        const face = faceMap.faces[pair[2]];
+        if (face) want(face.units === Number(pair[1]), `${label} maps ${pair[1]}U to ${pair[2]}, a ${face.units}U face`);
+      }
     }
   }
 });
