@@ -1,5 +1,4 @@
 /dist/**
-!/dist/README.md
 
 *.portable.html
 node_modules/
