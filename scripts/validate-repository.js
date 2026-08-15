@@ -508,6 +508,26 @@ checkEvery("the packager is usable straight from a clone", (want) => {
   want(Buffer.byteLength(packager) <= 200 * 1024, "packager exceeds 200 KB, which suggests baked-in artwork");
 });
 
+// The engineering-sheet kits without a full preflight share one self-check
+// script, byte for byte, exactly as the rack-face library is shared. Edited in
+// one kit and not the other, the two documents would grade themselves against
+// different rules while claiming the same check.
+checkEvery("the shared sheet self-check is byte-identical", (want) => {
+  const MARK = "SHEET-KIT SELF-CHECK";
+  const carriers = starterNames
+    .map((name) => [`starters/${name}`, read(`starters/${name}`)])
+    .filter(([, source]) => source.includes(MARK));
+  want(carriers.length >= 2, `expected at least two carriers of the shared self-check, found ${carriers.length}`);
+  const blockOf = (source) => {
+    const at = source.indexOf(MARK);
+    return source.slice(source.lastIndexOf("<script>", at), source.indexOf("</" + "script>", at));
+  };
+  const reference = carriers.length ? blockOf(carriers[0][1]) : "";
+  for (const [label, source] of carriers.slice(1)) {
+    want(blockOf(source) === reference, `${label} self-check drifted from ${carriers[0][0]}`);
+  }
+});
+
 // 69 KB of tool logic used to ship with nothing so much as parsing it: a stray
 // character in the helper or the packager went through a green run completely
 // broken. Nothing here executes the tools - the behaviour harness in tests/

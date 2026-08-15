@@ -1382,13 +1382,7 @@
 <p class="kicker">Section 6</p>
 <h2>Open items, assumptions &amp; risk register</h2>
 <p class="section-lede">Ambiguities inherited from the source are retained visibly rather than silently corrected.</p>
-<div class="table-wrap"><table><caption>Open design register</caption><thead><tr><th scope="col">ID</th><th scope="col">Finding</th><th scope="col">Impact</th><th scope="col">Severity</th><th scope="col">Required action</th></tr></thead><tbody>
-        <tr><td><code>R1</code></td><td>Core pair is described as StackWise Virtual and as independent HSRP active/standby peers.</td><td>Control-plane and gateway design may be internally inconsistent.</td><td class="status-word open">HIGH</td><td>Choose and document the approved architecture.</td></tr>
-        <tr><td><code>R2</code></td><td>Four firewall-to-core routed links lack four complete /31 address pairs.</td><td>Interfaces cannot be configured or reconciled.</td><td class="status-word open">HIGH</td><td>Allocate all point-to-point networks from IPAM.</td></tr>
-        <tr><td><code>R3</code></td><td>The DMZ is visibly attached through standby FW-01B while FW-01A is marked active.</td><td>Virtual/physical ownership of the DMZ gateway is ambiguous.</td><td class="status-word open">HIGH</td><td>Document HA virtual-interface behavior and both physical members.</td></tr>
-        <tr><td><code>R4</code></td><td>Internet provider ASN, peer addresses, and handoff prefix are absent.</td><td>eBGP design is incomplete.</td><td class="status-word open">HIGH</td><td>Add the approved carrier turn-up record.</td></tr>
-        <tr><td><code>R5</code></td><td>MPLS shows a 1 GbE handoff and a 500 Mb/s service rate.</td><td>Physical speed and committed bandwidth can be misread.</td><td class="status-word open">MEDIUM</td><td>Confirm CIR/EIR and handoff PHY explicitly.</td></tr>
-        <tr><td><code>R6</code></td><td>No L2, rack, power, airflow, cabling, or BOM authority exists.</td><td>This artifact cannot drive installation.</td><td class="status-word open">HIGH</td><td>Create approved companion designs before construction.</td></tr>
+<div class="table-wrap"><table><caption>Open design register</caption><thead><tr><th scope="col">ID</th><th scope="col">Finding</th><th scope="col">Impact</th><th scope="col">Severity</th><th scope="col">Required action</th></tr></thead><tbody id="open-items-body">
       </tbody></table></div>
 </section>
 
@@ -2245,6 +2239,7 @@
           "severity": "HIGH",
           "title": "The core pair is described two ways",
           "detail": "It is drawn as a StackWise Virtual peer link and also as two independently addressed HSRP active/standby gateways. Those are different control-plane designs with different failure behaviour.",
+          "impact": "Control-plane and gateway design may be internally inconsistent.",
           "action": "Choose and document the approved architecture before either core is configured.",
           "at": ["lab-core-sw01", "lab-core-sw02"]
         },
@@ -2253,6 +2248,7 @@
           "severity": "HIGH",
           "title": "The four firewall-to-core transits carry no addresses",
           "detail": "Each of the four routed paths needs its own point-to-point network. None has been allocated, so no interface on either side can be configured or reconciled.",
+          "impact": "Interfaces cannot be configured or reconciled.",
           "action": "Allocate all point-to-point networks from IPAM.",
           "at": ["lab-fw-01a", "lab-fw-01b"]
         },
@@ -2261,6 +2257,7 @@
           "severity": "HIGH",
           "title": "Which firewall owns the DMZ gateway is unrecorded",
           "detail": "The DMZ segment is drawn attached through the standby member while the other member is marked active. The virtual-interface behaviour across a failover is not stated, so the published services have no documented failure mode.",
+          "impact": "Virtual/physical ownership of the DMZ gateway is ambiguous.",
           "action": "Document HA virtual-interface behaviour and both physical members.",
           "atZone": "dmz"
         },
@@ -2269,6 +2266,7 @@
           "severity": "HIGH",
           "title": "There is no carrier record behind either uplink",
           "detail": "Provider ASN, peer addresses, handoff prefix and demarcation are absent. The two clouds are a pattern, not a service.",
+          "impact": "eBGP design is incomplete.",
           "action": "Add the approved carrier turn-up record.",
           "atZone": "untrusted"
         },
@@ -2277,6 +2275,7 @@
           "severity": "MEDIUM",
           "title": "The MPLS handoff states two different rates",
           "detail": "A 1 GbE handoff and a 500 Mb/s service rate are both shown. Physical speed and committed bandwidth can be misread as one another.",
+          "impact": "Physical speed and committed bandwidth can be misread.",
           "action": "Confirm CIR/EIR and the handoff PHY explicitly.",
           "at": ["lab-edge-rtr02"]
         },
@@ -2285,6 +2284,7 @@
           "severity": "HIGH",
           "title": "No physical, power or cabling authority exists",
           "detail": "There is no Layer 2 sheet, no rack, no power schedule, no airflow record and no BOM. Section 3 declares physical placement out of scope rather than inventing it, so this artifact cannot drive installation.",
+          "impact": "This artifact cannot drive installation.",
           "action": "Create the approved companion designs before construction."
         },
         {
@@ -2292,6 +2292,7 @@
           "severity": "MEDIUM",
           "title": "The load balancer is drawn with a generic server symbol",
           "detail": "The 19-symbol vector library has no load-balancer glyph. Revision 2.0 referenced a Cisco LocalDirector asset directly, which rendered as an empty placeholder box in editable mode. The role is carried by text, not by the artwork.",
+          "impact": "The reader can mistake a load balancer for a server.",
           "action": "Add a load-balancer symbol to the shared library, or keep the role in text.",
           "at": ["lab-dmz-lb01"]
         }
@@ -2630,6 +2631,80 @@
 })();
 </script>
 <script>
+/* Section 6 renders from the proof-data findings, and the figure pins them.
+   The register used to be hand-written rows that had already drifted from the
+   data three ways - compressed wording, a missing R7, and impacts recorded
+   nowhere else. Rendering it kills that class of drift; the pins reuse the
+   nodes' own art rectangles, so a marker cannot sit anywhere the data does
+   not put it. */
+(function () {
+  "use strict";
+  var data;
+  try { data = JSON.parse(document.getElementById("proof-data").textContent); }
+  catch (error) { return; }
+  var findings = ((data.sections || {}).findings || {}).items || [];
+  var body = document.getElementById("open-items-body");
+  if (body) {
+    body.replaceChildren();
+    findings.forEach(function (item) {
+      var row = document.createElement("tr");
+      row.id = "finding-" + (item.id || "");
+      var cellId = document.createElement("td");
+      var code = document.createElement("code");
+      code.textContent = item.id || "";
+      cellId.appendChild(code);
+      var cellFinding = document.createElement("td");
+      var lead = document.createElement("b");
+      lead.textContent = (item.title || "") + ".";
+      cellFinding.appendChild(lead);
+      cellFinding.appendChild(document.createTextNode(item.detail ? " " + item.detail : ""));
+      var cellImpact = document.createElement("td");
+      cellImpact.textContent = item.impact || "";
+      var cellSeverity = document.createElement("td");
+      cellSeverity.className = "status-word open";
+      cellSeverity.textContent = item.severity || "";
+      var cellAction = document.createElement("td");
+      cellAction.textContent = item.action || "";
+      row.append(cellId, cellFinding, cellImpact, cellSeverity, cellAction);
+      body.appendChild(row);
+    });
+  }
+  var svg = document.getElementById("topology");
+  if (!svg) { return; }
+  var NS = "http://www.w3.org/2000/svg";
+  var nodesById = {};
+  ((data.topology || {}).nodes || []).forEach(function (node) { nodesById[node.id] = node; });
+  var layer = document.createElementNS(NS, "g");
+  layer.setAttribute("class", "gap-layer");
+  layer.setAttribute("aria-label", "Open item markers");
+  findings.forEach(function (item, index) {
+    var anchors = item.at == null ? [] : [].concat(item.at);
+    anchors.forEach(function (id) {
+      var node = nodesById[id];
+      if (!node || !Array.isArray(node.art)) { return; }
+      var x = node.art[0] + node.art[2] - 13, y = node.art[1] + 13;
+      var pin = document.createElementNS(NS, "a");
+      pin.setAttribute("href", "#finding-" + (item.id || index + 1));
+      pin.setAttribute("aria-label", "Open item " + (item.id || index + 1) + ": " + (item.title || ""));
+      var circle = document.createElementNS(NS, "circle");
+      circle.setAttribute("cx", x); circle.setAttribute("cy", y); circle.setAttribute("r", 12);
+      circle.setAttribute("fill", "#a02d2d"); circle.setAttribute("stroke", "#ffffff"); circle.setAttribute("stroke-width", "2");
+      var label = document.createElementNS(NS, "text");
+      label.setAttribute("x", x); label.setAttribute("y", y + 4);
+      label.setAttribute("text-anchor", "middle");
+      label.setAttribute("fill", "#ffffff");
+      label.setAttribute("font-size", "11");
+      label.setAttribute("font-weight", "800");
+      label.textContent = String(index + 1);
+      pin.appendChild(circle); pin.appendChild(label);
+      layer.appendChild(pin);
+    });
+  });
+  if (layer.childNodes.length) { svg.appendChild(layer); }
+})();
+</script>
+
+<script>
 
     const root = document.documentElement;
     const themeButton = document.getElementById('theme-toggle');
@@ -2781,6 +2856,14 @@
           return !img.hasAttribute('data-asset');
         });
         if (unembeddedImages.length) failures.push(`${unembeddedImages.length} topology images are neither embedded nor identified`);
+      const findingsItems = data?.sections?.findings?.items || [];
+      const nodeIdSet = new Set((data?.topology?.nodes || []).map(node => node.id));
+      findingsItems.forEach((item, index) => {
+        const anchors = item?.at == null ? [] : [].concat(item.at);
+        anchors.forEach(id => { if (!nodeIdSet.has(id)) failures.push(`finding ${item.id || index + 1} pins to missing node ${id}`); });
+      });
+      const registerRows = document.querySelectorAll('#open-items tbody tr').length;
+      if (registerRows !== findingsItems.length) failures.push(`risk register rows (${registerRows}) disagree with proof-data findings (${findingsItems.length})`);
       const result = { pass: failures.length === 0, failures, namedObjects: figureNodes.length, links: figureLinks.length, segments: figureSegments.length, externalRuntimeDependencies: dependencies.length, unembeddedImages: unembeddedImages.length };
       window.networkDesignQA = result;
       status.classList.add(result.pass ? 'pass' : 'fail');
