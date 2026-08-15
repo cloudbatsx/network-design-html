@@ -38,9 +38,14 @@ No Node. No npm. No command line. Just a browser and an AI chat window.
 
 1. **Download two files** — a [starter kit](#starter-kits) (or the [blank template](templates/network-design-template.edit.html)) and [`edit-with-ai.html`](tools/edit-with-ai.html)
 2. **Open `edit-with-ai.html`** and pick your design file
-3. **Type your change** in plain English → click **Copy prompt** → paste into your AI chat
+3. **Pick the part you're changing** — devices, connections, the rack, the gaps list — then **type your change** in plain English → **Copy prompt** → paste into your AI chat
 4. **Paste the reply back** → click **Check it**
 5. **Save new design file** → double-click it. Done.
+
+> **Step 3 is why a free model can drive this.** Ask for the devices and the AI
+> writes back ~3 KB instead of the whole 39 KB design — 80–90% less to produce, so
+> it stops running out of room mid-reply, and a rewiring job can't quietly reword
+> your findings. Your part is merged back in, then the **whole** design is checked.
 
 > **Step 4 is the important one.** If the AI got something wrong, you get plain
 > English — *"access-sw-01 and edge-fw-02 both occupy U38"* — plus a ready-made

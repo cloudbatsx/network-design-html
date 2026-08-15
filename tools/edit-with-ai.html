@@ -42,6 +42,10 @@
     .problems .what{font-weight:700}
     .problems .tell{display:block;margin-top:5px;padding:7px 9px;border-radius:4px;background:#ffffffcc;color:#3d5261;font-family:Consolas,"Courier New",monospace;font-size:.79rem}
     .counts{margin:10px 0 0;color:var(--muted);font-size:.83rem}
+    .parts{margin:0 0 14px;padding:12px 14px 10px;border:1px solid var(--line);border-radius:7px;background:#fff}
+    .parts legend{padding:0 6px;font-weight:700;font-size:.9rem}
+    .parts .hint{margin:0 0 10px}
+    .parts select{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:#fff}
     footer{padding:15px 30px 22px;border-top:1px solid var(--line);color:var(--muted);font-size:.78rem}
     @media(max-width:700px){header,main,footer{padding-inline:15px}}
   </style>
@@ -69,6 +73,30 @@
     <section class="step" id="step-2" hidden>
       <h2><span class="n">2</span>Say what you want changed</h2>
       <p class="hint">Describe the change in plain English, then copy the prompt and paste it into your AI chat. The prompt already contains your current diagram, so you do not need to attach anything.</p>
+      <fieldset class="parts">
+        <legend>Which part is changing?</legend>
+        <p class="hint">A free AI model has a limit on how much it can write in one reply. Pick the smallest part that covers your change: it only has to send that part back, so there is less to run out of room on and less it can break by accident.</p>
+        <select id="slice">
+          <optgroup label="The diagram">
+            <option value="nodes" selected>Devices — add, remove, move, rename</option>
+            <option value="links">Connections — what is wired to what</option>
+            <option value="zones">Areas — the boxes devices sit in</option>
+            <option value="topology">The whole diagram</option>
+          </optgroup>
+          <optgroup label="The rack">
+            <option value="rack">The rack — what is mounted where</option>
+          </optgroup>
+          <optgroup label="The write-up">
+            <option value="findings">Gaps &amp; open items</option>
+            <option value="sections">Notes &amp; tables — every section</option>
+            <option value="document">Cover details — title, branding, footer</option>
+          </optgroup>
+          <optgroup label="Everything">
+            <option value="all">The whole design in one go</option>
+          </optgroup>
+        </select>
+        <p class="counts" id="slice-size"></p>
+      </fieldset>
       <textarea id="request" rows="3" placeholder="Add a wireless LAN controller in the internal zone and connect it to both core switches."></textarea>
       <div class="row gap">
         <button class="button primary" id="copy-prompt" type="button">Copy prompt</button>
@@ -126,10 +154,90 @@ const ZONE_KINDS = ["external","perimeter","internal","other"];
 
 const NODE_W = 176, NODE_H = 104;
 
+/* The four parts a person can ask an AI to rewrite. Each one is a set of
+   top-level keys in the diagram data; everything outside the chosen set is kept
+   from the file and never sent to the model, which is what keeps a reply inside
+   a free model's output limit. `context` lists ids the model must not invent
+   against - a rack device and its topology node share one id, and a finding
+   anchors to a node or zone id, so an edit to one part can still be wrong about
+   another if it is working blind. */
+const SLICES = Object.freeze({
+  nodes:    { paths: [["topology", "nodes"]], noun: "the devices" },
+  links:    { paths: [["topology", "links"]], noun: "the connections" },
+  zones:    { paths: [["topology", "zones"]], noun: "the areas" },
+  topology: { paths: [["topology"]], noun: "the diagram" },
+  rack:     { paths: [["rack"]], noun: "the rack" },
+  findings: { paths: [["sections", "findings"]], noun: "the gaps list" },
+  sections: { paths: [["sections"]], noun: "the notes and tables" },
+  document: { paths: [["document"]], noun: "the cover details" },
+  all:      { paths: [["document"], ["topology"], ["rack"], ["sections"]], noun: "the whole design" }
+});
+
+const pathLabel = (path) => path.join(".");
+const readPath = (data, path) => path.reduce((value, key) => (value == null ? undefined : value[key]), data);
+
+function writePath(target, path, value) {
+  let host = target;
+  for (const key of path.slice(0, -1)) {
+    if (host[key] === null || typeof host[key] !== "object") host[key] = {};
+    host = host[key];
+  }
+  host[path.at(-1)] = value;
+}
+
+// Build the nested shape the model is asked to return: { topology: { nodes: [...] } }
+function sliceOf(data, paths) {
+  const out = {};
+  for (const path of paths) {
+    const value = readPath(data, path);
+    if (value !== undefined) writePath(out, path, value);
+  }
+  return out;
+}
+
+/* Read-only ids, so a part can be edited without breaking its links to the rest.
+   A model shown only the connections still has to name devices that exist, and a
+   model shown only the devices has to know which ones the rack and the links
+   already depend on. Everything here costs a few hundred characters and prevents
+   the failure that a checker can only report, never fix. */
+function contextFor(data, name) {
+  const nodes = (data.topology?.nodes || []).filter((node) => node.id);
+  const nodeIds = nodes.map((node) => node.id);
+  const zoneIds = (data.topology?.zones || []).map((zone) => zone.id).filter(Boolean);
+  const rackIds = (data.rack?.devices || []).map((device) => device.id).filter(Boolean);
+  const wants = {
+    nodes:    ["zones", "rack", "linked"],
+    links:    ["nodes"],
+    zones:    ["nodesXY"],
+    topology: ["rack"],
+    rack:     ["nodes"],
+    findings: ["nodes", "zones"],
+    sections: ["nodes", "zones"],
+    document: [],
+    all:      []
+  }[name] || [];
+
+  const lines = [];
+  if (wants.includes("nodes") && nodeIds.length) lines.push(`Devices on the diagram: ${nodeIds.join(", ")}`);
+  if (wants.includes("nodesXY") && nodes.length) {
+    lines.push(`Devices and their positions: ${nodes.map((node) => `${node.id} at ${node.x},${node.y}`).join("; ")}`);
+  }
+  if (wants.includes("zones") && zoneIds.length) lines.push(`Areas on the diagram: ${zoneIds.join(", ")}`);
+  if (wants.includes("rack") && rackIds.length) lines.push(`Devices also listed in the rack: ${rackIds.join(", ")}`);
+  if (wants.includes("linked") && (data.topology?.links || []).length) {
+    const used = [...new Set((data.topology.links || []).flatMap((link) => [link.from, link.to]).filter(Boolean))];
+    if (used.length) lines.push(`Devices that connections depend on: ${used.join(", ")}`);
+  }
+  if (!lines.length) return "";
+  return `\nFOR REFERENCE ONLY - do not include any of this in your reply. Ids are\nshared: a rack entry, a connection and a gap marker all point at a device by\nid, so an id you rename or remove breaks them.\n${lines.join("\n")}\n`;
+}
+
 /* The prompt. Keep in sync with docs/ai-json-rules.md. */
 const PROMPT = `Reply with ONE JSON object and nothing else. The first character of your reply
 must be { and the last character must be }. No code fences. No explanation
 before or after. No comments inside the JSON.
+
+<<<SCOPE>>>
 
 You are supplying the data behind a diagram that is already built. You never
 write HTML, CSS, JavaScript, or SVG.
@@ -177,14 +285,14 @@ TEXT
 - Every id must be unique, and every link's from and to must name a node id that
   exists.
 
-CURRENT DIAGRAM
+CURRENT <<<PART_UPPER>>>
 <<<CURRENT_JSON>>>
-
+<<<CONTEXT>>>
 WHAT TO CHANGE
 <<<USER_REQUEST>>>
 
 Reply with ONE JSON object and nothing else. First character {, last character
-}. No code fences, no explanation, no comments.`;
+}. No code fences, no explanation, no comments. <<<SCOPE_REMINDER>>>`;
 
 /* Strings that must never appear inside the diagram data, because they would
    break the file's structure or its packaging blocks. */
@@ -207,6 +315,10 @@ let payloadStart = 0;      // byte offset just after the data block's open tag
 let payloadEnd = 0;        // byte offset of the matching closing tag
 let sourceName = "";
 let accepted = null;       // the parsed object that passed checking
+// The loaded diagram data, and the only source of truth for it. Never read this
+// back out of the textarea: the clipboard fallback writes the prompt into that
+// box on purpose, so it is a display surface, not storage.
+let currentData = null;
 
 const $ = (id) => document.getElementById(id);
 const countOf = (text, token) => text.split(token).length - 1;
@@ -269,9 +381,11 @@ async function loadFile(file) {
     const raw = text.slice(at.start, at.end).trim();
     const parsed = JSON.parse(raw);      // proves the starting point is sound
     source = text; payloadStart = at.start; payloadEnd = at.end;
+    currentData = parsed;
     $("payload").value = JSON.stringify(parsed, null, 2);
     $("payload-size").textContent = `${raw.length.toLocaleString()} characters of diagram data, out of ${text.length.toLocaleString()} in the whole file.`;
     note("load-message", "ok", "File loaded.", " Now describe your change below.");
+    describeSlice();
     $("step-2").hidden = false; $("step-3").hidden = false;
     $("step-4").hidden = false; $("save").disabled = true;
     $("save-state").textContent = ""; note("save-message", null);
@@ -291,11 +405,45 @@ async function loadFile(file) {
 
 /* ---------- 2. Build the prompt ---------- */
 
+function currentSliceName() {
+  return $("slice")?.value || "all";
+}
+
 function buildPrompt() {
   const request = $("request").value.trim();
+  const name = currentSliceName();
+  const slice = SLICES[name];
+  const shape = JSON.stringify(sliceOf(currentData, slice.paths), null, 2);
+  const shown = slice.paths.map(pathLabel).join(" and ");
+  const scope = name === "all"
+    ? `You are supplying the complete data behind a diagram that is already built.
+Reply with all four top-level keys: document, topology, rack, sections.`
+    : `You are supplying ONE PART of the data behind a diagram that is already
+built: ${shown}. Reply with that part only, nested exactly as you see it below,
+and nothing else.
+
+The rest of the design is already correct and is kept from the file. Sending it
+back does not help - it is ignored - and it risks running out of room before you
+finish the part that matters.`;
+
   return PROMPT
-    .replace("<<<CURRENT_JSON>>>", $("payload").value)
-    .replace("<<<USER_REQUEST>>>", request || "(describe your change here)");
+    .replace("<<<SCOPE>>>", scope)
+    .replace("<<<PART_UPPER>>>", (name === "all" ? "design" : slice.noun.replace(/^the /, "")).toUpperCase())
+    .replace("<<<CURRENT_JSON>>>", shape)
+    .replace("<<<CONTEXT>>>", contextFor(currentData, name))
+    .replace("<<<USER_REQUEST>>>", request || "(describe your change here)")
+    .replace("<<<SCOPE_REMINDER>>>", name === "all" ? "" : `Only ${shown}.`);
+}
+
+function describeSlice() {
+  if (!currentData) return;
+  const name = currentSliceName();
+  const whole = JSON.stringify(currentData, null, 2).length;
+  const part = JSON.stringify(sliceOf(currentData, SLICES[name].paths), null, 2).length;
+  const saved = whole > 0 ? Math.round((1 - part / whole) * 100) : 0;
+  $("slice-size").textContent = name === "all"
+    ? `The AI has to write back all ${whole.toLocaleString()} characters. Pick one part if its reply keeps getting cut off.`
+    : `The AI only has to write back ${part.toLocaleString()} characters instead of ${whole.toLocaleString()}${saved > 0 ? ` — ${saved}% less` : ""}.`;
 }
 
 /* ---------- 3. Repair, then check ---------- */
@@ -391,16 +539,90 @@ function looksTruncated(raw) {
     else if (ch === "{" || ch === "[") depth++;
     else if (ch === "}" || ch === "]") depth--;
   }
-  return inString || depth > 0 || !text.endsWith("}");
+  // A part can legitimately be a bare array, so "]" closes a reply just as "}" does.
+  return inString || depth > 0 || !/[}\]]$/.test(text);
 }
 
-function checkStructure(raw, data) {
+/* Take what the AI sent and put it back into the design it came from.
+   Three shapes are accepted, because a weak model produces all three:
+   the requested keys, the whole design when one part was asked for, and - for a
+   one-key part - the bare inner object with the key left off. */
+function mergeReply(parsed, original, name) {
+  const slice = SLICES[name];
+  const out = [];
+  const wanted = slice.paths.map(pathLabel).join(" and ");
+
+  if (parsed === null || typeof parsed !== "object") {
+    return { merged: null, problems: [problem(true, "The reply is not a JSON object.",
+      "Reply with one JSON object, starting with { and ending with }.")] };
+  }
+
+  const merged = structuredClone(original);
+  const applied = [];
+  let inferredWrapper = false;
+
+  for (const path of slice.paths) {
+    const value = readPath(parsed, path);
+    if (value !== undefined && value !== null) { writePath(merged, path, value); applied.push(pathLabel(path)); }
+  }
+
+  // The wrapper was left off - "nodes": [...] sent as a bare array, or the inner
+  // object sent on its own. Accepted only for a single path, and only when the
+  // shape matches what was asked for. A bare value is never guessed into place.
+  if (!applied.length && slice.paths.length === 1) {
+    const path = slice.paths[0];
+    const expected = readPath(original, path);
+    const shapeMatches = Array.isArray(expected)
+      ? Array.isArray(parsed)
+      : !Array.isArray(parsed) && Object.keys(expected || {}).some((key) => parsed[key] !== undefined);
+    if (shapeMatches) {
+      writePath(merged, path, parsed);
+      applied.push(pathLabel(path));
+      inferredWrapper = true;
+      out.push(problem(false, `The reply left off the "${pathLabel(path)}" wrapper, so it was put back.`,
+        `Next time wrap it: { "${path[0]}": ${path.length > 1 ? `{ "${path[1]}": ... }` : "..."} }.`));
+    }
+  }
+
+  if (!applied.length) {
+    out.push(problem(true, `The reply does not contain ${wanted}, so there is nothing to apply.`,
+      `Reply with ${wanted} only, nested exactly as it was given to you.`));
+    return { merged: null, problems: out };
+  }
+
+  if (applied.length < slice.paths.length) {
+    const missing = slice.paths.map(pathLabel).filter((label) => !applied.includes(label));
+    out.push(problem(false, `The reply did not include ${missing.join(" or ")}, so ${missing.length === 1 ? "that part is" : "those parts are"} unchanged.`,
+      `Include ${missing.join(" and ")} as well, or say that you left ${missing.length === 1 ? "it" : "them"} alone on purpose.`));
+  }
+
+  // Anything outside the requested part is dropped rather than applied: it was
+  // never reviewed against the request. Skipped when the wrapper was inferred,
+  // because then the whole reply IS the part - on an array, its "keys" are 0,1,2.
+  if (name !== "all" && !inferredWrapper && !Array.isArray(parsed)) {
+    const requestedTop = new Set(slice.paths.map((path) => path[0]));
+    const strayTop = Object.keys(parsed).filter((key) => !requestedTop.has(key));
+    const strayNested = slice.paths
+      .filter((path) => path.length > 1 && parsed[path[0]] && typeof parsed[path[0]] === "object")
+      .flatMap((path) => Object.keys(parsed[path[0]]).filter((key) => key !== path[1]).map((key) => `${path[0]}.${key}`));
+    const stray = [...strayTop, ...strayNested];
+    if (stray.length) {
+      out.push(problem(false, `The reply also sent ${stray.join(", ")}, which you did not ask it to change. That was ignored, and your file is unchanged there.`,
+        `Reply with ${wanted} only. Do not send any other part of the design.`));
+    }
+  }
+
+  return { merged, problems: out, applied };
+}
+
+function checkStructure(raw, data, name) {
   const out = [];
   const trimmed = (raw || "").trim();
-  if (trimmed && !trimmed.endsWith("}")) {
+  const smaller = name === "all" ? "one part at a time - start with the devices" : `${SLICES[name].noun} only`;
+  if (trimmed && !/[}\]]$/.test(trimmed)) {
     out.push(problem(true,
-      "The reply is cut off. It does not end with a closing brace, so part of your diagram is missing.",
-      "Your last reply was cut off before it finished. Send it again, and this time reply with only the topology section."));
+      "The reply is cut off. It does not end with a closing brace, so part of it is missing.",
+      `Your last reply was cut off before it finished. Send it again, shorter, covering ${smaller}.`));
   }
   for (const key of ["document", "topology", "rack"]) {
     if (!data || typeof data[key] !== "object" || data[key] === null) {
@@ -663,6 +885,7 @@ function renderProblems(list) {
 
 function check() {
   const raw = $("reply").value;
+  const name = currentSliceName();
   accepted = null; $("save").disabled = true; $("save-state").textContent = "";
   note("save-message", null);
   if (!raw.trim()) {
@@ -678,10 +901,13 @@ function check() {
   const { parsed, applied, text: cleanedText } = parseWithRepair(raw);
 
   if (parsed === undefined) {
+    const narrower = name === "all"
+      ? "Send it again as one part only: reply with just the topology section, and nothing else."
+      : "Send it again. If it keeps being cut off, change fewer things in one go.";
     const why = looksTruncated(cleanedText)
       ? problem(true,
-          "The reply is cut off. It stops part-way through, so some of your diagram is missing.",
-          "Your last reply was cut off before it finished. Send it again, and this time reply with the topology section only, then the rack section in a second reply.")
+          "The reply is cut off. It stops part-way through, so some of it is missing.",
+          `Your last reply was cut off before it finished. ${narrower}`)
       : problem(true,
           "This reply is not valid JSON, even after cleaning it up.",
           "Your last reply was not valid JSON. Reply again with one JSON object and nothing else - no explanation, no code fences.");
@@ -690,11 +916,22 @@ function check() {
     return;
   }
 
+  // The AI only saw one part. Everything below checks the whole design, because
+  // a valid-looking part can still contradict the parts it was not shown.
+  const original = currentData;
+  const { merged, problems: mergeProblems } = mergeReply(parsed, original, name);
+  if (!merged) {
+    renderProblems(hostile.concat(mergeProblems));
+    note("check-message", "error", "Could not use the reply.", " See below.");
+    return;
+  }
+
   const all = hostile
-    .concat(checkStructure(cleanedText, parsed))
-    .concat(checkAssetStrings(parsed))
-    .concat(checkShell(parsed))
-    .concat(checkMeaning(parsed));
+    .concat(mergeProblems)
+    .concat(checkStructure(cleanedText, merged, name))
+    .concat(checkAssetStrings(merged))
+    .concat(checkShell(merged))
+    .concat(checkMeaning(merged));
   renderProblems(all);
 
   const stops = all.filter((p) => p.stop).length;
@@ -707,13 +944,14 @@ function check() {
     return;
   }
 
-  accepted = parsed;
+  accepted = merged;
   $("save").disabled = false;
+  const kept = name === "all" ? "" : ` Only ${SLICES[name].noun} changed; the rest of your file is untouched.`;
   if (warns) {
     note("check-message", "warning", `Ready to save, with ${warns} warning${warns === 1 ? "" : "s"}.`,
-      ` The diagram will draw, but check the warnings below first.${cleaned}`);
+      ` The diagram will draw, but check the warnings below first.${kept}${cleaned}`);
   } else {
-    note("check-message", "ok", "No problems found.", ` The diagram data is complete and consistent.${cleaned}`);
+    note("check-message", "ok", "No problems found.", ` The diagram data is complete and consistent.${kept}${cleaned}`);
   }
 }
 
@@ -780,6 +1018,16 @@ $("file-input").addEventListener("change", () => {
   const file = $("file-input").files[0];
   if (file) loadFile(file);
 });
+$("slice").addEventListener("change", () => {
+  describeSlice();
+  $("copy-state").textContent = "";
+  // Problems found against a different part are meaningless now.
+  if (accepted || $("problems").children.length) {
+    accepted = null; $("save").disabled = true;
+    $("problems").replaceChildren(); $("copy-problems").disabled = true;
+    note("check-message", null);
+  }
+});
 $("copy-prompt").addEventListener("click", async () => {
   const text = buildPrompt();
   try {
@@ -794,7 +1042,11 @@ $("check").addEventListener("click", check);
 $("copy-problems").addEventListener("click", async () => {
   const lines = [...$("problems").querySelectorAll("li")]
     .map((li, i) => `${i + 1}. ${li.querySelector(".what").textContent}\n   ${li.querySelector(".tell").textContent}`);
-  const text = `Your last reply had these problems. Please send the complete JSON object again with them fixed, and reply with JSON only.\n\n${lines.join("\n\n")}`;
+  const name = currentSliceName();
+  const again = name === "all"
+    ? "Please send the complete JSON object again with them fixed"
+    : `Please send ${SLICES[name].paths.map(pathLabel).join(" and ")} again with them fixed, and nothing else`;
+  const text = `Your last reply had these problems. ${again}, and reply with JSON only.\n\n${lines.join("\n\n")}`;
   try { await navigator.clipboard.writeText(text); $("copy-problems").textContent = "Copied"; setTimeout(() => { $("copy-problems").textContent = "Copy problems"; }, 1600); }
   catch { $("reply").value = text; }
 });

@@ -185,3 +185,48 @@ leave them out on new links and the drawing routes and labels itself.
 
 Reply with ONE JSON object and nothing else. First character `{`, last
 character `}`. No ``` fences, no explanation, no comments.
+
+---
+
+## Changing one part only
+
+Everything above asks for the whole data block. A free model has a limit on how
+much it can write in one reply, and the largest starter is ~39,000 characters —
+enough to be cut off part-way through, which is the most common failure there is.
+
+The fix is to send one part and ask for that part back. `edit-with-ai.html` does
+this for you from a dropdown; by hand, replace the *Current diagram* section with
+just the part, nested exactly as it appears in the file:
+
+```json
+{ "topology": { "nodes": [ ... ] } }
+```
+
+| Part | What to send | Typical size |
+|---|---|---|
+| `topology.nodes` | devices | 2.7–12.8 KB |
+| `topology.links` | connections | 1.0–7.3 KB |
+| `topology.zones` | areas | 0.5–2.2 KB |
+| `rack` | the equipment schedule | 1.7–5.1 KB |
+| `sections.findings` | gaps and open items | 2.8–4.3 KB |
+| `document` | title, branding, footer | small |
+
+Then add this instruction, and paste the result back over the same part:
+
+> Reply with `topology.nodes` only, nested exactly as given. Send no other part
+> of the design.
+
+**Ids are shared across parts.** A rack entry, a connection and a gap marker all
+point at a device by `id`. So when you send one part, tell the model which ids
+exist elsewhere — otherwise it renames a device in good faith and silently
+detaches the rack entry and the connections that referred to it:
+
+```text
+FOR REFERENCE ONLY - do not include this in your reply.
+Devices also listed in the rack: core-sw-01, acc-sw-01
+Devices that connections depend on: core-sw-01, acc-sw-01
+```
+
+The helper tool builds that reference block for you, and it always checks the
+**whole** design after merging your part back in — a part that is valid on its own
+can still contradict the parts the model never saw.
