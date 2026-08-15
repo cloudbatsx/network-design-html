@@ -128,9 +128,9 @@
     <g font-family="Segoe UI,Arial">
       <rect x="20" y="26" width="156" height="78" rx="9" fill="#eaf4f8" stroke="#007fa8" stroke-width="1.5"/>
       <circle cx="42" cy="48" r="12" fill="#006687"/><text x="42" y="52.5" font-size="12" fill="#fff" text-anchor="middle">1</text>
-      <text x="62" y="52" font-size="12" font-weight="700" fill="#14242f">Copy a starter</text>
-      <text x="34" y="74" font-size="10" fill="#3d5261">from the starters folder,</text>
-      <text x="34" y="89" font-size="10" fill="#3d5261">rename it to yours</text>
+      <text x="62" y="52" font-size="12" font-weight="700" fill="#14242f">Pick your base</text>
+      <text x="34" y="74" font-size="10" fill="#3d5261">the blank template, or a</text>
+      <text x="34" y="89" font-size="10" fill="#3d5261">starter close to your shape</text>
 
       <rect x="196" y="26" width="156" height="78" rx="9" fill="#eaf4f8" stroke="#007fa8" stroke-width="1.5"/>
       <circle cx="218" cy="48" r="12" fill="#006687"/><text x="218" y="52.5" font-size="12" fill="#fff" text-anchor="middle">2</text>
@@ -290,6 +290,16 @@
     <div class="card"><b>Rack contents</b><span>Only if you are documenting a physical rack: what is mounted, how tall it is in U, and where.</span></div>
   </div>
 
+  <div class="note tip">
+    <b>Were you handed a diagram? Then the lists already exist — extract them</b>
+    <p>Attach the picture to your AI chat and say: <em>“Describe this network in
+    detail: every device with a suggested short id, every connection, and the trust
+    areas — as three plain-text lists.”</em> Then read the lists and correct what it
+    misread. You know your organisation; the AI only knows pixels. Those corrected
+    lists are this whole step, done — and keep that chat open, because every prompt
+    that follows can use them.</p>
+  </div>
+
   <h3>Pick device ids now, and keep them boring</h3>
   <p>An id is the short name the document uses everywhere. <code>core-sw-01</code>. <code>edge-fw-02</code>.
   <code>sea-acc-01</code>. Lower case, no spaces, numbered. This matters more than it looks:</p>
@@ -326,7 +336,7 @@
       <!-- highlighted: starters -->
       <rect x="40" y="48" width="410" height="52" rx="7" fill="#eaf4f8" stroke="#007fa8" stroke-width="2"/>
       <text x="58" y="70" font-size="12.5" font-weight="700" fill="#006687" font-family="Consolas,monospace">starters/</text>
-      <text x="58" y="88" font-size="10.5" fill="#3d5261" font-family="Segoe UI,Arial">10 ready-made designs, plus the blank template. Copy the closest one.</text>
+      <text x="58" y="88" font-size="10.5" fill="#3d5261" font-family="Segoe UI,Arial">The blank template and 10 worked examples. Your base lives here.</text>
       <circle cx="470" cy="74" r="13" fill="#007fa8"/><text x="470" y="78.5" font-size="12" fill="#fff" text-anchor="middle" font-family="Segoe UI,Arial">1</text>
 
       <!-- highlighted: tool -->
@@ -364,12 +374,24 @@
 <!-- ============================================ PICK A STARTER -->
 <section class="step">
   <span class="num">2</span>
-  <h2>Pick the starter closest to your network</h2>
-  <p class="kicker">Never start from a blank page. Start from something 70% right and bend it.</p>
+  <h2>Pick your base — thirty seconds, not a research project</h2>
+  <p class="kicker">Two doors. Neither involves studying ten files.</p>
 
-  <p>Open <code>starters/</code> and choose by <b>shape</b>, not by size. You will change the
-  device names and counts anyway — what you want is a document whose <em>structure</em>
-  already matches yours.</p>
+  <p><b>Door A — you have a diagram, or your step-0 lists are solid.</b> Take the blank
+  template: <code>starters/network-design-template.edit.html</code>. Always the same file,
+  no choosing. You will build the whole document in <em>one</em> “Everything” run — safe
+  here because a fresh design is small — and then refine it part by part.</p>
+
+  <div class="say">
+    <b>The fresh-build request</b> — with your diagram and corrected lists already in the
+    chat: “Build this whole design from the inventory above. Title ‘Our Organization
+    Network’, drawing id OUR-NET-001. Internet and remote users in an external area, the
+    organisation in an internal area. Keep a small rack with the firewall, server and
+    switches. Anything you could not read from the image goes in the gaps list.”
+  </div>
+
+  <p><b>Door B — you would rather bend a worked example.</b> Choose by <b>shape</b>, not
+  by size — you will change the names and counts anyway. When in doubt, take the first row:</p>
 
   <div class="wrap">
   <table>
@@ -395,9 +417,13 @@
     custom artwork does not work. Learn the workflow on one of the others first.</p>
   </div>
 
-  <p><b>Make a copy before you touch it.</b> Copy the starter to your own folder and rename it —
-  <code>acme-branch-melbourne.edit.html</code>. Leave the originals alone so you always have a
-  clean one to go back to.</p>
+  <div class="note tip">
+    <b>No copying, no renaming — the originals cannot be harmed</b>
+    <p>Load the template or starter straight into the helper. It never modifies the file it
+    reads: every save downloads a <em>new</em> file, named from your drawing id — so put the
+    title and drawing id in your first request and the filename comes out right by itself.
+    The file in the repository stays pristine.</p>
+  </div>
 </section>
 
 <!-- ============================================ OPEN IT -->
@@ -557,7 +583,7 @@
 
         <rect x="614" y="180" width="260" height="58" rx="7" fill="#f4f7f9" stroke="#c9d4da" stroke-dasharray="5 4"/>
         <text x="628" y="201" font-size="11.5" font-weight="700" fill="#5d707c">Everything</text>
-        <text x="628" y="218" font-size="10" fill="#8ca3ae">only for small designs, or a last resort</text>
+        <text x="628" y="218" font-size="10" fill="#8ca3ae">right for fresh builds — wrong for big edits</text>
       </g>
     </svg>
     <figcaption>Asking for the devices on the largest starter means the AI writes back about
@@ -571,6 +597,8 @@
   </div>
 
   <h3>So plan your work as a short list of small edits</h3>
+  <p>Came through Door A? The one “Everything” run already produced your first draft —
+  this list is the order to <em>refine</em> it in, one part at a time:</p>
   <ol class="plain">
     <li><b>Devices</b> — rename the example devices to yours, add and remove until the list is right.</li>
     <li><b>Connections</b> — wire them up.</li>
