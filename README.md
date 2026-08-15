@@ -91,6 +91,7 @@ Don't start from a blank page. Copy the one closest to your network.
 | [Leaf-spine fabric](starters/NET-FAB-001.edit.html) | Non-hierarchical: every leaf to every spine, north-south via border leaf | 15 nodes |
 | [Campus + rack](starters/NET-LAB-002.edit.html) | Two independent gateways, peer link, MLAG downstream | 17 nodes |
 | [Headquarters](starters/NET-HQ-001.edit.html) | Collapsed core, out-of-band zone, 22-device 42U rack | 20 nodes |
+| [HQ campus, as an engineering sheet](starters/NET-HQ-002.edit.html) | Dual providers, StackWise Virtual core, three access floors, and a 42U rack scheduled to the unit with dual power feeds and an airflow record | 21 nodes |
 
 **NET-ENT-001 and NET-ENT-002 are the same network.** They exist as a pair because
 the drawing is a choice, not a consequence of the data: one spells out every link,
