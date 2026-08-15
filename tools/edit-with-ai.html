@@ -116,6 +116,26 @@
           <span class="file-name" id="fresh-state"></span>
         </div>
       </details>
+      <details class="fresh" id="branding">
+        <summary>Your branding — no AI involved</summary>
+        <p class="hint">The brand is the one part the AI is never allowed to touch, so this
+        panel edits it directly — same checks, same byte-exact save. Empty fields keep what
+        the file already has.</p>
+        <label class="fresh-field">Organisation name
+          <input id="brand-name" type="text" placeholder="keep current"></label>
+        <label class="fresh-field">Header label
+          <input id="brand-label" type="text" placeholder="e.g. IT Infrastructure · Network Design"></label>
+        <label class="fresh-field">Logo colour <span class="fresh-hint">(hex, e.g. #0F172A — empty keeps current)</span>
+          <input id="brand-fill" type="text" placeholder="keep current"></label>
+        <label class="fresh-field">Logo as SVG path data <span class="fresh-hint">(optional — from your designer; empty keeps the current mark)</span>
+          <input id="brand-path" type="text" placeholder="M112 72 H400 …"></label>
+        <label class="fresh-field">Logo viewBox <span class="fresh-hint">(only with a new path, e.g. 0 0 512 512)</span>
+          <input id="brand-viewbox" type="text" placeholder="0 0 512 512"></label>
+        <div class="row gap">
+          <button class="button primary" id="brand-apply" type="button">Stage the branding</button>
+          <span class="file-name" id="brand-state"></span>
+        </div>
+      </details>
       <fieldset class="parts">
         <legend>Which part is changing?</legend>
         <p class="hint">A free AI model has a limit on how much it can write in one reply. Pick the smallest part that covers your change: it only has to send that part back, so there is less to run out of room on and less it can break by accident.</p>
@@ -173,6 +193,11 @@
         <span class="file-name" id="save-state"></span>
       </div>
       <div id="save-message"></div>
+      <p class="hint" id="next-step" hidden>Next — want the <b>official Cisco artwork</b> version
+        of this file? Open <a href="packager/network-design-packager.html" target="_blank"
+        rel="noopener">the packager</a>, point it at the repository's <code>assets</code>
+        folder, and choose the file you just saved. Your editable file stays as it is; the
+        packaged copy is a second, portable deliverable.</p>
     </section>
   </main>
 
@@ -329,6 +354,33 @@ function freshRequestText(title, drawing, rack) {
   return `Build this whole design from the inventory above. Title "${title}", drawing id ${drawing}. ` +
     "Put the internet and anything outside the organization in an external area, and the organization in an internal area. " +
     rackLine + " Anything you could not read from the diagram goes in the gaps list.";
+}
+
+/* Branding is deliberately a local, deterministic edit. The AI is forbidden
+   from touching document.brand - one altered character destroys the logo - so
+   the person's own values go in here with no model in the loop. Empty fields
+   keep whatever the file already has. */
+function brandedData(base, fields) {
+  const path = (fields.path || "").trim();
+  if (path && (path.length < 12 || /[<>]/.test(path))) {
+    return { problem: "The logo path looks wrong - SVG path data is a long run of letters and numbers, with no angle brackets." };
+  }
+  const fill = (fields.fill || "").trim();
+  if (fill && !/^#[0-9a-fA-F]{3,8}$/.test(fill)) {
+    return { problem: "The logo colour must be a hex value like #0F172A." };
+  }
+  const next = structuredClone(base);
+  next.document = next.document && typeof next.document === "object" ? next.document : {};
+  const brand = Object.assign({}, next.document.brand);
+  if ((fields.name || "").trim()) brand.name = fields.name.trim();
+  if ((fields.label || "").trim()) brand.label = fields.label.trim();
+  if (fill) brand.logoFill = fill;
+  if (path) {
+    brand.logoPath = path;
+    if ((fields.viewBox || "").trim()) brand.logoViewBox = fields.viewBox.trim();
+  }
+  next.document.brand = brand;
+  return { next };
 }
 
 const PROMPT = `Reply with ONE JSON object and nothing else. The first character of your reply
@@ -540,6 +592,7 @@ async function loadFile(file) {
     $("step-2").hidden = false; $("step-3").hidden = false;
     $("step-4").hidden = false; $("save").disabled = true;
     $("save-state").textContent = ""; note("save-message", null);
+    $("next-step").hidden = true;
     // Anything reported against the previous file is meaningless now.
     $("problems").replaceChildren();
     $("changes").replaceChildren();
@@ -1483,6 +1536,7 @@ function save() {
     document.body.appendChild(link); link.click(); link.remove();
     setTimeout(() => URL.revokeObjectURL(url), 1200);
     $("save-state").textContent = `Saved as ${name}`;
+    $("next-step").hidden = false;
     note("save-message", "ok", "Saved.", ` Everything outside the diagram data is identical to ${sourceName}. Double-click the new file to see your change. This tool is now editing from the design you just saved, so your next change builds on this one.`);
     // Roll the session forward to the file just written. Without this, a
     // second edit in the same session is built against the pre-save design,
@@ -1540,6 +1594,20 @@ $("fresh-fill").addEventListener("click", () => {
   slice.dispatchEvent(new Event("change"));
   $("request").value = freshRequestText(title, drawing, $("fresh-rack").value);
   $("fresh-state").textContent = "Request filled - now press Copy prompt and paste it into that same chat.";
+});
+$("brand-apply").addEventListener("click", () => {
+  if (!currentData) { $("brand-state").textContent = "Load a design file first."; return; }
+  const { next, problem } = brandedData(accepted || currentData, {
+    name: $("brand-name").value, label: $("brand-label").value,
+    fill: $("brand-fill").value, path: $("brand-path").value, viewBox: $("brand-viewbox").value
+  });
+  if (problem) { $("brand-state").textContent = problem; return; }
+  const before = currentData;
+  currentData = next;
+  accepted = next;
+  renderChanges(before, next);
+  $("save").disabled = false;
+  $("brand-state").textContent = "Staged. Review the change list in step 4, then save.";
 });
 $("slice").addEventListener("change", () => {
   describeSlice();

@@ -50,7 +50,7 @@ const sandbox = {
   Blob, TextDecoder, structuredClone, setTimeout, console
 };
 
-const shim = ";globalThis.__exports = { parseWithRepair, mergeReply, checkStructure, checkMeaning, checkShell, checkAssetStrings, looksTruncated, safeJson, contextFor, summarizeChange, editableParts, freshRequestText, freshDrawingId, EXTRACT_PROMPT, SLICES };";
+const shim = ";globalThis.__exports = { parseWithRepair, mergeReply, checkStructure, checkMeaning, checkShell, checkAssetStrings, looksTruncated, safeJson, contextFor, summarizeChange, editableParts, freshRequestText, freshDrawingId, brandedData, EXTRACT_PROMPT, SLICES };";
 vm.runInNewContext(script[1] + shim, sandbox, { filename: "edit-with-ai.html <script>" });
 const t = sandbox.__exports;
 
@@ -397,6 +397,40 @@ test("wizard: the diagram-reading prompt asks for lists, ids and areas, and no c
   assert(/short id/.test(t.EXTRACT_PROMPT));
   assert(/three plain-text lists/.test(t.EXTRACT_PROMPT));
   assert(/Do not write any code yet/.test(t.EXTRACT_PROMPT));
+});
+
+/* ---- the branding panel ---- */
+
+test("branding: named fields change, everything else survives untouched", () => {
+  const base = baseDesign();
+  const originalPath = base.document.brand.logoPath;
+  const { next, problem } = t.brandedData(base, { name: "Acme Corp", label: "IT Infrastructure" });
+  assert(!problem);
+  assert.strictEqual(next.document.brand.name, "Acme Corp");
+  assert.strictEqual(next.document.brand.label, "IT Infrastructure");
+  assert.strictEqual(next.document.brand.logoPath, originalPath, "the logo path was disturbed");
+  assert.deepStrictEqual(json(next.topology), json(base.topology));
+});
+
+test("branding: empty fields keep what the file already has", () => {
+  const base = baseDesign();
+  base.document.brand.name = "Existing";
+  const { next } = t.brandedData(base, { name: "", label: "  " });
+  assert.strictEqual(next.document.brand.name, "Existing");
+});
+
+test("branding: a broken logo path or colour is refused with a plain reason", () => {
+  assert(/angle brackets|looks wrong/.test(t.brandedData(baseDesign(), { path: "M0 0<script>" }).problem));
+  assert(t.brandedData(baseDesign(), { path: "M0 0" }).problem, "a too-short path was accepted");
+  assert(/hex value/.test(t.brandedData(baseDesign(), { fill: "blue" }).problem));
+});
+
+test("branding: a real path and viewBox land together", () => {
+  const { next, problem } = t.brandedData(baseDesign(), { path: "M10 10 H 90 V 90 H 10 Z", viewBox: "0 0 100 100", fill: "#123abc" });
+  assert(!problem);
+  assert.strictEqual(next.document.brand.logoPath, "M10 10 H 90 V 90 H 10 Z");
+  assert.strictEqual(next.document.brand.logoViewBox, "0 0 100 100");
+  assert.strictEqual(next.document.brand.logoFill, "#123abc");
 });
 
 /* ---- runner ---- */

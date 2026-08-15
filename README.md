@@ -167,7 +167,7 @@ before the build runs, so nothing fails silently.
 | ✂️ **Part-based editing** | The helper sends the AI one part — devices, connections, the rack — so a free model writes 80–90% less and stops getting cut off. |
 | ✅ **It checks itself** | Catches rack overlaps, dangling links, duplicate IDs, unknown icons and kinds, face-height mismatches, broken JSON — loudly, in the file itself. |
 | 🖨️ **Prints properly** | Letter-size PDF with the sidebar dropped and hidden sections revealed. |
-| 🎨 **Your branding** | Swap the logo with one line of JSON. |
+| 🎨 **Your branding** | Name, colours and logo staged in the helper's Branding panel — the one edit no AI ever touches. |
 | 📦 **Zero dependencies** | No CDN, no fonts, no build step, no server. Works on a plane. |
 
 ## Starter kits
