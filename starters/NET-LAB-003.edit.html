@@ -1142,172 +1142,1252 @@
 <h2>Enterprise Layer 3 logical topology</h2>
 <p class="section-lede">North-to-south routed hierarchy with selected aggregate relationships retained only as redundancy context. Click a node for details; use separate L2 and physical sheets for port-level implementation.</p>
 <div class="topology-scroll" id="logical-scroll">
-      <svg id="logical-svg" viewBox="0 0 1360 920" role="img" aria-labelledby="logical-title logical-desc">
-        <title id="logical-title">Redundant enterprise campus Layer 3 logical topology</title>
-        <desc id="logical-desc">A north-to-south routed hierarchy from Internet service through paired edge routers, high-availability firewalls, and collapsed core switches to campus and service networks. Selected aggregate members document redundancy context; physical implementation remains in the schedule.</desc>
-        <defs>
-          <filter id="node-shadow" x="-20%" y="-20%" width="140%" height="150%">
-            <feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#152d39" flood-opacity=".20"/>
-          </filter>
-        </defs>
+      <svg id="logical-svg" viewBox="0 0 1360 920" role="img" aria-labelledby="logical-title logical-desc"></svg>
+<!-- PROOF-DATA:BEGIN -->
+<script id="proof-data" type="application/json">
+{
+  "editing": {
+    "grammar": "sheet",
+    "parts": [
+      "rack"
+    ]
+  },
+  "document": {
+    "title": "Enterprise Campus Reference",
+    "subtitle": "A campus reference: dual provider handoffs into an edge router pair, a cross-connected active/standby perimeter, a peer-linked collapsed core, and access, wireless and services tiers each dual-homed to both cores.",
+    "drawing": "NET-LAB-003",
+    "revision": "3.1",
+    "status": "Unified reference",
+    "date": "2026-08-13",
+    "classification": "SAMPLE / REFERENCE",
+    "docClass": "Reference Design",
+    "subject": "Enterprise campus",
+    "site": "Training campus - fictional",
+    "lineage": {
+      "source": "cloudbats-NET-LAB-002-v3.0.html",
+      "note": "Ported from the finished CloudBats deliverable. The source already cross-referenced its figure and its data - every drawn link carries the id of its record - so nothing here was inferred. Numbered NET-LAB-003 because the natively written NET-LAB-002 starter already holds that id."
+    },
+    "evidence": {
+      "text": "Reference pattern - validation required",
+      "color": "amber"
+    },
+    "brand": {
+      "name": "cloudbats",
+      "label": "Systems - Network Design - Starter kit",
+      "logoViewBox": "0 0 512 512",
+      "logoFill": "#0F172A",
+      "logoPath": "M112 72 H400 V352 Q400 400 376 424 Q356 440 336 424 Q316 400 296 400 H216 Q196 400 176 424 Q156 440 136 424 Q112 400 112 352 Z M312 136 A40 40 0 0 1 352 176 V304 A40 40 0 0 1 312 344 A40 40 0 0 1 272 304 V176 A40 40 0 0 1 312 136 Z"
+    }
+  },
+  "topology": {
+    "canvas": {
+      "viewBox": "0 0 1360 920"
+    },
+    "title": "Redundant enterprise campus Layer 3 logical topology",
+    "desc": "A north-to-south routed hierarchy from Internet service through paired edge routers, high-availability firewalls, and collapsed core switches to campus and service networks. Selected aggregate members document redundancy context; physical implementation remains in the schedule.",
+    "zones": [
+      {
+        "id": "external",
+        "x": 28,
+        "y": 28,
+        "width": 1304,
+        "height": 270,
+        "rx": 12,
+        "label": "EXTERNAL / SERVICE PROVIDER",
+        "lx": 48,
+        "ly": 55
+      },
+      {
+        "id": "edge",
+        "x": 28,
+        "y": 310,
+        "width": 1304,
+        "height": 106,
+        "rx": 12,
+        "label": "PERIMETER SECURITY ZONE",
+        "lx": 48,
+        "ly": 336
+      },
+      {
+        "id": "campus",
+        "x": 28,
+        "y": 428,
+        "width": 1304,
+        "height": 454,
+        "rx": 12,
+        "label": "CAMPUS / INTERNAL TRUST",
+        "lx": 48,
+        "ly": 451
+      }
+    ],
+    "nodes": [
+      {
+        "id": "internet",
+        "label": "Internet / ISP cloud",
+        "role": "External routed service",
+        "address": "Provider-assigned /30s",
+        "notes": "Treat a cloud as an external or abstract network—not as a generic decoration.",
+        "kind": "abstract-network",
+        "icon": "cloud",
+        "at": [
+          570,
+          70
+        ],
+        "shell": [
+          220,
+          86
+        ],
+        "art": [
+          56,
+          4,
+          108,
+          63
+        ],
+        "name": {
+          "t": "Internet / ISP cloud",
+          "x": 110,
+          "y": 77
+        }
+      },
+      {
+        "id": "edge-rtr-01",
+        "label": "edge-rtr-01",
+        "role": "WAN edge router",
+        "address": "198.51.100.2/30 · AS 65010",
+        "notes": "eBGP to ISP-A; routed transit to perimeter.",
+        "kind": "router",
+        "icon": "router",
+        "at": [
+          335,
+          174
+        ],
+        "shell": [
+          220,
+          120
+        ],
+        "art": [
+          70,
+          9,
+          80,
+          54
+        ],
+        "name": {
+          "t": "edge-rtr-01",
+          "x": 110,
+          "y": 81
+        },
+        "badge": {
+          "t": "ROUTED",
+          "x": 77,
+          "y": 105,
+          "w": 66,
+          "h": 12,
+          "rx": 5,
+          "tx": 110,
+          "ty": 114
+        },
+        "caption": {
+          "t": "WAN router · ISP-A",
+          "x": 110,
+          "y": 99
+        }
+      },
+      {
+        "id": "edge-rtr-02",
+        "label": "edge-rtr-02",
+        "role": "WAN edge router",
+        "address": "203.0.113.2/30 · AS 65010",
+        "notes": "eBGP to ISP-B; routed transit to perimeter.",
+        "kind": "router",
+        "icon": "router",
+        "at": [
+          805,
+          174
+        ],
+        "shell": [
+          220,
+          120
+        ],
+        "art": [
+          70,
+          9,
+          80,
+          54
+        ],
+        "name": {
+          "t": "edge-rtr-02",
+          "x": 110,
+          "y": 81
+        },
+        "badge": {
+          "t": "ROUTED",
+          "x": 77,
+          "y": 105,
+          "w": 66,
+          "h": 12,
+          "rx": 5,
+          "tx": 110,
+          "ty": 114
+        },
+        "caption": {
+          "t": "WAN router · ISP-B",
+          "x": 110,
+          "y": 99
+        }
+      },
+      {
+        "id": "edge-fw-01",
+        "label": "edge-fw-01",
+        "role": "Perimeter firewall · active",
+        "address": "Outside 198.18.0.2/29 · Inside 10.255.0.1/31",
+        "notes": "Security policy, NAT, VPN termination, IPS. Physical model: Cisco FPR4215-NGFW-K9 at R113 U39.",
+        "kind": "firewall",
+        "icon": "firewall",
+        "at": [
+          335,
+          312
+        ],
+        "shell": [
+          220,
+          102
+        ],
+        "art": [
+          91,
+          6,
+          38,
+          66
+        ],
+        "name": {
+          "t": "edge-fw-01",
+          "x": 110,
+          "y": 84
+        },
+        "caption": {
+          "t": "Perimeter · active",
+          "x": 110,
+          "y": 98
+        }
+      },
+      {
+        "id": "edge-fw-02",
+        "label": "edge-fw-02",
+        "role": "Perimeter firewall · standby",
+        "address": "Outside 198.18.0.3/29 · Inside 10.255.0.3/31",
+        "notes": "HA mate to edge-fw-01. Physical model: Cisco FPR4215-NGFW-K9 at R113 U38.",
+        "kind": "firewall",
+        "icon": "firewall",
+        "at": [
+          805,
+          312
+        ],
+        "shell": [
+          220,
+          102
+        ],
+        "art": [
+          91,
+          6,
+          38,
+          66
+        ],
+        "name": {
+          "t": "edge-fw-02",
+          "x": 110,
+          "y": 84
+        },
+        "caption": {
+          "t": "Perimeter · standby",
+          "x": 110,
+          "y": 98
+        }
+      },
+      {
+        "id": "core-sw-01",
+        "label": "core-sw-01",
+        "role": "Collapsed core / distribution",
+        "address": "Loopback 10.255.255.1/32 · OSPF area 0",
+        "notes": "Default gateway redundancy and routed access. Physical model: Cisco Catalyst 9500X-28C8D at R113 U42.",
+        "kind": "layer-3-switch",
+        "icon": "core-switch",
+        "at": [
+          335,
+          456
+        ],
+        "shell": [
+          220,
+          106
+        ],
+        "art": [
+          77,
+          5,
+          66,
+          66
+        ],
+        "name": {
+          "t": "core-sw-01",
+          "x": 110,
+          "y": 86
+        },
+        "caption": {
+          "t": "L3 collapsed core",
+          "x": 110,
+          "y": 101
+        }
+      },
+      {
+        "id": "core-sw-02",
+        "label": "core-sw-02",
+        "role": "Collapsed core / distribution",
+        "address": "Loopback 10.255.255.2/32 · OSPF area 0",
+        "notes": "Default gateway redundancy and routed access. Physical model: Cisco Catalyst 9500X-28C8D at R113 U41.",
+        "kind": "layer-3-switch",
+        "icon": "core-switch",
+        "at": [
+          805,
+          456
+        ],
+        "shell": [
+          220,
+          106
+        ],
+        "art": [
+          77,
+          5,
+          66,
+          66
+        ],
+        "name": {
+          "t": "core-sw-02",
+          "x": 110,
+          "y": 86
+        },
+        "caption": {
+          "t": "L3 collapsed core",
+          "x": 110,
+          "y": 101
+        }
+      },
+      {
+        "id": "access-sw-01",
+        "label": "access-sw-01",
+        "role": "User access switch",
+        "address": "Mgmt 10.10.99.11/24 · VLANs 10, 20, 30",
+        "notes": "Dual-homed Layer-2 access. Physical model: Cisco Catalyst 9300-48P at R113 U35.",
+        "kind": "layer-2-switch",
+        "icon": "access-switch",
+        "at": [
+          140,
+          640
+        ],
+        "shell": [
+          220,
+          112
+        ],
+        "art": [
+          58,
+          7,
+          104,
+          53
+        ],
+        "name": {
+          "t": "access-sw-01",
+          "x": 110,
+          "y": 80
+        },
+        "badge": {
+          "t": "LAYER 2",
+          "x": 82,
+          "y": 101,
+          "w": 56,
+          "h": 10,
+          "rx": 5,
+          "tx": 110,
+          "ty": 109
+        },
+        "caption": {
+          "t": "Access · Users / Voice",
+          "x": 110,
+          "y": 98
+        }
+      },
+      {
+        "id": "access-sw-02",
+        "label": "access-sw-02",
+        "role": "User access switch",
+        "address": "Mgmt 10.10.99.12/24 · VLANs 10, 20, 40",
+        "notes": "Dual-homed Layer-2 access. Physical model: Cisco Catalyst 9300-48P at R113 U34.",
+        "kind": "layer-2-switch",
+        "icon": "access-switch",
+        "at": [
+          440,
+          640
+        ],
+        "shell": [
+          220,
+          112
+        ],
+        "art": [
+          58,
+          7,
+          104,
+          53
+        ],
+        "name": {
+          "t": "access-sw-02",
+          "x": 110,
+          "y": 80
+        },
+        "badge": {
+          "t": "LAYER 2",
+          "x": 82,
+          "y": 101,
+          "w": 56,
+          "h": 10,
+          "rx": 5,
+          "tx": 110,
+          "ty": 109
+        },
+        "caption": {
+          "t": "Access · Users / WLAN",
+          "x": 110,
+          "y": 98
+        }
+      },
+      {
+        "id": "services-sw-01",
+        "label": "services-sw-01",
+        "role": "Server access / service leaf",
+        "address": "Mgmt 10.50.99.11/24 · VLANs 50, 51",
+        "notes": "Dual-homed service access; hosts use redundant NICs and bonds.",
+        "kind": "layer-2-switch",
+        "icon": "access-switch",
+        "at": [
+          895,
+          640
+        ],
+        "shell": [
+          220,
+          112
+        ],
+        "art": [
+          58,
+          7,
+          104,
+          53
+        ],
+        "name": {
+          "t": "services-sw-01",
+          "x": 110,
+          "y": 80
+        },
+        "badge": {
+          "t": "LAYER 2",
+          "x": 82,
+          "y": 101,
+          "w": 56,
+          "h": 10,
+          "rx": 5,
+          "tx": 110,
+          "ty": 109
+        },
+        "caption": {
+          "t": "Server access · VLAN 50/51",
+          "x": 110,
+          "y": 98
+        }
+      },
+      {
+        "id": "ap-01",
+        "label": "ap-01",
+        "role": "Lightweight wireless access point",
+        "address": "Mgmt 10.10.99.31/24 · Corp/Guest SSIDs",
+        "notes": "PoE access; Corp users map to VLAN 20 and guests to isolated VLAN 40.",
+        "kind": "wireless-ap",
+        "icon": "access-point",
+        "at": [
+          30,
+          802
+        ],
+        "shell": [
+          180,
+          96
+        ],
+        "art": [
+          46,
+          5,
+          88,
+          49
+        ],
+        "name": {
+          "t": "ap-01",
+          "x": 90,
+          "y": 72
+        },
+        "caption": {
+          "t": "Corp / Guest WLAN",
+          "x": 90,
+          "y": 88
+        }
+      },
+      {
+        "id": "users-a",
+        "label": "User endpoints · A",
+        "role": "Access clients",
+        "address": "VLAN 10 · 10.10.10.0/24",
+        "notes": "Aggregate endpoint symbol; individual clients are normally omitted from an overview topology.",
+        "kind": "endpoint-group",
+        "icon": "workstation",
+        "at": [
+          290,
+          802
+        ],
+        "shell": [
+          180,
+          96
+        ],
+        "art": [
+          56,
+          3,
+          68,
+          61
+        ],
+        "name": {
+          "t": "Users · VLAN 10",
+          "x": 90,
+          "y": 77
+        },
+        "caption": {
+          "t": "10.10.10.0/24",
+          "x": 90,
+          "y": 91
+        }
+      },
+      {
+        "id": "ap-02",
+        "label": "ap-02",
+        "role": "Lightweight wireless access point",
+        "address": "Mgmt 10.10.99.32/24 · Corp/Guest SSIDs",
+        "notes": "PoE access; radio details belong in the wireless design, not this topology.",
+        "kind": "wireless-ap",
+        "icon": "access-point",
+        "at": [
+          460,
+          802
+        ],
+        "shell": [
+          180,
+          96
+        ],
+        "art": [
+          46,
+          5,
+          88,
+          49
+        ],
+        "name": {
+          "t": "ap-02",
+          "x": 90,
+          "y": 72
+        },
+        "caption": {
+          "t": "Corp / Guest WLAN",
+          "x": 90,
+          "y": 88
+        }
+      },
+      {
+        "id": "hv-01",
+        "label": "hv-01",
+        "role": "Virtualization host",
+        "address": "Mgmt 10.50.50.21/24 · 2 × 25GbE",
+        "notes": "Physical model: Dell PowerEdge R750 at R113 U30–U31.",
+        "kind": "server",
+        "icon": "server",
+        "at": [
+          790,
+          802
+        ],
+        "shell": [
+          180,
+          96
+        ],
+        "art": [
+          69,
+          3,
+          42,
+          60
+        ],
+        "name": {
+          "t": "hv-01",
+          "x": 90,
+          "y": 77
+        },
+        "caption": {
+          "t": "Compute · VLAN 50",
+          "x": 90,
+          "y": 91
+        }
+      },
+      {
+        "id": "hv-02",
+        "label": "hv-02",
+        "role": "Virtualization host",
+        "address": "Mgmt 10.50.50.22/24 · 2 × 25GbE",
+        "notes": "Physical model: Dell PowerEdge R750 at R113 U27–U28.",
+        "kind": "server",
+        "icon": "server",
+        "at": [
+          1045,
+          802
+        ],
+        "shell": [
+          180,
+          96
+        ],
+        "art": [
+          69,
+          3,
+          42,
+          60
+        ],
+        "name": {
+          "t": "hv-02",
+          "x": 90,
+          "y": 77
+        },
+        "caption": {
+          "t": "Compute · VLAN 50",
+          "x": 90,
+          "y": 91
+        }
+      }
+    ],
+    "links": [
+      {
+        "id": "L01",
+        "from": "internet",
+        "to": "edge-rtr-01",
+        "nature": "provider-dia",
+        "kind": "l3",
+        "d": "M680 156 L680 166 L445 166 L445 174",
+        "title": "L01 · Provider DIA A · Internet to edge-rtr-01 · 10 GbE"
+      },
+      {
+        "id": "L02",
+        "from": "internet",
+        "to": "edge-rtr-02",
+        "nature": "provider-dia",
+        "kind": "l3",
+        "d": "M680 156 L680 166 L915 166 L915 174",
+        "title": "L02 · Provider DIA B · Internet to edge-rtr-02 · 10 GbE"
+      },
+      {
+        "id": "L03",
+        "from": "edge-rtr-01",
+        "to": "edge-fw-01",
+        "nature": "routed-transit-primary",
+        "kind": "l3",
+        "d": "M445 294 L445 312",
+        "title": "L03 · edge-rtr-01 to edge-fw-01 routed transit · details TBD"
+      },
+      {
+        "id": "L04",
+        "from": "edge-rtr-02",
+        "to": "edge-fw-02",
+        "nature": "routed-transit-primary",
+        "kind": "l3",
+        "d": "M915 294 L915 312",
+        "title": "L04 · edge-rtr-02 to edge-fw-02 routed transit · details TBD"
+      },
+      {
+        "id": "L05",
+        "from": "edge-rtr-01",
+        "to": "edge-fw-02",
+        "nature": "routed-transit-backup",
+        "kind": "backup",
+        "d": "M425 294V300H895V312",
+        "title": "L05 · edge-rtr-01 to edge-fw-02 backup routed transit · details TBD"
+      },
+      {
+        "id": "L06",
+        "from": "edge-rtr-02",
+        "to": "edge-fw-01",
+        "nature": "routed-transit-backup",
+        "kind": "backup",
+        "d": "M935 294V306H465V312",
+        "title": "L06 · edge-rtr-02 to edge-fw-01 backup routed transit · details TBD"
+      },
+      {
+        "id": "L07",
+        "from": "edge-fw-01",
+        "to": "edge-fw-02",
+        "nature": "ha-state-config",
+        "kind": "ha",
+        "d": "M555 364 L805 364",
+        "title": "L07 · Firewall HA state/config relationship; physical members and interfaces TBD"
+      },
+      {
+        "id": "L08",
+        "from": "edge-fw-01",
+        "to": "core-sw-01",
+        "nature": "routed-inside-transit",
+        "kind": "aggregate",
+        "d": "M445 414 L445 456",
+        "title": "L08 · edge-fw-01 to core-sw-01 · 40 GbE · details TBD"
+      },
+      {
+        "id": "L09",
+        "from": "edge-fw-01",
+        "to": "core-sw-02",
+        "nature": "routed-inside-transit",
+        "kind": "aggregate",
+        "d": "M465 414V430H895V456",
+        "title": "L09 · edge-fw-01 to core-sw-02 · 40 GbE · details TBD"
+      },
+      {
+        "id": "L10",
+        "from": "edge-fw-02",
+        "to": "core-sw-02",
+        "nature": "routed-inside-transit",
+        "kind": "aggregate",
+        "d": "M915 414 L915 456",
+        "title": "L10 · edge-fw-02 to core-sw-02 · 40 GbE · details TBD"
+      },
+      {
+        "id": "L11",
+        "from": "edge-fw-02",
+        "to": "core-sw-01",
+        "nature": "routed-inside-transit",
+        "kind": "aggregate",
+        "d": "M895 414V440H465V456",
+        "title": "L11 · edge-fw-02 to core-sw-01 · 40 GbE · details TBD"
+      },
+      {
+        "id": "L12-A",
+        "from": "core-sw-01",
+        "to": "core-sw-02",
+        "nature": "peer-link-member",
+        "kind": "aggregate",
+        "d": "M555 501 L805 501",
+        "title": "L12-A · Core peer-link member A · 100 GbE · interfaces and media TBD"
+      },
+      {
+        "id": "L12-B",
+        "from": "core-sw-01",
+        "to": "core-sw-02",
+        "nature": "peer-link-member",
+        "kind": "aggregate",
+        "d": "M555 517 L805 517",
+        "title": "L12-B · Core peer-link member B · 100 GbE · interfaces and media TBD"
+      },
+      {
+        "id": "L13-A",
+        "from": "core-sw-01",
+        "to": "access-sw-01",
+        "nature": "aggregate-member",
+        "kind": "aggregate",
+        "d": "M395 562V584H220V640",
+        "title": "L13-A · core-sw-01 to access-sw-01 aggregate member · ports/media TBD"
+      },
+      {
+        "id": "L13-B",
+        "from": "core-sw-02",
+        "to": "access-sw-01",
+        "nature": "aggregate-member",
+        "kind": "aggregate",
+        "d": "M835 562V590H280V640",
+        "title": "L13-B · core-sw-02 to access-sw-01 aggregate member · ports/media TBD"
+      },
+      {
+        "id": "L14-A",
+        "from": "core-sw-01",
+        "to": "access-sw-02",
+        "nature": "aggregate-member",
+        "kind": "aggregate",
+        "d": "M455 562V596H520V640",
+        "title": "L14-A · core-sw-01 to access-sw-02 aggregate member · ports/media TBD"
+      },
+      {
+        "id": "L14-B",
+        "from": "core-sw-02",
+        "to": "access-sw-02",
+        "nature": "aggregate-member",
+        "kind": "aggregate",
+        "d": "M895 562V602H580V640",
+        "title": "L14-B · core-sw-02 to access-sw-02 aggregate member · ports/media TBD"
+      },
+      {
+        "id": "L15-A",
+        "from": "core-sw-01",
+        "to": "services-sw-01",
+        "nature": "aggregate-member",
+        "kind": "aggregate",
+        "d": "M515 562V614H975V640",
+        "title": "L15-A · core-sw-01 to services-sw-01 aggregate member · ports/media TBD"
+      },
+      {
+        "id": "L15-B",
+        "from": "core-sw-02",
+        "to": "services-sw-01",
+        "nature": "aggregate-member",
+        "kind": "aggregate",
+        "d": "M955 562V608H1035V640",
+        "title": "L15-B · core-sw-02 to services-sw-01 aggregate member · ports/media TBD"
+      },
+      {
+        "id": "L16",
+        "from": "access-sw-01",
+        "to": "ap-01",
+        "nature": "access-attachment",
+        "kind": "access",
+        "d": "M250 752 L250 786 L120 786 L120 802",
+        "title": "L16 · access-sw-01 to ap-01 · details TBD"
+      },
+      {
+        "id": "L17",
+        "from": "access-sw-01",
+        "to": "users-a",
+        "nature": "access-attachment",
+        "kind": "access",
+        "d": "M250 752 L250 786 L380 786 L380 802",
+        "title": "L17 · access-sw-01 to user endpoint aggregate · details TBD"
+      },
+      {
+        "id": "L18",
+        "from": "access-sw-02",
+        "to": "ap-02",
+        "nature": "access-attachment",
+        "kind": "access",
+        "d": "M550 752 L550 802",
+        "title": "L18 · access-sw-02 to ap-02 · details TBD"
+      },
+      {
+        "id": "L19",
+        "from": "services-sw-01",
+        "to": "hv-01",
+        "nature": "service-attachment",
+        "kind": "access",
+        "d": "M1005 752 L1005 786 L880 786 L880 802",
+        "title": "L19 · services-sw-01 to hv-01 · details TBD"
+      },
+      {
+        "id": "L20",
+        "from": "services-sw-01",
+        "to": "hv-02",
+        "nature": "service-attachment",
+        "kind": "access",
+        "d": "M1005 752 L1005 786 L1135 786 L1135 802",
+        "title": "L20 · services-sw-01 to hv-02 · details TBD"
+      }
+    ],
+    "halos": [
+      "M425 294V300H895V312",
+      "M935 294V306H465V312",
+      "M465 414V430H895V456",
+      "M895 414V440H465V456",
+      "M395 562V584H220V640",
+      "M835 562V590H280V640",
+      "M455 562V596H520V640",
+      "M895 562V602H580V640",
+      "M515 562V614H975V640",
+      "M955 562V608H1035V640"
+    ],
+    "labels": [
+      {
+        "t": "DIA · 2 × 10 GbE",
+        "at": [
+          618,
+          158
+        ],
+        "w": 124,
+        "h": 21,
+        "rx": 4,
+        "tx": 62,
+        "ty": 14,
+        "a": "middle"
+      },
+      {
+        "t": "HA state + config sync",
+        "at": [
+          598,
+          353
+        ],
+        "w": 164,
+        "h": 21,
+        "rx": 4,
+        "tx": 82,
+        "ty": 14,
+        "a": "middle"
+      },
+      {
+        "t": "4 × 40 GbE routed links",
+        "at": [
+          590,
+          421
+        ],
+        "w": 180,
+        "h": 21,
+        "rx": 4,
+        "tx": 90,
+        "ty": 14,
+        "a": "middle"
+      },
+      {
+        "t": "Peer link · 2 × 100G",
+        "at": [
+          607,
+          487
+        ],
+        "w": 146,
+        "h": 21,
+        "rx": 4,
+        "tx": 73,
+        "ty": 14,
+        "a": "middle"
+      },
+      {
+        "t": "MLAG/LACP · diverse members",
+        "at": [
+          578,
+          588
+        ],
+        "w": 204,
+        "h": 21,
+        "rx": 4,
+        "tx": 102,
+        "ty": 14,
+        "a": "middle"
+      }
+    ]
+  },
+  "rack": {
+    "id": "R113",
+    "location": "MDF-1",
+    "units": 42,
+    "frontAisle": "cold aisle",
+    "rearAisle": "hot aisle",
+    "reserved": [
+      {
+        "position": 36,
+        "height": 1,
+        "label": "reserved patch field - "
+      },
+      {
+        "position": 40,
+        "height": 1,
+        "label": ""
+      },
+      {
+        "position": 37,
+        "height": 1,
+        "label": ""
+      },
+      {
+        "position": 32,
+        "height": 2,
+        "label": ""
+      },
+      {
+        "position": 29,
+        "height": 1,
+        "label": ""
+      },
+      {
+        "position": 4,
+        "height": 23,
+        "label": ""
+      },
+      {
+        "position": 1,
+        "height": 1,
+        "label": ""
+      }
+    ],
+    "devices": [
+      {
+        "id": "core-sw-01",
+        "model": "Cisco Catalyst 9500X-28C8D",
+        "role": "collapsed-core",
+        "position": 42,
+        "height": 1,
+        "asset": "c9500"
+      },
+      {
+        "id": "core-sw-02",
+        "model": "Cisco Catalyst 9500X-28C8D",
+        "role": "collapsed-core",
+        "position": 41,
+        "height": 1,
+        "asset": "c9500"
+      },
+      {
+        "id": "edge-fw-01",
+        "model": "Cisco FPR4215-NGFW-K9",
+        "role": "perimeter-firewall-active",
+        "position": 39,
+        "height": 1,
+        "asset": "generic"
+      },
+      {
+        "id": "edge-fw-02",
+        "model": "Cisco FPR4215-NGFW-K9",
+        "role": "perimeter-firewall-standby",
+        "position": 38,
+        "height": 1,
+        "asset": "generic"
+      },
+      {
+        "id": "access-sw-01",
+        "model": "Cisco Catalyst 9300-48P",
+        "role": "user-access",
+        "position": 35,
+        "height": 1,
+        "asset": "c9300"
+      },
+      {
+        "id": "access-sw-02",
+        "model": "Cisco Catalyst 9300-48P",
+        "role": "user-access",
+        "position": 34,
+        "height": 1,
+        "asset": "c9300"
+      },
+      {
+        "id": "hv-01",
+        "model": "Dell PowerEdge R750",
+        "role": "virtualization-host",
+        "position": 30,
+        "height": 2,
+        "asset": "generic"
+      },
+      {
+        "id": "hv-02",
+        "model": "Dell PowerEdge R750",
+        "role": "virtualization-host",
+        "position": 27,
+        "height": 2,
+        "asset": "generic"
+      },
+      {
+        "id": "ups-01",
+        "model": "APC SMT3000RMI2UC",
+        "role": "rack-ups",
+        "position": 2,
+        "height": 2,
+        "asset": "ups"
+      }
+    ]
+  },
+  "sections": {
+    "findings": {
+      "id": "open-items",
+      "label": "Open items",
+      "noun": "open items and risks",
+      "heading": "Open items, assumptions & risk register",
+      "flavour": "gaps",
+      "items": [
+        {
+          "id": "R1",
+          "severity": "HIGH",
+          "title": "Carrier and edge-router physical placement is undocumented",
+          "detail": "The edge routers appear in the logical view with no rack, position or facility record behind them.",
+          "action": "Record the carrier demarcation and the edge routers' physical home before the elevation is used to plan work.",
+          "at": [
+            "edge-rtr-01",
+            "edge-rtr-02"
+          ]
+        },
+        {
+          "id": "R2",
+          "severity": "HIGH",
+          "title": "services-sw-01 has no device type or rack position",
+          "detail": "The services switch is drawn and addressed but has no model, no height and no place in the rack, so it cannot be ordered or installed.",
+          "action": "Select a platform and assign a rack position.",
+          "at": [
+            "services-sw-01"
+          ]
+        },
+        {
+          "id": "R3",
+          "severity": "HIGH",
+          "title": "Link ports, media, and LAG IDs are TBD",
+          "detail": "No drawn link records the interfaces it lands on, the media it runs over, or the port-channel it belongs to.",
+          "action": "Complete the interface and LAG schedule, then reconcile it against the drawing.",
+          "atZone": "campus"
+        },
+        {
+          "id": "R4",
+          "severity": "HIGH",
+          "title": "Power resiliency and failed-feed capacity are unvalidated",
+          "detail": "The rack declares no power feeds at all, so neither normal load nor a single-feed failure can be evaluated.",
+          "action": "Produce the circuit, PDU and load schedule and calculate the failed-source case."
+        },
+        {
+          "id": "R5",
+          "severity": "MEDIUM",
+          "title": "29U are shown open with no blanking record",
+          "detail": "Twenty-nine of forty-two units are unaccounted for rather than deliberately free, and no blanking is scheduled.",
+          "action": "Blank or reserve the open units explicitly."
+        },
+        {
+          "id": "R6",
+          "severity": "HIGH",
+          "title": "Example addressing is not synchronized with IPAM",
+          "detail": "Every prefix and host address shown is illustrative and has not been reconciled against an authoritative source.",
+          "action": "Replace all addressing from approved IPAM records.",
+          "atZone": "campus"
+        },
+        {
+          "id": "R7",
+          "severity": "HIGH",
+          "title": "Firewall policy, guest isolation, and management controls are not specified",
+          "detail": "The perimeter pair is drawn and addressed, but no policy, segmentation or management rule is stated for it.",
+          "action": "Document the policy set, guest isolation and management access before the design drives configuration.",
+          "at": [
+            "edge-fw-01",
+            "edge-fw-02"
+          ]
+        },
+        {
+          "id": "R8",
+          "severity": "MEDIUM",
+          "title": "Airflow SKUs and cabinet dimensions/ratings are unknown",
+          "detail": "The cabinet records no width, depth or weight rating, and no device declares an airflow direction.",
+          "action": "Capture cabinet ratings and per-device airflow SKUs."
+        }
+      ]
+    }
+  },
+  "validation": {
+    "named_objects": 15,
+    "zones": 3,
+    "links": 24,
+    "rack_units": 42,
+    "rack_devices": 9,
+    "print_review": "not run",
+    "grayscale_review": "not run"
+  }
+}
+</script>
+<!-- PROOF-DATA:END -->
+<script id="network-icon-map">
+/* Semantic key -> inline vector symbol + official asset identifier.
+   Mirrors symbols/symbol-map.json; the official ids are what the packager scans for. */
+window.networkDesignIcons = {
+    "cloud":{vector:"nd-cloud",official:"asset:cisco/cloud.jpg"},
+    "router":{vector:"nd-router",official:"asset:cisco/router.jpg"},
+    "firewall":{vector:"nd-firewall",official:"asset:cisco/firewall.jpg"},
+    "core-switch":{vector:"nd-l3-switch",official:"asset:cisco/layer 3 switch.jpg"},
+    "access-switch":{vector:"nd-access-switch",official:"asset:cisco/workgroup switch.jpg"},
+    "access-point":{vector:"nd-access-point",official:"asset:cisco/lightweight ap.jpg"},
+    "server":{vector:"nd-server",official:"asset:cisco/fileserver.jpg"},
+    "pc":{vector:"nd-workstation",official:"asset:cisco/pc.jpg"},
+    "workstation":{vector:"nd-workstation",official:"asset:cisco/pc.jpg"},
+    "wlan-controller":{vector:"nd-wlan-controller",official:"asset:cisco/wlan controller.jpg"},
+    "vpn-headend":{vector:"nd-vpn-headend",official:"asset:cisco/vpn concentrator.jpg"},
+    "dc-switch":{vector:"nd-dc-switch",official:"asset:cisco/server switch.jpg"},
+    "ip-phone":{vector:"nd-ip-phone",official:"asset:cisco/ip phone.jpg"},
+    "laptop":{vector:"nd-laptop",official:"asset:cisco/laptop.jpg"},
+    "printer":{vector:"nd-printer",official:"asset:cisco/printer.jpg"},
+    "database":{vector:"nd-database",official:"asset:cisco/relational database.jpg"},
+    "storage-array":{vector:"nd-storage-array",official:"asset:cisco/fc storage.jpg"},
+    "network-management":{vector:"nd-nms",official:"asset:cisco/network management.jpg"},
+    "branch-office":{vector:"nd-branch-office",official:"asset:cisco/branch office.jpg"},
+    "wireless-router":{vector:"nd-wireless-router",official:"asset:cisco/wireless router.jpg"}
+};
+</script>
+<script>
+/* Figure 1 draws itself from the proof-data records. The geometry - node
+   positions, shells, art boxes, link path data, halos, label cards - lives on
+   the records themselves, where it has always been: the static markup this
+   script replaces was a hand-kept copy of that data, reconciled by the
+   integrity preflight. Rendering from the records removes the copy, so the
+   figure and the data can no longer disagree. The drawing is still hand-tuned:
+   the geometry is authored, not computed, and editing it remains maintainer
+   work - see editing.parts in the proof-data for what the AI helper may touch. */
+(function () {
+  "use strict";
+  var NS = "http://www.w3.org/2000/svg";
+  var data;
+  try { data = JSON.parse(document.getElementById("proof-data").textContent); }
+  catch (e) { console.error("proof-data did not parse", e); return; }
+  var topo = data.topology || {};
+  var icons = window.networkDesignIcons || {};
+  var svg = document.getElementById("logical-svg");
+  if (!svg) { return; }
+  var errors = [];
 
-        <rect class="zone external" x="28" y="28" width="1304" height="270" rx="12"/>
-        <text class="zone-label" x="48" y="55">EXTERNAL / SERVICE PROVIDER</text>
-        <rect class="zone edge" x="28" y="310" width="1304" height="106" rx="12"/>
-        <text class="zone-label" x="48" y="336">PERIMETER SECURITY ZONE</text>
-        <rect class="zone campus" x="28" y="428" width="1304" height="454" rx="12"/>
-        <text class="zone-label" x="48" y="451">CAMPUS / INTERNAL TRUST</text>
+  function el(name, attrs, text) {
+    var node = document.createElementNS(NS, name);
+    if (attrs) Object.keys(attrs).forEach(function (key) {
+      if (attrs[key] !== undefined && attrs[key] !== null) node.setAttribute(key, attrs[key]);
+    });
+    if (text !== undefined && text !== null) node.textContent = text;
+    return node;
+  }
 
-        <!-- Connections are intentionally behind nodes and carry explicit meaning in the legend. -->
-        <g aria-label="Network links">
-          <path id="L01" class="link l3" d="M680 156 L680 166 L445 166 L445 174"><title>L01 · Provider DIA A · Internet to edge-rtr-01 · 10 GbE</title></path>
-          <path id="L02" class="link l3" d="M680 156 L680 166 L915 166 L915 174"><title>L02 · Provider DIA B · Internet to edge-rtr-02 · 10 GbE</title></path>
-          <path id="L03" class="link l3" d="M445 294 L445 312"><title>L03 · edge-rtr-01 to edge-fw-01 routed transit · details TBD</title></path>
-          <path id="L04" class="link l3" d="M915 294 L915 312"><title>L04 · edge-rtr-02 to edge-fw-02 routed transit · details TBD</title></path>
-          <path class="link-halo" d="M425 294V300H895V312"/>
-          <path id="L05" class="link backup" d="M425 294V300H895V312"><title>L05 · edge-rtr-01 to edge-fw-02 backup routed transit · details TBD</title></path>
-          <path class="link-halo" d="M935 294V306H465V312"/>
-          <path id="L06" class="link backup" d="M935 294V306H465V312"><title>L06 · edge-rtr-02 to edge-fw-01 backup routed transit · details TBD</title></path>
-          <path id="L07" class="link ha" d="M555 364 L805 364"><title>L07 · Firewall HA state/config relationship; physical members and interfaces TBD</title></path>
+  svg.appendChild(el("title", { id: "logical-title" }, topo.title));
+  svg.appendChild(el("desc", { id: "logical-desc" }, topo.desc));
+  var defs = el("defs");
+  var shadow = el("filter", { id: "node-shadow", x: "-20%", y: "-20%", width: "140%", height: "150%" });
+  shadow.appendChild(el("feDropShadow", { dx: 0, dy: 3, stdDeviation: 3, "flood-color": "#152d39", "flood-opacity": ".20" }));
+  defs.appendChild(shadow);
+  svg.appendChild(defs);
 
-          <path id="L08" class="link aggregate" d="M445 414 L445 456"><title>L08 · edge-fw-01 to core-sw-01 · 40 GbE · details TBD</title></path>
-          <path class="link-halo" d="M465 414V430H895V456"/>
-          <path id="L09" class="link aggregate" d="M465 414V430H895V456"><title>L09 · edge-fw-01 to core-sw-02 · 40 GbE · details TBD</title></path>
-          <path id="L10" class="link aggregate" d="M915 414 L915 456"><title>L10 · edge-fw-02 to core-sw-02 · 40 GbE · details TBD</title></path>
-          <path class="link-halo" d="M895 414V440H465V456"/>
-          <path id="L11" class="link aggregate" d="M895 414V440H465V456"><title>L11 · edge-fw-02 to core-sw-01 · 40 GbE · details TBD</title></path>
-          <path id="L12-A" class="link aggregate" d="M555 501 L805 501"><title>L12-A · Core peer-link member A · 100 GbE · interfaces and media TBD</title></path>
-          <path id="L12-B" class="link aggregate" d="M555 517 L805 517"><title>L12-B · Core peer-link member B · 100 GbE · interfaces and media TBD</title></path>
+  (topo.zones || []).forEach(function (zone) {
+    svg.appendChild(el("rect", { "class": "zone " + zone.id, x: zone.x, y: zone.y, width: zone.width, height: zone.height, rx: zone.rx }));
+    svg.appendChild(el("text", { "class": "zone-label", x: zone.lx, y: zone.ly }, zone.label));
+  });
 
-          <path class="link-halo" d="M395 562V584H220V640"/>
-          <path id="L13-A" class="link aggregate" d="M395 562V584H220V640"><title>L13-A · core-sw-01 to access-sw-01 aggregate member · ports/media TBD</title></path>
-          <path class="link-halo" d="M835 562V590H280V640"/>
-          <path id="L13-B" class="link aggregate" d="M835 562V590H280V640"><title>L13-B · core-sw-02 to access-sw-01 aggregate member · ports/media TBD</title></path>
-          <path class="link-halo" d="M455 562V596H520V640"/>
-          <path id="L14-A" class="link aggregate" d="M455 562V596H520V640"><title>L14-A · core-sw-01 to access-sw-02 aggregate member · ports/media TBD</title></path>
-          <path class="link-halo" d="M895 562V602H580V640"/>
-          <path id="L14-B" class="link aggregate" d="M895 562V602H580V640"><title>L14-B · core-sw-02 to access-sw-02 aggregate member · ports/media TBD</title></path>
-          <path class="link-halo" d="M515 562V614H975V640"/>
-          <path id="L15-A" class="link aggregate" d="M515 562V614H975V640"><title>L15-A · core-sw-01 to services-sw-01 aggregate member · ports/media TBD</title></path>
-          <path class="link-halo" d="M955 562V608H1035V640"/>
-          <path id="L15-B" class="link aggregate" d="M955 562V608H1035V640"><title>L15-B · core-sw-02 to services-sw-01 aggregate member · ports/media TBD</title></path>
+  /* Connections are intentionally behind nodes and carry explicit meaning in
+     the legend. A halo is a wider background stroke that makes a crossing read
+     as a crossing rather than a connection; halos list the path data of every
+     link that needs one. */
+  var halos = {};
+  (topo.halos || []).forEach(function (d) { halos[d] = true; });
+  var wires = el("g", { "aria-label": "Network links" });
+  (topo.links || []).forEach(function (link) {
+    if (!link.id || !link.d) { errors.push("link without id or path data"); return; }
+    if (halos[link.d]) wires.appendChild(el("path", { "class": "link-halo", d: link.d }));
+    var line = el("path", { id: link.id, "class": "link " + link.kind, d: link.d });
+    line.appendChild(el("title", null, link.title));
+    wires.appendChild(line);
+  });
+  svg.appendChild(wires);
 
-          <path id="L16" class="link access" d="M250 752 L250 786 L120 786 L120 802"><title>L16 · access-sw-01 to ap-01 · details TBD</title></path>
-          <path id="L17" class="link access" d="M250 752 L250 786 L380 786 L380 802"><title>L17 · access-sw-01 to user endpoint aggregate · details TBD</title></path>
-          <path id="L18" class="link access" d="M550 752 L550 802"><title>L18 · access-sw-02 to ap-02 · details TBD</title></path>
-          <path id="L19" class="link access" d="M1005 752 L1005 786 L880 786 L880 802"><title>L19 · services-sw-01 to hv-01 · details TBD</title></path>
-          <path id="L20" class="link access" d="M1005 752 L1005 786 L1135 786 L1135 802"><title>L20 · services-sw-01 to hv-02 · details TBD</title></path>
-        </g>
+  var labels = el("g", { "aria-label": "Link labels" });
+  (topo.labels || []).forEach(function (card) {
+    var group = el("g", { transform: "translate(" + card.at[0] + " " + card.at[1] + ")" });
+    group.appendChild(el("rect", { "class": "link-label-bg", width: card.w, height: card.h, rx: card.rx }));
+    group.appendChild(el("text", { "class": "link-label", x: card.tx, y: card.ty, "text-anchor": card.a }, card.t));
+    labels.appendChild(group);
+  });
+  svg.appendChild(labels);
 
-        <g aria-label="Link labels">
-          <g transform="translate(618 158)"><rect class="link-label-bg" width="124" height="21" rx="4"/><text class="link-label" x="62" y="14" text-anchor="middle">DIA · 2 × 10 GbE</text></g>
-          <g transform="translate(598 353)"><rect class="link-label-bg" width="164" height="21" rx="4"/><text class="link-label" x="82" y="14" text-anchor="middle">HA state + config sync</text></g>
-          <g transform="translate(590 421)"><rect class="link-label-bg" width="180" height="21" rx="4"/><text class="link-label" x="90" y="14" text-anchor="middle">4 × 40 GbE routed links</text></g>
-          <g transform="translate(607 487)"><rect class="link-label-bg" width="146" height="21" rx="4"/><text class="link-label" x="73" y="14" text-anchor="middle">Peer link · 2 × 100G</text></g>
-          <g transform="translate(578 588)"><rect class="link-label-bg" width="204" height="21" rx="4"/><text class="link-label" x="102" y="14" text-anchor="middle">MLAG/LACP · diverse members</text></g>
-        </g>
+  (topo.nodes || []).forEach(function (node) {
+    var vector = (icons[node.icon] || {}).vector;
+    if (!vector) errors.push("node " + node.id + " has no vector for icon \"" + node.icon + "\"");
+    var group = el("g", {
+      "class": "logical-node", tabindex: 0,
+      "data-device": node.id, "data-name": node.label, "data-role": node.role,
+      "data-address": node.address, "data-notes": node.notes,
+      transform: "translate(" + node.at[0] + " " + node.at[1] + ")"
+    });
+    group.appendChild(el("rect", { "class": "node-shell", width: node.shell[0], height: node.shell[1] }));
+    group.appendChild(el("use", { "class": "node-icon", href: "#" + vector, x: node.art[0], y: node.art[1], width: node.art[2], height: node.art[3] }));
+    group.appendChild(el("text", { "class": "node-name", x: node.name.x, y: node.name.y }, node.name.t));
+    if (node.caption) group.appendChild(el("text", { "class": "node-role", x: node.caption.x, y: node.caption.y }, node.caption.t));
+    if (node.badge) {
+      group.appendChild(el("rect", { "class": "node-badge", x: node.badge.x, y: node.badge.y, width: node.badge.w, height: node.badge.h, rx: node.badge.rx }));
+      group.appendChild(el("text", { "class": "node-badge-text", x: node.badge.tx, y: node.badge.ty }, node.badge.t));
+    }
+    svg.appendChild(group);
+  });
 
-        <!-- Official Cisco symbols are embedded as unmodified JPGs from the PMS 3015 package. -->
-        <g class="logical-node" tabindex="0" data-device="internet" data-name="Internet / ISP cloud" data-role="External routed service" data-address="Provider-assigned /30s" data-notes="Treat a cloud as an external or abstract network—not as a generic decoration." transform="translate(570 70)">
-          <rect class="node-shell" width="220" height="86"/>
-          <use class="node-icon" href="#nd-cloud" x="56" y="4" width="108" height="63"/>
-          <text class="node-name" x="110" y="77">Internet / ISP cloud</text>
-        </g>
-
-        <g class="logical-node" tabindex="0" data-device="edge-rtr-01" data-name="edge-rtr-01" data-role="WAN edge router" data-address="198.51.100.2/30 · AS 65010" data-notes="eBGP to ISP-A; routed transit to perimeter." transform="translate(335 174)">
-          <rect class="node-shell" width="220" height="120"/>
-          <use class="node-icon" href="#nd-router" x="70" y="9" width="80" height="54"/>
-          <text class="node-name" x="110" y="81">edge-rtr-01</text>
-          <text class="node-role" x="110" y="99">WAN router · ISP-A</text>
-          <rect class="node-badge" x="77" y="105" width="66" height="12" rx="5"/><text class="node-badge-text" x="110" y="114">ROUTED</text>
-        </g>
-        <g class="logical-node" tabindex="0" data-device="edge-rtr-02" data-name="edge-rtr-02" data-role="WAN edge router" data-address="203.0.113.2/30 · AS 65010" data-notes="eBGP to ISP-B; routed transit to perimeter." transform="translate(805 174)">
-          <rect class="node-shell" width="220" height="120"/>
-          <use class="node-icon" href="#nd-router" x="70" y="9" width="80" height="54"/>
-          <text class="node-name" x="110" y="81">edge-rtr-02</text>
-          <text class="node-role" x="110" y="99">WAN router · ISP-B</text>
-          <rect class="node-badge" x="77" y="105" width="66" height="12" rx="5"/><text class="node-badge-text" x="110" y="114">ROUTED</text>
-        </g>
-
-        <g class="logical-node" tabindex="0" data-device="edge-fw-01" data-name="edge-fw-01" data-role="Perimeter firewall · active" data-address="Outside 198.18.0.2/29 · Inside 10.255.0.1/31" data-notes="Security policy, NAT, VPN termination, IPS. Physical model: Cisco FPR4215-NGFW-K9 at R113 U39." transform="translate(335 312)">
-          <rect class="node-shell" width="220" height="102"/>
-          <use class="node-icon" href="#nd-firewall" x="91" y="6" width="38" height="66"/>
-          <text class="node-name" x="110" y="84">edge-fw-01</text>
-          <text class="node-role" x="110" y="98">Perimeter · active</text>
-        </g>
-        <g class="logical-node" tabindex="0" data-device="edge-fw-02" data-name="edge-fw-02" data-role="Perimeter firewall · standby" data-address="Outside 198.18.0.3/29 · Inside 10.255.0.3/31" data-notes="HA mate to edge-fw-01. Physical model: Cisco FPR4215-NGFW-K9 at R113 U38." transform="translate(805 312)">
-          <rect class="node-shell" width="220" height="102"/>
-          <use class="node-icon" href="#nd-firewall" x="91" y="6" width="38" height="66"/>
-          <text class="node-name" x="110" y="84">edge-fw-02</text>
-          <text class="node-role" x="110" y="98">Perimeter · standby</text>
-        </g>
-
-        <g class="logical-node" tabindex="0" data-device="core-sw-01" data-name="core-sw-01" data-role="Collapsed core / distribution" data-address="Loopback 10.255.255.1/32 · OSPF area 0" data-notes="Default gateway redundancy and routed access. Physical model: Cisco Catalyst 9500X-28C8D at R113 U42." transform="translate(335 456)">
-          <rect class="node-shell" width="220" height="106"/>
-          <use class="node-icon" href="#nd-l3-switch" x="77" y="5" width="66" height="66"/>
-          <text class="node-name" x="110" y="86">core-sw-01</text>
-          <text class="node-role" x="110" y="101">L3 collapsed core</text>
-        </g>
-        <g class="logical-node" tabindex="0" data-device="core-sw-02" data-name="core-sw-02" data-role="Collapsed core / distribution" data-address="Loopback 10.255.255.2/32 · OSPF area 0" data-notes="Default gateway redundancy and routed access. Physical model: Cisco Catalyst 9500X-28C8D at R113 U41." transform="translate(805 456)">
-          <rect class="node-shell" width="220" height="106"/>
-          <use class="node-icon" href="#nd-l3-switch" x="77" y="5" width="66" height="66"/>
-          <text class="node-name" x="110" y="86">core-sw-02</text>
-          <text class="node-role" x="110" y="101">L3 collapsed core</text>
-        </g>
-
-        <g class="logical-node" tabindex="0" data-device="access-sw-01" data-name="access-sw-01" data-role="User access switch" data-address="Mgmt 10.10.99.11/24 · VLANs 10, 20, 30" data-notes="Dual-homed Layer-2 access. Physical model: Cisco Catalyst 9300-48P at R113 U35." transform="translate(140 640)">
-          <rect class="node-shell" width="220" height="112"/>
-          <use class="node-icon" href="#nd-access-switch" x="58" y="7" width="104" height="53"/>
-          <text class="node-name" x="110" y="80">access-sw-01</text>
-          <text class="node-role" x="110" y="98">Access · Users / Voice</text>
-          <rect class="node-badge" x="82" y="101" width="56" height="10" rx="5"/><text class="node-badge-text" x="110" y="109">LAYER 2</text>
-        </g>
-        <g class="logical-node" tabindex="0" data-device="access-sw-02" data-name="access-sw-02" data-role="User access switch" data-address="Mgmt 10.10.99.12/24 · VLANs 10, 20, 40" data-notes="Dual-homed Layer-2 access. Physical model: Cisco Catalyst 9300-48P at R113 U34." transform="translate(440 640)">
-          <rect class="node-shell" width="220" height="112"/>
-          <use class="node-icon" href="#nd-access-switch" x="58" y="7" width="104" height="53"/>
-          <text class="node-name" x="110" y="80">access-sw-02</text>
-          <text class="node-role" x="110" y="98">Access · Users / WLAN</text>
-          <rect class="node-badge" x="82" y="101" width="56" height="10" rx="5"/><text class="node-badge-text" x="110" y="109">LAYER 2</text>
-        </g>
-        <g class="logical-node" tabindex="0" data-device="services-sw-01" data-name="services-sw-01" data-role="Server access / service leaf" data-address="Mgmt 10.50.99.11/24 · VLANs 50, 51" data-notes="Dual-homed service access; hosts use redundant NICs and bonds." transform="translate(895 640)">
-          <rect class="node-shell" width="220" height="112"/>
-          <use class="node-icon" href="#nd-access-switch" x="58" y="7" width="104" height="53"/>
-          <text class="node-name" x="110" y="80">services-sw-01</text>
-          <text class="node-role" x="110" y="98">Server access · VLAN 50/51</text>
-          <rect class="node-badge" x="82" y="101" width="56" height="10" rx="5"/><text class="node-badge-text" x="110" y="109">LAYER 2</text>
-        </g>
-
-        <g class="logical-node" tabindex="0" data-device="ap-01" data-name="ap-01" data-role="Lightweight wireless access point" data-address="Mgmt 10.10.99.31/24 · Corp/Guest SSIDs" data-notes="PoE access; Corp users map to VLAN 20 and guests to isolated VLAN 40." transform="translate(30 802)">
-          <rect class="node-shell" width="180" height="96"/>
-          <use class="node-icon" href="#nd-access-point" x="46" y="5" width="88" height="49"/>
-          <text class="node-name" x="90" y="72">ap-01</text>
-          <text class="node-role" x="90" y="88">Corp / Guest WLAN</text>
-        </g>
-        <g class="logical-node" tabindex="0" data-device="users-a" data-name="User endpoints · A" data-role="Access clients" data-address="VLAN 10 · 10.10.10.0/24" data-notes="Aggregate endpoint symbol; individual clients are normally omitted from an overview topology." transform="translate(290 802)">
-          <rect class="node-shell" width="180" height="96"/>
-          <use class="node-icon" href="#nd-workstation" x="56" y="3" width="68" height="61"/>
-          <text class="node-name" x="90" y="77">Users · VLAN 10</text>
-          <text class="node-role" x="90" y="91">10.10.10.0/24</text>
-        </g>
-        <g class="logical-node" tabindex="0" data-device="ap-02" data-name="ap-02" data-role="Lightweight wireless access point" data-address="Mgmt 10.10.99.32/24 · Corp/Guest SSIDs" data-notes="PoE access; radio details belong in the wireless design, not this topology." transform="translate(460 802)">
-          <rect class="node-shell" width="180" height="96"/>
-          <use class="node-icon" href="#nd-access-point" x="46" y="5" width="88" height="49"/>
-          <text class="node-name" x="90" y="72">ap-02</text>
-          <text class="node-role" x="90" y="88">Corp / Guest WLAN</text>
-        </g>
-        <g class="logical-node" tabindex="0" data-device="hv-01" data-name="hv-01" data-role="Virtualization host" data-address="Mgmt 10.50.50.21/24 · 2 × 25GbE" data-notes="Physical model: Dell PowerEdge R750 at R113 U30–U31." transform="translate(790 802)">
-          <rect class="node-shell" width="180" height="96"/>
-          <use class="node-icon" href="#nd-server" x="69" y="3" width="42" height="60"/>
-          <text class="node-name" x="90" y="77">hv-01</text>
-          <text class="node-role" x="90" y="91">Compute · VLAN 50</text>
-        </g>
-        <g class="logical-node" tabindex="0" data-device="hv-02" data-name="hv-02" data-role="Virtualization host" data-address="Mgmt 10.50.50.22/24 · 2 × 25GbE" data-notes="Physical model: Dell PowerEdge R750 at R113 U27–U28." transform="translate(1045 802)">
-          <rect class="node-shell" width="180" height="96"/>
-          <use class="node-icon" href="#nd-server" x="69" y="3" width="42" height="60"/>
-          <text class="node-name" x="90" y="77">hv-02</text>
-          <text class="node-role" x="90" y="91">Compute · VLAN 50</text>
-        </g>
-      </svg>
+  window.logicalRenderErrors = errors;
+  if (errors.length) console.error("Figure 1 render problems:", errors);
+})();
+</script>
     </div>
     <div class="logical-label" id="logical-label" role="tooltip" aria-hidden="true"></div>
 
@@ -3008,17 +4088,17 @@ if (typeof module !== "undefined" && module.exports) module.exports = RACK_FACE_
   
 
   document.querySelectorAll('[data-legend-device]').forEach(icon => {
-    const source = document.querySelector(`#logical-svg .logical-node[data-device="${icon.dataset.legendDevice}"] image`);
+    const source = document.querySelector(`#logical-svg .logical-node[data-device="${icon.dataset.legendDevice}"] :is(use, image)`);
     const href = source?.getAttribute('href') || source?.getAttributeNS('http://www.w3.org/1999/xlink', 'href');
     if (!href) return;
-    const image = document.createElementNS('http://www.w3.org/2000/svg', 'image');
-    image.setAttribute('href', href);
-    image.setAttribute('x', '4');
-    image.setAttribute('y', '4');
-    image.setAttribute('width', '56');
-    image.setAttribute('height', '56');
-    image.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-    icon.replaceChildren(image);
+    const art = document.createElementNS('http://www.w3.org/2000/svg', source.tagName === 'use' ? 'use' : 'image');
+    art.setAttribute('href', href);
+    art.setAttribute('x', '4');
+    art.setAttribute('y', '4');
+    art.setAttribute('width', '56');
+    art.setAttribute('height', '56');
+    if (source.tagName !== 'use') art.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+    icon.replaceChildren(art);
   });
 
   const inspector = document.getElementById('inspector');
@@ -3445,758 +4525,6 @@ if (typeof module !== "undefined" && module.exports) module.exports = RACK_FACE_
             </symbol>
           </defs>
 </svg>
-<script id="network-icon-map">
-/* Semantic key -> inline vector symbol + official asset identifier.
-   Mirrors symbols/symbol-map.json; the official ids are what the packager scans for. */
-window.networkDesignIcons = {
-    "cloud":{vector:"nd-cloud",official:"asset:cisco/cloud.jpg"},
-    "router":{vector:"nd-router",official:"asset:cisco/router.jpg"},
-    "firewall":{vector:"nd-firewall",official:"asset:cisco/firewall.jpg"},
-    "core-switch":{vector:"nd-l3-switch",official:"asset:cisco/layer 3 switch.jpg"},
-    "access-switch":{vector:"nd-access-switch",official:"asset:cisco/workgroup switch.jpg"},
-    "access-point":{vector:"nd-access-point",official:"asset:cisco/lightweight ap.jpg"},
-    "server":{vector:"nd-server",official:"asset:cisco/fileserver.jpg"},
-    "pc":{vector:"nd-workstation",official:"asset:cisco/pc.jpg"},
-    "workstation":{vector:"nd-workstation",official:"asset:cisco/pc.jpg"},
-    "wlan-controller":{vector:"nd-wlan-controller",official:"asset:cisco/wlan controller.jpg"},
-    "vpn-headend":{vector:"nd-vpn-headend",official:"asset:cisco/vpn concentrator.jpg"},
-    "dc-switch":{vector:"nd-dc-switch",official:"asset:cisco/server switch.jpg"},
-    "ip-phone":{vector:"nd-ip-phone",official:"asset:cisco/ip phone.jpg"},
-    "laptop":{vector:"nd-laptop",official:"asset:cisco/laptop.jpg"},
-    "printer":{vector:"nd-printer",official:"asset:cisco/printer.jpg"},
-    "database":{vector:"nd-database",official:"asset:cisco/relational database.jpg"},
-    "storage-array":{vector:"nd-storage-array",official:"asset:cisco/fc storage.jpg"},
-    "network-management":{vector:"nd-nms",official:"asset:cisco/network management.jpg"},
-    "branch-office":{vector:"nd-branch-office",official:"asset:cisco/branch office.jpg"},
-    "wireless-router":{vector:"nd-wireless-router",official:"asset:cisco/wireless router.jpg"}
-};
-</script>
-<!-- PROOF-DATA:BEGIN -->
-<script id="proof-data" type="application/json">
-{
-  "editing": { "grammar": "sheet", "parts": ["rack"] },
-  "document": {
-    "title": "Enterprise Campus Reference",
-    "subtitle": "A campus reference: dual provider handoffs into an edge router pair, a cross-connected active/standby perimeter, a peer-linked collapsed core, and access, wireless and services tiers each dual-homed to both cores.",
-    "drawing": "NET-LAB-003",
-    "revision": "3.1",
-    "status": "Unified reference",
-    "date": "2026-08-13",
-    "classification": "SAMPLE / REFERENCE",
-    "docClass": "Reference Design",
-    "subject": "Enterprise campus",
-    "site": "Training campus - fictional",
-    "lineage": {
-      "source": "cloudbats-NET-LAB-002-v3.0.html",
-      "note": "Ported from the finished CloudBats deliverable. The source already cross-referenced its figure and its data - every drawn link carries the id of its record - so nothing here was inferred. Numbered NET-LAB-003 because the natively written NET-LAB-002 starter already holds that id."
-    },
-    "evidence": { "text": "Reference pattern - validation required", "color": "amber" },
-    "brand": {
-      "name": "cloudbats",
-      "label": "Systems - Network Design - Starter kit",
-      "logoViewBox": "0 0 512 512",
-      "logoFill": "#0F172A",
-      "logoPath": "M112 72 H400 V352 Q400 400 376 424 Q356 440 336 424 Q316 400 296 400 H216 Q196 400 176 424 Q156 440 136 424 Q112 400 112 352 Z M312 136 A40 40 0 0 1 352 176 V304 A40 40 0 0 1 312 344 A40 40 0 0 1 272 304 V176 A40 40 0 0 1 312 136 Z"
-    }
-  },
-  "topology": {
-    "canvas": { "viewBox": "0 0 1360 920" },
-    "title": "Redundant enterprise campus Layer 3 logical topology",
-    "desc": "A north-to-south routed hierarchy from Internet service through paired edge routers, high-availability firewalls, and collapsed core switches to campus and service networks. Selected aggregate members document redundancy context; physical implementation remains in the schedule.",
-    "zones": [
-      {
-        "id": "external",
-        "x": 28,
-        "y": 28,
-        "width": 1304,
-        "height": 270,
-        "rx": 12,
-        "label": "EXTERNAL / SERVICE PROVIDER",
-        "lx": 48,
-        "ly": 55
-      },
-      {
-        "id": "edge",
-        "x": 28,
-        "y": 310,
-        "width": 1304,
-        "height": 106,
-        "rx": 12,
-        "label": "PERIMETER SECURITY ZONE",
-        "lx": 48,
-        "ly": 336
-      },
-      {
-        "id": "campus",
-        "x": 28,
-        "y": 428,
-        "width": 1304,
-        "height": 454,
-        "rx": 12,
-        "label": "CAMPUS / INTERNAL TRUST",
-        "lx": 48,
-        "ly": 451
-      }
-    ],
-    "nodes": [
-      {
-        "id": "internet",
-        "label": "Internet / ISP cloud",
-        "role": "External routed service",
-        "address": "Provider-assigned /30s",
-        "notes": "Treat a cloud as an external or abstract network—not as a generic decoration.",
-        "kind": "abstract-network",
-        "icon": "cloud",
-        "at": [570, 70],
-        "shell": [220, 86],
-        "art": [56, 4, 108, 63],
-        "name": { "t": "Internet / ISP cloud", "x": 110, "y": 77 }
-      },
-      {
-        "id": "edge-rtr-01",
-        "label": "edge-rtr-01",
-        "role": "WAN edge router",
-        "address": "198.51.100.2/30 · AS 65010",
-        "notes": "eBGP to ISP-A; routed transit to perimeter.",
-        "kind": "router",
-        "icon": "router",
-        "at": [335, 174],
-        "shell": [220, 120],
-        "art": [70, 9, 80, 54],
-        "name": { "t": "edge-rtr-01", "x": 110, "y": 81 },
-        "badge": { "t": "ROUTED" }
-      },
-      {
-        "id": "edge-rtr-02",
-        "label": "edge-rtr-02",
-        "role": "WAN edge router",
-        "address": "203.0.113.2/30 · AS 65010",
-        "notes": "eBGP to ISP-B; routed transit to perimeter.",
-        "kind": "router",
-        "icon": "router",
-        "at": [805, 174],
-        "shell": [220, 120],
-        "art": [70, 9, 80, 54],
-        "name": { "t": "edge-rtr-02", "x": 110, "y": 81 },
-        "badge": { "t": "ROUTED" }
-      },
-      {
-        "id": "edge-fw-01",
-        "label": "edge-fw-01",
-        "role": "Perimeter firewall · active",
-        "address": "Outside 198.18.0.2/29 · Inside 10.255.0.1/31",
-        "notes": "Security policy, NAT, VPN termination, IPS. Physical model: Cisco FPR4215-NGFW-K9 at R113 U39.",
-        "kind": "firewall",
-        "icon": "firewall",
-        "at": [335, 312],
-        "shell": [220, 102],
-        "art": [91, 6, 38, 66],
-        "name": { "t": "edge-fw-01", "x": 110, "y": 84 }
-      },
-      {
-        "id": "edge-fw-02",
-        "label": "edge-fw-02",
-        "role": "Perimeter firewall · standby",
-        "address": "Outside 198.18.0.3/29 · Inside 10.255.0.3/31",
-        "notes": "HA mate to edge-fw-01. Physical model: Cisco FPR4215-NGFW-K9 at R113 U38.",
-        "kind": "firewall",
-        "icon": "firewall",
-        "at": [805, 312],
-        "shell": [220, 102],
-        "art": [91, 6, 38, 66],
-        "name": { "t": "edge-fw-02", "x": 110, "y": 84 }
-      },
-      {
-        "id": "core-sw-01",
-        "label": "core-sw-01",
-        "role": "Collapsed core / distribution",
-        "address": "Loopback 10.255.255.1/32 · OSPF area 0",
-        "notes": "Default gateway redundancy and routed access. Physical model: Cisco Catalyst 9500X-28C8D at R113 U42.",
-        "kind": "layer-3-switch",
-        "icon": "core-switch",
-        "at": [335, 456],
-        "shell": [220, 106],
-        "art": [77, 5, 66, 66],
-        "name": { "t": "core-sw-01", "x": 110, "y": 86 }
-      },
-      {
-        "id": "core-sw-02",
-        "label": "core-sw-02",
-        "role": "Collapsed core / distribution",
-        "address": "Loopback 10.255.255.2/32 · OSPF area 0",
-        "notes": "Default gateway redundancy and routed access. Physical model: Cisco Catalyst 9500X-28C8D at R113 U41.",
-        "kind": "layer-3-switch",
-        "icon": "core-switch",
-        "at": [805, 456],
-        "shell": [220, 106],
-        "art": [77, 5, 66, 66],
-        "name": { "t": "core-sw-02", "x": 110, "y": 86 }
-      },
-      {
-        "id": "access-sw-01",
-        "label": "access-sw-01",
-        "role": "User access switch",
-        "address": "Mgmt 10.10.99.11/24 · VLANs 10, 20, 30",
-        "notes": "Dual-homed Layer-2 access. Physical model: Cisco Catalyst 9300-48P at R113 U35.",
-        "kind": "layer-2-switch",
-        "icon": "access-switch",
-        "at": [140, 640],
-        "shell": [220, 112],
-        "art": [58, 7, 104, 53],
-        "name": { "t": "access-sw-01", "x": 110, "y": 80 },
-        "badge": { "t": "LAYER 2" }
-      },
-      {
-        "id": "access-sw-02",
-        "label": "access-sw-02",
-        "role": "User access switch",
-        "address": "Mgmt 10.10.99.12/24 · VLANs 10, 20, 40",
-        "notes": "Dual-homed Layer-2 access. Physical model: Cisco Catalyst 9300-48P at R113 U34.",
-        "kind": "layer-2-switch",
-        "icon": "access-switch",
-        "at": [440, 640],
-        "shell": [220, 112],
-        "art": [58, 7, 104, 53],
-        "name": { "t": "access-sw-02", "x": 110, "y": 80 },
-        "badge": { "t": "LAYER 2" }
-      },
-      {
-        "id": "services-sw-01",
-        "label": "services-sw-01",
-        "role": "Server access / service leaf",
-        "address": "Mgmt 10.50.99.11/24 · VLANs 50, 51",
-        "notes": "Dual-homed service access; hosts use redundant NICs and bonds.",
-        "kind": "layer-2-switch",
-        "icon": "access-switch",
-        "at": [895, 640],
-        "shell": [220, 112],
-        "art": [58, 7, 104, 53],
-        "name": { "t": "services-sw-01", "x": 110, "y": 80 },
-        "badge": { "t": "LAYER 2" }
-      },
-      {
-        "id": "ap-01",
-        "label": "ap-01",
-        "role": "Lightweight wireless access point",
-        "address": "Mgmt 10.10.99.31/24 · Corp/Guest SSIDs",
-        "notes": "PoE access; Corp users map to VLAN 20 and guests to isolated VLAN 40.",
-        "kind": "wireless-ap",
-        "icon": "access-point",
-        "at": [30, 802],
-        "shell": [180, 96],
-        "art": [46, 5, 88, 49],
-        "name": { "t": "ap-01", "x": 90, "y": 72 }
-      },
-      {
-        "id": "users-a",
-        "label": "User endpoints · A",
-        "role": "Access clients",
-        "address": "VLAN 10 · 10.10.10.0/24",
-        "notes": "Aggregate endpoint symbol; individual clients are normally omitted from an overview topology.",
-        "kind": "endpoint-group",
-        "icon": "workstation",
-        "at": [290, 802],
-        "shell": [180, 96],
-        "art": [56, 3, 68, 61],
-        "name": { "t": "Users · VLAN 10", "x": 90, "y": 77 }
-      },
-      {
-        "id": "ap-02",
-        "label": "ap-02",
-        "role": "Lightweight wireless access point",
-        "address": "Mgmt 10.10.99.32/24 · Corp/Guest SSIDs",
-        "notes": "PoE access; radio details belong in the wireless design, not this topology.",
-        "kind": "wireless-ap",
-        "icon": "access-point",
-        "at": [460, 802],
-        "shell": [180, 96],
-        "art": [46, 5, 88, 49],
-        "name": { "t": "ap-02", "x": 90, "y": 72 }
-      },
-      {
-        "id": "hv-01",
-        "label": "hv-01",
-        "role": "Virtualization host",
-        "address": "Mgmt 10.50.50.21/24 · 2 × 25GbE",
-        "notes": "Physical model: Dell PowerEdge R750 at R113 U30–U31.",
-        "kind": "server",
-        "icon": "server",
-        "at": [790, 802],
-        "shell": [180, 96],
-        "art": [69, 3, 42, 60],
-        "name": { "t": "hv-01", "x": 90, "y": 77 }
-      },
-      {
-        "id": "hv-02",
-        "label": "hv-02",
-        "role": "Virtualization host",
-        "address": "Mgmt 10.50.50.22/24 · 2 × 25GbE",
-        "notes": "Physical model: Dell PowerEdge R750 at R113 U27–U28.",
-        "kind": "server",
-        "icon": "server",
-        "at": [1045, 802],
-        "shell": [180, 96],
-        "art": [69, 3, 42, 60],
-        "name": { "t": "hv-02", "x": 90, "y": 77 }
-      }
-    ],
-    "links": [
-      {
-        "id": "L01",
-        "from": "internet",
-        "to": "edge-rtr-01",
-        "nature": "provider-dia",
-        "kind": "l3",
-        "d": "M680 156 L680 166 L445 166 L445 174",
-        "title": "L01 · Provider DIA A · Internet to edge-rtr-01 · 10 GbE"
-      },
-      {
-        "id": "L02",
-        "from": "internet",
-        "to": "edge-rtr-02",
-        "nature": "provider-dia",
-        "kind": "l3",
-        "d": "M680 156 L680 166 L915 166 L915 174",
-        "title": "L02 · Provider DIA B · Internet to edge-rtr-02 · 10 GbE"
-      },
-      {
-        "id": "L03",
-        "from": "edge-rtr-01",
-        "to": "edge-fw-01",
-        "nature": "routed-transit-primary",
-        "kind": "l3",
-        "d": "M445 294 L445 312",
-        "title": "L03 · edge-rtr-01 to edge-fw-01 routed transit · details TBD"
-      },
-      {
-        "id": "L04",
-        "from": "edge-rtr-02",
-        "to": "edge-fw-02",
-        "nature": "routed-transit-primary",
-        "kind": "l3",
-        "d": "M915 294 L915 312",
-        "title": "L04 · edge-rtr-02 to edge-fw-02 routed transit · details TBD"
-      },
-      {
-        "id": "L05",
-        "from": "edge-rtr-01",
-        "to": "edge-fw-02",
-        "nature": "routed-transit-backup",
-        "kind": "backup",
-        "d": "M425 294V300H895V312",
-        "title": "L05 · edge-rtr-01 to edge-fw-02 backup routed transit · details TBD"
-      },
-      {
-        "id": "L06",
-        "from": "edge-rtr-02",
-        "to": "edge-fw-01",
-        "nature": "routed-transit-backup",
-        "kind": "backup",
-        "d": "M935 294V306H465V312",
-        "title": "L06 · edge-rtr-02 to edge-fw-01 backup routed transit · details TBD"
-      },
-      {
-        "id": "L07",
-        "from": "edge-fw-01",
-        "to": "edge-fw-02",
-        "nature": "ha-state-config",
-        "kind": "ha",
-        "d": "M555 364 L805 364",
-        "title": "L07 · Firewall HA state/config relationship; physical members and interfaces TBD"
-      },
-      {
-        "id": "L08",
-        "from": "edge-fw-01",
-        "to": "core-sw-01",
-        "nature": "routed-inside-transit",
-        "kind": "aggregate",
-        "d": "M445 414 L445 456",
-        "title": "L08 · edge-fw-01 to core-sw-01 · 40 GbE · details TBD"
-      },
-      {
-        "id": "L09",
-        "from": "edge-fw-01",
-        "to": "core-sw-02",
-        "nature": "routed-inside-transit",
-        "kind": "aggregate",
-        "d": "M465 414V430H895V456",
-        "title": "L09 · edge-fw-01 to core-sw-02 · 40 GbE · details TBD"
-      },
-      {
-        "id": "L10",
-        "from": "edge-fw-02",
-        "to": "core-sw-02",
-        "nature": "routed-inside-transit",
-        "kind": "aggregate",
-        "d": "M915 414 L915 456",
-        "title": "L10 · edge-fw-02 to core-sw-02 · 40 GbE · details TBD"
-      },
-      {
-        "id": "L11",
-        "from": "edge-fw-02",
-        "to": "core-sw-01",
-        "nature": "routed-inside-transit",
-        "kind": "aggregate",
-        "d": "M895 414V440H465V456",
-        "title": "L11 · edge-fw-02 to core-sw-01 · 40 GbE · details TBD"
-      },
-      {
-        "id": "L12-A",
-        "from": "core-sw-01",
-        "to": "core-sw-02",
-        "nature": "peer-link-member",
-        "kind": "aggregate",
-        "d": "M555 501 L805 501",
-        "title": "L12-A · Core peer-link member A · 100 GbE · interfaces and media TBD"
-      },
-      {
-        "id": "L12-B",
-        "from": "core-sw-01",
-        "to": "core-sw-02",
-        "nature": "peer-link-member",
-        "kind": "aggregate",
-        "d": "M555 517 L805 517",
-        "title": "L12-B · Core peer-link member B · 100 GbE · interfaces and media TBD"
-      },
-      {
-        "id": "L13-A",
-        "from": "core-sw-01",
-        "to": "access-sw-01",
-        "nature": "aggregate-member",
-        "kind": "aggregate",
-        "d": "M395 562V584H220V640",
-        "title": "L13-A · core-sw-01 to access-sw-01 aggregate member · ports/media TBD"
-      },
-      {
-        "id": "L13-B",
-        "from": "core-sw-02",
-        "to": "access-sw-01",
-        "nature": "aggregate-member",
-        "kind": "aggregate",
-        "d": "M835 562V590H280V640",
-        "title": "L13-B · core-sw-02 to access-sw-01 aggregate member · ports/media TBD"
-      },
-      {
-        "id": "L14-A",
-        "from": "core-sw-01",
-        "to": "access-sw-02",
-        "nature": "aggregate-member",
-        "kind": "aggregate",
-        "d": "M455 562V596H520V640",
-        "title": "L14-A · core-sw-01 to access-sw-02 aggregate member · ports/media TBD"
-      },
-      {
-        "id": "L14-B",
-        "from": "core-sw-02",
-        "to": "access-sw-02",
-        "nature": "aggregate-member",
-        "kind": "aggregate",
-        "d": "M895 562V602H580V640",
-        "title": "L14-B · core-sw-02 to access-sw-02 aggregate member · ports/media TBD"
-      },
-      {
-        "id": "L15-A",
-        "from": "core-sw-01",
-        "to": "services-sw-01",
-        "nature": "aggregate-member",
-        "kind": "aggregate",
-        "d": "M515 562V614H975V640",
-        "title": "L15-A · core-sw-01 to services-sw-01 aggregate member · ports/media TBD"
-      },
-      {
-        "id": "L15-B",
-        "from": "core-sw-02",
-        "to": "services-sw-01",
-        "nature": "aggregate-member",
-        "kind": "aggregate",
-        "d": "M955 562V608H1035V640",
-        "title": "L15-B · core-sw-02 to services-sw-01 aggregate member · ports/media TBD"
-      },
-      {
-        "id": "L16",
-        "from": "access-sw-01",
-        "to": "ap-01",
-        "nature": "access-attachment",
-        "kind": "access",
-        "d": "M250 752 L250 786 L120 786 L120 802",
-        "title": "L16 · access-sw-01 to ap-01 · details TBD"
-      },
-      {
-        "id": "L17",
-        "from": "access-sw-01",
-        "to": "users-a",
-        "nature": "access-attachment",
-        "kind": "access",
-        "d": "M250 752 L250 786 L380 786 L380 802",
-        "title": "L17 · access-sw-01 to user endpoint aggregate · details TBD"
-      },
-      {
-        "id": "L18",
-        "from": "access-sw-02",
-        "to": "ap-02",
-        "nature": "access-attachment",
-        "kind": "access",
-        "d": "M550 752 L550 802",
-        "title": "L18 · access-sw-02 to ap-02 · details TBD"
-      },
-      {
-        "id": "L19",
-        "from": "services-sw-01",
-        "to": "hv-01",
-        "nature": "service-attachment",
-        "kind": "access",
-        "d": "M1005 752 L1005 786 L880 786 L880 802",
-        "title": "L19 · services-sw-01 to hv-01 · details TBD"
-      },
-      {
-        "id": "L20",
-        "from": "services-sw-01",
-        "to": "hv-02",
-        "nature": "service-attachment",
-        "kind": "access",
-        "d": "M1005 752 L1005 786 L1135 786 L1135 802",
-        "title": "L20 · services-sw-01 to hv-02 · details TBD"
-      }
-    ],
-    "halos": [
-      "M425 294V300H895V312",
-      "M935 294V306H465V312",
-      "M465 414V430H895V456",
-      "M895 414V440H465V456",
-      "M395 562V584H220V640",
-      "M835 562V590H280V640",
-      "M455 562V596H520V640",
-      "M895 562V602H580V640",
-      "M515 562V614H975V640",
-      "M955 562V608H1035V640"
-    ],
-    "labels": [
-      {
-        "t": "DIA · 2 × 10 GbE",
-        "at": [618, 158],
-        "w": 124,
-        "h": 21,
-        "rx": 4,
-        "tx": 62,
-        "ty": 14,
-        "a": "middle"
-      },
-      {
-        "t": "HA state + config sync",
-        "at": [598, 353],
-        "w": 164,
-        "h": 21,
-        "rx": 4,
-        "tx": 82,
-        "ty": 14,
-        "a": "middle"
-      },
-      {
-        "t": "4 × 40 GbE routed links",
-        "at": [590, 421],
-        "w": 180,
-        "h": 21,
-        "rx": 4,
-        "tx": 90,
-        "ty": 14,
-        "a": "middle"
-      },
-      {
-        "t": "Peer link · 2 × 100G",
-        "at": [607, 487],
-        "w": 146,
-        "h": 21,
-        "rx": 4,
-        "tx": 73,
-        "ty": 14,
-        "a": "middle"
-      },
-      {
-        "t": "MLAG/LACP · diverse members",
-        "at": [578, 588],
-        "w": 204,
-        "h": 21,
-        "rx": 4,
-        "tx": 102,
-        "ty": 14,
-        "a": "middle"
-      }
-    ]
-  },
-  "rack": {
-    "id": "R113",
-    "location": "MDF-1",
-    "units": 42,
-    "frontAisle": "cold aisle",
-    "rearAisle": "hot aisle",
-    "reserved": [
-      { "position": 36, "height": 1, "label": "reserved patch field - " },
-      { "position": 40, "height": 1, "label": "" },
-      { "position": 37, "height": 1, "label": "" },
-      { "position": 32, "height": 2, "label": "" },
-      { "position": 29, "height": 1, "label": "" },
-      { "position": 4, "height": 23, "label": "" },
-      { "position": 1, "height": 1, "label": "" }
-    ],
-    "devices": [
-      {
-        "id": "core-sw-01",
-        "model": "Cisco Catalyst 9500X-28C8D",
-        "role": "collapsed-core",
-        "position": 42,
-        "height": 1,
-        "asset": "c9500"
-      },
-      {
-        "id": "core-sw-02",
-        "model": "Cisco Catalyst 9500X-28C8D",
-        "role": "collapsed-core",
-        "position": 41,
-        "height": 1,
-        "asset": "c9500"
-      },
-      {
-        "id": "edge-fw-01",
-        "model": "Cisco FPR4215-NGFW-K9",
-        "role": "perimeter-firewall-active",
-        "position": 39,
-        "height": 1,
-        "asset": "generic"
-      },
-      {
-        "id": "edge-fw-02",
-        "model": "Cisco FPR4215-NGFW-K9",
-        "role": "perimeter-firewall-standby",
-        "position": 38,
-        "height": 1,
-        "asset": "generic"
-      },
-      {
-        "id": "access-sw-01",
-        "model": "Cisco Catalyst 9300-48P",
-        "role": "user-access",
-        "position": 35,
-        "height": 1,
-        "asset": "c9300"
-      },
-      {
-        "id": "access-sw-02",
-        "model": "Cisco Catalyst 9300-48P",
-        "role": "user-access",
-        "position": 34,
-        "height": 1,
-        "asset": "c9300"
-      },
-      {
-        "id": "hv-01",
-        "model": "Dell PowerEdge R750",
-        "role": "virtualization-host",
-        "position": 30,
-        "height": 2,
-        "asset": "generic"
-      },
-      {
-        "id": "hv-02",
-        "model": "Dell PowerEdge R750",
-        "role": "virtualization-host",
-        "position": 27,
-        "height": 2,
-        "asset": "generic"
-      },
-      {
-        "id": "ups-01",
-        "model": "APC SMT3000RMI2UC",
-        "role": "rack-ups",
-        "position": 2,
-        "height": 2,
-        "asset": "ups"
-      }
-    ]
-  },
-  "sections": {
-    "findings": {
-      "id": "open-items",
-      "label": "Open items",
-      "noun": "open items and risks",
-      "heading": "Open items, assumptions & risk register",
-      "flavour": "gaps",
-      "items": [
-        {
-          "id": "R1",
-          "severity": "HIGH",
-          "title": "Carrier and edge-router physical placement is undocumented",
-          "detail": "The edge routers appear in the logical view with no rack, position or facility record behind them.",
-          "action": "Record the carrier demarcation and the edge routers' physical home before the elevation is used to plan work.",
-          "at": ["edge-rtr-01", "edge-rtr-02"]
-        },
-        {
-          "id": "R2",
-          "severity": "HIGH",
-          "title": "services-sw-01 has no device type or rack position",
-          "detail": "The services switch is drawn and addressed but has no model, no height and no place in the rack, so it cannot be ordered or installed.",
-          "action": "Select a platform and assign a rack position.",
-          "at": ["services-sw-01"]
-        },
-        {
-          "id": "R3",
-          "severity": "HIGH",
-          "title": "Link ports, media, and LAG IDs are TBD",
-          "detail": "No drawn link records the interfaces it lands on, the media it runs over, or the port-channel it belongs to.",
-          "action": "Complete the interface and LAG schedule, then reconcile it against the drawing.",
-          "atZone": "campus"
-        },
-        {
-          "id": "R4",
-          "severity": "HIGH",
-          "title": "Power resiliency and failed-feed capacity are unvalidated",
-          "detail": "The rack declares no power feeds at all, so neither normal load nor a single-feed failure can be evaluated.",
-          "action": "Produce the circuit, PDU and load schedule and calculate the failed-source case."
-        },
-        {
-          "id": "R5",
-          "severity": "MEDIUM",
-          "title": "29U are shown open with no blanking record",
-          "detail": "Twenty-nine of forty-two units are unaccounted for rather than deliberately free, and no blanking is scheduled.",
-          "action": "Blank or reserve the open units explicitly."
-        },
-        {
-          "id": "R6",
-          "severity": "HIGH",
-          "title": "Example addressing is not synchronized with IPAM",
-          "detail": "Every prefix and host address shown is illustrative and has not been reconciled against an authoritative source.",
-          "action": "Replace all addressing from approved IPAM records.",
-          "atZone": "campus"
-        },
-        {
-          "id": "R7",
-          "severity": "HIGH",
-          "title": "Firewall policy, guest isolation, and management controls are not specified",
-          "detail": "The perimeter pair is drawn and addressed, but no policy, segmentation or management rule is stated for it.",
-          "action": "Document the policy set, guest isolation and management access before the design drives configuration.",
-          "at": ["edge-fw-01", "edge-fw-02"]
-        },
-        {
-          "id": "R8",
-          "severity": "MEDIUM",
-          "title": "Airflow SKUs and cabinet dimensions/ratings are unknown",
-          "detail": "The cabinet records no width, depth or weight rating, and no device declares an airflow direction.",
-          "action": "Capture cabinet ratings and per-device airflow SKUs."
-        }
-      ]
-    }
-  },
-  "validation": {
-    "named_objects": 15,
-    "zones": 3,
-    "links": 24,
-    "rack_units": 42,
-    "rack_devices": 9,
-    "print_review": "not run",
-    "grayscale_review": "not run"
-  }
-}
-</script>
-<!-- PROOF-DATA:END -->
 
 <!-- NETWORK-PACKAGER-CONTRACT:BEGIN -->
 <script id="network-packager-contract" type="application/json">
