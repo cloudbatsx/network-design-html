@@ -4,7 +4,7 @@ Copy everything between the two rulers into your AI chat, fill in the two
 placeholders at the bottom, and send it.
 
 This is the prompt for **changing a diagram**. It asks the AI for the data block
-only — never for the HTML file. See [`packaging rules`](gemini-editing-rules.md)
+only — never for the HTML file. See [`packaging rules`](template-authoring-rules.md)
 instead if you are a maintainer changing the template itself.
 
 > Keep the lists below in sync with the template. They are copied from `ICONS`

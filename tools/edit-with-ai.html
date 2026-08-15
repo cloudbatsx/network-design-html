@@ -46,6 +46,19 @@
     .parts legend{padding:0 6px;font-weight:700;font-size:.9rem}
     .parts .hint{margin:0 0 10px}
     .parts select{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:#fff}
+    .changes{margin:0 0 14px;border:1px solid var(--line);border-radius:7px;background:#fff;overflow:hidden}
+    .changes h3{margin:0;padding:10px 13px;border-bottom:1px solid var(--line);background:#f6fafb;font-size:.92rem}
+    .changes h3 em{color:var(--muted);font-style:normal;font-weight:400}
+    .changes dl{margin:0;padding:11px 13px}
+    .changes dt{margin-top:9px;color:var(--blue2);font-size:.76rem;font-weight:750;letter-spacing:.05em;text-transform:uppercase}
+    .changes dt:first-child{margin-top:0}
+    .changes dd{margin:3px 0 0;font-size:.86rem;font-family:Consolas,"Courier New",monospace}
+    .changes dd .mark{display:inline-block;width:1.1em;font-weight:700}
+    .changes dd.add .mark{color:var(--ok)}
+    .changes dd.remove{color:#762121}
+    .changes dd.remove .mark{color:var(--bad)}
+    .changes dd.more{color:var(--muted);font-style:italic;font-family:inherit}
+    .changes .none{margin:0;padding:11px 13px;color:var(--muted);font-size:.87rem}
     footer{padding:15px 30px 22px;border-top:1px solid var(--line);color:var(--muted);font-size:.78rem}
     @media(max-width:700px){header,main,footer{padding-inline:15px}}
   </style>
@@ -124,6 +137,7 @@
     <section class="step" id="step-4" hidden>
       <h2><span class="n">4</span>Save your new file</h2>
       <p class="hint">Everything outside the diagram data is copied through unchanged. Save it, then double-click it to see your change.</p>
+      <div id="changes"></div>
       <div class="row">
         <button class="button success" id="save" type="button" disabled>Save new design file</button>
         <span class="file-name" id="save-state"></span>
@@ -148,7 +162,20 @@ const ICON_KEYS = ["cloud","router","firewall","core-switch","access-switch","ac
 // Only these five have real front/rear artwork. "generic" is the escape hatch
 // for any other hardware: the device still renders at the right height with a
 // plain labelled face, in both editable and packaged files.
-const RACK_CODES = ["c9500","c9300","fpr4215","r750","ups","generic"];
+// Two families, both valid. The first five resolve to official photography when
+// a document is packaged; the drawn faceplates need no artwork at all and are
+// generated from rack-faces/rack-face-core.js. Kept in step by npm test.
+const RACK_CODES = [
+  "c9500","c9300","fpr4215","r750","ups","generic",
+  "generic-switch-48p-1u","generic-switch-24p-1u","generic-router-1u","generic-firewall-1u",
+  "generic-security-appliance-3u","generic-chassis-switch-4u","generic-wlan-controller-1u",
+  "generic-server-1u","generic-server-2u","generic-storage-array-2u","generic-kvm-console-1u",
+  "generic-patch-panel-24-1u","generic-patch-panel-48-2u","generic-fibre-panel-1u",
+  "generic-blanking-panel-1u","generic-cable-manager-1u","generic-pdu-1u","generic-ups-2u",
+  "cisco-catalyst-48p-1u","cisco-isr-router-1u","cisco-nexus-48sfp-1u",
+  "juniper-ex-48p-1u","juniper-srx-firewall-1u","palo-alto-ngfw-1u","fortinet-ngfw-1u",
+  "arista-32qsfp-1u"
+];
 const LINK_KINDS = ["l3","aggregate","ha","access","backup"];
 const ZONE_KINDS = ["external","perimeter","internal","other"];
 
@@ -256,8 +283,35 @@ zone kind - ${ZONE_KINDS.join(", ")}
 An unlisted kind draws a solid black rectangle over your diagram.
 
 rack asset - ${RACK_CODES.join(", ")}
-This is a short hardware code, never a filename. An unlisted code deletes the
-device from both rack views.
+This is a short hardware code, never a filename. Use "generic" for hardware with
+no artwork of its own. An unlisted code still draws the device at the right
+height as a plain labelled face, and marks the saved file with a red FAIL badge
+until it is corrected.
+
+NEVER TOUCH THESE
+
+- brand - the company logo and name. logoPath is SVG path data. Copy the whole
+  brand object through exactly as you found it, character for character. One
+  altered character destroys the logo.
+- evidence.color must be one of: purple, red, green, amber, teal.
+- footer.caveat and footer.redaction are mandatory. Never drop them, and never
+  empty them.
+- sections.findings.items must never be empty. A document that renders perfectly
+  while hiding what it does not know is worse than no document. If you know of
+  no gaps, say what has not been verified.
+
+POINTING A GAP AT THE DRAWING
+
+A finding may name what it is about:
+  { "title": "...", "detail": "...", "at": "core-sw-01" }
+  { "title": "...", "detail": "...", "at": ["access-sw-01", "access-sw-02"] }
+  { "title": "...", "detail": "...", "atZone": "perimeter" }
+
+- "at" is a device id, or a list of them. "atZone" is an area id.
+- Every id must already exist. A marker pointing at something that does not
+  exist is an error.
+- Never write the marker number yourself: it comes from the order of the list.
+- Leave both out for a finding that is not about one place on the drawing.
 
 SHAPE - keep every field that is already present. Do not rename fields and do
 not invent new ones. Fields you may see but must never add yourself: iconAsset
@@ -268,7 +322,9 @@ them exactly, and do not add labelX/labelY to a new link.
 NUMBERS
 - A node's x,y is the CENTRE of a box that is ${NODE_W} wide and ${NODE_H} tall.
 - A zone's x,y is its TOP-LEFT corner.
-- Keep nodes inside x 100-1180 and y 60-870.
+<<<BOUNDS>>>
+- A device must sit FULLY inside an area or fully outside it. One drawn half in
+  and half out leaves the reader unable to tell which area it belongs to.
 - Two nodes overlap only when their x values are less than ${NODE_W} apart AND
   their y values are less than ${NODE_H} apart. Both conditions must be true.
   Nodes far apart vertically may share an x.
@@ -391,6 +447,7 @@ async function loadFile(file) {
     $("save-state").textContent = ""; note("save-message", null);
     // Anything reported against the previous file is meaningless now.
     $("problems").replaceChildren();
+    $("changes").replaceChildren();
     $("copy-problems").disabled = true;
     note("check-message", null);
   } catch (error) {
@@ -426,7 +483,16 @@ The rest of the design is already correct and is kept from the file. Sending it
 back does not help - it is ignored - and it risks running out of room before you
 finish the part that matters.`;
 
+  // Bounds come from the document's own canvas, because the checker measures
+  // against that and not against the size the reference template happens to use.
+  const canvas = currentData.topology?.canvas || {};
+  const cw = Number(canvas.width), ch = Number(canvas.height);
+  const bounds = Number.isFinite(cw) && Number.isFinite(ch)
+    ? `- The canvas is ${cw} x ${ch}. Keep every node centre between x ${NODE_W / 2} and ${cw - NODE_W / 2}, and y ${NODE_H / 2} and ${ch - NODE_H / 2}, or part of the device hangs off the page.`
+    : `- Keep every node inside the canvas, or part of the device hangs off the page.`;
+
   return PROMPT
+    .replace("<<<BOUNDS>>>", bounds)
     .replace("<<<SCOPE>>>", scope)
     .replace("<<<PART_UPPER>>>", (name === "all" ? "design" : slice.noun.replace(/^the /, "")).toUpperCase())
     .replace("<<<CURRENT_JSON>>>", shape)
@@ -815,16 +881,103 @@ function checkMeaning(data) {
     }
   }
 
+  /* Geometry. The rack maths has always been strict; the drawing was on the
+     honour system, which is backwards - placing things on a page is the part a
+     weak model is worst at, and a device off the edge of the canvas or stacked
+     on another is invisible in the data and obvious on the page.
+
+     None of it applies to every document. The engineering-sheet kits
+     (NET-ENT-002, NET-HQ-002, NET-LAB-003, NET-RH-001) draw in a different
+     grammar: a viewBox canvas, and nodes positioned by an `art` rectangle
+     rather than an x,y centre. Running these rules there reports 73 errors
+     against four documents that are perfectly correct. The canvas tells the two
+     apart, because that is exactly where the renderers diverge. */
+  const canvas = data.topology?.canvas || {};
+  const width = Number(canvas.width), height = Number(canvas.height);
+  const usesCoordinates = Number.isFinite(width) && Number.isFinite(height);
+  const half = { x: NODE_W / 2, y: NODE_H / 2 };
+
+  if (usesCoordinates) for (const node of nodes) {
+    const x = Number(node.x), y = Number(node.y);
+    if (!Number.isFinite(x) || !Number.isFinite(y)) {
+      out.push(problem(true, `"${node.id}" has no usable position on the drawing.`,
+        `Give "${node.id}" numeric x and y values. x is the centre of a ${NODE_W}-wide box, y the centre of a ${NODE_H}-tall one.`));
+      continue;
+    }
+    // A centre this close to an edge puts part of the box past it. Reported as a
+    // stop: half a device hanging off the page is not a matter of taste.
+    const off = [];
+    if (x - half.x < 0) off.push("off the left edge");
+    if (x + half.x > width) off.push("off the right edge");
+    if (y - half.y < 0) off.push("off the top edge");
+    if (y + half.y > height) off.push("off the bottom edge");
+    if (off.length) {
+      out.push(problem(true, `"${node.id}" is drawn ${off.join(" and ")} of the page.`,
+        `Move "${node.id}" back onto the canvas: keep x between ${half.x} and ${width - half.x}, and y between ${half.y} and ${height - half.y}.`));
+    }
+  }
+
   // Node overlap. Both conditions must hold - checking only horizontal distance
-  // would flag 34 non-overlapping pairs in the shipped reference diagram.
-  for (let a = 0; a < nodes.length; a++) {
+  // would flag 34 non-overlapping pairs in the shipped reference diagram. Boxes
+  // that merely kiss at the corner are a warning; a real pile-up is a stop,
+  // because two devices in one place is unreadable rather than untidy.
+  if (usesCoordinates) for (let a = 0; a < nodes.length; a++) {
     for (let b = a + 1; b < nodes.length; b++) {
       const dx = Math.abs(Number(nodes[a].x) - Number(nodes[b].x));
       const dy = Math.abs(Number(nodes[a].y) - Number(nodes[b].y));
-      if (dx < NODE_W && dy < NODE_H) {
-        out.push(problem(false, `"${nodes[a].id}" and "${nodes[b].id}" sit on top of each other.`,
-          `Move "${nodes[b].id}" so it is at least ${NODE_W} away horizontally or ${NODE_H} away vertically from "${nodes[a].id}".`));
-      }
+      if (!(dx < NODE_W && dy < NODE_H)) continue;
+      const covered = ((NODE_W - dx) * (NODE_H - dy)) / (NODE_W * NODE_H);
+      const serious = covered >= 0.25;
+      const extent = covered < 0.01 ? "by a few pixels" : `by ${Math.round(covered * 100)}% of a device box`;
+      out.push(problem(serious,
+        `"${nodes[a].id}" and "${nodes[b].id}" ${serious ? "sit on top of each other" : "overlap"} ${extent}.`,
+        `Move "${nodes[b].id}" so it is at least ${NODE_W} away horizontally or ${NODE_H} away vertically from "${nodes[a].id}".`));
+    }
+  }
+
+  /* Zones. A zone is the box a reader uses to decide what a device IS - trust
+     boundary, site, Purdue level. A device drawn outside the area it belongs to
+     is not a cosmetic problem, it is the drawing saying something untrue. */
+  if (usesCoordinates) for (const zone of zones) {
+    const zx = Number(zone.x), zy = Number(zone.y);
+    const zw = Number(zone.width), zh = Number(zone.height);
+    if (![zx, zy, zw, zh].every(Number.isFinite)) {
+      out.push(problem(false, `The area "${zone.id || zone.label || "?"}" has no usable size or position.`,
+        `Give that area numeric x, y, width and height. x,y is its top-left corner.`));
+      continue;
+    }
+    if (zx < 0 || zy < 0 || zx + zw > width || zy + zh > height) {
+      out.push(problem(false, `The area "${zone.id || zone.label || "?"}" runs past the edge of the page.`,
+        `Keep that area inside the ${width} x ${height} canvas. Its x,y is the top-left corner, not the centre.`));
+    }
+  }
+
+  /* A device does not declare which area it is in - the drawing says so, by
+     where it sits. Which makes a device half inside an area a real ambiguity:
+     the reader cannot tell whether it is in the DMZ or behind it.
+
+     Reported only when it is genuinely split. The shipped NET-OT-001 has four
+     devices hanging 2px over an edge on purpose, 98% inside, and a rule that
+     shouts at the project's own reference drawing is a rule people switch off. */
+  const CONTAINED = 0.92, IGNORE_BELOW = 0.15;
+  if (usesCoordinates) for (const node of nodes) {
+    const x = Number(node.x), y = Number(node.y);
+    if (!Number.isFinite(x) || !Number.isFinite(y)) continue;
+    const box = { left: x - half.x, right: x + half.x, top: y - half.y, bottom: y + half.y };
+    let best = null;
+    for (const zone of zones) {
+      const zx = Number(zone.x), zy = Number(zone.y), zw = Number(zone.width), zh = Number(zone.height);
+      if (![zx, zy, zw, zh].every(Number.isFinite) || zw <= 0 || zh <= 0) continue;
+      const overlapW = Math.min(box.right, zx + zw) - Math.max(box.left, zx);
+      const overlapH = Math.min(box.bottom, zy + zh) - Math.max(box.top, zy);
+      if (overlapW <= 0 || overlapH <= 0) continue;
+      const fraction = (overlapW * overlapH) / (NODE_W * NODE_H);
+      if (!best || fraction > best.fraction) best = { zone, fraction };
+    }
+    if (best && best.fraction >= IGNORE_BELOW && best.fraction < CONTAINED) {
+      const label = best.zone.id || best.zone.label || "?";
+      out.push(problem(false, `"${node.id}" is drawn half in and half out of the area "${label}" (${Math.round(best.fraction * 100)}% inside), so a reader cannot tell which area it belongs to.`,
+        `Move "${node.id}" fully inside "${label}", or fully outside it. A device on an area's boundary is ambiguous.`));
     }
   }
 
@@ -865,6 +1018,157 @@ function checkMeaning(data) {
   return out;
 }
 
+/* ---------- What actually changed ----------
+ *
+ * Everything above proves the new data is not broken. None of it proves the AI
+ * only did what was asked. A model told to add one switch can also reword a
+ * caption, drop a rack device or renumber an address, and every check here would
+ * still pass - so the last thing before Save is a plain list of what moved.
+ * The reader decides; this only has to be honest and short.
+ */
+
+const SHOW_PER_GROUP = 8;
+
+function short(value, limit = 44) {
+  if (value === undefined) return "nothing";
+  if (value === null) return "empty";
+  const text = typeof value === "string" ? value : JSON.stringify(value);
+  return text.length > limit ? `${text.slice(0, limit - 1)}…` : text;
+}
+
+// Scalar-level differences between two records, one level deep plus named
+// nested objects. Arrays are reported as a whole: "3 items -> 4 items" is more
+// use to a reader than a per-element diff nobody asked for.
+function fieldDiffs(before, after, prefix = "") {
+  const out = [];
+  const keys = [...new Set([...Object.keys(before || {}), ...Object.keys(after || {})])];
+  for (const key of keys) {
+    const a = before?.[key], b = after?.[key];
+    if (JSON.stringify(a) === JSON.stringify(b)) continue;
+    const path = prefix ? `${prefix}.${key}` : key;
+    if (Array.isArray(a) || Array.isArray(b)) {
+      const from = Array.isArray(a) ? a.length : 0, to = Array.isArray(b) ? b.length : 0;
+      out.push(from === to ? `${path} reworded` : `${path} ${from} → ${to} item${to === 1 ? "" : "s"}`);
+    } else if (a && b && typeof a === "object" && typeof b === "object") {
+      out.push(...fieldDiffs(a, b, path));
+    } else {
+      out.push(`${path} ${short(a)} → ${short(b)}`);
+    }
+  }
+  return out;
+}
+
+function diffCollection(before, after, keyOf, describe) {
+  const lines = [];
+  const beforeMap = new Map((before || []).map((item, i) => [keyOf(item, i), item]));
+  const afterMap = new Map((after || []).map((item, i) => [keyOf(item, i), item]));
+  for (const [key, item] of afterMap) {
+    if (!beforeMap.has(key)) { lines.push({ kind: "add", text: describe(item, key) }); continue; }
+    const changes = fieldDiffs(beforeMap.get(key), item);
+    if (changes.length) lines.push({ kind: "change", text: `${key}: ${changes.join(", ")}` });
+  }
+  for (const [key, item] of beforeMap) {
+    if (!afterMap.has(key)) lines.push({ kind: "remove", text: describe(item, key) });
+  }
+  return lines;
+}
+
+const linkKey = (link, i) => `${link?.from ?? "?"} → ${link?.to ?? "?"}${link?.kind ? ` (${link.kind})` : ""}#${i}`;
+const linkText = (link) => `${link?.from ?? "?"} → ${link?.to ?? "?"}${link?.kind ? `  ${link.kind}` : ""}`;
+
+function summarizeChange(before, after) {
+  const groups = [];
+  const add = (label, lines) => { if (lines.length) groups.push({ label, lines }); };
+
+  add("Devices", diffCollection(before.topology?.nodes, after.topology?.nodes,
+    (node, i) => node?.id ?? `#${i}`, (node, key) => `${key}${node?.icon ? `  ${node.icon}` : ""}${node?.label ? `  “${short(node.label, 28)}”` : ""}`));
+
+  // Links have no id of their own, so identity is the pair they join. Two links
+  // between the same devices are told apart by position, which is why the index
+  // is in the key: without it, reordering would read as a delete plus an add.
+  add("Connections", diffCollection(before.topology?.links, after.topology?.links, linkKey, linkText));
+
+  add("Areas", diffCollection(before.topology?.zones, after.topology?.zones,
+    (zone, i) => zone?.id ?? `#${i}`, (zone, key) => `${key}${zone?.label ? `  “${short(zone.label, 28)}”` : ""}`));
+
+  add("Rack", diffCollection(before.rack?.devices, after.rack?.devices,
+    (device, i) => device?.id ?? `#${i}`,
+    (device, key) => `${key}${device?.position ? `  U${device.position}${device.height > 1 ? `–U${device.position + device.height - 1}` : ""}` : ""}${device?.model ? `  ${device.model}` : ""}`));
+
+  const rackFields = fieldDiffs(
+    { id: before.rack?.id, location: before.rack?.location, units: before.rack?.units },
+    { id: after.rack?.id, location: after.rack?.location, units: after.rack?.units });
+  add("Rack details", rackFields.map((text) => ({ kind: "change", text })));
+
+  add("Gaps & open items", diffCollection(before.sections?.findings?.items, after.sections?.findings?.items,
+    (item, i) => item?.title ?? `#${i}`,
+    (item, key) => `${short(key, 52)}${item?.at ? `  → ${Array.isArray(item.at) ? item.at.join(", ") : item.at}` : ""}`));
+
+  // Every section except findings, which has its own group above.
+  const sectionNames = [...new Set([...Object.keys(before.sections || {}), ...Object.keys(after.sections || {})])].filter((name) => name !== "findings");
+  const sectionLines = [];
+  for (const name of sectionNames) {
+    for (const text of fieldDiffs(before.sections?.[name], after.sections?.[name])) {
+      sectionLines.push({ kind: "change", text: `${name}: ${text}` });
+    }
+  }
+  add("Notes & tables", sectionLines);
+
+  add("Cover details", fieldDiffs(before.document, after.document).map((text) => ({ kind: "change", text })));
+
+  return groups;
+}
+
+function renderChanges(before, after) {
+  const host = $("changes");
+  host.replaceChildren();
+  const groups = summarizeChange(before, after);
+  const box = document.createElement("div");
+  box.className = "changes";
+
+  const total = groups.reduce((sum, group) => sum + group.lines.length, 0);
+  const heading = document.createElement("h3");
+  if (!total) {
+    heading.textContent = "Nothing changed";
+    box.appendChild(heading);
+    const none = document.createElement("p");
+    none.className = "none";
+    none.textContent = "The reply matches the design you already have. Saving it would produce the same file — the AI may have simply agreed with you, or missed what you asked for.";
+    box.append(none);
+    host.appendChild(box);
+    return;
+  }
+  heading.textContent = `About to change ${total} thing${total === 1 ? "" : "s"} `;
+  const em = document.createElement("em");
+  em.textContent = "— check this is only what you asked for";
+  heading.appendChild(em);
+  box.appendChild(heading);
+
+  const list = document.createElement("dl");
+  for (const group of groups) {
+    const dt = document.createElement("dt");
+    dt.textContent = group.label;
+    list.appendChild(dt);
+    for (const line of group.lines.slice(0, SHOW_PER_GROUP)) {
+      const dd = document.createElement("dd");
+      dd.className = line.kind === "add" ? "add" : line.kind === "remove" ? "remove" : "";
+      const mark = document.createElement("span");
+      mark.className = "mark";
+      mark.textContent = line.kind === "add" ? "+" : line.kind === "remove" ? "−" : "~";
+      dd.append(mark, document.createTextNode(line.text));
+      list.appendChild(dd);
+    }
+    if (group.lines.length > SHOW_PER_GROUP) {
+      const dd = document.createElement("dd");
+      dd.className = "more";
+      dd.textContent = `and ${group.lines.length - SHOW_PER_GROUP} more`;
+      list.appendChild(dd);
+    }
+  }
+  box.appendChild(list);
+  host.appendChild(box);
+}
+
 function renderProblems(list) {
   const host = $("problems");
   host.replaceChildren();
@@ -888,6 +1192,7 @@ function check() {
   const name = currentSliceName();
   accepted = null; $("save").disabled = true; $("save-state").textContent = "";
   note("save-message", null);
+  $("changes").replaceChildren();   // covers every early return below
   if (!raw.trim()) {
     renderProblems([]);
     note("check-message", "error", "Nothing to check.", " Paste the AI's reply first.");
@@ -939,12 +1244,14 @@ function check() {
   const cleaned = applied.length ? ` I cleaned up the reply first: ${applied.join(", ")}.` : "";
 
   if (stops) {
+    $("changes").replaceChildren();
     note("check-message", "error", `${stops} problem${stops === 1 ? "" : "s"} must be fixed before saving.`,
       `${warns ? ` There ${warns === 1 ? "is" : "are"} also ${warns} warning${warns === 1 ? "" : "s"}.` : ""} Use Copy problems and paste them back to the AI.${cleaned}`);
     return;
   }
 
   accepted = merged;
+  renderChanges(currentData, merged);
   $("save").disabled = false;
   const kept = name === "all" ? "" : ` Only ${SLICES[name].noun} changed; the rest of your file is untouched.`;
   if (warns) {
@@ -1024,7 +1331,8 @@ $("slice").addEventListener("change", () => {
   // Problems found against a different part are meaningless now.
   if (accepted || $("problems").children.length) {
     accepted = null; $("save").disabled = true;
-    $("problems").replaceChildren(); $("copy-problems").disabled = true;
+    $("problems").replaceChildren(); $("changes").replaceChildren();
+    $("copy-problems").disabled = true;
     note("check-message", null);
   }
 });
