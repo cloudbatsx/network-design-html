@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>cloudbats &mdash; Unified Reference: Enterprise campus | NET-LAB-003 v3.1</title>
   <meta name="author" content="Sayed Haque &mdash; cloudbats">
-  <meta name="document-id" content="NET-LAB-002">
-  <meta name="revision" content="3.0">
+  <meta name="document-id" content="NET-LAB-003">
+  <meta name="revision" content="3.1">
   <meta name="date" content="2026-08-13">
   <meta name="classification" content="SAMPLE / REFERENCE">
   <meta name="document-status" content="UNIFIED REFERENCE">
@@ -571,7 +571,7 @@
     .document-brand{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:var(--shell-brand-gap);margin:0 0 12px;padding:0 0 10px;border-bottom:1px solid var(--document-rule);font-size:12px;text-transform:uppercase}
     .document-brand__name{color:var(--document-ink);font-weight:800;letter-spacing:.18em}
     .document-brand__type{color:var(--document-muted);font-weight:600;letter-spacing:.14em}
-    .document-header h1{margin:0 0 4px;color:var(--document-ink);font-size:25px;line-height:1.25}
+    .document-header h2{margin:0 0 4px;color:var(--document-ink);font-size:25px;line-height:1.25}
     .document-subtitle{max-width:none;margin:0;color:var(--document-muted);line-height:1.5}
     .document-meta{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--shell-meta-gap);margin:15px 0 0;font-size:12px}
     .document-field{min-width:0}
@@ -1087,7 +1087,7 @@
   <div class="meta-row">
     <span class="badge navy">Network &amp; Security</span>
     <span class="badge teal">Unified Reference &middot; Enterprise campus</span>
-    <span class="badge">v3.0 &middot; 2026-08-13</span>
+    <span class="badge">v3.1 &middot; 2026-08-13</span>
     <span class="badge red">Assumptions &middot; validation required</span>
   </div>
   <h1>NET-LAB-003 &mdash; Enterprise campus reference design &amp; R113 rack elevation</h1>
@@ -1116,7 +1116,7 @@
 <h3>0.1 &middot; Document control</h3>
 <header class="document-header" aria-labelledby="document-title" aria-describedby="document-subtitle">
     <div class="document-brand"><span class="document-brand__name">CLOUDBATS</span><span class="document-brand__type">Network Design Document</span></div>
-    <h1 id="document-title">Standards-Aligned Enterprise Campus — L3 Logical Topology &amp; Rack Elevation</h1>
+    <h2 id="document-title">Standards-Aligned Enterprise Campus — L3 Logical Topology &amp; Rack Elevation</h2>
     <p id="document-subtitle" class="document-subtitle">Unified enterprise-campus reference design · Layer 3 hierarchy with selected aggregate context, exact 42U front/rear elevation, and implementation-readiness schedules.</p>
     <dl class="document-meta" aria-label="Document control">
       <div class="document-field"><dt>Document ID</dt><dd class="document-code" data-doc-field="document-id">NET-LAB-002</dd></div>
@@ -1474,6 +1474,8 @@
       <caption>Document revision history</caption>
       <thead><tr><th scope="col">Revision</th><th scope="col">Date</th><th scope="col">Status</th><th scope="col">Change summary</th><th scope="col">Owner</th></tr></thead>
       <tbody>
+<tr><td><code>3.1</code></td><td>2026-08-13</td><td>Starter kit</td><td>Reissued as repository starter NET-LAB-003 with the editable proof-data block and the pinned gap overlay; document identity aligned to one revision across the title, metadata, badge, footer and both data blocks.</td><td>Sayed Haque</td></tr>
+<tr><td><code>3.0</code></td><td>2026-08-13</td><td>Unified reference</td><td>Presented in the CloudBats documentation shell: the five-view tab structure replaced by a sidebar index and numbered spine, with the Layer&nbsp;3 figure, official symbols, R113 rack elevation, document control and every engineering schedule carried over unchanged from revision 2.8.</td><td>Sayed Haque</td></tr>
 <tr><td><code>2.8</code></td><td>2026-08-13</td><td>Unified reference</td><td>Standardized Figure 1 as the shared three-column legend with visual device symbols, complete link semantics, and the three actual trust boundaries; removed the redundant pre-diagram key and topology zoom controls/state code; and raised the shared focus ring contrast. Topology geometry, rack placement, engineering data, embedded assets, selection, inspector, navigation, and rack controls are unchanged.</td><td>OpenAI Codex</td></tr>
 <tr><td><code>2.7</code></td><td>2026-08-13</td><td>Unified reference</td><td>Introduced the shared page-shell token contract for the common document header, view navigation, print action, and skip link: standardized UI and monospace type stacks, neutral shell surfaces, spacing, radii, elevation shadow, focus treatment, and 44-pixel control sizing. Lab identity, conventions, semantic status colors, topology, rack placement, engineering data, and embedded assets are unchanged.</td><td>OpenAI Codex</td></tr>
         <tr><td><code>2.6</code></td><td>2026-08-13</td><td>Unified reference</td><td>Standardized the document-control header as a shared, accessible nine-field component with a consistent brand, title, subtitle, metadata order, explicit classification and status, visible conventions, responsive stacking, and print treatment. Lab identity and conventions are preserved; topology, rack placement, engineering data, navigation, and embedded assets are unchanged.</td><td>OpenAI Codex</td></tr>
@@ -1647,7 +1649,7 @@
 </section>
 
 <footer class="doc-footer">
-  Prepared by Sayed Haque &middot; 2026-08-10 &middot; Presentation edition &middot; revision 3.0 &mdash; presented in the CloudBats documentation shell 2026-08-13; the five-view tab structure is replaced by a sidebar index and a numbered spine, while the Layer&nbsp;3 figure, the official Cisco topology symbols, the R113 rack elevation, the document-control block and every engineering schedule are carried over unchanged from revision 2.8 &middot; full method and worked examples live in the archived working versions (v2.8 and earlier) &middot; Every element is a design assumption to validate, not a recorded fact: no configuration, measurement or as-built survey stands behind any value in this file &middot; Fictional training campus; all addressing is RFC&nbsp;1918 / RFC&nbsp;5737 documentation range, and facility, serial and personal identifiers are redacted throughout.
+  Prepared by Sayed Haque &middot; 2026-08-10 &middot; Presentation edition &middot; revision 3.1 &mdash; presented in the CloudBats documentation shell 2026-08-13; the five-view tab structure is replaced by a sidebar index and a numbered spine, while the Layer&nbsp;3 figure, the official Cisco topology symbols, the R113 rack elevation, the document-control block and every engineering schedule are carried over unchanged from revision 2.8 &middot; full method and worked examples live in the archived working versions (v2.8 and earlier) &middot; Every element is a design assumption to validate, not a recorded fact: no configuration, measurement or as-built survey stands behind any value in this file &middot; Fictional training campus; all addressing is RFC&nbsp;1918 / RFC&nbsp;5737 documentation range, and facility, serial and personal identifiers are redacted throughout.
 </footer>
 
 
@@ -1658,8 +1660,8 @@
 <script type="application/json" id="design-data">
 {
   "meta": {
-    "doc_id": "NET-LAB-002",
-    "revision": "3.0",
+    "doc_id": "NET-LAB-003",
+    "revision": "3.1",
     "date": "2026-08-13",
     "author": "Sayed Haque",
     "classification": "SAMPLE / REFERENCE",

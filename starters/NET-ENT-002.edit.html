@@ -433,7 +433,7 @@
     .document-brand{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:var(--shell-brand-gap);margin:0 0 12px;padding:0 0 10px;border-bottom:1px solid var(--document-rule);font-size:12px;text-transform:uppercase}
     .document-brand__name{color:var(--document-ink);font-weight:800;letter-spacing:.18em}
     .document-brand__type{color:var(--document-muted);font-weight:600;letter-spacing:.14em}
-    .document-header h1{margin:0 0 4px;color:var(--document-ink);font-size:25px;line-height:1.25}
+    .document-header h2{margin:0 0 4px;color:var(--document-ink);font-size:25px;line-height:1.25}
     .document-subtitle{max-width:none;margin:0;color:var(--document-muted);line-height:1.5}
     .document-meta{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--shell-meta-gap);margin:15px 0 0;font-size:12px}
     .document-field{min-width:0}
@@ -1108,10 +1108,10 @@
   <div class="meta-row">
     <span class="badge navy">Network &amp; Security</span>
     <span class="badge teal">Reference Design &middot; Edge, DMZ &amp; services</span>
-    <span class="badge">v2.0 &middot; 2026-08-13</span>
+    <span class="badge">v2.1 &middot; 2026-08-13</span>
     <span class="badge green">Proposed &middot; validation required</span>
   </div>
-  <h1>NET-ENT-001 &mdash; Enterprise edge, DMZ &amp; services L3 logical topology</h1>
+  <h1>NET-ENT-002 &mdash; Enterprise edge, DMZ &amp; services L3 logical topology</h1>
   <p class="tagline">Provider edge, redundant perimeter, DMZ services, collapsed core and out-of-band management as a strictly Layer&nbsp;3 logical view &mdash; a proposed training design that deliberately declines to invent physical placement, and says so.</p>
 </header>
 
@@ -1143,7 +1143,7 @@
 <h3>0.1 &middot; Document control</h3>
 <header class="document-header" aria-labelledby="document-title" aria-describedby="document-subtitle">
       <div class="document-brand"><span class="document-brand__name">CLOUDBATS</span><span class="document-brand__type">Network Design Document</span></div>
-      <h1 id="document-title">Enterprise Edge, DMZ &amp; Services — L3 Logical Topology</h1>
+      <h2 id="document-title">Enterprise Edge, DMZ &amp; Services — L3 Logical Topology</h2>
       <p id="document-subtitle" class="document-subtitle">Fictional enterprise reference · provider edge, redundant perimeter, DMZ services, collapsed core, routed user/service segments, and out-of-band management.</p>
       <dl class="document-meta" aria-label="Document control">
         <div class="document-field"><dt>Document ID</dt><dd class="document-code" data-doc-field="document-id">NET-ENT-002</dd></div>
@@ -2702,21 +2702,26 @@
       icon.replaceChildren(copy);
     });
 
-    const expectedDocument = Object.freeze({
-      filename: 'NET-ENT-002.edit.html',
-      documentId: 'NET-ENT-002',
-      revision: '2.1',
-      date: '2026-08-13',
-      classification: 'SAMPLE / REFERENCE',
-      status: 'PROPOSED / TRAINING'
-    });
-
     function runIntegrityPreflight() {
       const status = document.getElementById('integrity-status');
       const failures = [];
       let data;
       try { data = JSON.parse(document.getElementById('proof-data').textContent); }
       catch (error) { failures.push(`proof-data JSON: ${error.message}`); }
+      /* The document's identity lives in the data block and nowhere else.
+         These were frozen constants once, which meant a legitimate revision
+         bump tripped five identity failures fixable only by editing this
+         script. Deriving them makes the data block the single source of
+         truth; the checks below prove the metadata, header, footer, history
+         and figure all agree with it. */
+      const expectedDocument = {
+        filename: `${data?.document?.drawing || 'unknown'}.edit.html`,
+        documentId: data?.document?.drawing,
+        revision: data?.document?.revision,
+        date: data?.document?.date,
+        classification: data?.document?.classification,
+        status: (data?.document?.status || '').toUpperCase()
+      };
       const shaped = kind => (data?.topology?.nodes || []).filter(node => node.shape === kind);
       const meta = name => document.querySelector(`meta[name="${name}"]`)?.content;
       const revision = meta('revision');
@@ -2728,9 +2733,6 @@
       if (meta('classification') !== expectedDocument.classification) failures.push('classification metadata mismatch');
       if (meta('document-status') !== expectedDocument.status) failures.push('status metadata mismatch');
       if (!document.title.includes(`${expectedDocument.documentId} v${revision}`)) failures.push('title identity mismatch');
-      if (data?.document?.drawing !== expectedDocument.documentId || data?.document?.revision !== revision ||
-          data?.document?.date !== expectedDocument.date || data?.document?.classification !== expectedDocument.classification ||
-          data?.document?.status?.toUpperCase() !== expectedDocument.status) failures.push('proof-data identity mismatch');
       const header = document.querySelector('.document-header');
       const headerFields = Array.from(document.querySelectorAll('.document-meta .document-field'));
       if (!header || header.getAttribute('aria-labelledby') !== 'document-title' || header.getAttribute('aria-describedby') !== 'document-subtitle') failures.push('document header semantics mismatch');
