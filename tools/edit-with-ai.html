@@ -270,8 +270,35 @@ zone kind - ${ZONE_KINDS.join(", ")}
 An unlisted kind draws a solid black rectangle over your diagram.
 
 rack asset - ${RACK_CODES.join(", ")}
-This is a short hardware code, never a filename. An unlisted code deletes the
-device from both rack views.
+This is a short hardware code, never a filename. Use "generic" for hardware with
+no artwork of its own. An unlisted code still draws the device at the right
+height as a plain labelled face, and marks the saved file with a red FAIL badge
+until it is corrected.
+
+NEVER TOUCH THESE
+
+- brand - the company logo and name. logoPath is SVG path data. Copy the whole
+  brand object through exactly as you found it, character for character. One
+  altered character destroys the logo.
+- evidence.color must be one of: purple, red, green, amber, teal.
+- footer.caveat and footer.redaction are mandatory. Never drop them, and never
+  empty them.
+- sections.findings.items must never be empty. A document that renders perfectly
+  while hiding what it does not know is worse than no document. If you know of
+  no gaps, say what has not been verified.
+
+POINTING A GAP AT THE DRAWING
+
+A finding may name what it is about:
+  { "title": "...", "detail": "...", "at": "core-sw-01" }
+  { "title": "...", "detail": "...", "at": ["access-sw-01", "access-sw-02"] }
+  { "title": "...", "detail": "...", "atZone": "perimeter" }
+
+- "at" is a device id, or a list of them. "atZone" is an area id.
+- Every id must already exist. A marker pointing at something that does not
+  exist is an error.
+- Never write the marker number yourself: it comes from the order of the list.
+- Leave both out for a finding that is not about one place on the drawing.
 
 SHAPE - keep every field that is already present. Do not rename fields and do
 not invent new ones. Fields you may see but must never add yourself: iconAsset
@@ -282,7 +309,9 @@ them exactly, and do not add labelX/labelY to a new link.
 NUMBERS
 - A node's x,y is the CENTRE of a box that is ${NODE_W} wide and ${NODE_H} tall.
 - A zone's x,y is its TOP-LEFT corner.
-- Keep nodes inside x 100-1180 and y 60-870.
+<<<BOUNDS>>>
+- A device must sit FULLY inside an area or fully outside it. One drawn half in
+  and half out leaves the reader unable to tell which area it belongs to.
 - Two nodes overlap only when their x values are less than ${NODE_W} apart AND
   their y values are less than ${NODE_H} apart. Both conditions must be true.
   Nodes far apart vertically may share an x.
@@ -441,7 +470,16 @@ The rest of the design is already correct and is kept from the file. Sending it
 back does not help - it is ignored - and it risks running out of room before you
 finish the part that matters.`;
 
+  // Bounds come from the document's own canvas, because the checker measures
+  // against that and not against the size the reference template happens to use.
+  const canvas = currentData.topology?.canvas || {};
+  const cw = Number(canvas.width), ch = Number(canvas.height);
+  const bounds = Number.isFinite(cw) && Number.isFinite(ch)
+    ? `- The canvas is ${cw} x ${ch}. Keep every node centre between x ${NODE_W / 2} and ${cw - NODE_W / 2}, and y ${NODE_H / 2} and ${ch - NODE_H / 2}, or part of the device hangs off the page.`
+    : `- Keep every node inside the canvas, or part of the device hangs off the page.`;
+
   return PROMPT
+    .replace("<<<BOUNDS>>>", bounds)
     .replace("<<<SCOPE>>>", scope)
     .replace("<<<PART_UPPER>>>", (name === "all" ? "design" : slice.noun.replace(/^the /, "")).toUpperCase())
     .replace("<<<CURRENT_JSON>>>", shape)
@@ -830,16 +868,103 @@ function checkMeaning(data) {
     }
   }
 
+  /* Geometry. The rack maths has always been strict; the drawing was on the
+     honour system, which is backwards - placing things on a page is the part a
+     weak model is worst at, and a device off the edge of the canvas or stacked
+     on another is invisible in the data and obvious on the page.
+
+     None of it applies to every document. The engineering-sheet kits
+     (NET-ENT-002, NET-HQ-002, NET-LAB-003, NET-RH-001) draw in a different
+     grammar: a viewBox canvas, and nodes positioned by an `art` rectangle
+     rather than an x,y centre. Running these rules there reports 73 errors
+     against four documents that are perfectly correct. The canvas tells the two
+     apart, because that is exactly where the renderers diverge. */
+  const canvas = data.topology?.canvas || {};
+  const width = Number(canvas.width), height = Number(canvas.height);
+  const usesCoordinates = Number.isFinite(width) && Number.isFinite(height);
+  const half = { x: NODE_W / 2, y: NODE_H / 2 };
+
+  if (usesCoordinates) for (const node of nodes) {
+    const x = Number(node.x), y = Number(node.y);
+    if (!Number.isFinite(x) || !Number.isFinite(y)) {
+      out.push(problem(true, `"${node.id}" has no usable position on the drawing.`,
+        `Give "${node.id}" numeric x and y values. x is the centre of a ${NODE_W}-wide box, y the centre of a ${NODE_H}-tall one.`));
+      continue;
+    }
+    // A centre this close to an edge puts part of the box past it. Reported as a
+    // stop: half a device hanging off the page is not a matter of taste.
+    const off = [];
+    if (x - half.x < 0) off.push("off the left edge");
+    if (x + half.x > width) off.push("off the right edge");
+    if (y - half.y < 0) off.push("off the top edge");
+    if (y + half.y > height) off.push("off the bottom edge");
+    if (off.length) {
+      out.push(problem(true, `"${node.id}" is drawn ${off.join(" and ")} of the page.`,
+        `Move "${node.id}" back onto the canvas: keep x between ${half.x} and ${width - half.x}, and y between ${half.y} and ${height - half.y}.`));
+    }
+  }
+
   // Node overlap. Both conditions must hold - checking only horizontal distance
-  // would flag 34 non-overlapping pairs in the shipped reference diagram.
-  for (let a = 0; a < nodes.length; a++) {
+  // would flag 34 non-overlapping pairs in the shipped reference diagram. Boxes
+  // that merely kiss at the corner are a warning; a real pile-up is a stop,
+  // because two devices in one place is unreadable rather than untidy.
+  if (usesCoordinates) for (let a = 0; a < nodes.length; a++) {
     for (let b = a + 1; b < nodes.length; b++) {
       const dx = Math.abs(Number(nodes[a].x) - Number(nodes[b].x));
       const dy = Math.abs(Number(nodes[a].y) - Number(nodes[b].y));
-      if (dx < NODE_W && dy < NODE_H) {
-        out.push(problem(false, `"${nodes[a].id}" and "${nodes[b].id}" sit on top of each other.`,
-          `Move "${nodes[b].id}" so it is at least ${NODE_W} away horizontally or ${NODE_H} away vertically from "${nodes[a].id}".`));
-      }
+      if (!(dx < NODE_W && dy < NODE_H)) continue;
+      const covered = ((NODE_W - dx) * (NODE_H - dy)) / (NODE_W * NODE_H);
+      const serious = covered >= 0.25;
+      const extent = covered < 0.01 ? "by a few pixels" : `by ${Math.round(covered * 100)}% of a device box`;
+      out.push(problem(serious,
+        `"${nodes[a].id}" and "${nodes[b].id}" ${serious ? "sit on top of each other" : "overlap"} ${extent}.`,
+        `Move "${nodes[b].id}" so it is at least ${NODE_W} away horizontally or ${NODE_H} away vertically from "${nodes[a].id}".`));
+    }
+  }
+
+  /* Zones. A zone is the box a reader uses to decide what a device IS - trust
+     boundary, site, Purdue level. A device drawn outside the area it belongs to
+     is not a cosmetic problem, it is the drawing saying something untrue. */
+  if (usesCoordinates) for (const zone of zones) {
+    const zx = Number(zone.x), zy = Number(zone.y);
+    const zw = Number(zone.width), zh = Number(zone.height);
+    if (![zx, zy, zw, zh].every(Number.isFinite)) {
+      out.push(problem(false, `The area "${zone.id || zone.label || "?"}" has no usable size or position.`,
+        `Give that area numeric x, y, width and height. x,y is its top-left corner.`));
+      continue;
+    }
+    if (zx < 0 || zy < 0 || zx + zw > width || zy + zh > height) {
+      out.push(problem(false, `The area "${zone.id || zone.label || "?"}" runs past the edge of the page.`,
+        `Keep that area inside the ${width} x ${height} canvas. Its x,y is the top-left corner, not the centre.`));
+    }
+  }
+
+  /* A device does not declare which area it is in - the drawing says so, by
+     where it sits. Which makes a device half inside an area a real ambiguity:
+     the reader cannot tell whether it is in the DMZ or behind it.
+
+     Reported only when it is genuinely split. The shipped NET-OT-001 has four
+     devices hanging 2px over an edge on purpose, 98% inside, and a rule that
+     shouts at the project's own reference drawing is a rule people switch off. */
+  const CONTAINED = 0.92, IGNORE_BELOW = 0.15;
+  if (usesCoordinates) for (const node of nodes) {
+    const x = Number(node.x), y = Number(node.y);
+    if (!Number.isFinite(x) || !Number.isFinite(y)) continue;
+    const box = { left: x - half.x, right: x + half.x, top: y - half.y, bottom: y + half.y };
+    let best = null;
+    for (const zone of zones) {
+      const zx = Number(zone.x), zy = Number(zone.y), zw = Number(zone.width), zh = Number(zone.height);
+      if (![zx, zy, zw, zh].every(Number.isFinite) || zw <= 0 || zh <= 0) continue;
+      const overlapW = Math.min(box.right, zx + zw) - Math.max(box.left, zx);
+      const overlapH = Math.min(box.bottom, zy + zh) - Math.max(box.top, zy);
+      if (overlapW <= 0 || overlapH <= 0) continue;
+      const fraction = (overlapW * overlapH) / (NODE_W * NODE_H);
+      if (!best || fraction > best.fraction) best = { zone, fraction };
+    }
+    if (best && best.fraction >= IGNORE_BELOW && best.fraction < CONTAINED) {
+      const label = best.zone.id || best.zone.label || "?";
+      out.push(problem(false, `"${node.id}" is drawn half in and half out of the area "${label}" (${Math.round(best.fraction * 100)}% inside), so a reader cannot tell which area it belongs to.`,
+        `Move "${node.id}" fully inside "${label}", or fully outside it. A device on an area's boundary is ambiguous.`));
     }
   }
 

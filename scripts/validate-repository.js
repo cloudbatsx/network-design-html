@@ -230,6 +230,66 @@ for (const name of starterNames) {
   });
 }
 
+/* The closed lists exist in three places: the template's renderer decides what
+   is real, the helper tool grades an AI reply against them, and the prompt doc
+   tells the model what to pick from. Nothing kept them in step, and they had
+   already drifted - the tool was failing replies on rules its own prompt never
+   stated. These make drift a build failure instead of a support question. */
+function listFrom(source, name) {
+  const match = source.match(new RegExp(`const ${name}\\s*=\\s*\\[([^\\]]*)\\]`));
+  assert(match, `${name} not found in tools/edit-with-ai.html`);
+  return [...match[1].matchAll(/"([^"]+)"/g)].map((entry) => entry[1]);
+}
+
+// The stylesheet is the authority on link and zone kinds: an unlisted kind does
+// not throw, it silently draws an invisible line or a black rectangle.
+function cssKinds(source, prefix) {
+  return [...new Set([...source.matchAll(new RegExp(`\\.${prefix}\\.([a-z0-9-]+)\\b`, "g"))].map((match) => match[1]))].sort();
+}
+
+checkEvery("the helper tool's closed lists match the template", (want) => {
+  const helper = read("tools/edit-with-ai.html");
+  const iconKeys = listFrom(helper, "ICON_KEYS");
+  const templateIcons = Object.keys(embeddedIconMap(primary));
+  want(JSON.stringify(iconKeys.slice().sort()) === JSON.stringify(templateIcons.slice().sort()),
+    `icon keys differ from the template: tool has ${iconKeys.length}, template has ${templateIcons.length}`);
+
+  for (const [name, prefix] of [["LINK_KINDS", "link"], ["ZONE_KINDS", "zone"]]) {
+    const fromTool = listFrom(helper, name).slice().sort();
+    const fromCss = cssKinds(primary, prefix);
+    const missing = fromTool.filter((kind) => !fromCss.includes(kind));
+    want(missing.length === 0, `${name} has ${missing.join(", ")}, which the template stylesheet does not draw`);
+  }
+
+  // Rack codes are mid-rewrite alongside the drawn faceplates, so this reports
+  // rather than fails. Promote it to want() once that work has landed.
+  const rackCodes = listFrom(helper, "RACK_CODES").filter((code) => code !== "generic");
+  const templateCodes = [...new Set([...primary.matchAll(/^\s*"([a-z0-9-]+)":\{"front"/gm)].map((match) => match[1]))];
+  const unknown = rackCodes.filter((code) => !templateCodes.includes(code));
+  const unlisted = templateCodes.filter((code) => !rackCodes.includes(code));
+  if (unknown.length || unlisted.length) {
+    notes.push(`rack codes drifted: tool-only [${unknown.join(", ") || "none"}], template-only [${unlisted.join(", ") || "none"}]`);
+  }
+});
+
+// Rules the tool enforces but never states are rules the model is failed on
+// without being told. Each of these is checked by checkShell() in the helper.
+checkEvery("the helper tool's prompt states the rules it grades on", (want) => {
+  const helper = read("tools/edit-with-ai.html");
+  const prompt = helper.match(/const PROMPT = `([\s\S]*?)`;/);
+  assert(prompt, "PROMPT not found in tools/edit-with-ai.html");
+  const text = prompt[1];
+  for (const [label, needle] of [
+    ["the brand must not be touched", /brand object through exactly as you found it/i],
+    ["the evidence colour list", /purple, red, green, amber, teal/i],
+    ["the mandatory footer lines", /footer\.caveat and footer\.redaction/i],
+    ["gaps must not be empty", /findings\.items must never be empty/i],
+    ["gap anchors must exist", /must already exist/i]
+  ]) {
+    want(needle.test(text), `the prompt never mentions ${label}, but the checker fails replies over it`);
+  }
+});
+
 // A starter nobody can find is a starter nobody copies.
 check("every starter is listed in the README", () => {
   const readme = read("README.md");

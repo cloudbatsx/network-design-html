@@ -268,9 +268,11 @@ npm run verify:packager
 Those write into `dist/`, which stays Git-ignored: the outputs embed artwork and are
 reproducible from the tree in one click anyway.
 
-[`docs/gemini-editing-rules.md`](docs/gemini-editing-rules.md) is the template-authoring
-and packaging contract — the rules for rewriting the template itself, *not* the prompt
-for editing a diagram.
+[`docs/template-authoring-rules.md`](docs/template-authoring-rules.md) is the
+template-authoring and packaging contract — the rules for rewriting the template
+itself, *not* the prompt for editing a diagram. It asks for a complete 97 KB HTML
+file back, so it needs a strong model; it was called `gemini-editing-rules.md`,
+which pointed beginners at the one door a free model cannot open.
 
 ```text
 starters/                ten ready-made designs to copy

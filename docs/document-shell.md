@@ -86,7 +86,7 @@ caveat** · **redaction statement**. The last two are mandatory.
 
 Both exist because this repository makes a stronger promise than the shell did —
 that the file works with no network at all — and because
-[`gemini-editing-rules.md`](gemini-editing-rules.md) forbids CDNs outright.
+[`template-authoring-rules.md`](template-authoring-rules.md) forbids CDNs outright.
 
 | Original | Here | Why |
 |---|---|---|
