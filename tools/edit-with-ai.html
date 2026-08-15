@@ -286,7 +286,9 @@ rack asset - ${RACK_CODES.join(", ")}
 This is a short hardware code, never a filename. Use "generic" for hardware with
 no artwork of its own. An unlisted code still draws the device at the right
 height as a plain labelled face, and marks the saved file with a red FAIL badge
-until it is corrected.
+until it is corrected. A face code ending in -1u, -2u, -3u or -4u draws exactly
+that many units and must match the device's height: a 1U device cannot use
+generic-server-2u.
 
 NEVER TOUCH THESE
 

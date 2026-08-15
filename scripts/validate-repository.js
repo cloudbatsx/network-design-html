@@ -405,7 +405,8 @@ checkEvery("the helper tool's prompt states the rules it grades on", (want) => {
     ["the evidence colour list", /purple, red, green, amber, teal/i],
     ["the mandatory footer lines", /footer\.caveat and footer\.redaction/i],
     ["gaps must not be empty", /findings\.items must never be empty/i],
-    ["gap anchors must exist", /must already exist/i]
+    ["gap anchors must exist", /must already exist/i],
+    ["the face height must match the device", /must match the device's height/i]
   ]) {
     want(needle.test(text), `the prompt never mentions ${label}, but the checker fails replies over it`);
   }
@@ -439,6 +440,34 @@ check("official artwork ships with the repository", () => {
   assert(rackFiles.length === 10, `expected 10 rack PNGs in assets/, found ${rackFiles.length}`);
 });
 
+// A JPEG wearing a .png extension ships silently, and then the packager -
+// correctly - refuses to build any design that references it. Extensions are
+// load-bearing in the asset schemes, so the bytes must match them. This class
+// of defect shipped once (the fpr4215 rack faces); nothing looked until a
+// build failed in the one tool a real user opens.
+checkEvery("artwork bytes match their extensions", (want) => {
+  const signatureOf = (head) => {
+    if (head.length >= 8 && head.subarray(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]))) return "png";
+    if (head[0] === 255 && head[1] === 216 && head[2] === 255) return "jpg";
+    return "unknown";
+  };
+  for (const directory of [iconDirectory, rackDirectory]) {
+    if (!fs.existsSync(directory)) continue;
+    for (const name of fs.readdirSync(directory)) {
+      const lower = name.toLowerCase();
+      const claimed = lower.endsWith(".png") ? "png" : (lower.endsWith(".jpg") || lower.endsWith(".jpeg")) ? "jpg" : null;
+      if (!claimed) continue;
+      const descriptor = fs.openSync(path.join(directory, name), "r");
+      const head = Buffer.alloc(8);
+      fs.readSync(descriptor, head, 0, 8, 0);
+      fs.closeSync(descriptor);
+      const actual = signatureOf(head);
+      want(actual === claimed,
+        `${name} is ${actual === "unknown" ? "not recognisable image data" : actual.toUpperCase() + " data"} behind a .${claimed} extension`);
+    }
+  }
+});
+
 checkEvery("every asset reference resolves to a shipped file", (want) => {
   const sources = [primary, alternate, JSON.stringify(map), ...starters];
   const missing = new Set();
@@ -463,6 +492,33 @@ checkEvery("the packager is usable straight from a clone", (want) => {
   want(!packager.includes("data:image/"), "packager embeds raster artwork");
   want(packager.includes("webkitdirectory"), "packager no longer reads an artwork folder");
   want(Buffer.byteLength(packager) <= 200 * 1024, "packager exceeds 200 KB, which suggests baked-in artwork");
+});
+
+// 69 KB of tool logic used to ship with nothing so much as parsing it: a stray
+// character in the helper or the packager went through a green run completely
+// broken. Nothing here executes the tools - the behaviour harness in tests/
+// does that - but at minimum every script a user's browser will run must parse.
+checkEvery("every embedded script parses", (want) => {
+  const pages = [
+    "templates/network-design-template.edit.html",
+    ...starterNames.map((name) => `starters/${name}`),
+    "tools/edit-with-ai.html",
+    "tools/packager/network-design-packager.html",
+    "tools/cisco-icon-catalog.html",
+    "examples/vector-symbol-showcase.html",
+    "examples/rack-face-preview.html",
+    "tests/fixtures/alternate-dashboard.edit.html"
+  ];
+  for (const label of pages) {
+    if (!fs.existsSync(path.join(root, label))) { want(false, `${label} is missing`); continue; }
+    const source = read(label);
+    let index = 0;
+    for (const match of source.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)) {
+      index += 1;
+      if (/type\s*=\s*["']application\/json["']/i.test(match[1])) continue;
+      try { new Function(match[2]); } catch (error) { want(false, `${label} script #${index} does not parse: ${error.message}`); }
+    }
+  }
 });
 
 check("generated files stay in excluded directories", () => {
