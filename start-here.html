@@ -119,6 +119,60 @@
 
 <main>
 
+<!-- ============================================ AT A GLANCE -->
+<figure style="margin:30px 0 6px">
+  <svg viewBox="0 0 900 174" role="img" aria-label="The whole method in five steps: copy a starter, open the helper, describe one change and give it to a free AI, paste the reply back and check it, read the changes and save. The middle three steps repeat for each part of the design.">
+    <defs><marker id="ga" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+      <path d="M0 0 L9 4.5 L0 9 z" fill="#007fa8"/></marker></defs>
+
+    <g font-family="Segoe UI,Arial">
+      <rect x="20" y="26" width="156" height="78" rx="9" fill="#eaf4f8" stroke="#007fa8" stroke-width="1.5"/>
+      <circle cx="42" cy="48" r="12" fill="#006687"/><text x="42" y="52.5" font-size="12" fill="#fff" text-anchor="middle">1</text>
+      <text x="62" y="52" font-size="12" font-weight="700" fill="#14242f">Copy a starter</text>
+      <text x="34" y="74" font-size="10" fill="#3d5261">from the starters folder,</text>
+      <text x="34" y="89" font-size="10" fill="#3d5261">rename it to yours</text>
+
+      <rect x="196" y="26" width="156" height="78" rx="9" fill="#eaf4f8" stroke="#007fa8" stroke-width="1.5"/>
+      <circle cx="218" cy="48" r="12" fill="#006687"/><text x="218" y="52.5" font-size="12" fill="#fff" text-anchor="middle">2</text>
+      <text x="238" y="52" font-size="12" font-weight="700" fill="#14242f">Open the helper</text>
+      <text x="210" y="74" font-size="10" fill="#3d5261">edit-with-ai.html,</text>
+      <text x="210" y="89" font-size="10" fill="#3d5261">choose your file</text>
+
+      <rect x="372" y="26" width="156" height="78" rx="9" fill="#f2effa" stroke="#5b4b8a" stroke-width="1.5"/>
+      <circle cx="394" cy="48" r="12" fill="#5b4b8a"/><text x="394" y="52.5" font-size="12" fill="#fff" text-anchor="middle">3</text>
+      <text x="414" y="52" font-size="12" font-weight="700" fill="#14242f">Say one change</text>
+      <text x="386" y="74" font-size="10" fill="#3d5261">pick a part, one sentence,</text>
+      <text x="386" y="89" font-size="10" fill="#3d5261">copy prompt → free AI</text>
+
+      <rect x="548" y="26" width="156" height="78" rx="9" fill="#eaf4f8" stroke="#007fa8" stroke-width="1.5"/>
+      <circle cx="570" cy="48" r="12" fill="#006687"/><text x="570" y="52.5" font-size="12" fill="#fff" text-anchor="middle">4</text>
+      <text x="590" y="52" font-size="12" font-weight="700" fill="#14242f">Paste the reply</text>
+      <text x="562" y="74" font-size="10" fill="#3d5261">press Check it —</text>
+      <text x="562" y="89" font-size="10" fill="#3d5261">problems come back in English</text>
+
+      <rect x="724" y="26" width="156" height="78" rx="9" fill="#f1f8f4" stroke="#26734d" stroke-width="1.5"/>
+      <circle cx="746" cy="48" r="12" fill="#26734d"/><text x="746" y="52.5" font-size="12" fill="#fff" text-anchor="middle">5</text>
+      <text x="766" y="52" font-size="12" font-weight="700" fill="#14242f">Read, then save</text>
+      <text x="738" y="74" font-size="10" fill="#3d5261">the change list shows every</text>
+      <text x="738" y="89" font-size="10" fill="#3d5261">difference before you commit</text>
+    </g>
+
+    <g stroke="#007fa8" stroke-width="2" fill="none">
+      <path d="M176 65 H194" marker-end="url(#ga)"/>
+      <path d="M352 65 H370" marker-end="url(#ga)"/>
+      <path d="M528 65 H546" marker-end="url(#ga)"/>
+      <path d="M704 65 H722" marker-end="url(#ga)"/>
+    </g>
+
+    <path d="M802 104 V138 H450 V112" stroke="#26734d" stroke-width="2" fill="none" stroke-dasharray="5 4" marker-end="url(#ga2)"/>
+    <defs><marker id="ga2" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+      <path d="M0 0 L9 4.5 L0 9 z" fill="#26734d"/></marker></defs>
+    <text x="626" y="158" font-size="11" fill="#26734d" text-anchor="middle" font-family="Segoe UI,Arial">repeat steps 3–5 for each part: devices, then connections, then the rack, then the gaps</text>
+  </svg>
+  <figcaption>The whole method. Every numbered section below just walks one of these five
+  boxes slowly, with pictures — if you ever feel lost, come back to this strip.</figcaption>
+</figure>
+
 <!-- ============================================ WHAT YOU GET -->
 <section class="step">
   <span class="num">✦</span>
@@ -260,8 +314,9 @@
   <h2>Get the files, and ignore almost all of them</h2>
   <p class="kicker">The repository has a lot in it. You need three things.</p>
 
-  <p>Download or clone this repository anywhere on your machine — Desktop is fine. Then forget
-  most of what you see. As a beginner, exactly three items matter:</p>
+  <p>Grab the ZIP from the repository's <b>Releases</b> page — or clone the repository — and
+  put it anywhere on your machine; Desktop is fine. Then forget most of what you see. As a
+  beginner, exactly three items matter:</p>
 
   <figure>
     <svg viewBox="0 0 900 300" role="img" aria-label="Map of the repository highlighting the three items a beginner needs: the starters folder, the AI helper tool, and the assets folder.">
@@ -335,9 +390,9 @@
     <b>Four starters behave differently — avoid them on your first go</b>
     <p><code>NET-ENT-002</code>, <code>NET-HQ-002</code>, <code>NET-LAB-003</code> and
     <code>NET-RH-001</code> are drawn as <em>engineering sheets</em>. They look superb, but their
-    drawings are hand-tuned: the AI helper offers only their rack schedule and gaps list, never
-    the drawing itself, and per-device custom artwork does not work. Learn the workflow on one
-    of the others first.</p>
+    drawings are hand-tuned: the AI helper offers at most their rack schedule and gaps list
+    (it varies by kit), never the drawing itself, and per-device custom artwork does not work.
+    Learn the workflow on one of the others first.</p>
   </div>
 
   <p><b>Make a copy before you touch it.</b> Copy the starter to your own folder and rename it —
@@ -673,10 +728,11 @@ diagram. The marker will not be drawn.</pre>
   at all if that is not true, so you cannot end up with a mangled file.</p>
 
   <div class="note warn">
-    <b>Keep the new file, and feed it back in</b>
-    <p>Each save produces a <em>new</em> file. For your next edit, load that one in step 1 —
-    not the original starter. Keep the intermediate copies until you are happy; they are your
-    undo history.</p>
+    <b>Keep the new file — it is your undo history</b>
+    <p>Each save produces a <em>new</em> file. If you keep the helper tab open, it carries on
+    from the file it just saved, so your next edit builds on this one automatically. Coming
+    back later? Load your <em>newest</em> saved file in step 1 — not the original starter.
+    Keep the intermediate copies until you are happy.</p>
   </div>
 </section>
 
@@ -761,12 +817,11 @@ diagram. The marker will not be drawn.</pre>
     </svg>
   </figure>
 
-  <div class="note warn">
-    <b>One thing to check yourself for now</b>
-    <p>When you name a drawn rack faceplate, its height has to match the device. A 2U faceplate
-    on a 1U device will save without complaint, then show a red FAIL badge when you open the
-    file. If that happens, either change the height or pick a faceplate ending in the right
-    number of U.</p>
+  <div class="note tip">
+    <b>Faceplate heights are checked for you too</b>
+    <p>A drawn faceplate's name ends in its height — <code>generic-server-2u</code> is two units
+    tall. Put it on a 1U device and the checker stops you before saving, naming both numbers,
+    so a mismatched face never reaches the document.</p>
   </div>
 </section>
 
@@ -835,7 +890,7 @@ diagram. The marker will not be drawn.</pre>
       <rect x="666" y="56" width="200" height="110" rx="8" fill="#fff" stroke="#8ca3ae" stroke-width="2"/>
       <text x="766" y="86" font-size="12" font-weight="700" fill="#14242f" text-anchor="middle" font-family="Segoe UI,Arial">Portable file</text>
       <text x="766" y="108" font-size="10.5" fill="#3d5261" text-anchor="middle" font-family="Segoe UI,Arial">real artwork inside</text>
-      <text x="766" y="132" font-size="15" font-weight="700" fill="#a66300" text-anchor="middle" font-family="Segoe UI,Arial">~3.7 MB</text>
+      <text x="766" y="132" font-size="15" font-weight="700" fill="#a66300" text-anchor="middle" font-family="Segoe UI,Arial">~4 MB</text>
       <text x="766" y="150" font-size="9.5" fill="#8ca3ae" text-anchor="middle" font-family="Segoe UI,Arial">one self-contained file</text>
 
       <path d="M766 176 V196 H129 V172" stroke="#26734d" stroke-width="2" fill="none" stroke-dasharray="5 4" marker-end="url(#ar3)"/>
@@ -901,8 +956,8 @@ diagram. The marker will not be drawn.</pre>
         in the wrong encoding. Always save as <b>UTF-8</b>, never open these files in Word,
         and go back to your last good save.</td></tr>
       <tr><td><b>The helper offers only some parts</b></td><td>You picked one of the four
-        engineering sheets. Their drawings are hand-tuned, so only the rack and the gaps list
-        can be AI-edited. For drawing changes, start from one of the other kits.</td></tr>
+        engineering sheets. Their drawings are hand-tuned, so at most the rack and the gaps
+        list can be AI-edited. For drawing changes, start from one of the other kits.</td></tr>
       <tr><td><b>Everything looks broken after an edit</b></td><td>Close it. Open your previous
         saved file — every save made a new file, so the old one is still there.</td></tr>
     </tbody>
