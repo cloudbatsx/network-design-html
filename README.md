@@ -330,10 +330,11 @@ dist/                    build output, untracked
 
 ## Status and license
 
-Pre-release. The workflow above is complete and machine-checked — 32 repository
-checks and a behaviour test suite run on every commit — but it has not yet been
-validated end to end against a live free model. That validation is the next
-milestone; the protocol and its results live in
+Pre-release. The workflow is complete, machine-checked on every commit — 33
+repository checks plus a behaviour test suite — and has survived its first live
+free-model run: a complete document built from a diagram image by free Gemini,
+one round trip, no repairs. The full editing-protocol matrix is still pending;
+protocol and results live in
 [`docs/free-model-results.md`](docs/free-model-results.md).
 
 Code, tooling, documentation **and the 19 vector symbols** are **MIT licensed** —

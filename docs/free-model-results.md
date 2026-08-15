@@ -1,6 +1,6 @@
 # Free-model validation — protocol and results
 
-**Status: protocol defined · first run pending.**
+**Status: fresh-build path validated live · nine-run editing matrix still pending.**
 
 Everything else in this repository is machine-checked. This is the one claim
 only a live session can test: *"a free AI model is enough."* This document is
@@ -67,7 +67,31 @@ diagnostic, not pass/fail.
 
 ## Results
 
-> No run recorded yet.
+### Live result 1 — the fresh-build path · 2026-08-15
+
+**Model:** Gemini free tier (gemini.google.com; the model picker offered 3.6 and
+3.1, the run used the default "Thinking" setting) · **Operator:** Sayed Haque ·
+**Input:** a ~15-device single-office topology image supplied by the
+organisation.
+
+The diagram-reading prompt returned a correct three-list inventory on the first
+reply (every device with a sensible id, connections, trust areas). One
+"Everything" run against the blank template then produced the complete design:
+the helper's verdict was **"No problems found"** with no repair notes — the
+reply was clean JSON on the first attempt. **Round trips: 1. Truncation: none.**
+The saved document rendered with both zones, all devices, the encrypted
+remote-access links, a populated rack with drawn faceplates, and a gaps
+register the model wrote itself: addressing unspecified, VPN details
+unverified, hardware models unspecified — each pinned to the right place.
+
+Two workflow frictions surfaced and became fixes the same day: choosing a
+starter felt like homework (now: the blank-template door), and composing the
+two prompts by hand was error-prone (now: the helper's "Starting fresh" panel
+builds both).
+
+### The nine-run editing matrix
+
+> Not yet run.
 
 **Session:** _date_ · **Model:** _exact name as shown_ · **Interface:** _e.g.
 gemini.google.com free tier_ · **Operator:** _name_
