@@ -89,6 +89,21 @@ free to lift them for anything else you build — see
 [`examples/vector-symbol-showcase.html`](examples/vector-symbol-showcase.html) for
 all 19 at a glance.
 
+**The rack is drawn the same way.** 25 faceplates — switches, routers, firewalls,
+servers, patch panels, PDUs, a UPS — front and rear, at true EIA-310 proportions,
+so a 48-port switch reads as a 48-port switch and an SFP28 bank does not look like
+copper. Seventeen are vendor-neutral; the rest reproduce the port layout that makes
+a Cisco, Juniper, Palo Alto, Fortinet or Arista box recognisable, without any
+branding. Name one in the equipment schedule:
+
+```json
+{ "id": "core-sw-01", "position": 38, "height": 1, "asset": "cisco-nexus-48sfp-1u" }
+```
+
+No download and no packaging step — see [`rack-faces/`](rack-faces/README.md) for
+the full list and [`examples/rack-face-preview.html`](examples/rack-face-preview.html)
+to browse them.
+
 Nothing is one-way, either: a packaged file carries its editable source inside it,
 so **Download editable source** hands the light version straight back.
 

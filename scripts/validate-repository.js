@@ -91,6 +91,13 @@ function symbolIds(source) {
   return [...source.matchAll(/<symbol\b[^>]*\bid=["']([^"']+)["']/gi)].map((match) => match[1]);
 }
 
+// Scoped to the topology sprite on purpose. A document also carries the rack
+// faceplate library, and counting its symbols here would make "the canonical 19
+// are present and unchanged" fail for a reason that has nothing to do with them.
+function topologySymbolIds(source, label) {
+  return symbolIds(extractDefs(source, label));
+}
+
 function walk(relativeDirectory = "") {
   const absolute = path.join(root, relativeDirectory);
   const results = [];
@@ -121,8 +128,8 @@ check("embedded vector copies match canonical sprite", () => {
   const canonical = extractDefs(sprite, "sprite");
   assert(extractDefs(primary, "primary template") === canonical, "primary template sprite drifted from symbols/network-symbols.svg");
   assert(extractDefs(showcase, "showcase") === canonical, "showcase sprite drifted from symbols/network-symbols.svg");
-  assert(symbolIds(primary).length === 19, "primary template does not contain 19 symbols");
-  assert(symbolIds(showcase).length === 19, "showcase does not contain 19 symbols");
+  assert(topologySymbolIds(primary, "primary template").length === 19, "primary template does not contain 19 symbols");
+  assert(topologySymbolIds(showcase, "showcase").length === 19, "showcase does not contain 19 symbols");
 });
 
 check("semantic symbol map", () => {
@@ -181,7 +188,7 @@ for (const name of starterNames) {
     const source = validateEditable(`starters/${name}`);
     starters.push(source);
     want(extractDefs(source, name) === extractDefs(sprite, "sprite"), "sprite drifted from symbols/network-symbols.svg");
-    want(symbolIds(source).length === 19, `expected 19 symbols, found ${symbolIds(source).length}`);
+    want(topologySymbolIds(source, name).length === 19, `expected 19 symbols, found ${topologySymbolIds(source, name).length}`);
     want(!/<image\b/i.test(source), "contains an SVG image element");
 
     const embedded = embeddedIconMap(source);
@@ -229,6 +236,93 @@ for (const name of starterNames) {
     want(findings.some((item) => item.at != null || item.atZone !== undefined), "no gap is pinned to the drawing");
   });
 }
+
+// The rack faceplate library is generated, inlined into every document that
+// draws a rack, and edited in exactly one place. These checks are the reason a
+// contributor can trust that last claim.
+const faceCore = read("rack-faces/rack-face-core.js").trimEnd();
+const faceMap = JSON.parse(read("rack-faces/rack-face-map.json"));
+const faceSprite = read("rack-faces/rack-faces.svg");
+const FACE_BLOCK = { begin: "<!-- RACK-FACE-LIBRARY:BEGIN -->", end: "<!-- RACK-FACE-LIBRARY:END -->" };
+
+function inlinedFaceCore(source) {
+  const begin = source.indexOf(FACE_BLOCK.begin);
+  if (begin === -1) return null;
+  const end = source.indexOf(FACE_BLOCK.end, begin);
+  assert(end > begin, "rack face library markers are out of order");
+  const match = source.slice(begin, end).match(/<script id="rack-face-core">\n([\s\S]*?)\n<\/script>/);
+  assert(match, "rack face library block has no rack-face-core script");
+  return match[1];
+}
+
+checkEvery("rack faceplate library", (want) => {
+  want(faceMap.schema === "network-design-rack-face-map/v1", "rack face map schema changed");
+  want(faceMap.core === "rack-face-core.js", "rack face map points at the wrong core");
+  const keys = Object.keys(faceMap.faces || {});
+  want(keys.length > 0, "rack face map is empty");
+
+  // Every mapped key must exist in the sprite, at the height the map claims.
+  const spriteIds = new Set(symbolIds(faceSprite));
+  const missing = keys.filter((key) => !spriteIds.has(`rf-${key}-front`) || !spriteIds.has(`rf-${key}-rear`));
+  want(missing.length === 0, `no front/rear symbol for: ${missing.join(", ")}`);
+  want(spriteIds.size === keys.length * 2, `sprite has ${spriteIds.size} symbols for ${keys.length} faces`);
+
+  const badUnits = keys.filter((key) => !Number.isInteger(faceMap.faces[key].units) || faceMap.faces[key].units < 1);
+  want(badUnits.length === 0, `unit height is not a positive integer: ${badUnits.join(", ")}`);
+
+  // The drawing must stay a drawing. A raster payload here would defeat the
+  // whole reason documents inline the generator instead of the sprite.
+  want(!/<image\b/i.test(faceCore) && !faceCore.includes("data:image/"), "rack face core embeds raster artwork");
+  want(!/\brequire\s*\(/.test(faceCore), "rack face core uses require and cannot run in a browser");
+
+  // A face the prompt does not list is a face no model will ever choose, which
+  // makes drawing it pointless.
+  const rules = read("docs/ai-json-rules.md");
+  const undocumented = keys.filter((key) => !rules.includes(`\`${key}\``));
+  want(undocumented.length === 0, `missing from docs/ai-json-rules.md: ${undocumented.join(", ")}`);
+  const documentedUnits = keys.filter((key) => {
+    const row = rules.split("\n").find((line) => line.includes(`\`${key}\``) && line.startsWith("|"));
+    return row && !new RegExp(`\\|\\s*${faceMap.faces[key].units}\\s*\\|`).test(row);
+  });
+  want(documentedUnits.length === 0, `documented at the wrong unit height: ${documentedUnits.join(", ")}`);
+});
+
+// A document that draws a rack must carry the library, byte for byte. A document
+// that does not must not carry it — 39 KB of unreachable drawing code is not a
+// neutral thing to ship.
+// Read fresh rather than reusing the `starters` array: that one only collects
+// files that survived validateEditable, so its indices stop matching the names.
+const faceDocuments = ["templates/network-design-template.edit.html",
+  ...starterNames.map((name) => `starters/${name}`)];
+
+checkEvery("every rack document carries the current library", (want) => {
+  for (const label of faceDocuments) {
+    const source = read(label);
+    const drawsRack = source.includes("function rackFaceContent(");
+    const inlined = inlinedFaceCore(source);
+    if (!drawsRack) {
+      want(inlined === null, `${label} carries the rack face library but has no rack renderer`);
+      continue;
+    }
+    want(inlined !== null, `${label} draws a rack but does not carry the rack face library`);
+    if (inlined !== null) want(inlined === faceCore, `${label} rack face library drifted from rack-faces/rack-face-core.js`);
+    want(source.includes('id="rack-face-style"'), `${label} is missing the rack face stylesheet`);
+  }
+});
+
+// A vector alias that names a face the library does not have draws nothing, and
+// draws it silently.
+checkEvery("rack asset vector aliases resolve", (want) => {
+  const keys = new Set(Object.keys(faceMap.faces || {}));
+  for (const label of faceDocuments) {
+    const source = read(label);
+    // Anchored to the trailing form used by RACK_ASSETS. The topology icon map
+    // opens its records with `{vector:"nd-..."`, which is a different namespace.
+    for (const match of source.matchAll(/,vector:"([^"]+)"\}/g)) {
+      want(keys.has(match[1]), `${label} aliases missing face "${match[1]}"`);
+    }
+  }
+});
 
 // A starter nobody can find is a starter nobody copies.
 check("every starter is listed in the README", () => {

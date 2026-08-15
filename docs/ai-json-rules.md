@@ -7,10 +7,11 @@ This is the prompt for **changing a diagram**. It asks the AI for the data block
 only — never for the HTML file. See [`packaging rules`](gemini-editing-rules.md)
 instead if you are a maintainer changing the template itself.
 
-> Keep the four lists below in sync with the template. They are copied from
-> `ICONS` and `RACK_ASSETS` in `templates/network-design-template.edit.html` and
-> from the `.link.*` / `.zone.*` rules in its stylesheet. Nothing checks this
-> automatically — if those change, change this file too.
+> Keep the lists below in sync with the template. They are copied from `ICONS`
+> and `RACK_ASSETS` in `templates/network-design-template.edit.html` and from the
+> `.link.*` / `.zone.*` rules in its stylesheet. Only the drawn-faceplate table is
+> checked automatically, against `rack-faces/rack-face-map.json` — if the others
+> change, change this file too.
 
 ---
 
@@ -39,11 +40,51 @@ An unlisted kind draws a completely invisible line.
 **Zone `kind`** — `external`, `perimeter`, `internal`, `other`
 An unlisted kind draws a solid black rectangle over your diagram.
 
-**Rack `asset`** — `c9500`, `c9300`, `fpr4215`, `r750`, `ups`, `generic`
-This is a short hardware code, never a filename. Only those five models have
-real front and rear artwork. **For any other hardware use `generic`** — the
-device still appears in both rack views at the right height, drawn as a plain
-labelled face. Never invent a code.
+**Rack `asset`** — a short hardware code, never a filename. Never invent one.
+Pick the entry whose **`U` matches the device's `height`** and whose shape is
+closest to the real hardware. Anything not on this list must be `generic`, which
+still appears in both rack views at the right height as a plain labelled face.
+
+*Official front and rear photography, five models:*
+`c9500` `c9300` `fpr4215` (1U) · `r750` `ups` (2U)
+
+*Drawn faceplates, always available — no download, no packaging step:*
+
+| Code | U | What it draws |
+|---|---|---|
+| `generic-switch-48p-1u` | 1 | 48 copper ports, 4 SFP+ uplinks |
+| `generic-switch-24p-1u` | 1 | 24 copper ports, 4 SFP+ uplinks |
+| `generic-router-1u` | 1 | small port set plus two module slots |
+| `generic-firewall-1u` | 1 | 8 copper, 8 SFP, console and USB |
+| `generic-security-appliance-3u` | 3 | chassis firewall: status display, module bays |
+| `generic-wlan-controller-1u` | 1 | status display and 8 SFP |
+| `generic-chassis-switch-4u` | 4 | fan tray, two supervisors, three line cards |
+| `generic-server-1u` | 1 | 10 drive bays and a control panel |
+| `generic-server-2u` | 2 | 24 drive bays and a control panel |
+| `generic-storage-array-2u` | 2 | 12 large drive bays, dual controllers |
+| `generic-kvm-console-1u` | 1 | closed console drawer |
+| `generic-patch-panel-24-1u` | 1 | 24 keystone ports |
+| `generic-patch-panel-48-2u` | 2 | 48 keystone ports |
+| `generic-fibre-panel-1u` | 1 | four fibre cassettes |
+| `generic-blanking-panel-1u` | 1 | a blank filler panel |
+| `generic-cable-manager-1u` | 1 | horizontal finger duct |
+| `generic-pdu-1u` | 1 | 8 outlets and a breaker |
+| `generic-ups-2u` | 2 | status display, outlets on the rear |
+| `cisco-catalyst-48p-1u` | 1 | 48 copper, uplink module, rear stacking ports |
+| `cisco-isr-router-1u` | 1 | fixed ports plus two module slots |
+| `cisco-nexus-48sfp-1u` | 1 | 48 SFP28 and 6 QSFP28 |
+| `juniper-ex-48p-1u` | 1 | 48 copper, uplinks on the **rear** |
+| `juniper-srx-firewall-1u` | 1 | 16 copper and 4 SFP |
+| `palo-alto-ngfw-1u` | 1 | 16 copper, 4 SFP, 4 SFP28 |
+| `fortinet-ngfw-1u` | 1 | front display, 16 copper, 12 optics |
+| `arista-32qsfp-1u` | 1 | 32 QSFP28 spine ports |
+
+The vendor-named faces draw that vendor's **layout**, not a specific product,
+and carry no branding. Say `palo-alto-ngfw-1u` for a 1U Palo Alto box of roughly
+that shape; do not go looking for a code for the exact model.
+
+A face whose `U` does not match the device's `height` is reported as an error,
+so do not use `generic-server-2u` to fill a 1U slot.
 
 ## Never touch these
 

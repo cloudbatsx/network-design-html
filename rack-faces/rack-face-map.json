@@ -1,0 +1,221 @@
+{
+  "schema": "network-design-rack-face-map/v1",
+  "sprite": "rack-faces.svg",
+  "core": "rack-face-core.js",
+  "geometry": {
+    "width": 760,
+    "unitHeight": 70,
+    "pixelsPerInch": 40,
+    "note": "EIA-310: 19in wide, 1.75in per rack unit."
+  },
+  "faces": {
+    "generic-switch-48p-1u": {
+      "label": "Generic 48-port access switch",
+      "family": "generic",
+      "role": "access-switch",
+      "units": 1,
+      "front": "#rf-generic-switch-48p-1u-front",
+      "rear": "#rf-generic-switch-48p-1u-rear"
+    },
+    "generic-switch-24p-1u": {
+      "label": "Generic 24-port access switch",
+      "family": "generic",
+      "role": "access-switch",
+      "units": 1,
+      "front": "#rf-generic-switch-24p-1u-front",
+      "rear": "#rf-generic-switch-24p-1u-rear"
+    },
+    "generic-router-1u": {
+      "label": "Generic WAN router",
+      "family": "generic",
+      "role": "router",
+      "units": 1,
+      "front": "#rf-generic-router-1u-front",
+      "rear": "#rf-generic-router-1u-rear"
+    },
+    "generic-firewall-1u": {
+      "label": "Generic 1U firewall",
+      "family": "generic",
+      "role": "firewall",
+      "units": 1,
+      "front": "#rf-generic-firewall-1u-front",
+      "rear": "#rf-generic-firewall-1u-rear"
+    },
+    "generic-security-appliance-3u": {
+      "label": "Generic 3U security appliance",
+      "family": "generic",
+      "role": "firewall",
+      "units": 3,
+      "front": "#rf-generic-security-appliance-3u-front",
+      "rear": "#rf-generic-security-appliance-3u-rear"
+    },
+    "generic-chassis-switch-4u": {
+      "label": "Generic modular chassis switch",
+      "family": "generic",
+      "role": "core-switch",
+      "units": 4,
+      "front": "#rf-generic-chassis-switch-4u-front",
+      "rear": "#rf-generic-chassis-switch-4u-rear"
+    },
+    "generic-wlan-controller-1u": {
+      "label": "Generic wireless LAN controller",
+      "family": "generic",
+      "role": "wlan-controller",
+      "units": 1,
+      "front": "#rf-generic-wlan-controller-1u-front",
+      "rear": "#rf-generic-wlan-controller-1u-rear"
+    },
+    "generic-server-1u": {
+      "label": "Generic 1U rack server",
+      "family": "generic",
+      "role": "server",
+      "units": 1,
+      "front": "#rf-generic-server-1u-front",
+      "rear": "#rf-generic-server-1u-rear"
+    },
+    "generic-server-2u": {
+      "label": "Generic 2U rack server",
+      "family": "generic",
+      "role": "server",
+      "units": 2,
+      "front": "#rf-generic-server-2u-front",
+      "rear": "#rf-generic-server-2u-rear"
+    },
+    "generic-storage-array-2u": {
+      "label": "Generic 12-bay storage array",
+      "family": "generic",
+      "role": "storage-array",
+      "units": 2,
+      "front": "#rf-generic-storage-array-2u-front",
+      "rear": "#rf-generic-storage-array-2u-rear"
+    },
+    "generic-kvm-console-1u": {
+      "label": "Generic KVM console drawer",
+      "family": "generic",
+      "role": "console",
+      "units": 1,
+      "front": "#rf-generic-kvm-console-1u-front",
+      "rear": "#rf-generic-kvm-console-1u-rear"
+    },
+    "generic-patch-panel-24-1u": {
+      "label": "Generic 24-port copper patch panel",
+      "family": "generic",
+      "role": "patch-panel",
+      "units": 1,
+      "front": "#rf-generic-patch-panel-24-1u-front",
+      "rear": "#rf-generic-patch-panel-24-1u-rear"
+    },
+    "generic-patch-panel-48-2u": {
+      "label": "Generic 48-port copper patch panel",
+      "family": "generic",
+      "role": "patch-panel",
+      "units": 2,
+      "front": "#rf-generic-patch-panel-48-2u-front",
+      "rear": "#rf-generic-patch-panel-48-2u-rear"
+    },
+    "generic-fibre-panel-1u": {
+      "label": "Generic 4-cassette fibre panel",
+      "family": "generic",
+      "role": "patch-panel",
+      "units": 1,
+      "front": "#rf-generic-fibre-panel-1u-front",
+      "rear": "#rf-generic-fibre-panel-1u-rear"
+    },
+    "generic-blanking-panel-1u": {
+      "label": "Generic blanking panel",
+      "family": "generic",
+      "role": "blank",
+      "units": 1,
+      "front": "#rf-generic-blanking-panel-1u-front",
+      "rear": "#rf-generic-blanking-panel-1u-rear"
+    },
+    "generic-cable-manager-1u": {
+      "label": "Generic horizontal cable manager",
+      "family": "generic",
+      "role": "cable-management",
+      "units": 1,
+      "front": "#rf-generic-cable-manager-1u-front",
+      "rear": "#rf-generic-cable-manager-1u-rear"
+    },
+    "generic-pdu-1u": {
+      "label": "Generic 8-outlet rack PDU",
+      "family": "generic",
+      "role": "pdu",
+      "units": 1,
+      "front": "#rf-generic-pdu-1u-front",
+      "rear": "#rf-generic-pdu-1u-rear"
+    },
+    "generic-ups-2u": {
+      "label": "Generic 2U rack UPS",
+      "family": "generic",
+      "role": "ups",
+      "units": 2,
+      "front": "#rf-generic-ups-2u-front",
+      "rear": "#rf-generic-ups-2u-rear"
+    },
+    "cisco-catalyst-48p-1u": {
+      "label": "Cisco-style stackable 48-port switch",
+      "family": "cisco",
+      "role": "access-switch",
+      "units": 1,
+      "front": "#rf-cisco-catalyst-48p-1u-front",
+      "rear": "#rf-cisco-catalyst-48p-1u-rear"
+    },
+    "cisco-isr-router-1u": {
+      "label": "Cisco-style modular branch router",
+      "family": "cisco",
+      "role": "router",
+      "units": 1,
+      "front": "#rf-cisco-isr-router-1u-front",
+      "rear": "#rf-cisco-isr-router-1u-rear"
+    },
+    "cisco-nexus-48sfp-1u": {
+      "label": "Cisco-style 48-port SFP28 data-centre switch",
+      "family": "cisco",
+      "role": "dc-switch",
+      "units": 1,
+      "front": "#rf-cisco-nexus-48sfp-1u-front",
+      "rear": "#rf-cisco-nexus-48sfp-1u-rear"
+    },
+    "juniper-ex-48p-1u": {
+      "label": "Juniper-style 48-port access switch",
+      "family": "juniper",
+      "role": "access-switch",
+      "units": 1,
+      "front": "#rf-juniper-ex-48p-1u-front",
+      "rear": "#rf-juniper-ex-48p-1u-rear"
+    },
+    "juniper-srx-firewall-1u": {
+      "label": "Juniper-style services gateway",
+      "family": "juniper",
+      "role": "firewall",
+      "units": 1,
+      "front": "#rf-juniper-srx-firewall-1u-front",
+      "rear": "#rf-juniper-srx-firewall-1u-rear"
+    },
+    "palo-alto-ngfw-1u": {
+      "label": "Palo Alto style next-generation firewall",
+      "family": "palo-alto",
+      "role": "firewall",
+      "units": 1,
+      "front": "#rf-palo-alto-ngfw-1u-front",
+      "rear": "#rf-palo-alto-ngfw-1u-rear"
+    },
+    "fortinet-ngfw-1u": {
+      "label": "Fortinet-style next-generation firewall",
+      "family": "fortinet",
+      "role": "firewall",
+      "units": 1,
+      "front": "#rf-fortinet-ngfw-1u-front",
+      "rear": "#rf-fortinet-ngfw-1u-rear"
+    },
+    "arista-32qsfp-1u": {
+      "label": "Arista-style 32-port QSFP28 spine switch",
+      "family": "arista",
+      "role": "dc-switch",
+      "units": 1,
+      "front": "#rf-arista-32qsfp-1u-front",
+      "rear": "#rf-arista-32qsfp-1u-rear"
+    }
+  }
+}

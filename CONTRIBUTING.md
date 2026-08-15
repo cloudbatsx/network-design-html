@@ -23,7 +23,12 @@ Before proposing a repository change:
    embedded template sprite, and `examples/vector-symbol-showcase.html`.
 5. If a semantic mapping changes, synchronize `symbols/symbol-map.json` and the
    embedded `ICONS` map in the template.
-6. Run `npm test`. When the packaging path is touched, also run
+6. Rack faceplates are generated. Edit `rack-faces/rack-face-core.js` and nothing
+   else, then run `npm run build:rack-faces` — it rewrites the sprite, the map,
+   the preview page, and the copy inlined in every document that draws a rack.
+   A new faceplate also needs a row in `docs/ai-json-rules.md`, or no model will
+   ever choose it; `npm test` fails until it has one.
+7. Run `npm test`. When the packaging path is touched, also run
    `npm run build:packager` and `npm run verify:packager`.
 
 The artwork in `assets/` ships with the repository and is covered in
