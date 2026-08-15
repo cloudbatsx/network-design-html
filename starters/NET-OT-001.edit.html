@@ -1,0 +1,1250 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="CloudBats standard documentation shell: data-driven logical topology and rack elevation with editable and portable modes.">
+  <title>Network design &mdash; editable source</title>
+  <style>
+/* ============================================================================
+   CloudBats standard documentation shell (v1) — data-driven edition
+   ----------------------------------------------------------------------------
+   The stylesheet is TWO STACKED LAYERS. Do not merge them — the ordering is the
+   mechanism that makes one file both a screen document and a Letter PDF.
+
+     LAYER 1  "print/legacy"  — pt units, @page Letter, hex colours. Defines every
+                                CONTENT PRIMITIVE (notes, figures, tables, racks,
+                                topology). This is what survives to PDF.
+     LAYER 2  "shell"         — px units, :root vars, flex sidebar. Overrides
+                                Layer 1 typography for screen and adds the chrome
+                                (sidebar, TOC, badges, toggles). Its @media print
+                                block hands control back to Layer 1.
+
+   DELIBERATE DEVIATION FROM THE SHELL STANDARD: no Google Fonts <link>.
+   This repository guarantees that the editable file works with no server, CDN or
+   font service, and docs/gemini-editing-rules.md forbids CDNs outright. The font
+   STACK is kept, so the document is typographically identical wherever Sora /
+   Inter / JetBrains Mono are installed, and degrades to system-ui elsewhere.
+   ========================================================================= */
+
+/* ===== LAYER 1 — PRINT / LEGACY BASE ===================================== */
+
+  @page { size: Letter; margin: 14mm; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { font-family:'Segoe UI','Helvetica Neue',Arial,sans-serif; font-size:10.2pt; line-height:1.5; color:#1e293b; }
+  h2 { font-size:12.5pt; color:#14324e; margin:22px 0 8px; border-left:4px solid #0e7490; padding-left:8px; }
+  h3 { font-size:10.6pt; color:#0e7490; margin:14px 0 6px; }
+  p { margin:6px 0; } ul { margin:6px 0; padding-left:20px; } li { margin:5px 0; }
+  button,input,textarea,select { font:inherit; }
+  code { font-family:Consolas,'Courier New',monospace; }
+
+  /* -- figures: the only sanctioned way to place a diagram -- */
+  .figwrap { margin:10px 0 6px; }
+  .figwrap svg { width:100%; height:auto; display:block; }
+  .caption { font-size:8.2pt; color:#64748b; font-style:italic; margin:2px 0 4px; }
+  .legend { font-size:8.2pt; color:#475569; margin:4px 0 14px; }
+  .legend b { color:#14324e; }
+
+  /* -- callout boxes: semantic, NOT decorative -- */
+  .note { background:#f0f9ff; border:1px solid #bae6fd; border-left:4px solid #0e7490; padding:8px 12px; font-size:9.4pt; margin:8px 0 16px; border-radius:4px; }
+  .warn { background:#fffbeb; border:1px solid #fde68a; border-left:4px solid #b45309; padding:8px 12px; font-size:9.4pt; margin:8px 0 16px; border-radius:4px; }
+  .notes { list-style:disc; } .notes li { margin:4px 0; }
+
+  /* -- tables -- */
+  .data-table { width:100%; border-collapse:collapse; font-size:8.8pt; margin:10px 0 12px; }
+  .data-table th,.data-table td { border:1px solid #dbe4ee; padding:6px 7px; vertical-align:top; text-align:left; }
+  .data-table th { background:#14324e; color:#fff; font-weight:700; }
+  .data-table tr:nth-child(even) td { background:#f8fafc; }
+  .data-table code,p code,li code { font-family:Consolas,'Courier New',monospace; font-size:8.6pt; background:#eef2f7; border-radius:3px; padding:0 4px; color:#0f172a; white-space:nowrap; }
+  .doc-control { width:100%; border-collapse:collapse; font-size:8.2pt; margin:8px 0 4px; }
+  .doc-control th,.doc-control td { border:1px solid #dbe4ee; padding:3px 7px; text-align:left; vertical-align:top; color:#334155; }
+  .doc-control th { background:#f8fafc; color:#14324e; white-space:nowrap; width:1%; }
+
+  /* -- series strip: the fixed document breadcrumb -- */
+  .series-strip { font-size:8.8pt; color:#475569; background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; padding:7px 12px; margin:0 0 14px; }
+  .series-strip .ss-here { color:#0e7490; font-weight:700; }
+  .series-strip .ss-arrow { color:#94a3b8; padding:0 5px; }
+
+  /* ==== TOGGLEABLE LAYERS — exactly two, no more, no fewer ================
+     Slot A = the candour layer (section 6). Slot B = the equipment exhibit.
+     @media print force-reveals both so the PDF is always complete. ======== */
+  body:not(.show-gaps) .gap-layer { display:none !important; }
+  body:not(.show-equip) .equip-layer { display:none !important; }
+
+  /* -- numbered finding list. One flavour per document. -- */
+  .gaps,.patterns,.gains { list-style:none; padding-left:0; margin:10px 0; }
+  .gaps li,.patterns li,.gains li { display:flex; gap:10px; align-items:flex-start; margin:8px 0; padding:8px 10px; border-radius:4px; }
+  .gapnum,.patnum,.gainnum { flex:0 0 auto; display:inline-flex; align-items:center; justify-content:center; color:#fff; font-weight:700; font-size:10pt; border-radius:50%; width:22px; height:22px; }
+  .gaps li { background:#fef2f2; border-left:3px solid #dc2626; } .gapnum { background:#dc2626; } .gaps b { color:#7f1d1d; }
+  /* -- the gap overlay: markers drawn onto the topology, numbered from the findings
+        list so a reader can point at the picture and read the finding. Carries
+        .gap-layer so one control governs the diagram, the tables and the list. -- */
+  .gap-pin { cursor:pointer; }
+  .gap-pin circle { fill:#dc2626; stroke:#fff; stroke-width:2; }
+  .gap-pin text { fill:#fff; font-size:13px; font-weight:700; text-anchor:middle; pointer-events:none; }
+  .gap-pin:hover circle, .gap-pin:focus circle { fill:#7f1d1d; }
+  .gap-region { fill:none; stroke:#dc2626; stroke-width:2; stroke-dasharray:7 4; }
+  .gaps li:target { outline:3px solid #dc2626; outline-offset:3px; }
+  .patterns li { background:#f0fdfa; border-left:3px solid #0f766e; } .patnum { background:#0f766e; } .patterns b { color:#134e4a; }
+  .gains li { background:#eff6ff; border-left:3px solid #0e7490; } .gainnum { background:#0e7490; } .gains b { color:#0c4a6e; }
+
+  /* -- Slot B: equipment exhibit cards + cost table -- */
+  .equip-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:12px; margin:12px 0 14px; }
+  .equip-card { border:1px solid #e2e8f0; border-radius:6px; background:#fff; overflow:hidden; display:flex; flex-direction:column; }
+  .equip-body { padding:9px 10px 10px; display:flex; flex-direction:column; gap:5px; flex:1; }
+  .equip-card h3 { margin:0; font-size:9.8pt; color:#14324e; }
+  .u-badge { align-self:flex-start; display:inline-block; background:#14324e; color:#fff; font-size:7.7pt; font-weight:800; border-radius:999px; padding:2px 8px; }
+  .price { font-weight:800; color:#0f766e; font-size:10.6pt; }
+  .why { font-size:8.5pt; color:#475569; }
+  .equip-face { height:110px; border-bottom:1px solid #e2e8f0; }
+  .cost-table { width:100%; border-collapse:collapse; font-size:8.8pt; margin:10px 0 12px; }
+  .cost-table th,.cost-table td { border:1px solid #dbe4ee; padding:6px 7px; vertical-align:top; }
+  .cost-table th { background:#14324e; color:#fff; text-align:left; font-weight:700; }
+  .cost-table .money { text-align:right; white-space:nowrap; }
+  .cost-table tfoot td { background:#ecfeff; font-weight:800; color:#14324e; }
+
+  /* -- topology primitives -- */
+  .diagram-scroll{overflow:auto;border:1px solid #e2e8f0;background:#fff}#topology{display:block;width:100%;min-width:980px;height:auto;transition:width .15s ease}
+  .zone{stroke-width:1.2;stroke-dasharray:7 5}.zone.external{fill:#f7f9fa;stroke:#a5b4bc}.zone.perimeter{fill:#fff8f4;stroke:#d5a585}.zone.internal{fill:#f2fafb;stroke:#8eb8c2}.zone.other{fill:#f8f8fb;stroke:#aaa9bb}
+  .zone-label{fill:#627580;font-size:13px;font-weight:700;letter-spacing:.08em}.link{fill:none;stroke-linecap:round;stroke-linejoin:round}.link.l3{stroke:#006687;stroke-width:2.5}.link.aggregate{stroke:#167a74;stroke-width:5}.link.ha{stroke:#9a3b70;stroke-width:2.5;stroke-dasharray:8 6}.link.access{stroke:#526b78;stroke-width:2}.link.backup{stroke:#7c929e;stroke-width:1.8;stroke-dasharray:5 5}
+  .link-label-bg{fill:#fff;fill-opacity:.94;stroke:#d8e1e6}.link-label{fill:#42545e;font-size:11px;font-weight:600;text-anchor:middle}.node{cursor:pointer;outline:none;--symbol-main:#007fa8;--symbol-dark:#006687;--symbol-light:#51bde6;--symbol-detail:#fff}.node-shell{fill:#fff;stroke:#aebec7;stroke-width:1.4}.node:hover .node-shell,.node:focus .node-shell,.node.selected .node-shell{stroke:#006687;stroke-width:3;filter:url(#node-shadow)}.node-name{fill:#14242f;font-size:13px;font-weight:700;text-anchor:middle}.node-role{fill:#5d707c;font-size:11px;text-anchor:middle}.node-warning{fill:#a02d2d;font-size:10px;font-weight:700;text-anchor:middle}.node-generic{fill:#f4f8fa;stroke:#7c929e;stroke-width:1.5;stroke-dasharray:4 3}.node-generic-label{fill:#526b78;font-size:8px;font-weight:700;text-anchor:middle;letter-spacing:.06em}.topology-vector-icon{pointer-events:none}
+  #network-vector-symbols{position:absolute;width:0;height:0;overflow:hidden;pointer-events:none}.sym-primary{fill:var(--symbol-main,#007fa8)}.sym-dark{fill:var(--symbol-dark,#006687)}.sym-light{fill:var(--symbol-light,#51bde6)}.sym-detail{fill:var(--symbol-detail,#fff)}.sym-outline{fill:#fff;stroke:var(--symbol-main,#007fa8);stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}.sym-detail-stroke{fill:none;stroke:var(--symbol-detail,#fff);stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+  .inspector{display:grid;grid-template-columns:150px 1fr;gap:7px 15px;margin-top:13px;padding:15px 17px;border-left:4px solid #0891b2;background:#f6fafb}.inspector h3{grid-column:1/-1;margin:0 0 4px}.inspector .label{color:#64748b;font-size:.79rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+  .errors{display:none;margin:12px 0;padding:10px 12px;border-left:4px solid #dc2626;color:#762121;background:#fff3f3}.errors.visible{display:block}
+
+  /* -- rack primitives -- */
+  .rack-grid{display:grid;grid-template-columns:repeat(2,minmax(430px,1fr));gap:28px;align-items:start}.rack-figure{margin:0}.rack-figure figcaption{margin-bottom:8px;text-align:center;font-weight:700}
+  .rack-wrap{position:relative;display:grid;grid-template-columns:48px var(--rack-width) 48px;justify-content:center;align-items:start;isolation:isolate}.ruler{position:relative;height:calc(42 * var(--u));background:#f8fafb}.u-mark{position:absolute;left:0;width:100%;height:var(--u);padding-top:1px;color:#496170;font:10px/1 Consolas,monospace;text-align:center;border-top:1px solid #c8d3d9}
+  .rack-bay{position:relative;width:var(--rack-width);height:calc(42 * var(--u));overflow:visible;border-width:0 10px;border-style:solid;border-color:#697a84;background:repeating-linear-gradient(to bottom,#eef3f6 0 calc(var(--u) - 1px),#b7c4cb calc(var(--u) - 1px) var(--u));box-shadow:inset 3px 0 #aebbc2,inset -3px 0 #aebbc2}
+  .device-face,.reserved-slot{position:absolute;left:7px;right:7px;z-index:2}.device-face{display:block;padding:0;border:0;background:#fff;cursor:pointer;outline:none}.device-face:hover,.device-face:focus,.device-face.selected{z-index:4;outline:3px solid #e69320;outline-offset:1px}.device-face img{display:block;width:100%;height:100%;object-fit:fill;pointer-events:none}
+  .rack-placeholder{display:grid;grid-template-columns:52px minmax(0,1fr) 52px;align-items:center;width:100%;height:100%;padding:0 7px;overflow:hidden;color:#e8f7fb;background:linear-gradient(180deg,#244857,#132e39);font:700 8px/1 Consolas,monospace;letter-spacing:.04em;pointer-events:none}.rack-placeholder::before,.rack-placeholder::after{content:"";height:min(8px,55%);border:1px solid #7fa2b1;background:repeating-linear-gradient(90deg,#8fb2bf 0 2px,transparent 2px 5px)}.rack-placeholder span{padding:0 5px;overflow:hidden;text-align:center;text-overflow:ellipsis;white-space:nowrap}.rack-placeholder-rear{background:linear-gradient(180deg,#3b4750,#202b32)}
+  .reserved-slot{display:grid;place-items:center;z-index:1;border:2px dashed #9bafb9;color:#496170;background:repeating-linear-gradient(135deg,#dce7ec 0 8px,#f8fafb 8px 16px);font-size:10px;font-weight:700;text-align:center;text-transform:uppercase}
+  .rack-tooltip{position:absolute;z-index:20;display:none;width:280px;padding:12px 15px;border-radius:9px;color:#fff;background:#18282f;box-shadow:0 8px 22px rgba(20,36,47,.28);font-size:.84rem;line-height:1.45;pointer-events:none}.rack-tooltip.visible{display:block}.rack-tooltip strong,.rack-tooltip span{display:block}.rack-tooltip .tooltip-role{color:#dce8ed}
+  .inventory{width:100%;margin-top:20px;border-collapse:collapse;font-size:8.8pt}.inventory caption{padding:0 0 7px;text-align:left;font-weight:700}.inventory th,.inventory td{padding:7px 9px;border-bottom:1px solid #dbe4ee;text-align:left;vertical-align:top}.inventory th{color:#475569;background:#f7f9fa;font-size:.75rem;text-transform:uppercase}.inventory tr.selected{background:#eaf6fa}
+
+/* ===== LAYER 2 — CLOUDBATS STANDARD DOCUMENTATION SHELL ================== */
+
+  :root {
+    --navy:#0f172a; --navy-2:#1e293b;
+    --slate-600:#475569; --slate-500:#64748b; --slate-300:#cbd5e1;
+    --slate-100:#f1f5f9; --slate-50:#f8fafc;
+    --teal:#06b6d4; --teal-dark:#0891b2;
+    --amber:#d97706; --amber-bg:#fffbeb; --amber-bd:#fde68a;
+    --purple:#7c3aed; --purple-bg:#f5f3ff; --purple-bd:#ddd6fe;
+    --red:#dc2626; --red-bg:#fef2f2; --red-bd:#fecaca;
+    --green:#0f766e; --green-bg:#ecfdf5; --green-bd:#a7f3d0;
+    --border:#e2e8f0;
+    --maxw:1160px; --sidebar-w:272px;
+    --u:18px; --rack-width:360px;
+    color-scheme:light;
+  }
+  html { scroll-behavior:smooth; }
+  body { max-width:none; margin:0; padding:0; font-family:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif; font-size:16px; line-height:1.65; color:var(--navy); background:var(--slate-50); }
+  h1,h2,h3,h4 { font-family:'Sora',system-ui,sans-serif; line-height:1.25; }
+  code,pre,.mono { font-family:'JetBrains Mono',ui-monospace,Consolas,monospace; }
+  a { color:var(--teal-dark); }
+  a:focus-visible,button:focus-visible { outline:3px solid rgba(6,182,212,.35); outline-offset:2px; }
+
+  .shell { display:flex; max-width:1540px; margin:0 auto; }
+  .sidebar { width:var(--sidebar-w); flex-shrink:0; position:sticky; top:0; align-self:flex-start; height:100vh; overflow-y:auto; padding:28px 20px 40px 28px; border-right:1px solid var(--border); }
+  .sidebar .brand { display:flex; align-items:center; gap:10px; margin-bottom:22px; }
+  .sidebar .brand svg { width:28px; height:28px; min-width:0; flex-shrink:0; }
+  .sidebar .brand span { font-family:'Sora',sans-serif; font-weight:700; font-size:17px; letter-spacing:-.02em; }
+  .sidebar .doclabel { font-size:11px; line-height:1.45; text-transform:uppercase; letter-spacing:.08em; color:var(--slate-500); font-weight:600; margin:0 0 18px; padding-bottom:14px; border-bottom:1px solid var(--border); }
+  .toc { list-style:none; margin:0; padding:0; font-size:13.5px; }
+  .toc > li { margin:0 0 2px; }
+  .toc a { display:block; color:var(--slate-600); text-decoration:none; padding:6px 10px; border-radius:6px; font-weight:500; }
+  .toc a:hover { background:var(--slate-100); color:var(--navy); }
+  .toc .num { color:var(--teal-dark); font-weight:700; margin-right:6px; }
+  .toc-control { margin:2px 0 0; }
+  .sidebar-control { display:grid; grid-template-columns:minmax(0,1fr) 40px; align-items:center; gap:6px; min-height:44px; }
+  .sidebar-control > a { min-width:0; padding:6px 10px; border-radius:6px; color:var(--slate-600); font-size:13.5px; line-height:1.35; font-weight:500; text-decoration:none; }
+  .sidebar-control > a:hover { background:var(--slate-100); color:var(--navy); }
+  .sidebar-control .num { color:var(--teal-dark); font-weight:700; margin-right:6px; }
+  .visibility-toggle { width:40px; height:40px; display:grid; place-items:center; padding:0; border:1px solid transparent; border-radius:7px; background:transparent; color:var(--slate-500); cursor:pointer; }
+  .visibility-toggle:hover { background:var(--slate-100); color:var(--navy); }
+  .visibility-toggle svg { width:19px; height:19px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+  .visibility-toggle .eye-slash { display:none; }
+  .visibility-toggle[aria-pressed="false"] .eye-slash { display:block; }
+  #gapToggle[aria-pressed="true"] { color:var(--red); background:var(--red-bg); border-color:var(--red-bd); }
+  #equipToggle[aria-pressed="true"] { color:var(--amber); background:var(--amber-bg); border-color:var(--amber-bd); }
+  .sidebar-tools { margin-top:22px; padding-top:16px; border-top:1px solid var(--border); display:flex; flex-direction:column; gap:6px; }
+  .sidebar-tools button { padding:7px 10px; border:1px solid var(--border); border-radius:6px; background:#fff; color:var(--slate-600); font-size:13px; font-weight:600; text-align:left; cursor:pointer; }
+  .sidebar-tools button:hover { background:var(--slate-100); color:var(--navy); }
+
+  main { flex:1; min-width:0; padding:44px 48px 100px; }
+  .content { max-width:var(--maxw); }
+  .doc-header { border:0; padding:0; margin:0 0 8px; }
+  .doc-header h1 { font-family:'Sora',system-ui,sans-serif; font-size:34px; color:var(--navy); margin:14px 0 6px; letter-spacing:-.02em; }
+  .doc-header .tagline { font-size:16.5px; line-height:1.6; color:var(--slate-600); font-weight:400; margin:0 0 18px; max-width:900px; }
+  .meta-row { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:6px; }
+  .badge { display:inline-flex; align-items:center; gap:5px; font-size:12px; line-height:1.4; font-weight:600; padding:4px 10px; border-radius:999px; background:var(--slate-100); color:var(--slate-600); border:1px solid var(--border); }
+  .badge.navy { background:var(--navy); color:#fff; border-color:var(--navy); }
+  .badge.teal { background:#ecfeff; color:var(--teal-dark); border-color:#a5f3fc; }
+  .badge.amber { background:var(--amber-bg); color:var(--amber); border-color:var(--amber-bd); }
+  .badge.purple { background:var(--purple-bg); color:var(--purple); border-color:var(--purple-bd); }
+  .badge.red { background:var(--red-bg); color:var(--red); border-color:var(--red-bd); }
+  .badge.green { background:var(--green-bg); color:var(--green); border-color:var(--green-bd); }
+
+  hr.rule { border:0; border-top:1px solid var(--border); margin:36px 0; }
+  section { scroll-margin-top:20px; margin-bottom:52px; }
+  .kicker { font-size:12px; line-height:1.4; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:var(--teal-dark); margin:0 0 6px; }
+  section > h2 { font-size:26px; color:var(--navy); margin:0 0 14px; border:0; padding:0; }
+  section > h3,.gap-layer > h3,.equip-layer > h3 { font-size:19px; color:var(--navy); margin:30px 0 10px; }
+  .section-tools { display:flex; flex-wrap:wrap; gap:6px; margin:0 0 10px; }
+  .section-tools button { min-width:38px; padding:6px 11px; border:1px solid var(--border); border-radius:6px; color:var(--navy); background:#fff; font-size:13px; font-weight:600; cursor:pointer; }
+  .section-tools button:hover { background:var(--slate-100); }
+
+  .series-strip { font-size:13px; line-height:1.55; margin:0 0 30px; padding:9px 12px; }
+  .note,.warn { font-size:14px; line-height:1.55; }
+  .gaps,.patterns,.gains { font-size:14px; }
+  .caption { font-size:12.5px; line-height:1.5; margin:5px 0 14px; }
+  .data-table,.cost-table,.inventory { font-size:13px; }
+  .doc-control { font-size:12px; } .legend { font-size:12px; }
+  .figwrap { max-width:100%; overflow-x:auto; overscroll-behavior-inline:contain; }
+  .status-pill { display:inline-flex; align-items:center; gap:7px; margin:4px 0 0; padding:6px 12px; border-radius:999px; color:#fff; background:var(--green); font-size:13px; font-weight:700; }
+  .status-pill.fail { background:var(--red); }
+  footer.doc-footer { border-top:1px solid var(--border); margin-top:60px; padding-top:22px; font-size:12.5px; line-height:1.6; color:var(--slate-500); }
+
+  @media (max-width:980px) {
+    .shell { display:block; }
+    .sidebar { display:block; position:static; width:auto; height:auto; overflow:visible; padding:12px 20px; border-right:0; border-bottom:1px solid var(--border); background:#fff; }
+    .sidebar > .brand,.sidebar > .doclabel { display:none; }
+    .sidebar-nav { display:block; }
+    .sidebar-nav .toc { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+    .sidebar-nav .toc > li:not(.toc-control) { display:none; }
+    .toc-control { margin:0; }
+    .sidebar-control { border:1px solid var(--border); border-radius:8px; background:var(--slate-50); padding-left:2px; }
+    .sidebar-tools { flex-direction:row; margin-top:10px; padding-top:10px; }
+    main { padding:32px 20px 80px; }
+    .doc-header h1 { font-size:30px; }
+    .rack-grid { grid-template-columns:1fr; gap:38px; }
+    .rack-wrap { transform:scale(.82); transform-origin:top center; margin-bottom:calc(-.18 * 42 * var(--u)); }
+    table.data-table,table.cost-table,table.inventory { display:block; max-width:100%; overflow-x:auto; }
+  }
+  @media (max-width:560px) { .doc-header h1 { font-size:27px; } .sidebar-nav .toc { grid-template-columns:1fr; } .inspector { grid-template-columns:1fr; } }
+
+  /* -- print: drop the chrome, hand typography back to Layer 1, and
+        FORCE-REVEAL the hidden layers so the PDF is the complete document -- */
+  @media print {
+    body { background:#fff; font-size:9.5pt; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+    .sidebar { display:none !important; }
+    .shell { display:block; max-width:none; }
+    main { padding:0; } .content { max-width:none; }
+    .doc-header h1 { font-size:20pt; } .doc-header .tagline { font-size:10pt; }
+    section { margin-bottom:24px; break-inside:auto; }
+    .section-tools { display:none; }
+    .figwrap { overflow:visible; }
+    .diagram-scroll { overflow:visible; } #topology { min-width:0; width:100% !important; }
+    .rack-grid { grid-template-columns:repeat(2,1fr); gap:10px; }
+    .rack-wrap { transform:scale(.72); transform-origin:top center; margin-bottom:calc(-.28 * 42 * var(--u)); }
+    body:not(.show-gaps) .gap-layer { display:revert !important; }
+    body:not(.show-equip) .equip-layer { display:revert !important; }
+  }
+  </style>
+</head>
+<!-- BODY CLASS = default visibility of the two toggleable layers. Slot A is ON
+     by default; Slot B is OFF unless the equipment exhibit is the deliverable.
+     document.layers in the diagram data overrides both at load. -->
+<body class="show-gaps">
+<svg id="network-vector-symbols" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+<defs id="vector-symbol-library">
+            <filter id="card-shadow" x="-25%" y="-25%" width="150%" height="165%">
+              <feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#26485c" flood-opacity=".12"/>
+            </filter>
+
+            <!--
+              Shared switch-top glyph: four parallel arrows, alternating two
+              right and two left, as shown by the Cisco workgroup-switch and
+              WLAN-controller references. The rows are staggered to follow the
+              isometric top plane without crossing or touching.
+            -->
+            <g id="nd-switch-arrow-glyph" class="sym-detail">
+              <path data-direction="right" d="M63 14h28v-2.8l10 3.8-10 3.8V16H63Z"/>
+              <path data-direction="left" d="M75 18.8H45V16l-10 3.8 10 3.8v-2.8h30Z"/>
+              <path data-direction="right" d="M49 23.3h30v-2.8l10 3.8-10 3.8v-2.8H49Z"/>
+              <path data-direction="left" d="M61 27.5H32v-2.8l-10 3.8 10 3.8v-2.8h29Z"/>
+            </g>
+
+            <!-- Seven symbols carried forward from experiment 01. -->
+            <symbol id="nd-cloud" viewBox="0 0 150 88">
+              <title>Network cloud</title>
+              <path class="sym-outline" stroke-width="2.4" d="M26 72C14 72 6 64 6 54c0-9 6-17 16-20 3-13 15-22 30-22 8 0 15 2 21 7 6-5 14-7 23-7 15 0 27 8 30 20 10 2 17 10 17 20 0 11-9 20-22 20H26Z"/>
+            </symbol>
+
+            <symbol id="nd-firewall" viewBox="0 0 86 108">
+              <title>Firewall</title>
+              <polygon class="sym-light" points="15,22 29,10 74,10 60,22"/>
+              <polygon class="sym-dark" points="60,22 74,10 74,82 60,94"/>
+              <rect class="sym-primary" x="15" y="22" width="45" height="72"/>
+              <g class="sym-detail-stroke" stroke-width="2">
+                <path d="M15 40H60M15 58H60M15 76H60"/>
+                <path d="M29 22V40M47 22V40M23 40V58M41 40V58M29 58V76M47 58V76M23 76V94M41 76V94"/>
+                <path d="M60 40 74 28M60 58 74 46M60 76 74 64"/>
+              </g>
+            </symbol>
+
+            <symbol id="nd-router" viewBox="0 0 120 88">
+              <title>Router</title>
+              <path class="sym-dark" d="M12 36v22c0 12 21 21 48 21s48-9 48-21V36c-8 9-26 15-48 15S20 45 12 36Z"/>
+              <ellipse class="sym-primary" cx="60" cy="35" rx="48" ry="20"/>
+              <path class="sym-light" d="M18 30c7-8 23-13 42-13 21 0 38 6 44 15-10-6-25-9-42-9-19 0-35 3-44 7Z" opacity=".75"/>
+              <g class="sym-detail"><path d="M60 18 70 27h-7v10h-7V27h-7Z"/><path d="m60 52-10-9h7V33h7v10h7Z"/><path d="m32 35 10-9v6h13v6H42v6Z"/><path d="m88 35-10 9v-6H65v-6h13v-6Z"/></g>
+            </symbol>
+
+            <symbol id="nd-l3-switch" viewBox="0 0 106 106">
+              <title>Layer 3 switch</title>
+              <polygon class="sym-light" points="14,26 28,14 91,14 77,26"/>
+              <polygon class="sym-dark" points="77,26 91,14 91,78 77,92"/>
+              <rect class="sym-primary" x="14" y="26" width="63" height="66"/>
+              <circle class="sym-detail" cx="45.5" cy="59" r="9"/>
+              <g class="sym-detail" transform="translate(45.5 59)">
+                <path id="l3-arrow" d="M-3-12v-13h-5l8-9 8 9H3v13Z"/>
+                <use href="#l3-arrow" transform="rotate(45)"/><use href="#l3-arrow" transform="rotate(90)"/><use href="#l3-arrow" transform="rotate(135)"/><use href="#l3-arrow" transform="rotate(180)"/><use href="#l3-arrow" transform="rotate(225)"/><use href="#l3-arrow" transform="rotate(270)"/><use href="#l3-arrow" transform="rotate(315)"/>
+              </g>
+            </symbol>
+
+            <symbol id="nd-server" viewBox="0 0 92 108">
+              <title>Server</title>
+              <polygon class="sym-light" points="14,20 27,9 75,9 62,20"/>
+              <polygon class="sym-dark" points="62,20 75,9 75,88 62,99"/>
+              <rect class="sym-primary" x="14" y="20" width="48" height="79"/>
+              <g class="sym-detail-stroke" stroke-width="2"><rect x="20" y="29" width="14" height="12" rx="1"/><rect x="41" y="29" width="14" height="12" rx="1"/><rect x="20" y="50" width="14" height="14" rx="1"/><rect x="41" y="50" width="14" height="14" rx="1"/><rect x="20" y="73" width="14" height="17" rx="1"/><rect x="41" y="73" width="14" height="17" rx="1"/></g>
+            </symbol>
+
+            <symbol id="nd-access-point" viewBox="0 0 120 76">
+              <title>Wireless access point</title>
+              <polygon class="sym-light" points="12,28 30,13 108,13 90,28"/><polygon class="sym-dark" points="90,28 108,13 108,51 90,66"/><polygon class="sym-primary" points="12,28 90,28 90,66 12,66"/>
+              <g class="sym-detail-stroke" stroke-width="2.6"><circle cx="27" cy="47" r="7"/><circle cx="42" cy="47" r="7"/><circle cx="57" cy="47" r="7"/><circle cx="72" cy="47" r="7"/></g><circle class="sym-detail" cx="82" cy="47" r="2.6"/>
+            </symbol>
+
+            <symbol id="nd-workstation" viewBox="0 0 126 104">
+              <title>Workstation</title>
+              <polygon class="sym-dark" points="25,12 92,12 84,62 18,62"/><polygon class="sym-primary" points="29,16 88,16 81,57 22,57"/><polygon class="sym-light" points="33,20 83,20 78,52 27,52" opacity=".38"/>
+              <path class="sym-primary" d="M45 62h15l3 10h16l7 7H31l8-7h8Z"/><polygon class="sym-dark" points="24,80 89,80 105,94 9,94"/><polygon class="sym-light" points="28,83 86,83 96,91 18,91"/><path class="sym-primary" d="M104 78c10 0 15 5 15 10s-4 9-10 9c-5 0-8-3-8-7 0-3 2-6 6-7-3-1-6-1-9 0l-2-3c3-1 5-2 8-2Z"/>
+            </symbol>
+
+            <!-- Twelve new clean-vector interpretations for experiment 02. -->
+            <symbol id="nd-access-switch" viewBox="0 0 120 72">
+              <title>Access switch</title>
+              <polygon class="sym-light" points="10,33 34,11 110,11 86,33"/><polygon class="sym-dark" points="86,33 110,11 110,37 86,59"/><polygon class="sym-primary" points="10,33 86,33 86,59 10,59"/>
+              <use href="#nd-switch-arrow-glyph"/>
+            </symbol>
+
+            <symbol id="nd-wlan-controller" viewBox="0 0 120 76">
+              <title>Wireless LAN controller</title>
+              <polygon class="sym-light" points="10,33 34,11 110,11 86,33"/><polygon class="sym-dark" points="86,33 110,11 110,43 86,65"/><polygon class="sym-primary" points="10,33 86,33 86,65 10,65"/>
+              <use href="#nd-switch-arrow-glyph"/>
+              <g class="sym-detail-stroke" stroke-width="2.2"><circle cx="21" cy="49" r="6.5"/><circle cx="34.5" cy="49" r="6.5"/><circle cx="48" cy="49" r="6.5"/><circle cx="61.5" cy="49" r="6.5"/><circle cx="75" cy="49" r="6.5"/></g>
+            </symbol>
+
+            <symbol id="nd-vpn-headend" viewBox="0 0 100 106">
+              <title>VPN headend</title>
+              <polygon class="sym-light" points="14,20 27,9 82,9 69,20"/><polygon class="sym-dark" points="69,20 82,9 82,91 69,102"/><rect class="sym-primary" x="14" y="20" width="55" height="82" rx="2"/>
+              <g class="sym-detail-stroke" stroke-width="2"><rect x="20" y="31" width="42" height="22" rx="2"/><rect x="20" y="65" width="42" height="22" rx="2"/></g>
+              <g class="sym-detail"><path d="M26 38h22v-5l10 9-10 9v-5H26Z"/><path d="M56 72H34v-5l-10 9 10 9v-5h22Z"/></g>
+              <g class="sym-detail-stroke" stroke-width="1.8"><ellipse cx="75.5" cy="43" rx="3" ry="7"/><ellipse cx="75.5" cy="77" rx="3" ry="7"/></g>
+            </symbol>
+
+            <symbol id="nd-dc-switch" viewBox="0 0 104 104">
+              <title>Data-center server-access switch</title>
+              <polygon class="sym-light" points="13,26 28,12 91,12 76,26"/><polygon class="sym-dark" points="76,26 91,12 91,77 76,91"/><rect class="sym-primary" x="13" y="26" width="63" height="65"/>
+              <g class="sym-detail-stroke" stroke-width="1.8"><path d="M28 42H61M28 58H61M28 74H61M28 42V74M44.5 42V74M61 42V74"/></g>
+              <g class="sym-detail"><circle cx="28" cy="42" r="4"/><circle cx="44.5" cy="42" r="4"/><circle cx="61" cy="42" r="4"/><circle cx="28" cy="58" r="4"/><circle cx="44.5" cy="58" r="4"/><circle cx="61" cy="58" r="4"/><circle cx="28" cy="74" r="4"/><circle cx="44.5" cy="74" r="4"/><circle cx="61" cy="74" r="4"/></g>
+            </symbol>
+
+            <symbol id="nd-ip-phone" viewBox="0 0 126 88">
+              <title>IP phone</title>
+              <polygon class="sym-primary" points="21,38 101,38 116,70 8,70"/><polygon class="sym-light" points="31,25 92,25 101,38 21,38"/><polygon class="sym-dark" points="101,38 116,70 106,80 99,53"/>
+              <polygon class="sym-detail" points="66,42 94,42 99,53 69,53"/><polygon class="sym-light" points="69,44 91,44 94,50 71,50"/>
+              <g class="sym-detail"><circle cx="45" cy="49" r="2.2"/><circle cx="52" cy="49" r="2.2"/><circle cx="59" cy="49" r="2.2"/><circle cx="45" cy="56" r="2.2"/><circle cx="52" cy="56" r="2.2"/><circle cx="59" cy="56" r="2.2"/><circle cx="45" cy="63" r="2.2"/><circle cx="52" cy="63" r="2.2"/><circle cx="59" cy="63" r="2.2"/></g>
+              <path class="sym-primary" d="M20 19c6-7 14-11 23-11l11 8-10 14-10-5c-3 4-5 8-6 13l-13-2c0-7 2-12 5-17Z"/><path class="sym-detail-stroke" stroke-width="2" d="m22 22 12 5M39 12l8 8"/>
+            </symbol>
+
+            <symbol id="nd-laptop" viewBox="0 0 126 96">
+              <title>Laptop</title>
+              <polygon class="sym-dark" points="31,10 104,10 91,62 19,62"/><polygon class="sym-primary" points="34,14 99,14 88,57 24,57"/><polygon class="sym-light" points="39,19 94,19 85,52 30,52" opacity=".4"/>
+              <polygon class="sym-primary" points="19,63 91,63 117,87 5,87"/><polygon class="sym-light" points="24,66 87,66 105,82 13,82"/>
+              <g class="sym-detail-stroke" stroke-width="1.2" opacity=".9"><path d="M31 69h53M25 73h66M19 77h80"/></g>
+            </symbol>
+
+            <symbol id="nd-printer" viewBox="0 0 126 82">
+              <title>Printer</title>
+              <polygon class="sym-light" points="12,24 28,10 96,10 80,24"/><polygon class="sym-dark" points="80,24 96,10 96,61 80,75"/><rect class="sym-primary" x="12" y="24" width="68" height="51"/>
+              <path class="sym-detail-stroke" stroke-width="2" d="M18 48H74"/><polygon class="sym-primary" points="96,43 120,35 111,49 96,56"/><polygon class="sym-light" points="98,42 116,36 108,43 98,48"/>
+            </symbol>
+
+            <symbol id="nd-database" viewBox="0 0 110 90">
+              <title>Relational database</title>
+              <path class="sym-dark" d="M13 30v33c0 12 19 21 42 21s42-9 42-21V30c-8 9-23 14-42 14S21 39 13 30Z"/><rect class="sym-primary" x="13" y="27" width="84" height="36"/><ellipse class="sym-primary" cx="55" cy="28" rx="42" ry="18"/><ellipse class="sym-light" cx="55" cy="25" rx="35" ry="11" opacity=".25"/>
+            </symbol>
+
+            <symbol id="nd-storage-array" viewBox="0 0 126 98">
+              <title>Storage array</title>
+              <polygon class="sym-light" points="10,26 27,10 113,10 96,26"/><polygon class="sym-dark" points="96,26 113,10 113,76 96,92"/><rect class="sym-primary" x="10" y="26" width="86" height="66"/>
+              <g class="sym-detail-stroke" stroke-width="2"><ellipse cx="29" cy="49" rx="10" ry="5"/><path d="M19 49v21c0 3 4 5 10 5s10-2 10-5V49"/><ellipse cx="54" cy="49" rx="10" ry="5"/><path d="M44 49v21c0 3 4 5 10 5s10-2 10-5V49"/><ellipse cx="79" cy="49" rx="10" ry="5"/><path d="M69 49v21c0 3 4 5 10 5s10-2 10-5V49"/></g>
+            </symbol>
+
+            <symbol id="nd-nms" viewBox="0 0 108 106">
+              <title>Network management system</title>
+              <polygon class="sym-light" points="13,25 28,11 94,11 79,25"/><polygon class="sym-dark" points="79,25 94,11 94,78 79,92"/><rect class="sym-primary" x="13" y="25" width="66" height="67"/>
+              <rect class="sym-detail-stroke" stroke-width="2" x="27" y="37" width="38" height="33" rx="2"/><circle class="sym-detail-stroke" stroke-width="4" cx="48" cy="52" r="11"/><path class="sym-detail-stroke" stroke-width="5" d="m40 61-16 17"/>
+            </symbol>
+
+            <symbol id="nd-branch-office" viewBox="0 0 90 114">
+              <title>Branch office</title>
+              <polygon class="sym-light" points="14,23 28,10 76,10 62,23"/><polygon class="sym-dark" points="62,23 76,10 76,96 62,108"/><rect class="sym-primary" x="14" y="23" width="48" height="85"/>
+              <g class="sym-detail"><rect x="20" y="31" width="5" height="8"/><rect x="31" y="31" width="5" height="8"/><rect x="42" y="31" width="5" height="8"/><rect x="53" y="31" width="5" height="8"/><rect x="20" y="47" width="5" height="8"/><rect x="31" y="47" width="5" height="8"/><rect x="42" y="47" width="5" height="8"/><rect x="53" y="47" width="5" height="8"/><rect x="20" y="63" width="5" height="8"/><rect x="31" y="63" width="5" height="8"/><rect x="42" y="63" width="5" height="8"/><rect x="53" y="63" width="5" height="8"/><rect x="20" y="79" width="5" height="8"/><rect x="31" y="79" width="5" height="8"/><rect x="42" y="79" width="5" height="8"/><rect x="53" y="79" width="5" height="8"/></g>
+            </symbol>
+
+            <symbol id="nd-wireless-router" viewBox="0 0 120 110">
+              <title>Wireless router</title>
+              <g class="sym-detail-stroke" stroke="var(--symbol-main, #0076a8)" stroke-width="4"><path d="M26 28V5M94 28V5"/></g><g class="sym-primary"><rect x="22" y="3" width="8" height="5"/><rect x="90" y="3" width="8" height="5"/></g>
+              <path class="sym-dark" d="M12 54v22c0 12 21 21 48 21s48-9 48-21V54c-8 9-26 15-48 15S20 63 12 54Z"/><ellipse class="sym-primary" cx="60" cy="53" rx="48" ry="20"/>
+              <g class="sym-detail"><path d="M60 36 70 45h-7v10h-7V45h-7Z"/><path d="m60 70-10-9h7V51h7v10h7Z"/><path d="m32 53 10-9v6h13v6H42v6Z"/><path d="m88 53-10 9v-6H65v-6h13v-6Z"/></g>
+            </symbol>
+          </defs>
+</svg>
+<div class="shell">
+
+  <!-- ================= SIDEBAR =================
+       BRAND IS REPLACEABLE. The mark, the wordmark and the document label all
+       come from document.brand in the diagram data. Swap in your own company
+       logo by replacing brand.logoPath (SVG path data) and brand.name — no code
+       change, and nothing else in the document depends on it. -->
+  <aside class="sidebar" aria-label="Document sidebar">
+    <div class="brand">
+      <svg id="brand-mark" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><path id="brand-path" fill-rule="evenodd" fill="#0F172A" d=""></path></svg>
+      <span id="brand-name"></span>
+    </div>
+    <p class="doclabel" id="brand-doclabel"></p>
+
+    <nav class="sidebar-nav" aria-label="Document sections">
+      <ul class="toc">
+        <!-- SECTIONS 0-5 ARE THE FIXED SPINE. Same ids, same order, every document. -->
+        <li><a href="#overview"><span class="num">0</span>Overview</a></li>
+        <li><a href="#logical-topology"><span class="num">1</span>Logical topology</a></li>
+        <li><a href="#identity-addressing"><span class="num">2</span>Identity &amp; addressing</a></li>
+        <li><a href="#physical-view"><span class="num">3</span>Physical view</a></li>
+        <li><a href="#change-management"><span class="num">4</span>Change management</a></li>
+        <li><a href="#operations-observability"><span class="num">5</span>Operations &amp; observability</a></li>
+
+        <!-- Section 6 is ALWAYS the Slot-A candour layer, always a toc-control. -->
+        <li class="toc-control">
+          <div class="sidebar-control">
+            <a id="gapLink" href="#gaps"><span class="num">6</span><span id="gap-label">Gaps &amp; open items</span></a>
+            <button class="visibility-toggle" id="gapToggle" type="button" aria-labelledby="gapLink" aria-controls="gaps" aria-pressed="true" title="Hide gaps and open items">
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path d="M2.3 12s3.4-5.5 9.7-5.5 9.7 5.5 9.7 5.5-3.4 5.5-9.7 5.5S2.3 12 2.3 12Z"/>
+                <circle cx="12" cy="12" r="3"/>
+                <path class="eye-slash" d="M4 4l16 16"/>
+              </svg>
+            </button>
+          </div>
+        </li>
+
+        <!-- Slot B is ALWAYS last and ALWAYS lettered A (appendix), never numbered. -->
+        <li class="toc-control">
+          <div class="sidebar-control">
+            <a id="equipmentExhibitLink" href="#equipment-exhibit"><span class="num">A</span>Equipment exhibit</a>
+            <button class="visibility-toggle" id="equipToggle" type="button" aria-labelledby="equipmentExhibitLink" aria-controls="equipment-exhibit" aria-pressed="false" title="Show equipment exhibit">
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path d="M2.3 12s3.4-5.5 9.7-5.5 9.7 5.5 9.7 5.5-3.4 5.5-9.7 5.5S2.3 12 2.3 12Z"/>
+                <circle cx="12" cy="12" r="3"/>
+                <path class="eye-slash" d="M4 4l16 16"/>
+              </svg>
+            </button>
+          </div>
+        </li>
+      </ul>
+
+      <div class="sidebar-tools">
+        <button type="button" onclick="window.print()">Print / Save PDF</button>
+        <button type="button" id="export-editable" hidden>Export editable source</button>
+      </div>
+    </nav>
+  </aside>
+
+  <!-- ================= MAIN ================= -->
+  <main>
+    <div class="content">
+
+      <!-- DOC HEADER — exactly four badges, in this order, always. -->
+      <header class="doc-header">
+        <div class="meta-row">
+          <span class="badge navy">Network &amp; Security</span>
+          <span class="badge teal" id="badge-subject"></span>
+          <span class="badge" id="badge-version"></span>
+          <span class="badge" id="badge-evidence"></span>
+        </div>
+        <h1 id="page-title"></h1>
+        <p class="tagline" id="page-subtitle"></p>
+      </header>
+
+      <div class="series-strip" id="series-strip" hidden></div>
+
+      <!-- ============ SECTION 0 — what this document is ============ -->
+      <section id="overview">
+        <p class="kicker">Section 0</p>
+        <h2 id="overview-heading">What this document is</h2>
+        <div class="note"><ul class="notes" id="overview-notes"></ul></div>
+        <div class="warn"><ul class="notes" id="overview-provenance"></ul></div>
+        <table class="doc-control">
+          <tbody>
+            <tr><th>Drawing</th><td id="meta-drawing"></td><th>Revision</th><td id="meta-revision"></td></tr>
+            <tr><th>Status</th><td id="meta-status"></td><th>As of</th><td id="meta-date"></td></tr>
+          </tbody>
+        </table>
+        <div class="status-pill" id="proof-status">Running data checks&hellip;</div>
+      </section>
+
+      <hr class="rule">
+
+      <!-- ============ SECTION 1 — logical topology ============ -->
+      <section id="logical-topology">
+        <p class="kicker">Section 1</p>
+        <h2 id="logical-heading">Logical topology</h2>
+        <div class="note"><ul class="notes" id="logical-notes"></ul></div>
+        <div class="section-tools" aria-label="Topology zoom">
+          <button type="button" data-zoom="out">&minus;</button>
+          <button type="button" data-zoom="fit">Fit</button>
+          <button type="button" data-zoom="in">+</button>
+        </div>
+        <div class="figwrap">
+          <div class="diagram-scroll"><svg id="topology" role="img" aria-labelledby="svg-title svg-desc"></svg></div>
+        </div>
+        <p class="caption" id="topology-caption"></p>
+        <p class="legend" id="topology-legend"></p>
+        <div class="errors" id="topology-errors" role="alert"></div>
+        <section class="inspector" id="topology-inspector" aria-live="polite">
+          <h3>Select a topology device</h3>
+          <span class="label">Proof</span>
+          <span>Nodes, links, labels and metadata are rendered from the diagram data block.</span>
+        </section>
+      </section>
+
+      <hr class="rule">
+
+      <!-- ============ SECTION 2 — identity &amp; addressing ============ -->
+      <section id="identity-addressing">
+        <p class="kicker">Section 2</p>
+        <h2 id="identity-heading">Identity &amp; addressing</h2>
+        <div class="note"><ul class="notes" id="identity-notes"></ul></div>
+        <table class="data-table" id="identity-table">
+          <thead><tr id="identity-head"></tr></thead>
+          <tbody id="identity-body"></tbody>
+        </table>
+      </section>
+
+      <hr class="rule">
+
+      <!-- ============ SECTION 3 — physical view ============ -->
+      <section id="physical-view">
+        <p class="kicker">Section 3</p>
+        <h2 id="rack-heading">Physical view</h2>
+        <div class="note"><ul class="notes" id="physical-notes"></ul></div>
+        <div class="section-tools">
+          <button type="button" id="rack-compact">Compact</button>
+          <button type="button" id="rack-full">Full size</button>
+        </div>
+        <div class="figwrap">
+          <div class="rack-grid">
+            <figure class="rack-figure"><figcaption id="rack-front-caption">Front elevation</figcaption><div class="rack-wrap" id="rack-front-wrap"><div class="ruler left"></div><div class="rack-bay" id="rack-front" role="img" aria-label="Front rack elevation"></div><div class="ruler right"></div></div></figure>
+            <figure class="rack-figure"><figcaption id="rack-rear-caption">Rear elevation</figcaption><div class="rack-wrap" id="rack-rear-wrap"><div class="ruler left"></div><div class="rack-bay" id="rack-rear" role="img" aria-label="Rear rack elevation"></div><div class="ruler right"></div></div></figure>
+          </div>
+        </div>
+        <p class="caption" id="rack-caption"></p>
+        <p class="legend" id="rack-legend"></p>
+        <div class="errors" id="rack-errors" role="alert"></div>
+        <section class="inspector rack-inspector" id="rack-inspector" aria-live="polite">
+          <h3>Select rack equipment</h3>
+          <span class="label">Proof</span>
+          <span>Click either face or a schedule row; front and rear instances share one device record.</span>
+        </section>
+        <table class="inventory">
+          <caption>Installed equipment schedule</caption>
+          <thead><tr><th>Rack position</th><th>Device ID</th><th>Manufacturer / model</th><th>Role</th><th>Face</th></tr></thead>
+          <tbody id="inventory-body"></tbody>
+        </table>
+      </section>
+
+      <hr class="rule">
+
+      <!-- ============ SECTION 4 — change management ============ -->
+      <section id="change-management">
+        <p class="kicker">Section 4</p>
+        <h2 id="change-heading">Change management</h2>
+        <div class="note"><ul class="notes" id="change-notes"></ul></div>
+      </section>
+
+      <hr class="rule">
+
+      <!-- ============ SECTION 5 — operations &amp; observability ============ -->
+      <section id="operations-observability">
+        <p class="kicker">Section 5</p>
+        <h2 id="operations-heading">Operations &amp; observability</h2>
+        <div class="note"><ul class="notes" id="operations-notes"></ul></div>
+      </section>
+
+      <hr class="rule">
+
+      <!-- ============ SECTION 6 — SLOT A: the toggleable candour layer ============
+           The whole point is that the document can be shown with its own
+           weaknesses visible or hidden. Print force-reveals it regardless. -->
+      <section id="gaps" class="gap-layer">
+        <p class="kicker">Section 6</p>
+        <h2 id="findings-heading">Gaps and open items</h2>
+        <ul class="gaps" id="findings-list"></ul>
+      </section>
+
+      <hr class="rule">
+
+      <!-- ============ APPENDIX A — SLOT B: equipment exhibit ============
+           Always last, always id="equipment-exhibit", always class="equip-layer". -->
+      <section id="equipment-exhibit" class="equip-layer">
+        <p class="kicker">Appendix A</p>
+        <h2>Equipment exhibit</h2>
+        <div class="equip-grid" id="equipment-grid"></div>
+        <table class="cost-table" id="cost-table" hidden>
+          <thead><tr><th>Role</th><th>Model</th><th>Qty</th><th class="money">Unit</th><th class="money">Extended</th></tr></thead>
+          <tbody id="cost-body"></tbody>
+          <tfoot><tr><td colspan="4">Total &mdash; planning prices, not quotes</td><td class="money" id="cost-total"></td></tr></tfoot>
+        </table>
+      </section>
+
+      <!-- ================= FOOTER =================
+           Fixed grammar, middot-separated, in order: author, original date,
+           edition, version + what changed + date, where the working detail
+           lives, EPISTEMIC CAVEAT, REDACTION STATEMENT. The last two are
+           mandatory. Never ship without them. -->
+      <footer class="doc-footer">
+        <p id="doc-footer"></p>
+        <p>Topology symbols are experimental interpretations informed by Cisco reference silhouettes, not official Cisco-distributed SVG files. Optional official artwork: <a href="https://www.cisco.com/c/en/us/about/brand-center/network-topology-icons.html">Cisco Network Topology Icons</a>. This document is independent and is not affiliated with or endorsed by Cisco.</p>
+      </footer>
+
+    </div>
+  </main>
+</div>
+
+<!--
+AI EDITING CONTRACT
+Edit only the JSON between PROOF-DATA:BEGIN and PROOF-DATA:END.
+Topology node ids and rack device ids are intentionally shared.
+Do not rewrite the renderers, inline vector library, or stable official-asset mappings.
+-->
+
+<!-- PROOF-DATA:BEGIN -->
+<script id="proof-data" type="application/json">
+{
+  "document": {
+    "title": "Industrial Control Network — Purdue Levels & IDMZ",
+    "subtitle": "A plant network drawn by level rather than by tier: an industrial DMZ that brokers every crossing, redundant site operations, two cell/area rings, and a safety system deliberately connected to nothing.",
+    "drawing": "NET-OT-001",
+    "revision": "v1.0",
+    "status": "Reference design · proposed",
+    "date": "2026-08-14",
+    "docClass": "Industrial control network",
+    "subject": "Purdue model & IDMZ",
+    "evidence": { "text": "Reference pattern · no measured data", "color": "teal" },
+    "brand": {
+      "name": "cloudbats",
+      "label": "Systems · Network Design — Starter kit",
+      "logoViewBox": "0 0 512 512",
+      "logoFill": "#0F172A",
+      "logoPath": "M112 72 H400 V352 Q400 400 376 424 Q356 440 336 424 Q316 400 296 400 H216 Q196 400 176 424 Q156 440 136 424 Q112 400 112 352 Z M312 136 A40 40 0 0 1 352 176 V304 A40 40 0 0 1 312 344 A40 40 0 0 1 272 304 V176 A40 40 0 0 1 312 136 Z"
+    },
+    "layers": { "findings": true, "equipment": false },
+    "footer": {
+      "author": "Prepared by the design owner",
+      "originalDate": "2026-08-14",
+      "edition": "Starter kit edition",
+      "changed": "published as the industrial control starter kit",
+      "detail": "the working detail belongs in the companion cell/area panel schedules, the safety system design and the approved plant asset register",
+      "caveat": "Every name, address, model, protocol and rack position here is a teaching assumption to validate, not a recorded fact",
+      "redaction": "No real plant, vendor, controller, tag or person appears; addressing is RFC 1918 private space only"
+    }
+  },
+  "topology": {
+    "canvas": { "width": 1280, "height": 980 },
+    "zones": [
+      { "id": "enterprise", "label": "LEVEL 4/5 · ENTERPRISE — OUT OF SCOPE", "kind": "external", "x": 25, "y": 25, "width": 1230, "height": 120 },
+      { "id": "idmz", "label": "LEVEL 3.5 · INDUSTRIAL DMZ — EVERY CROSSING IS BROKERED", "kind": "perimeter", "x": 25, "y": 165, "width": 1230, "height": 205 },
+      { "id": "operations", "label": "LEVEL 3 · SITE OPERATIONS", "kind": "internal", "x": 25, "y": 390, "width": 1230, "height": 230 },
+      { "id": "cells", "label": "LEVEL 2/1 · CELL / AREA ZONES — RING TOPOLOGY", "kind": "other", "x": 25, "y": 640, "width": 1230, "height": 175 },
+      { "id": "process", "label": "LEVEL 1/0 · CONTROLLERS, FIELD & SAFETY", "kind": "other", "x": 25, "y": 835, "width": 1230, "height": 120 }
+    ],
+    "nodes": [
+      { "id": "ent-core", "label": "Enterprise network", "role": "Level 4/5 · business systems", "icon": "cloud", "x": 640, "y": 88,
+        "address": "Out of scope for this document",
+        "notes": "Drawn only to show where the plant boundary is. Nothing above Level 3.5 is designed here. A line can be traced from here to a controller through the broker; what must be prevented is a session traversing both firewalls, and that is a rule, not a shape." },
+
+      { "id": "idmz-fw-02", "label": "idmz-fw-02", "role": "IDMZ · enterprise-facing", "icon": "firewall", "x": 400, "y": 235,
+        "address": "10.40.35.2/29 · enterprise side",
+        "notes": "Terminates enterprise traffic at the DMZ. Nothing is permitted to traverse both firewalls in a single session. Rack U18." },
+      { "id": "idmz-srv-01", "label": "idmz-srv-01", "role": "Broker · replica historian, patch & AV staging", "icon": "server", "x": 640, "y": 305,
+        "address": "10.40.35.10/29",
+        "notes": "The only object either side may talk to. Enterprise reads the replica; the plant pushes to it. Rack U15–U16." },
+      { "id": "idmz-fw-01", "label": "idmz-fw-01", "role": "IDMZ · plant-facing", "icon": "firewall", "x": 880, "y": 235,
+        "address": "10.40.35.9/29 · plant side",
+        "notes": "Terminates plant traffic at the DMZ. Rack U19." },
+
+      { "id": "ops-sw-01", "label": "ops-sw-01", "role": "Site operations core · active", "icon": "core-switch", "x": 420, "y": 455,
+        "address": "10.40.10.1/24 · gateway",
+        "notes": "First-hop gateway for Level 3. Rack U22." },
+      { "id": "ops-sw-02", "label": "ops-sw-02", "role": "Site operations core · standby", "icon": "core-switch", "x": 860, "y": 455,
+        "address": "10.40.10.2/24",
+        "notes": "Peer of ops-sw-01. Rack U21." },
+      { "id": "scada-01", "label": "scada-01", "role": "SCADA / HMI server", "icon": "server", "x": 180, "y": 570,
+        "address": "10.40.10.20/24",
+        "notes": "Supervisory control and operator displays. Rack U12–U13." },
+      { "id": "hist-01", "label": "hist-01", "role": "Process historian", "icon": "database", "x": 420, "y": 570,
+        "address": "10.40.10.21/24",
+        "notes": "Master historian. Replicates one way into the DMZ replica. Rack U9–U10." },
+      { "id": "eng-ws-01", "label": "eng-ws-01", "role": "Engineering workstation", "icon": "workstation", "x": 860, "y": 570,
+        "address": "10.40.10.30/24",
+        "notes": "Controller programming and configuration. Single-homed on purpose: it is not an operational dependency." },
+      { "id": "ot-nms-01", "label": "ot-nms-01", "role": "OT monitoring & asset inventory", "icon": "network-management", "x": 1100, "y": 570,
+        "address": "10.40.10.40/24",
+        "notes": "Passive monitoring and asset discovery only. Rack U7." },
+
+      { "id": "cell-a-sw-01", "label": "cell-a-sw-01", "role": "Cell A ring member", "icon": "access-switch", "x": 240, "y": 705,
+        "address": "10.40.21.2/24 · VLAN 21",
+        "notes": "Field panel A1, not the operations cabinet. Ring member." },
+      { "id": "cell-a-sw-02", "label": "cell-a-sw-02", "role": "Cell A ring member", "icon": "access-switch", "x": 480, "y": 705,
+        "address": "10.40.21.3/24 · VLAN 21",
+        "notes": "Field panel A2. Closes the Cell A ring with cell-a-sw-01." },
+      { "id": "cell-b-sw-01", "label": "cell-b-sw-01", "role": "Cell B ring member", "icon": "access-switch", "x": 760, "y": 705,
+        "address": "10.40.22.2/24 · VLAN 22",
+        "notes": "Field panel B1. Ring member." },
+      { "id": "cell-b-sw-02", "label": "cell-b-sw-02", "role": "Cell B ring member", "icon": "access-switch", "x": 1000, "y": 705,
+        "address": "10.40.22.3/24 · VLAN 22",
+        "notes": "Field panel B2. Closes the Cell B ring with cell-b-sw-01." },
+
+      { "id": "wap-ot-01", "label": "wap-ot-01", "role": "Ruggedised wireless · maintenance only", "icon": "access-point", "x": 130, "y": 895,
+        "address": "10.40.21.50/24",
+        "notes": "Handheld maintenance access. Carries no control traffic and is not a ring member." },
+      { "id": "plc-a-01", "label": "plc-a-01", "role": "Cell A controller", "icon": "server", "x": 360, "y": 895,
+        "address": "10.40.21.10/24",
+        "notes": "Dual-homed into both Cell A ring members. Drawn with a general-purpose symbol — the shared library has no controller glyph." },
+      { "id": "plc-b-01", "label": "plc-b-01", "role": "Cell B controller", "icon": "server", "x": 880, "y": 895,
+        "address": "10.40.22.10/24",
+        "notes": "Dual-homed into both Cell B ring members. Drawn with a general-purpose symbol — the shared library has no controller glyph." },
+      { "id": "sis-01", "label": "sis-01", "role": "Safety instrumented system", "icon": "server", "x": 1130, "y": 895,
+        "address": "No network address — hardwired",
+        "notes": "Deliberately connected to nothing on this sheet. The safety system is independent of the control network by design; drawing a link to it would be the error, not the omission." }
+    ],
+    "links": [
+      { "from": "ent-core", "to": "idmz-fw-02", "kind": "l3", "label": "Plant boundary", "labelX": 520, "labelY": 168 },
+      { "from": "idmz-fw-02", "to": "idmz-srv-01", "kind": "l3" },
+      { "from": "idmz-srv-01", "to": "idmz-fw-01", "kind": "l3", "label": "Brokered · no end-to-end session", "labelX": 790, "labelY": 305 },
+      { "from": "idmz-fw-01", "to": "ops-sw-01", "kind": "aggregate", "via": [[880, 340], [420, 340]] },
+      { "from": "idmz-fw-01", "to": "ops-sw-02", "kind": "aggregate" },
+      { "from": "ops-sw-01", "to": "ops-sw-02", "kind": "ha", "label": "Operations core peer link", "labelX": 640, "labelY": 455 },
+      { "from": "ops-sw-01", "to": "scada-01", "kind": "access" },
+      { "from": "ops-sw-02", "to": "scada-01", "kind": "access" },
+      { "from": "ops-sw-01", "to": "hist-01", "kind": "access" },
+      { "from": "ops-sw-02", "to": "hist-01", "kind": "access" },
+      { "from": "ops-sw-01", "to": "eng-ws-01", "kind": "access" },
+      { "from": "ops-sw-02", "to": "ot-nms-01", "kind": "access" },
+      { "from": "hist-01", "to": "idmz-srv-01", "kind": "backup", "via": [[420, 380], [1180, 380], [1180, 305]], "label": "Historian replication · one way", "labelX": 1050, "labelY": 380 },
+      { "from": "ops-sw-01", "to": "cell-a-sw-01", "kind": "aggregate", "label": "Cell A ring", "labelX": 250, "labelY": 632 },
+      { "from": "ops-sw-02", "to": "cell-a-sw-02", "kind": "aggregate" },
+      { "from": "cell-a-sw-01", "to": "cell-a-sw-02", "kind": "ha" },
+      { "from": "ops-sw-01", "to": "cell-b-sw-01", "kind": "aggregate" },
+      { "from": "ops-sw-02", "to": "cell-b-sw-02", "kind": "aggregate", "label": "Cell B ring", "labelX": 1010, "labelY": 632 },
+      { "from": "cell-b-sw-01", "to": "cell-b-sw-02", "kind": "ha" },
+      { "from": "cell-a-sw-01", "to": "plc-a-01", "kind": "access" },
+      { "from": "cell-a-sw-02", "to": "plc-a-01", "kind": "access" },
+      { "from": "cell-b-sw-01", "to": "plc-b-01", "kind": "access" },
+      { "from": "cell-b-sw-02", "to": "plc-b-01", "kind": "access" },
+      { "from": "cell-a-sw-01", "to": "wap-ot-01", "kind": "access" }
+    ]
+  },
+  "rack": {
+    "id": "OT-CAB-01",
+    "location": "MCC room · operations cabinet",
+    "units": 24,
+    "frontAisle": "cold aisle",
+    "rearAisle": "hot aisle",
+    "reserved": [
+      { "position": 24, "height": 1, "label": "U24 · reserved fibre patch field" },
+      { "position": 20, "height": 1, "label": "U20 · reserved" },
+      { "position": 17, "height": 1, "label": "U17 · reserved for growth" }
+    ],
+    "devices": [
+      { "id": "ops-sw-01", "model": "Cisco Catalyst 9500X-28C8D", "role": "Site operations core · active", "position": 22, "height": 1, "asset": "c9500" },
+      { "id": "ops-sw-02", "model": "Cisco Catalyst 9500X-28C8D", "role": "Site operations core · standby", "position": 21, "height": 1, "asset": "c9500" },
+      { "id": "idmz-fw-01", "model": "Cisco FPR4215-NGFW-K9", "role": "IDMZ · plant-facing", "position": 19, "height": 1, "asset": "fpr4215" },
+      { "id": "idmz-fw-02", "model": "Cisco FPR4215-NGFW-K9", "role": "IDMZ · enterprise-facing", "position": 18, "height": 1, "asset": "fpr4215" },
+      { "id": "idmz-srv-01", "model": "Dell PowerEdge R750", "role": "Broker · replica historian & staging", "position": 15, "height": 2, "asset": "r750" },
+      { "id": "scada-01", "model": "Dell PowerEdge R750", "role": "SCADA / HMI server", "position": 12, "height": 2, "asset": "r750" },
+      { "id": "hist-01", "model": "Dell PowerEdge R750", "role": "Process historian", "position": 9, "height": 2, "asset": "r750" },
+      { "id": "ot-nms-01", "model": "Model not selected", "role": "OT monitoring & asset inventory", "position": 7, "height": 1, "asset": "generic" },
+      { "id": "cab-ups-01", "model": "APC SMT3000RMI2UC", "role": "Cabinet UPS", "position": 1, "height": 2, "asset": "ups" }
+    ]
+  },
+  "sections": {
+    "overview": {
+      "heading": "What this document is",
+      "notes": [
+        { "lead": "A plant network, drawn by level rather than by tier", "text": "the other kits in this set stack providers, edge, core and access. This one stacks Purdue levels: enterprise at 4/5, an industrial DMZ at 3.5, site operations at 3, cell/area zones at 2/1, and controllers, field devices and safety at 1/0." },
+        { "lead": "The IDMZ is the whole point, and it is a policy, not a gap", "text": "the drawing is physically continuous — a line can be traced from the enterprise cloud through the broker to a controller. That is correct: an industrial DMZ is not an air gap. What must never happen is a session or protocol traversing both firewalls. Enterprise writes to idmz-srv-01, the plant reads from it, and neither firewall forwards. No topology can demonstrate that, which is why the missing broker rules are recorded as a gap rather than assumed away." },
+        { "lead": "Cells are rings, not stars", "text": "each cell/area zone is a pair of switches closed into a ring and dual-attached to the operations core. That is the shape industrial networks actually take, and it is why this file cannot be produced by editing one of the campus kits." },
+        { "lead": "Same notation as every other document in the set", "text": "icons, link kinds, zones and rack arithmetic follow the shared standard, so this reads like the rest of the family even though the network does not." }
+      ],
+      "provenance": [
+        { "lead": "Two classes of statement, kept visibly apart", "text": "Recorded = the topology, zone and rack data in this file, which renders exactly what it says. Assumed = every address, VLAN, model, protocol and rack position, which is illustrative only." },
+        { "lead": "Nothing here was reconciled against a plant", "text": "no controller, safety assessment, protocol capture or panel survey stands behind any value. Treat the whole file as a shape to fill in, not a design to build." },
+        { "lead": "This is not a safety document", "text": "the safety instrumented system appears so that its independence is visible. Functional safety is designed and certified elsewhere, under its own standard, and nothing in this file may be used as evidence about it." }
+      ]
+    },
+    "logical": {
+      "heading": "Levels, the IDMZ and the cell rings",
+      "notes": [
+        { "lead": "Read the sheet downward", "text": "each band is a Purdue level. Height on this drawing means trust and determinism, not geography — a cell switch may be fifty metres from the cabinet or five." },
+        { "lead": "Continuity is not reachability", "text": "idmz-srv-01 is the only object either side may reach, so a path exists on paper through it. Whether anything can actually traverse depends entirely on the rule set, which this sheet does not contain and must not be read as implying." },
+        { "lead": "Every controller is dual-attached", "text": "plc-a-01 and plc-b-01 each land on both members of their ring, so a single field panel or a single fibre run does not stop the cell." },
+        { "lead": "The safety system has no line to it", "text": "that is deliberate. sis-01 is hardwired and independent; a network path drawn to it would be a design error rather than added detail." }
+      ],
+      "caption": "Figure 1 — Purdue-model plant network. Levels descend; the IDMZ brokers every crossing; cell/area zones close as rings.",
+      "legend": "Zones are Purdue levels · <b>solid</b> routed or aggregated links · <b>dashed</b> peer and ring closure · <b>dotted</b> one-way replication · a device with no line has no network path by design."
+    },
+    "identity": {
+      "heading": "Addressing and segmentation",
+      "notes": [
+        { "lead": "Every value below is illustrative", "text": "not one prefix, VLAN or address has been reconciled against a plant asset register or an IPAM record." }
+      ],
+      "columns": ["Segment", "VLAN", "Prefix", "Status"],
+      "rows": [
+        { "cells": ["Industrial DMZ", "35", "10.40.35.0/29", "Assumed"], "layer": "gap" },
+        { "cells": ["Site operations · Level 3", "10", "10.40.10.0/24", "Assumed"], "layer": "gap" },
+        { "cells": ["Cell / area A", "21", "10.40.21.0/24", "Assumed"], "layer": "gap" },
+        { "cells": ["Cell / area B", "22", "10.40.22.0/24", "Assumed"], "layer": "gap" },
+        { "cells": ["Safety instrumented system", "—", "No network address", "By design"] }
+      ]
+    },
+    "physical": {
+      "heading": "Physical view · OT-CAB-01 · 24U",
+      "notes": [
+        { "lead": "Only Level 3 and the DMZ are in this cabinet", "text": "the cell switches live in field panels out on the plant floor and have no place in this elevation. Their absence is a fact about the design, not an omission." },
+        { "lead": "Positions are notation practice", "text": "no survey, weight, power or thermal record stands behind any unit shown." }
+      ],
+      "caption": "Figure 2 — OT-CAB-01, front and rear. Cell/area switches are in field panels and are deliberately absent.",
+      "legend": "Reserved units are held, not free · a generic face means no orthographic artwork is available for that model."
+    },
+    "change": {
+      "heading": "Change management",
+      "notes": [
+        { "lead": "A control network cannot be patched like an office network", "text": "no maintenance window, no vendor-approved firmware baseline and no rollback plan is recorded here. On a plant, that is the gating constraint, not an afterthought." },
+        { "lead": "No approval route exists", "text": "changes to a control network normally require operations sign-off and, where safety is touched, a separate assessment. Neither is defined." }
+      ]
+    },
+    "operations": {
+      "heading": "Operations and observability",
+      "notes": [
+        { "lead": "Monitoring is passive by intent", "text": "ot-nms-01 discovers and observes. Nothing in this design actively polls a controller, because active scanning of industrial equipment is a hazard, not a best practice." },
+        { "lead": "Nothing here is measured", "text": "no baseline, no traffic capture, no determinism budget. Every operational claim in this file is unverified." }
+      ]
+    },
+    "findings": {
+      "id": "key-gaps",
+      "label": "Key gaps",
+      "noun": "gaps and unknowns",
+      "heading": "Key gaps — what this document does not know",
+      "flavour": "gaps",
+      "items": [
+        { "title": "The shared symbol library has no industrial glyph",
+          "detail": "Controllers and the safety system are drawn with the general-purpose server symbol because no controller, drive, sensor or safety glyph exists in the nineteen-symbol set. Their role is carried by text alone. A reader who goes by artwork will misread this sheet.",
+          "at": ["plc-a-01", "plc-b-01", "sis-01"] },
+        { "title": "The safety system is shown without a path, and that must stay true",
+          "detail": "sis-01 is drawn independent because that is the design. Nothing in this document demonstrates that the installed system is actually independent, and no functional-safety assessment stands behind it. Treat the drawing as an intent, and confirm the separation physically before relying on it.",
+          "at": "sis-01" },
+        { "title": "The cell rings are drawn as rings but no resiliency protocol is named",
+          "detail": "A closed ring without a loop-prevention and convergence mechanism is a broadcast storm. Which protocol runs, what its convergence time is, and whether that time is inside the process tolerance are all unrecorded.",
+          "at": ["cell-a-sw-01", "cell-b-sw-01"] },
+        { "title": "The IDMZ has no broker rules",
+          "detail": "The topology says every crossing is brokered. It does not say which protocols, which direction, which accounts or which ports. Without that, the DMZ is a drawing convention rather than a control.",
+          "atZone": "idmz" },
+        { "title": "Cell switches have no physical home",
+          "detail": "Four switches are drawn and addressed but appear in no elevation. Field panels, mounting, power and environmental ratings are all unrecorded, and a plant-floor panel has requirements a cabinet does not.",
+          "at": ["cell-a-sw-01", "cell-a-sw-02", "cell-b-sw-01", "cell-b-sw-02"] },
+        { "title": "Determinism is asserted, not engineered",
+          "detail": "Industrial traffic has latency and jitter budgets. No budget is stated, no queueing or prioritisation is configured in this design, and no protocol is named for the control traffic itself.",
+          "atZone": "cells" },
+        { "title": "No patch, firmware or lifecycle regime is recorded",
+          "detail": "The DMZ broker is drawn staging patches and anti-virus, but nothing states what is staged, how it is approved, or when it may be applied. On a control network that schedule is a design input.",
+          "at": "idmz-srv-01" },
+        { "title": "The wireless path has no security statement",
+          "detail": "wap-ot-01 is described as maintenance-only, but no authentication, isolation or revocation rule is recorded. Maintenance-only is an intention until something enforces it.",
+          "at": "wap-ot-01" },
+        { "title": "No reviewer, approver or operations owner is assigned",
+          "detail": "The document names an author and nobody else. A control-network design with no second reader, and no operations sign-off, is an opinion." }
+      ]
+    },
+    "equipment": {
+      "cards": [
+        { "model": "Cisco Catalyst 9500X-28C8D", "u": "1U", "why": "Site operations core pair — peer-linked to each other and dual-attached to both cell rings.", "asset": "c9500" },
+        { "model": "Cisco FPR4215-NGFW-K9", "u": "1U", "why": "The two IDMZ firewalls. Both terminate; neither forwards between enterprise and plant.", "asset": "fpr4215" },
+        { "model": "Dell PowerEdge R750", "u": "2U", "why": "Broker, SCADA and historian — three identical chassis.", "asset": "r750" },
+        { "model": "APC SMT3000RMI2UC", "u": "2U", "why": "Cabinet UPS. The only scheduled device that does not appear on the logical drawing.", "asset": "ups" }
+      ],
+      "costs": []
+    }
+  }
+}
+</script>
+<!-- PROOF-DATA:END -->
+
+<!-- NETWORK-PACKAGER-CONTRACT:BEGIN -->
+<script id="network-packager-contract" type="application/json">
+{
+  "schema": "network-design-package/v2",
+  "assetReferences": "asset-uri/v1",
+  "assetUriSchemes": {
+    "cisco": "icons/cisco-pms3015/",
+    "rack": "rack-assets/"
+  }
+}
+</script>
+<!-- NETWORK-PACKAGER-CONTRACT:END -->
+
+<!-- NETWORK-ASSET-VAULT:BEGIN -->
+<script id="network-asset-vault" type="application/json">
+{}
+</script>
+<!-- NETWORK-ASSET-VAULT:END -->
+
+<!-- EDITABLE-SOURCE-CAPSULE:BEGIN -->
+<script id="editable-source-capsule" type="application/octet-stream">
+
+</script>
+<!-- EDITABLE-SOURCE-CAPSULE:END -->
+
+<script>
+  "use strict";
+  const ASSET_CONTRACT=JSON.parse(document.getElementById("network-packager-contract").textContent);
+  const PORTABLE_VAULT=JSON.parse(document.getElementById("network-asset-vault").textContent);
+  const PORTABLE_MODE=PORTABLE_VAULT?.schema==="network-asset-vault/v2";
+  const ASSET_URL_CACHE=new Map();
+  const ICONS=Object.freeze({
+    "cloud":{vector:"nd-cloud",official:"asset:cisco/cloud.jpg"},
+    "router":{vector:"nd-router",official:"asset:cisco/router.jpg"},
+    "firewall":{vector:"nd-firewall",official:"asset:cisco/firewall.jpg"},
+    "core-switch":{vector:"nd-l3-switch",official:"asset:cisco/layer 3 switch.jpg"},
+    "access-switch":{vector:"nd-access-switch",official:"asset:cisco/workgroup switch.jpg"},
+    "access-point":{vector:"nd-access-point",official:"asset:cisco/lightweight ap.jpg"},
+    "server":{vector:"nd-server",official:"asset:cisco/fileserver.jpg"},
+    "pc":{vector:"nd-workstation",official:"asset:cisco/pc.jpg"},
+    "workstation":{vector:"nd-workstation",official:"asset:cisco/pc.jpg"},
+    "wlan-controller":{vector:"nd-wlan-controller",official:"asset:cisco/wlan controller.jpg"},
+    "vpn-headend":{vector:"nd-vpn-headend",official:"asset:cisco/vpn concentrator.jpg"},
+    "dc-switch":{vector:"nd-dc-switch",official:"asset:cisco/server switch.jpg"},
+    "ip-phone":{vector:"nd-ip-phone",official:"asset:cisco/ip phone.jpg"},
+    "laptop":{vector:"nd-laptop",official:"asset:cisco/laptop.jpg"},
+    "printer":{vector:"nd-printer",official:"asset:cisco/printer.jpg"},
+    "database":{vector:"nd-database",official:"asset:cisco/relational database.jpg"},
+    "storage-array":{vector:"nd-storage-array",official:"asset:cisco/fc storage.jpg"},
+    "network-management":{vector:"nd-nms",official:"asset:cisco/network management.jpg"},
+    "branch-office":{vector:"nd-branch-office",official:"asset:cisco/branch office.jpg"},
+    "wireless-router":{vector:"nd-wireless-router",official:"asset:cisco/wireless router.jpg"}
+  });
+  const RACK_ASSETS=Object.freeze({
+    "c9500":{"front":"asset:rack/cisco-c9500x-28c8d.front.png","rear":"asset:rack/cisco-c9500x-28c8d.rear.png"},
+    "c9300":{"front":"asset:rack/cisco-c9300-48p.front.png","rear":"asset:rack/cisco-c9300-48p.rear.png"},
+    "fpr4215":{"front":"asset:rack/cisco-fpr4215-ngfw-k9.front.png","rear":"asset:rack/cisco-fpr4215-ngfw-k9.rear.png"},
+    "r750":{"front":"asset:rack/dell-poweredge-r750.front.png","rear":"asset:rack/dell-poweredge-r750.rear.png"},
+    "ups":{"front":"asset:rack/apc-smt3000rmi2uc.front.png","rear":"asset:rack/apc-smt3000rmi2uc.rear.png"}
+  });
+  const SVG_NS="http://www.w3.org/2000/svg",NODE_W=176,NODE_H=104;
+  const DEFAULT_BRAND_PATH="M112 72 H400 V352 Q400 400 376 424 Q356 440 336 424 Q316 400 296 400 H216 Q196 400 176 424 Q156 440 136 424 Q112 400 112 352 Z M312 136 A40 40 0 0 1 352 176 V304 A40 40 0 0 1 312 344 A40 40 0 0 1 272 304 V176 A40 40 0 0 1 312 136 Z";
+  const FINDING_FLAVOURS=Object.freeze({gaps:["gaps","gapnum"],patterns:["patterns","patnum"],gains:["gains","gainnum"]});
+  let data,topologyErrors=[],rackErrors=[],slotAId="gaps";
+
+  function svgEl(name,attrs={},text=""){const node=document.createElementNS(SVG_NS,name);Object.entries(attrs).forEach(([key,value])=>node.setAttribute(key,String(value)));if(text)node.textContent=text;return node}
+  function assetUrl(assetId){
+    if(!PORTABLE_MODE){const match=/^asset:(cisco|rack)\/([^/]+)$/.exec(assetId),base=match&&ASSET_CONTRACT.assetUriSchemes[match[1]];return match&&base?base+match[2]:""}
+    const hash=PORTABLE_VAULT.keys?.[assetId],blob=hash&&PORTABLE_VAULT.blobs?.[hash];
+    if(!blob){console.error(`Portable asset is missing: ${assetId}`);return ""}
+    if(!ASSET_URL_CACHE.has(hash))ASSET_URL_CACHE.set(hash,`data:${blob.mime};base64,${blob.base64}`);
+    return ASSET_URL_CACHE.get(hash)
+  }
+  function el(id){return document.getElementById(id)}
+  function setText(id,value){const node=el(id);if(node)node.textContent=value||"—"}
+  function range(device){return device.height===1?`U${device.position}`:`U${device.position}–U${device.position+device.height-1}`}
+  function midpoint(points){const lengths=[];let total=0;for(let i=1;i<points.length;i++){const length=Math.hypot(points[i][0]-points[i-1][0],points[i][1]-points[i-1][1]);lengths.push(length);total+=length}let target=total/2;for(let i=0;i<lengths.length;i++){if(target<=lengths[i]){const ratio=lengths[i]?target/lengths[i]:0;return[points[i][0]+(points[i+1][0]-points[i][0])*ratio,points[i][1]+(points[i+1][1]-points[i][1])*ratio]}target-=lengths[i]}return points.at(-1)}
+  function makeInspector(id,title,fields){const box=el(id);box.replaceChildren();box.appendChild(Object.assign(document.createElement("h3"),{textContent:title}));fields.forEach(([label,value])=>{box.appendChild(Object.assign(document.createElement("span"),{className:"label",textContent:label}));box.appendChild(Object.assign(document.createElement("span"),{textContent:value||"—"}))})}
+  function showErrors(id,errors){const box=el(id);if(!box)return;if(!errors.length){box.textContent="";box.classList.remove("visible");return}box.textContent=errors.join(" ");box.classList.add("visible")}
+
+  /* A note item is either a plain string or {lead,text}. Both render as one
+     bullet; the lead is bolded. Never innerHTML - values are document data. */
+  function fillNotes(id,items,fallback){
+    const host=el(id);if(!host)return;host.replaceChildren();
+    const list=(Array.isArray(items)&&items.length?items:(fallback||[]));
+    list.forEach(item=>{
+      const li=document.createElement("li");
+      if(item&&typeof item==="object"){
+        if(item.lead){const b=document.createElement("b");b.textContent=item.lead;li.appendChild(b);li.appendChild(document.createTextNode(item.text?` — ${item.text}`:""))}
+        else li.textContent=item.text||"";
+      }else li.textContent=String(item??"");
+      host.appendChild(li)
+    });
+    const section=host.closest("div.note,div.warn");
+    if(section)section.hidden=host.children.length===0;
+  }
+
+  function parseData(){try{return JSON.parse(el("proof-data").textContent)}catch(error){const message=`Invalid diagram JSON: ${error.message}`;document.querySelectorAll(".errors").forEach(box=>{box.textContent=message;box.classList.add("visible")});throw error}}
+
+  /* ---- shell chrome: brand, badges, series strip, footer ---- */
+  function renderBrand(){
+    const brand=data.document?.brand||{};
+    const mark=el("brand-mark"),path=el("brand-path");
+    mark.setAttribute("viewBox",brand.logoViewBox||"0 0 512 512");
+    path.setAttribute("d",brand.logoPath||DEFAULT_BRAND_PATH);
+    path.setAttribute("fill",brand.logoFill||"#0F172A");
+    setText("brand-name",brand.name||"cloudbats");
+    setText("brand-doclabel",brand.label||"Systems · Network Design");
+  }
+  function renderHeader(){
+    const doc=data.document||{};
+    document.title=`${doc.brand?.name||"cloudbats"} — ${doc.title||"Network design"}`;
+    setText("page-title",doc.title);setText("page-subtitle",doc.subtitle);
+    setText("badge-subject",`${doc.docClass||"Network design"} · ${doc.subject||doc.drawing||"Untitled"}`);
+    setText("badge-version",`${doc.revision||"v1"} · ${doc.date||""}`.trim());
+    const evidence=doc.evidence||{};
+    const badge=el("badge-evidence");
+    badge.className=`badge ${["purple","red","green","amber","teal"].includes(evidence.color)?evidence.color:"purple"}`;
+    badge.textContent=evidence.text||"Assumptions · validation required";
+    setText("meta-drawing",doc.drawing);setText("meta-revision",doc.revision);
+    setText("meta-status",doc.status);setText("meta-date",doc.date);
+    const strip=el("series-strip"),series=Array.isArray(doc.series)?doc.series:[];
+    strip.replaceChildren();
+    if(!series.length){strip.hidden=true;return}
+    strip.hidden=false;
+    const lead=document.createElement("b");lead.textContent="Presentation set";
+    strip.append(lead,document.createTextNode(" —  "));
+    series.forEach((entry,index)=>{
+      if(index){const arrow=document.createElement("span");arrow.className="ss-arrow";arrow.textContent="→";strip.appendChild(arrow)}
+      const item=document.createElement("span");
+      if(entry&&entry.here)item.className="ss-here";
+      item.textContent=`${index+1} · ${(entry&&entry.label)||""}${entry&&entry.here?" — this document":""}`;
+      strip.appendChild(item)
+    })
+  }
+  function renderFooter(){
+    const f=data.document?.footer||{},doc=data.document||{};
+    const parts=[f.author,f.originalDate||doc.date,f.edition||"Presentation edition",
+      f.changed?`${doc.revision||""} ${f.changed}`.trim():null,f.detail,
+      f.caveat||"Every element is a documentation claim to validate, not a recorded fact",
+      f.redaction||"Facility identifiers at pattern level; personal identifiers redacted"];
+    setText("doc-footer",parts.filter(Boolean).join(" · "))
+  }
+
+  function appendNodeIcon(group,node){
+    const profile=ICONS[node.icon],custom=node.iconAsset;
+    if(custom&&!/^asset:cisco\/[^/]+\.jpg$/.test(custom)){group.appendChild(svgEl("text",{class:"node-warning",x:NODE_W/2,y:34},"INVALID ASSET"));topologyErrors.push(`Invalid iconAsset on ${node.id}; use a literal asset:cisco/<filename>.jpg identifier.`);return custom}
+    if(PORTABLE_MODE){const assetId=custom||profile?.official;if(assetId){const href=assetUrl(assetId);if(href){group.appendChild(svgEl("image",{href,x:48,y:5,width:80,height:55,preserveAspectRatio:"xMidYMid meet"}));return assetId}group.appendChild(svgEl("text",{class:"node-warning",x:NODE_W/2,y:34},"MISSING ASSET"));topologyErrors.push(`Official asset is unavailable on ${node.id}.`);return assetId}}
+    else if(profile?.vector){group.appendChild(svgEl("use",{class:"topology-vector-icon",href:`#${profile.vector}`,x:48,y:4,width:80,height:56}));return `#${profile.vector}`}
+    else if(custom){group.appendChild(svgEl("rect",{class:"node-generic",x:56,y:9,width:64,height:48,rx:7}));group.appendChild(svgEl("text",{class:"node-generic-label",x:NODE_W/2,y:29},"OFFICIAL"));group.appendChild(svgEl("text",{class:"node-generic-label",x:NODE_W/2,y:41},"AFTER PACKAGE"));return `${custom} (official-only)`}
+    group.appendChild(svgEl("text",{class:"node-warning",x:NODE_W/2,y:34},"UNKNOWN ICON"));topologyErrors.push(`Unknown icon on ${node.id}.`);return node.icon||"unknown"
+  }
+
+  function renderTopology(){
+    const topo=data.topology||{},width=Number(topo.canvas?.width)||1280,height=Number(topo.canvas?.height)||800,svg=el("topology");
+    svg.replaceChildren();svg.setAttribute("viewBox",`0 0 ${width} ${height}`);
+    const title=svgEl("title",{id:"svg-title"},data.document?.title||"Logical topology"),desc=svgEl("desc",{id:"svg-desc"},data.document?.subtitle||""),defs=svgEl("defs"),filter=svgEl("filter",{id:"node-shadow",x:"-20%",y:"-20%",width:"140%",height:"150%"});
+    filter.appendChild(svgEl("feDropShadow",{dx:0,dy:3,stdDeviation:3,"flood-color":"#152d39","flood-opacity":.2}));defs.appendChild(filter);svg.append(title,desc,defs);
+    (topo.zones||[]).forEach(zone=>{svg.appendChild(svgEl("rect",{class:`zone ${zone.kind||"other"}`,x:zone.x,y:zone.y,width:zone.width,height:zone.height,rx:12}));svg.appendChild(svgEl("text",{class:"zone-label",x:Number(zone.x)+18,y:Number(zone.y)+27},zone.label||zone.id))});
+    const nodes=new Map();(topo.nodes||[]).forEach(node=>{if(!node.id)topologyErrors.push("A topology node is missing an id.");else if(nodes.has(node.id))topologyErrors.push(`Duplicate topology node id: ${node.id}.`);else nodes.set(node.id,node)});
+    const links=svgEl("g",{"aria-label":"Network links"}),labels=svgEl("g",{"aria-label":"Link labels"});
+    (topo.links||[]).forEach((link,index)=>{const source=nodes.get(link.from),target=nodes.get(link.to);if(!source||!target){topologyErrors.push(`Link ${index+1} references a missing node.`);return}const points=[[source.x,source.y],...(link.via||[]),[target.x,target.y]];links.appendChild(svgEl("polyline",{class:`link ${link.kind||"l3"}`,points:points.map(point=>point.join(",")).join(" ")}));if(link.label){const auto=midpoint(points),x=Number.isFinite(Number(link.labelX))?Number(link.labelX):auto[0],y=Number.isFinite(Number(link.labelY))?Number(link.labelY):auto[1],w=Math.max(54,link.label.length*6.7+16);labels.appendChild(svgEl("rect",{class:"link-label-bg",x:x-w/2,y:y-12,width:w,height:22,rx:4}));labels.appendChild(svgEl("text",{class:"link-label",x,y:y+4},link.label))}});svg.append(links,labels);
+    const nodeLayer=svgEl("g",{"aria-label":"Network devices"});
+    nodes.forEach(node=>{
+      const group=svgEl("g",{class:"node",tabindex:0,role:"button","aria-label":`${node.label||node.id}, ${node.role||"network device"}`,transform:`translate(${Number(node.x)-NODE_W/2} ${Number(node.y)-NODE_H/2})`});
+      group.appendChild(svgEl("rect",{class:"node-shell",width:NODE_W,height:NODE_H,rx:9}));
+      const iconRef=appendNodeIcon(group,node);
+      group.appendChild(svgEl("text",{class:"node-name",x:NODE_W/2,y:78},node.label||node.id));
+      group.appendChild(svgEl("text",{class:"node-role",x:NODE_W/2,y:95},node.role||""));
+      const select=()=>{svg.querySelectorAll(".node.selected").forEach(item=>item.classList.remove("selected"));group.classList.add("selected");makeInspector("topology-inspector",node.label||node.id,[["Role",node.role],["Address / context",node.address],["Documentation note",node.notes],["Rendered icon",iconRef]])};
+      group.addEventListener("click",select);
+      group.addEventListener("keydown",event=>{if(event.key==="Enter"||event.key===" "){event.preventDefault();select()}});
+      nodeLayer.appendChild(group)
+    });
+    svg.appendChild(nodeLayer);showErrors("topology-errors",topologyErrors)
+  }
+
+  function buildRuler(wrap,units){wrap.querySelectorAll(".ruler").forEach(ruler=>{ruler.replaceChildren();for(let u=units;u>=1;u--){const mark=document.createElement("span");mark.className="u-mark";mark.style.top=`calc((${units} - ${u}) * var(--u))`;mark.textContent=`U${u}`;ruler.appendChild(mark)}})}
+  function hideRackTooltips(){document.querySelectorAll(".rack-tooltip.visible").forEach(item=>item.classList.remove("visible"))}
+  function showRackTooltip(wrap,bay,face,device,view){hideRackTooltips();const tooltip=wrap.querySelector(".rack-tooltip");tooltip.replaceChildren();const heading=document.createElement("strong"),model=document.createElement("span"),role=document.createElement("span");heading.textContent=`${device.id} · ${range(device)}`;model.textContent=device.model;role.className="tooltip-role";role.textContent=`${device.role} · ${view} view`;tooltip.append(heading,model,role);const tooltipWidth=280,tooltipHeight=88;tooltip.style.left=`${view==="front"?bay.offsetLeft+bay.offsetWidth-70:bay.offsetLeft-tooltipWidth+70}px`;tooltip.style.top=`${Math.max(4,Math.min(face.offsetTop+Math.max(4,face.offsetHeight/2-12),bay.offsetHeight-tooltipHeight-4))}px`;tooltip.classList.add("visible")}
+  function selectRackDevice(device){hideRackTooltips();document.querySelectorAll(".device-face").forEach(item=>item.classList.toggle("selected",item.dataset.device===device.id));document.querySelectorAll("#inventory-body tr").forEach(row=>row.classList.toggle("selected",row.dataset.device===device.id));makeInspector("rack-inspector",`${device.id} · ${range(device)}`,[["Manufacturer / model",device.model],["Role",device.role],["Front face",RACK_ASSETS[device.asset]?.front||"Generic face · no official artwork"],["Rear face",RACK_ASSETS[device.asset]?.rear||"Generic face · no official artwork"]])}
+  function placeholderFace(label,view){const placeholder=document.createElement("span"),text=document.createElement("span");placeholder.className=`rack-placeholder rack-placeholder-${view}`;placeholder.setAttribute("aria-hidden","true");text.textContent=label;placeholder.appendChild(text);return placeholder}
+  function rackFaceContent(device,view,assetId){
+    if(PORTABLE_MODE&&assetId){const image=document.createElement("img");image.src=assetUrl(assetId);image.alt="";image.draggable=false;if(!image.src)rackErrors.push(`Official rack asset is unavailable on ${device.id} (${view}).`);return image}
+    return placeholderFace(`${device.id} / ${view}`,view)
+  }
+  function renderRackView(view,rack){const bay=el(`rack-${view}`),wrap=el(`rack-${view}-wrap`);bay.replaceChildren();wrap.querySelectorAll(".rack-tooltip").forEach(item=>item.remove());bay.style.height=`calc(${rack.units} * var(--u))`;wrap.querySelectorAll(".ruler").forEach(ruler=>ruler.style.height=`calc(${rack.units} * var(--u))`);buildRuler(wrap,rack.units);const tooltip=document.createElement("div");tooltip.className="rack-tooltip";tooltip.setAttribute("role","tooltip");wrap.appendChild(tooltip);(rack.reserved||[]).forEach(slot=>{const item=document.createElement("div");item.className="reserved-slot";item.style.bottom=`calc((${slot.position} - 1) * var(--u))`;item.style.height=`calc(${slot.height} * var(--u))`;item.textContent=slot.label;bay.appendChild(item)});(rack.devices||[]).forEach(device=>{const wanted=device.asset&&device.asset!=="generic",asset=wanted?RACK_ASSETS[device.asset]:null;if(wanted&&!asset&&view==="front")rackErrors.push(`Unknown rack asset ${device.asset} on ${device.id}; drawn as a generic face.`);const face=document.createElement("button");face.type="button";face.className="device-face";face.dataset.device=device.id;face.style.bottom=`calc((${device.position} - 1) * var(--u))`;face.style.height=`calc(${device.height} * var(--u))`;face.setAttribute("aria-label",`${device.id}, ${device.model}, ${range(device)}, ${view} view`);face.appendChild(rackFaceContent(device,view,asset?asset[view]:null));const show=()=>showRackTooltip(wrap,bay,face,device,view);face.addEventListener("mouseenter",show);face.addEventListener("focus",show);face.addEventListener("mouseleave",()=>{if(!face.classList.contains("selected"))tooltip.classList.remove("visible")});face.addEventListener("blur",()=>{if(!face.classList.contains("selected"))tooltip.classList.remove("visible")});face.addEventListener("click",()=>{selectRackDevice(device);show()});bay.appendChild(face)})}
+  function renderRack(){const rack=data.rack||{};rack.units=Number(rack.units)||42;setText("rack-heading",data.sections?.physical?.heading||`Physical view · ${rack.id||"rack"} · ${rack.units}U`);const occupied=new Map();(rack.devices||[]).forEach(device=>{if(device.position<1||device.position+device.height-1>rack.units)rackErrors.push(`${device.id} is outside the rack.`);for(let u=device.position;u<device.position+device.height;u++){if(occupied.has(u))rackErrors.push(`${device.id} overlaps ${occupied.get(u)} at U${u}.`);else occupied.set(u,device.id)}});setText("rack-front-caption",`Front elevation · ${rack.frontAisle||"cold aisle"}`);setText("rack-rear-caption",`Rear elevation · ${rack.rearAisle||"hot aisle"}`);renderRackView("front",rack);renderRackView("rear",rack);const tbody=el("inventory-body");tbody.replaceChildren();(rack.devices||[]).forEach(device=>{const row=document.createElement("tr");row.dataset.device=device.id;[range(device),device.id,device.model,device.role,RACK_ASSETS[device.asset]?"Official front/rear face":"Generic face"].forEach((value,index)=>{const cell=document.createElement("td");if(index===1){const code=document.createElement("code");code.textContent=value;cell.appendChild(code)}else cell.textContent=value;row.appendChild(cell)});row.addEventListener("click",()=>selectRackDevice(device));tbody.appendChild(row)});showErrors("rack-errors",rackErrors)}
+
+  /* ---- spine sections 0, 2, 4, 5 ---- */
+  function renderSections(){
+    const s=data.sections||{},doc=data.document||{};
+    if(s.overview?.heading)setText("overview-heading",s.overview.heading);
+    fillNotes("overview-notes",s.overview?.notes,[{lead:"What this is",text:doc.subtitle||"A network design document."}]);
+    fillNotes("overview-provenance",s.overview?.provenance,[{lead:"Provenance",text:"State here which parts of this document are recorded fact and which are assumption, and how each is marked."}]);
+    if(s.logical?.heading)setText("logical-heading",s.logical.heading);
+    fillNotes("logical-notes",s.logical?.notes,[]);
+    if(s.identity?.heading)setText("identity-heading",s.identity.heading);
+    fillNotes("identity-notes",s.identity?.notes,[]);
+    if(s.physical?.heading)setText("rack-heading",s.physical.heading);
+    fillNotes("physical-notes",s.physical?.notes,[]);
+    if(s.change?.heading)setText("change-heading",s.change.heading);
+    fillNotes("change-notes",s.change?.notes,[{lead:"Change record",text:"Describe how this design is versioned, reviewed and rolled back."}]);
+    if(s.operations?.heading)setText("operations-heading",s.operations.heading);
+    fillNotes("operations-notes",s.operations?.notes,[{lead:"Operations",text:"Describe monitoring, alerting and the operational owner."}]);
+    renderIdentityTable(s.identity)
+  }
+  function renderIdentityTable(identity){
+    const table=el("identity-table"),head=el("identity-head"),body=el("identity-body");
+    head.replaceChildren();body.replaceChildren();
+    const columns=Array.isArray(identity?.columns)?identity.columns:[],rows=Array.isArray(identity?.rows)?identity.rows:[];
+    if(!columns.length||!rows.length){table.hidden=true;return}
+    table.hidden=false;
+    columns.forEach(name=>{const th=document.createElement("th");th.textContent=name;head.appendChild(th)});
+    rows.forEach(row=>{
+      const cells=Array.isArray(row)?row:(Array.isArray(row.cells)?row.cells:[]);
+      const tr=document.createElement("tr");
+      if(!Array.isArray(row)&&row.layer==="gap")tr.className="gap-layer";
+      cells.forEach(value=>{const td=document.createElement("td");td.textContent=String(value??"");tr.appendChild(td)});
+      body.appendChild(tr)
+    })
+  }
+  /* Draws the numbered markers onto the topology. Anchors are node ids and zone ids,
+     never coordinates, so a marker cannot drift when the layout moves, and the number
+     is the item's position in the list, so the picture and the list cannot disagree. */
+  function renderGapOverlay(items){
+    const svg=el("topology");if(!svg)return;
+    svg.querySelectorAll(".gap-overlay").forEach(node=>node.remove());
+    const nodes=new Map((data.topology?.nodes||[]).map(node=>[node.id,node]));
+    const zones=new Map((data.topology?.zones||[]).map(zone=>[zone.id,zone]));
+    const layer=svgEl("g",{class:"gap-layer gap-overlay","aria-label":"Gap markers"});
+    const addPin=(cx,cy,number,title)=>{
+      const pin=svgEl("a",{class:"gap-pin",href:`#gap-${number}`,"aria-label":`Gap ${number}: ${title||"finding"}`});
+      pin.appendChild(svgEl("circle",{cx,cy,r:14}));
+      pin.appendChild(svgEl("text",{x:cx,y:cy+5},String(number)));
+      layer.appendChild(pin)
+    };
+    items.forEach((item,index)=>{
+      const number=index+1,title=item&&item.title;
+      if(item&&item.atZone){
+        const zone=zones.get(item.atZone);
+        if(!zone)topologyErrors.push(`Gap ${number} points at zone ${item.atZone}, which does not exist.`);
+        else{
+          layer.appendChild(svgEl("rect",{class:"gap-region",x:Number(zone.x)-7,y:Number(zone.y)-7,width:Number(zone.width)+14,height:Number(zone.height)+14,rx:15}));
+          /* a region needs its number too, or the reader cannot tell which finding it is */
+          addPin(Number(zone.x)+Number(zone.width)-22,Number(zone.y)+22,number,title)
+        }
+      }
+      const anchors=item&&item.at!=null?(Array.isArray(item.at)?item.at:[item.at]):[];
+      anchors.forEach(id=>{
+        const node=nodes.get(id);
+        if(!node){topologyErrors.push(`Gap ${number} points at device ${id}, which does not exist.`);return}
+        addPin(Number(node.x)+NODE_W/2-16,Number(node.y)-NODE_H/2+16,number,title)
+      })
+    });
+    if(layer.childNodes.length)svg.appendChild(layer)
+  }
+
+  function renderFindings(){
+    const f=data.sections?.findings||{};
+    slotAId=f.id||"gaps";
+    const section=el("gaps");
+    section.id=slotAId;
+    const link=el("gapLink");link.setAttribute("href",`#${slotAId}`);
+    el("gapToggle").setAttribute("aria-controls",slotAId);
+    setText("gap-label",f.label||"Gaps & open items");
+    setText("findings-heading",f.heading||f.label||"Gaps and open items");
+    const [listClass,numClass]=FINDING_FLAVOURS[f.flavour]||FINDING_FLAVOURS.gaps;
+    const list=el("findings-list");list.className=listClass;list.replaceChildren();
+    const items=Array.isArray(f.items)?f.items:[];
+    items.forEach((item,index)=>{
+      const li=document.createElement("li"),num=document.createElement("span"),wrap=document.createElement("div"),lead=document.createElement("b");
+      li.id=`gap-${index+1}`;
+      num.className=numClass;num.textContent=String(index+1);
+      lead.textContent=`${(item&&item.title)||"Finding"}.`;
+      wrap.append(lead,document.createTextNode(item&&item.detail?` ${item.detail}`:""));
+      li.append(num,wrap);list.appendChild(li)
+    });
+    renderGapOverlay(items);
+    showErrors("topology-errors",topologyErrors);
+    if(!list.children.length){const li=document.createElement("li"),num=document.createElement("span"),wrap=document.createElement("div");num.className=numClass;num.textContent="1";wrap.textContent="No findings recorded. A document that hides its own uncertainty is off-template - list what is assumed here.";li.append(num,wrap);list.appendChild(li)}
+  }
+  function renderEquipment(){
+    const e=data.sections?.equipment||{},grid=el("equipment-grid"),table=el("cost-table"),body=el("cost-body");
+    grid.replaceChildren();body.replaceChildren();
+    (Array.isArray(e.cards)?e.cards:[]).forEach(card=>{
+      const wrap=document.createElement("div");wrap.className="equip-card";
+      const face=document.createElement("div");face.className="equip-face";
+      const assetId=RACK_ASSETS[card.asset]?.front;
+      if(PORTABLE_MODE&&assetId){const image=document.createElement("img");image.src=assetUrl(assetId);image.alt="";image.style.width="100%";image.style.height="100%";image.style.objectFit="contain";face.appendChild(image)}
+      else face.appendChild(placeholderFace(card.model||"equipment","front"));
+      const bodyBox=document.createElement("div");bodyBox.className="equip-body";
+      const h3=document.createElement("h3");h3.textContent=card.model||"Equipment";
+      const u=document.createElement("span");u.className="u-badge";u.textContent=card.u||"";
+      const price=document.createElement("div");price.className="price";price.textContent=card.price||"";
+      const why=document.createElement("div");why.className="why";why.textContent=card.why||"";
+      bodyBox.append(h3);if(card.u)bodyBox.append(u);if(card.price)bodyBox.append(price);if(card.why)bodyBox.append(why);
+      wrap.append(face,bodyBox);grid.appendChild(wrap)
+    });
+    const costs=Array.isArray(e.costs)?e.costs:[];
+    if(!costs.length){table.hidden=true;return}
+    table.hidden=false;let total=0;
+    costs.forEach(row=>{
+      const qty=Number(row.qty)||0,unit=Number(String(row.unit).replace(/[^0-9.\-]/g,""))||0,ext=qty*unit;total+=ext;
+      const tr=document.createElement("tr");
+      [row.role||"",row.model||"",String(row.qty??""),unit?`$${unit.toLocaleString()}`:"",ext?`$${ext.toLocaleString()}`:""].forEach((value,index)=>{const td=document.createElement("td");if(index>2)td.className="money";td.textContent=value;tr.appendChild(td)});
+      body.appendChild(tr)
+    });
+    setText("cost-total",total?`$${total.toLocaleString()}`:"—")
+  }
+
+  function updateProofStatus(){const topologyIds=new Set((data.topology?.nodes||[]).map(node=>node.id)),matched=(data.rack?.devices||[]).filter(device=>topologyIds.has(device.id)).length,totalErrors=topologyErrors.length+rackErrors.length,status=el("proof-status");status.classList.remove("fail");if(totalErrors){status.textContent=`FAIL · ${totalErrors} data error${totalErrors===1?"":"s"}`;status.classList.add("fail")}else status.textContent=`PASS · ${(data.topology?.nodes||[]).length} logical nodes · ${(data.topology?.links||[]).length} links · ${(data.rack?.devices||[]).length} rack devices · ${matched} synchronized IDs`}
+  function setupControls(){let zoom=1;document.querySelectorAll("[data-zoom]").forEach(button=>button.addEventListener("click",()=>{if(button.dataset.zoom==="in")zoom=Math.min(1.8,zoom+.2);if(button.dataset.zoom==="out")zoom=Math.max(.8,zoom-.2);if(button.dataset.zoom==="fit")zoom=1;el("topology").style.width=`${zoom*100}%`}));el("rack-compact").addEventListener("click",()=>document.documentElement.style.setProperty("--u","18px"));el("rack-full").addEventListener("click",()=>document.documentElement.style.setProperty("--u","28px"))}
+
+  function updatePackagingCopy(){
+    const s=data.sections||{};
+    const captionFallback=PORTABLE_MODE?"Rendered with official artwork embedded in this file.":"Rendered from inline vector symbols; package to swap in official artwork.";
+    setText("topology-caption",s.logical?.caption||`Fig. 1 — ${data.document?.title||"Logical topology"}. Drawn from the diagram data block. ${captionFallback}`);
+    setText("topology-legend",s.logical?.legend||"Legend — solid = routed / Layer 3 · heavy = port-channel or aggregate · dashed magenta = HA or peer link · thin = access link · dotted grey = backup path.");
+    setText("rack-caption",s.physical?.caption||`Fig. 2 — Rack elevation. Front and rear are generated from one equipment schedule; rack units are numbered from the bottom. ${captionFallback}`);
+    setText("rack-legend",s.physical?.legend||"Legend — shaded slots are occupied · hatched slots are reserved · a plain labelled face means no official artwork exists for that model.");
+    if(PORTABLE_MODE)setText("brand-doclabel",`${data.document?.brand?.label||"Systems · Network Design"} · portable copy`)
+  }
+  function setupEditableExport(){const encoded=el("editable-source-capsule").textContent.trim();if(!encoded)return;const button=el("export-editable");button.hidden=false;button.addEventListener("click",()=>{const bytes=Uint8Array.from(atob(encoded),character=>character.charCodeAt(0)),source=new TextDecoder().decode(bytes),name=(data.document?.drawing||"network-design").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")+".edit.html",url=URL.createObjectURL(new Blob([source],{type:"text/html;charset=utf-8"})),link=document.createElement("a");link.href=url;link.download=name;link.hidden=true;document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1200)})}
+
+  /* ---- the shell behaviour contract: exactly two toggleable layers ---- */
+  function setupLayers(){
+    const body=document.body,gapButton=el("gapToggle"),equipButton=el("equipToggle"),gapLink=el("gapLink"),equipLink=el("equipmentExhibitLink");
+    const noun=data.sections?.findings?.noun||"gaps and unknowns";
+    function setGapVisibility(on){body.classList.toggle("show-gaps",on);gapButton.setAttribute("aria-pressed",on?"true":"false");gapButton.title=on?`Hide ${noun}`:`Show ${noun}`}
+    function setEquipVisibility(on){body.classList.toggle("show-equip",on);equipButton.setAttribute("aria-pressed",on?"true":"false");equipButton.title=on?"Hide equipment exhibit":"Show equipment exhibit"}
+    function revealHashTarget(){
+      const id=decodeURIComponent(window.location.hash.slice(1));let target=null;
+      if(id===slotAId){setGapVisibility(true);target=el(id)}
+      else if(id==="equipment-exhibit"){setEquipVisibility(true);target=el(id)}
+      if(target)window.requestAnimationFrame(()=>target.scrollIntoView())
+    }
+    gapButton.addEventListener("click",()=>setGapVisibility(!body.classList.contains("show-gaps")));
+    equipButton.addEventListener("click",()=>setEquipVisibility(!body.classList.contains("show-equip")));
+    gapLink.addEventListener("click",()=>setGapVisibility(true));
+    equipLink.addEventListener("click",()=>setEquipVisibility(true));
+    window.addEventListener("hashchange",revealHashTarget);
+    /* Slot A defaults ON, Slot B defaults OFF; document.layers overrides both. */
+    setGapVisibility(data.document?.layers?.findings!==false);
+    setEquipVisibility(data.document?.layers?.equipment===true);
+    revealHashTarget()
+  }
+
+  data=parseData();renderBrand();renderHeader();renderSections();renderTopology();renderRack();renderFindings();renderEquipment();updateProofStatus();setupControls();updatePackagingCopy();setupEditableExport();renderFooter();setupLayers();
+</script>
+</body>
+</html>
