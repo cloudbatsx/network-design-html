@@ -50,7 +50,7 @@ const sandbox = {
   Blob, TextDecoder, structuredClone, setTimeout, console
 };
 
-const shim = ";globalThis.__exports = { parseWithRepair, mergeReply, checkStructure, checkMeaning, checkShell, checkAssetStrings, looksTruncated, safeJson, contextFor, SLICES };";
+const shim = ";globalThis.__exports = { parseWithRepair, mergeReply, checkStructure, checkMeaning, checkShell, checkAssetStrings, looksTruncated, safeJson, contextFor, summarizeChange, SLICES };";
 vm.runInNewContext(script[1] + shim, sandbox, { filename: "edit-with-ai.html <script>" });
 const t = sandbox.__exports;
 
@@ -272,6 +272,47 @@ test("context: an edit to the devices is told what the rack and links depend on"
   assert(text.includes("Devices also listed in the rack: core-sw-01"));
   assert(text.includes("Devices that connections depend on: core-sw-01, edge-fw-01"));
   assert(text.includes("FOR REFERENCE ONLY"));
+});
+
+/* ---- the change list has no blind spots ---- */
+
+test("changes: deleting a reserved unit is reported", () => {
+  const before = baseDesign();
+  before.rack.reserved = [{ position: 5, height: 1, label: "GROWTH" }];
+  const after = json(before);
+  after.rack.reserved = [];
+  const group = t.summarizeChange(before, after).find((g) => g.label === "Reserved units");
+  assert(group && group.lines.some((line) => line.kind === "remove" && /U5/.test(line.text)),
+    "a deleted reserved unit went unreported");
+});
+
+test("changes: a canvas resize is reported", () => {
+  const before = baseDesign();
+  const after = json(before);
+  after.topology.canvas.width = 1600;
+  const group = t.summarizeChange(before, after).find((g) => g.label === "Canvas");
+  assert(group && group.lines.some((line) => /canvas\.width 1280 → 1600/.test(line.text)),
+    "a canvas resize went unreported");
+});
+
+test("changes: an aisle swap is reported", () => {
+  const before = baseDesign();
+  before.rack.frontAisle = "cold aisle";
+  const after = json(before);
+  after.rack.frontAisle = "hot aisle";
+  const group = t.summarizeChange(before, after).find((g) => g.label === "Rack details");
+  assert(group && group.lines.some((line) => /frontAisle/.test(line.text)),
+    "an aisle change went unreported");
+});
+
+test("changes: an unnamed field cannot change invisibly", () => {
+  const before = baseDesign();
+  before.validation = { declared: 1 };
+  const after = json(before);
+  after.validation = { declared: 2 };
+  const group = t.summarizeChange(before, after).find((g) => g.label === "Everything else");
+  assert(group && group.lines.some((line) => /validation changed/.test(line.text)),
+    "an unknown top-level field changed invisibly");
 });
 
 /* ---- runner ---- */

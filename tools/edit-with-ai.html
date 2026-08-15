@@ -1127,9 +1127,20 @@ function summarizeChange(before, after) {
     (device, key) => `${key}${device?.position ? `  U${device.position}${device.height > 1 ? `–U${device.position + device.height - 1}` : ""}` : ""}${device?.model ? `  ${device.model}` : ""}`));
 
   const rackFields = fieldDiffs(
-    { id: before.rack?.id, location: before.rack?.location, units: before.rack?.units },
-    { id: after.rack?.id, location: after.rack?.location, units: after.rack?.units });
+    { id: before.rack?.id, location: before.rack?.location, units: before.rack?.units,
+      frontAisle: before.rack?.frontAisle, rearAisle: before.rack?.rearAisle },
+    { id: after.rack?.id, location: after.rack?.location, units: after.rack?.units,
+      frontAisle: after.rack?.frontAisle, rearAisle: after.rack?.rearAisle });
   add("Rack details", rackFields.map((text) => ({ kind: "change", text })));
+
+  // Reserved units are as deletable as devices, and a model that clears them
+  // to "make room" must not do so invisibly.
+  add("Reserved units", diffCollection(before.rack?.reserved, after.rack?.reserved,
+    (slot, i) => `U${slot?.position ?? "?"}#${i}`,
+    (slot) => `U${slot?.position ?? "?"}${slot?.height > 1 ? `–U${slot.position + slot.height - 1}` : ""}${slot?.label ? `  “${short(slot.label, 28)}”` : ""}`));
+
+  // A canvas resize silently rescales every device on the page.
+  add("Canvas", fieldDiffs(before.topology?.canvas, after.topology?.canvas, "canvas").map((text) => ({ kind: "change", text })));
 
   add("Gaps & open items", diffCollection(before.sections?.findings?.items, after.sections?.findings?.items,
     (item, i) => item?.title ?? `#${i}`,
@@ -1146,6 +1157,26 @@ function summarizeChange(before, after) {
   add("Notes & tables", sectionLines);
 
   add("Cover details", fieldDiffs(before.document, after.document).map((text) => ({ kind: "change", text })));
+
+  /* The catch-all. Every named group above covers a known path; anything else
+     that changed is reported by its raw path, so the panel cannot silently
+     fall behind the schema when a new field appears. */
+  const stray = [];
+  const changed = (a, b) => JSON.stringify(a) !== JSON.stringify(b);
+  const keysOf = (a, b) => [...new Set([...Object.keys(a || {}), ...Object.keys(b || {})])];
+  for (const key of keysOf(before, after)) {
+    if (["topology", "rack", "sections", "document"].includes(key)) continue;
+    if (changed(before?.[key], after?.[key])) stray.push({ kind: "change", text: `${key} changed` });
+  }
+  for (const key of keysOf(before.topology, after.topology)) {
+    if (["nodes", "links", "zones", "canvas"].includes(key)) continue;
+    if (changed(before.topology?.[key], after.topology?.[key])) stray.push({ kind: "change", text: `topology.${key} changed` });
+  }
+  for (const key of keysOf(before.rack, after.rack)) {
+    if (["id", "location", "units", "frontAisle", "rearAisle", "reserved", "devices"].includes(key)) continue;
+    if (changed(before.rack?.[key], after.rack?.[key])) stray.push({ kind: "change", text: `rack.${key} changed` });
+  }
+  add("Everything else", stray);
 
   return groups;
 }
