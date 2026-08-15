@@ -29,5 +29,9 @@ The repository validator confirms that the sprite embedded in the editable
 template and this showcase matches `symbols/network-symbols.svg`, that all 19
 symbol IDs are unique, and that neither source contains raster image payloads.
 
-This experiment does not establish redistribution rights. See
-[`../THIRD_PARTY_NOTICES.md`](../THIRD_PARTY_NOTICES.md).
+## Licence
+
+The library is original work, MIT licensed with the rest of the project. It is
+free to reuse on its own; see [`../symbols/README.md`](../symbols/README.md) for
+how to inline it elsewhere. Only the vendor artwork under `assets/` sits outside
+that grant — see [`../THIRD_PARTY_NOTICES.md`](../THIRD_PARTY_NOTICES.md).

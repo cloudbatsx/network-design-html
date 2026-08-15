@@ -18,11 +18,11 @@ IMMUTABLE PACKAGING CONTRACT — NEVER CHANGE
    - `rack`: `rack-assets/`
 4. The editable vault must remain exactly `{}`.
 5. The editable source capsule must remain empty.
-6. Never add Base64, `data:image`, inline raster bytes, CDNs, or external icon libraries. The template's existing inline SVG placeholder sprite is allowed and must remain path-based.
+6. Never add Base64, `data:image`, inline raster bytes, CDNs, or external icon libraries. The template's existing inline SVG symbol sprite is allowed and must remain path-based.
 7. Keep the existing inline vector symbol definitions and semantic icon map intact. Select semantic keys; do not redraw, trace, restyle, or rename the protected symbol paths.
 
 HYBRID VECTOR / OFFICIAL WORKFLOW
-- In editable mode, topology nodes render clean inline SVG placeholders and rack devices render inline CSS placeholders. The editable HTML must remain visually complete without loading an adjacent image.
+- In editable mode, topology nodes render the project's own inline SVG symbols and rack devices render inline CSS faces. Those are finished artwork, not stand-ins: the editable HTML is a complete deliverable on its own and must never need an adjacent image.
 - In portable mode, the same semantic topology keys resolve to official Cisco JPG assets and the same rack schedule resolves to official front/rear PNG assets embedded by the packager.
 - Every semantic icon record must retain both its vector id and its complete literal official identifier, for example:
   `"access-switch":{vector:"nd-access-switch",official:"asset:cisco/workgroup switch.jpg"}`

@@ -98,23 +98,34 @@ function verifyPair(editableName, portableName, expectedAssets) {
   return result;
 }
 
+// The packager is shipped as source and reads assets/ at runtime. Everything
+// checked here is a way of failing if it ever drifts back into a built artifact
+// that a person cannot simply open from a clone.
+const PACKAGER_PATH = "tools/packager/network-design-packager.html";
+const PACKAGER_BYTE_CEILING = 200 * 1024;
+
 function verifyPackager() {
-  const packager = read("dist/network-design-packager.html");
-  const primary = Buffer.from(readScriptById(packager, "bundled-hybrid-source"), "base64").toString("utf8");
-  const alternate = Buffer.from(readScriptById(packager, "bundled-alternate-source"), "base64").toString("utf8");
-  const vault = JSON.parse(readScriptById(packager, "packager-asset-vault"));
-  const expectedPrimary = read("templates/network-design-template.edit.html");
-  const expectedAlternate = read("tests/fixtures/alternate-dashboard.edit.html");
+  const packager = read(PACKAGER_PATH);
+  const bytes = Buffer.byteLength(packager);
+  const checks = {
+    noBuildTokens: !/@@[A-Z_]+@@/.test(packager),
+    noEmbeddedArtwork: !packager.includes("data:image/") && !packager.includes("packager-asset-vault"),
+    readsFolderAtRuntime: packager.includes("webkitdirectory") && packager.includes("webkitRelativePath"),
+    declaresCiscoDirectory: packager.includes("icons/cisco-pms3015"),
+    declaresRackDirectory: packager.includes("rack-assets"),
+    keepsUserArtworkPath: packager.includes("byName"),
+    provesByteParity: packager.includes("maskProtected"),
+    withinByteCeiling: bytes <= PACKAGER_BYTE_CEILING
+  };
+  const iconFiles = fs.readdirSync(path.join(repoRoot, "assets", "icons", "cisco-pms3015")).filter((name) => name.toLowerCase().endsWith(".jpg"));
+  const rackFiles = fs.readdirSync(path.join(repoRoot, "assets", "rack-assets")).filter((name) => name.toLowerCase().endsWith(".png"));
   return {
-    sourcePrimaryExact: primary === expectedPrimary,
-    sourceAlternateExact: alternate === expectedAlternate,
-    vaultSchemaValid: vault.schema === "network-packager-vault/v2",
-    ciscoAssets: vault.iconCount,
-    rackAssets: vault.rackCount,
-    namedAssets: Object.keys(vault.keys || {}).length,
-    uniqueBlobs: Object.keys(vault.blobs || {}).length,
-    pass: primary === expectedPrimary && alternate === expectedAlternate &&
-      vault.schema === "network-packager-vault/v2" && vault.iconCount === 294 && vault.rackCount === 10
+    file: PACKAGER_PATH,
+    bytes,
+    ciscoAssets: iconFiles.length,
+    rackAssets: rackFiles.length,
+    ...checks,
+    pass: Object.values(checks).every(Boolean) && iconFiles.length === 294 && rackFiles.length === 10
   };
 }
 

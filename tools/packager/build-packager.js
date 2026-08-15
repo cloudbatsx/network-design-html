@@ -1,21 +1,31 @@
 "use strict";
 
+/*
+ * Maintainer-only. The packager itself is no longer built: it is a tracked,
+ * dependency-free page at tools/packager/network-design-packager.html that
+ * reads assets/ from the checkout at runtime. What is still worth generating
+ * is proof that the same contract survives a real end-to-end packaging run, so
+ * this script packages two fixtures the way the browser does and writes them,
+ * with a QA report, into the untracked dist/ directory.
+ *
+ *   node tools/packager/build-packager.js
+ */
+
 const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
 
 const repoRoot = path.resolve(__dirname, "../..");
-const templatePath = path.join(__dirname, "packager-template.html");
-const primaryPath = path.join(repoRoot, "templates", "network-design-template.edit.html");
-const alternatePath = path.join(repoRoot, "tests", "fixtures", "alternate-dashboard.edit.html");
-const packagerPath = path.join(repoRoot, "dist", "network-design-packager.html");
+const assetRoot = path.join(repoRoot, "assets");
+const packagerPath = path.join(repoRoot, "tools", "packager", "network-design-packager.html");
+
 const outputs = [
   {
-    editablePath: primaryPath,
+    editablePath: path.join(repoRoot, "templates", "network-design-template.edit.html"),
     portablePath: path.join(repoRoot, "dist", "examples", "topology-and-rack.portable.html")
   },
   {
-    editablePath: alternatePath,
+    editablePath: path.join(repoRoot, "tests", "fixtures", "alternate-dashboard.edit.html"),
     portablePath: path.join(repoRoot, "dist", "examples", "alternate-dashboard.portable.html")
   }
 ];
@@ -23,6 +33,7 @@ const outputs = [
 const CONTRACT_SCHEMA = "network-design-package/v2";
 const ASSET_REFERENCE_SCHEMA = "asset-uri/v1";
 const PORTABLE_SCHEMA = "network-asset-vault/v2";
+const SCHEME_DIRS = Object.freeze({ cisco: "icons/cisco-pms3015", rack: "rack-assets" });
 const BLOCKS = Object.freeze({
   contract: { begin: "<!-- NETWORK-PACKAGER-CONTRACT:BEGIN -->", end: "<!-- NETWORK-PACKAGER-CONTRACT:END -->", id: "network-packager-contract" },
   vault: { begin: "<!-- NETWORK-ASSET-VAULT:BEGIN -->", end: "<!-- NETWORK-ASSET-VAULT:END -->", id: "network-asset-vault" },
@@ -37,13 +48,21 @@ function sha256(value) {
   return crypto.createHash("sha256").update(value).digest("hex");
 }
 
+
+// Built from escape sequences on purpose. ECMAScript counts U+2028/U+2029 as
+// line terminators, so a regex literal holding one raw ends early and throws
+// before this file can run; a literal control character is just as invisible.
+const LINE_SEP = new RegExp("\\u2028", "g");
+const PARA_SEP = new RegExp("\\u2029", "g");
+const CONTROL_CHARS = new RegExp("[\\u0000-\\u001f]");
+
 function safeJson(value, spacing = 0) {
   return JSON.stringify(value, null, spacing)
     .replace(/</g, "\\u003c")
     .replace(/>/g, "\\u003e")
     .replace(/&/g, "\\u0026")
-    .replace(/\u2028/g, "\\u2028")
-    .replace(/\u2029/g, "\\u2029");
+    .replace(LINE_SEP, "\\u2028")
+    .replace(PARA_SEP, "\\u2029");
 }
 
 function countOf(source, token) {
@@ -101,7 +120,7 @@ function validateContract(source) {
   if (contract.schema !== CONTRACT_SCHEMA || contract.assetReferences !== ASSET_REFERENCE_SCHEMA) {
     throw new Error("Unsupported or incomplete v2 packaging contract.");
   }
-  if (contract.assetUriSchemes?.cisco !== "icons/cisco-pms3015/" || contract.assetUriSchemes?.rack !== "rack-assets/") {
+  if (contract.assetUriSchemes?.cisco !== `${SCHEME_DIRS.cisco}/` || contract.assetUriSchemes?.rack !== `${SCHEME_DIRS.rack}/`) {
     throw new Error("Immutable asset URI scheme mappings were changed.");
   }
   return contract;
@@ -123,18 +142,18 @@ function assetIdToPath(id) {
   const match = /^asset:(cisco|rack)\/([^/]+)$/.exec(id);
   if (!match) throw new Error(`Invalid asset identifier syntax: ${id}`);
   const [, scheme, file] = match;
-  if (file.includes("\\") || file.includes("%") || /[\u0000-\u001f]/.test(file)) {
+  if (file.includes("\\") || file.includes("%") || CONTROL_CHARS.test(file)) {
     throw new Error(`Unsafe asset identifier: ${id}`);
   }
   const expectedExtension = scheme === "cisco" ? ".jpg" : ".png";
   if (!file.toLowerCase().endsWith(expectedExtension)) throw new Error(`Wrong file type: ${id}`);
-  return `${scheme === "cisco" ? "icons/cisco-pms3015" : "rack-assets"}/${file}`;
+  return `${SCHEME_DIRS[scheme]}/${file}`;
 }
 
-function filesIn(actualRelativeDirectory, canonicalRelativeDirectory, extension) {
-  const absoluteDirectory = path.join(repoRoot, actualRelativeDirectory);
+function filesIn(canonicalRelativeDirectory, extension) {
+  const absoluteDirectory = path.join(assetRoot, canonicalRelativeDirectory);
   if (!fs.existsSync(absoluteDirectory)) {
-    throw new Error(`Local asset directory is unavailable: ${actualRelativeDirectory}`);
+    throw new Error(`Artwork directory is unavailable: assets/${canonicalRelativeDirectory}`);
   }
   return fs.readdirSync(absoluteDirectory, { withFileTypes: true })
     .filter((entry) => entry.isFile() && entry.name.toLowerCase().endsWith(extension))
@@ -151,10 +170,12 @@ function detectMime(buffer, canonicalPath) {
   throw new Error(`Unrecognized image signature: ${canonicalPath}`);
 }
 
+// The browser packager reads only the files a design actually references. Here
+// the whole tree is indexed first because two fixtures are built in one pass.
 function buildFullVault() {
   const files = [
-    ...filesIn("vendor-local/icons/cisco-pms3015", "icons/cisco-pms3015", ".jpg"),
-    ...filesIn("vendor-local/rack-assets", "rack-assets", ".png")
+    ...filesIn(SCHEME_DIRS.cisco, ".jpg"),
+    ...filesIn(SCHEME_DIRS.rack, ".png")
   ];
   const keys = {};
   const blobs = {};
@@ -186,7 +207,7 @@ function analyzeEditable(source, fullVault) {
   if (!ids.length) throw new Error("No stable asset identifiers were found.");
   const entries = ids.map((id) => ({ id, path: assetIdToPath(id) }));
   const missing = entries.find((entry) => !fullVault.keys[entry.path]);
-  if (missing) throw new Error(`Official asset is unavailable: ${missing.id}`);
+  if (missing) throw new Error(`Artwork is unavailable: ${missing.id}`);
   return { clean, entries };
 }
 
@@ -213,14 +234,6 @@ function buildPortable(editableSource, fullVault) {
   return { ...analysis, portable, keys, blobs };
 }
 
-function replaceExactlyOnce(source, token, value) {
-  const first = source.indexOf(token);
-  if (first < 0 || source.indexOf(token, first + token.length) >= 0) {
-    throw new Error(`Build token must occur exactly once: ${token}`);
-  }
-  return source.slice(0, first) + value + source.slice(first + token.length);
-}
-
 function maskProtected(source) {
   source = replaceRegionInner(source, BLOCKS.vault, "[NETWORK-ASSET-VAULT]");
   return replaceRegionInner(source, BLOCKS.capsule, "[EDITABLE-SOURCE-CAPSULE]");
@@ -231,16 +244,15 @@ function relative(filePath) {
 }
 
 function main() {
+  // The packager ships as source now. If it ever acquires a build token again,
+  // it has stopped being the file people can open straight from a clone.
+  const packager = readUtf8(packagerPath);
+  if (/@@[A-Z_]+@@/.test(packager)) {
+    throw new Error("tools/packager/network-design-packager.html still contains build tokens; it must be usable as-is.");
+  }
+
   fs.mkdirSync(path.join(repoRoot, "dist", "examples"), { recursive: true });
   const vault = buildFullVault();
-  const primary = cleanEditable(readUtf8(primaryPath));
-  const alternate = cleanEditable(readUtf8(alternatePath));
-
-  let packager = readUtf8(templatePath);
-  packager = replaceExactlyOnce(packager, "@@PACKAGER_ASSET_VAULT@@", safeJson(vault));
-  packager = replaceExactlyOnce(packager, "@@PRIMARY_SOURCE_BASE64@@", Buffer.from(primary, "utf8").toString("base64"));
-  packager = replaceExactlyOnce(packager, "@@ALTERNATE_SOURCE_BASE64@@", Buffer.from(alternate, "utf8").toString("base64"));
-  fs.writeFileSync(packagerPath, packager, "utf8");
 
   const reports = [];
   for (const output of outputs) {
@@ -262,8 +274,8 @@ function main() {
   }
 
   process.stdout.write(`${JSON.stringify({
-    packager: { file: relative(packagerPath), bytes: Buffer.byteLength(packager) },
-    vault: { names: Object.keys(vault.keys).length, uniqueFiles: Object.keys(vault.blobs).length, bytes: vault.uniqueBytes },
+    packager: { file: relative(packagerPath), bytes: Buffer.byteLength(packager), tracked: true, buildRequired: false },
+    artwork: { root: "assets", names: Object.keys(vault.keys).length, uniqueFiles: Object.keys(vault.blobs).length, bytes: vault.uniqueBytes },
     outputs: reports
   }, null, 2)}\n`);
 }

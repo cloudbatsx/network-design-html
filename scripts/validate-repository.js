@@ -244,33 +244,53 @@ check("editable vector files contain no raster image payloads", () => {
   }
 });
 
-check("local asset references resolve when vendor assets are present", () => {
-  const iconDirectory = path.join(root, "vendor-local", "icons", "cisco-pms3015");
-  const rackDirectory = path.join(root, "vendor-local", "rack-assets");
-  if (!fs.existsSync(iconDirectory) || !fs.existsSync(rackDirectory)) {
-    notes.push("vendor-local assets absent; binary reference validation skipped");
-    return;
-  }
+// Artwork ships with the repository now, so this is no longer conditional: a
+// design that names an image the checkout does not contain is a broken design.
+const iconDirectory = path.join(root, "assets", "icons", "cisco-pms3015");
+const rackDirectory = path.join(root, "assets", "rack-assets");
+
+check("official artwork ships with the repository", () => {
+  assert(fs.existsSync(iconDirectory), "assets/icons/cisco-pms3015 is missing");
+  assert(fs.existsSync(rackDirectory), "assets/rack-assets is missing");
   const iconFiles = fs.readdirSync(iconDirectory).filter((name) => name.toLowerCase().endsWith(".jpg"));
   const rackFiles = fs.readdirSync(rackDirectory).filter((name) => name.toLowerCase().endsWith(".png"));
-  assert(iconFiles.length === 294, `expected 294 local Cisco JPGs, found ${iconFiles.length}`);
-  assert(rackFiles.length === 10, `expected 10 local rack PNGs, found ${rackFiles.length}`);
+  assert(iconFiles.length === 294, `expected 294 Cisco JPGs in assets/, found ${iconFiles.length}`);
+  assert(rackFiles.length === 10, `expected 10 rack PNGs in assets/, found ${rackFiles.length}`);
+});
+
+checkEvery("every asset reference resolves to a shipped file", (want) => {
   const sources = [primary, alternate, JSON.stringify(map), ...starters];
+  const missing = new Set();
   for (const source of sources) {
     for (const match of source.matchAll(/asset:(cisco|rack)\/([^"'<>`\r\n\\]+)/g)) {
       const directory = match[1] === "cisco" ? iconDirectory : rackDirectory;
-      assert(fs.existsSync(path.join(directory, match[2])), `missing local asset: asset:${match[1]}/${match[2]}`);
+      if (!fs.existsSync(path.join(directory, match[2]))) missing.add(`asset:${match[1]}/${match[2]}`);
     }
   }
+  want(missing.size === 0, `unresolved artwork: ${[...missing].join(", ")}`);
 });
 
-check("generated and binary files stay in excluded directories", () => {
+// The packager is the whole reason somebody can package without installing
+// anything. These guard the two ways that quietly stops being true: it grows a
+// build step, or it swallows the artwork it is supposed to read from disk.
+checkEvery("the packager is usable straight from a clone", (want) => {
+  const packagerPath = path.join(root, "tools", "packager", "network-design-packager.html");
+  want(fs.existsSync(packagerPath), "tools/packager/network-design-packager.html is missing");
+  if (!fs.existsSync(packagerPath)) return;
+  const packager = fs.readFileSync(packagerPath, "utf8");
+  want(!/@@[A-Z_]+@@/.test(packager), "packager still contains build tokens");
+  want(!packager.includes("data:image/"), "packager embeds raster artwork");
+  want(packager.includes("webkitdirectory"), "packager no longer reads an artwork folder");
+  want(Buffer.byteLength(packager) <= 200 * 1024, "packager exceeds 200 KB, which suggests baked-in artwork");
+});
+
+check("generated files stay in excluded directories", () => {
   const files = walk();
   const portableOutsideDist = files.filter((file) => file.endsWith(".portable.html") && !file.startsWith("dist/"));
   assert(portableOutsideDist.length === 0, `portable output outside dist: ${portableOutsideDist.join(", ")}`);
-  const binariesOutsideLocal = files.filter((file) => /\.(?:jpe?g|png|gif|webp)$/i.test(file) &&
-    !file.startsWith("vendor-local/") && !file.startsWith("dist/"));
-  assert(binariesOutsideLocal.length === 0, `raster assets outside excluded directories: ${binariesOutsideLocal.join(", ")}`);
+  const binariesOutsidePermitted = files.filter((file) => /\.(?:jpe?g|png|gif|webp)$/i.test(file) &&
+    !file.startsWith("assets/") && !file.startsWith("vendor-local/") && !file.startsWith("dist/"));
+  assert(binariesOutsidePermitted.length === 0, `raster assets outside assets/: ${binariesOutsidePermitted.join(", ")}`);
 });
 
 for (const label of passes) process.stdout.write(`PASS  ${label}\n`);

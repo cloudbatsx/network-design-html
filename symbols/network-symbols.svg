@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-  <title>Network Design inline SVG placeholder sprite</title>
+  <title>Network Design vector symbol library</title>
   <style>
     :root{--blue:#0076a8;--blue-dark:#005779;--blue-light:#51bde6}
     .sym-primary{fill:var(--symbol-main,var(--blue))}

@@ -67,6 +67,64 @@ No Node. No npm. No command line. Just a browser and an AI chat window.
 
 ---
 
+## Two ways to finish
+
+A design is **already finished** when you save it. It draws with 19 built-in vector
+symbols, carries no images, and needs no download, no install and no network. That
+is the light path, and for most documents it is the better one:
+
+| | file size | needs |
+|---|---|---|
+| **Vector symbols** — just save it | **~100 KB** | nothing |
+| **Official Cisco artwork** — run the packager | ~3.7 MB | the `assets` folder |
+
+36× smaller, emails cleanly, diffs in Git, prints identically. The symbols live in
+[`symbols/`](symbols/README.md), they are MIT licensed original work, and you are
+free to lift them for anything else you build — see
+[`examples/vector-symbol-showcase.html`](examples/vector-symbol-showcase.html) for
+all 19 at a glance.
+
+Nothing is one-way, either: a packaged file carries its editable source inside it,
+so **Download editable source** hands the light version straight back.
+
+## Official artwork
+
+When a document does need the **official Cisco icons and rack faces** — a customer
+deliverable, a house standard — swap them in at the end:
+
+1. Open [`tools/packager/network-design-packager.html`](tools/packager/network-design-packager.html)
+2. Point it at the **`assets`** folder from this repository
+3. Choose your design file → **Build portable HTML**
+
+Out comes one file with the real images inside it. Still offline, still no install,
+still openable anywhere — and it can hand your editable source back at any time.
+
+The artwork ships in this repository, so a clone has everything the packager needs:
+
+```text
+assets/icons/cisco-pms3015/   294 official Cisco topology icons
+assets/rack-assets/            10 front/rear rack faces
+```
+
+**Your own artwork works too.** Drop your images into the packager, or keep them in
+the `assets` folders, and reference them by exact filename:
+
+```json
+{ "id": "core-sw-01", "icon": "core-switch", "iconAsset": "asset:cisco/acme-9500.jpg" }
+```
+
+`iconAsset` overrides one device's picture without touching anything else. Filenames
+are case-sensitive, and a `.jpg` is expected for topology icons, a `.png` for rack
+faces. Anything the design asks for and you have not supplied is listed by name
+before the build runs, so nothing fails silently.
+
+> The four engineering-sheet kits — NET-ENT-002, NET-HQ-002, NET-LAB-003 and
+> NET-RH-001 — draw in their own grammar and ignore `iconAsset`. Their twenty
+> standard icons still swap to official artwork; per-device overrides do not.
+> Start from any of the other kits if you need those.
+
+---
+
 ## What you get
 
 | | |
@@ -175,6 +233,7 @@ for the diagrams people actually hand-draw; not a substitute for Graphviz on 200
 |---|---|
 | [`docs/ai-json-rules.md`](docs/ai-json-rules.md) | The prompt. Copy it into your AI chat. |
 | [`docs/document-shell.md`](docs/document-shell.md) | The layout standard — section spine, toggleable layers, print contract. |
+| [`symbols/README.md`](symbols/README.md) | The 19 vector symbols — the semantic keys, retheming, reusing them elsewhere. |
 | [`docs/architecture.md`](docs/architecture.md) | The packaging contract and symbol synchronization. |
 | [`CONTRIBUTING.md`](CONTRIBUTING.md) | Read before changing symbol geometry. |
 
@@ -189,32 +248,36 @@ Run the validator before sharing a template change:
 npm test
 ```
 
-**Optional official-asset build.** Cisco JPGs and rack PNGs are not in this repository.
-If you have reviewed and supplied them under `vendor-local/`:
+**The packager needs no build.** It is source in the tree, and it reads `assets/`
+from the checkout when you open it. Nothing bakes artwork into it — that is asserted
+by `npm test`, along with a byte ceiling, because a packager that has to be built is
+a packager most people will never have.
+
+**Optional example build.** To regenerate the packaged examples and the QA report:
 
 ```bash
 npm run build:packager
 npm run verify:packager
 ```
 
-This produces `dist/network-design-packager.html` — a browser tool that embeds official
-artwork into a self-contained `.portable.html`, which can recover its exact editable
-source again. Both `vendor-local/` and `dist/` are Git-ignored.
+Those write into `dist/`, which stays Git-ignored: the outputs embed artwork and are
+reproducible from the tree in one click anyway.
 
 [`docs/gemini-editing-rules.md`](docs/gemini-editing-rules.md) is the template-authoring
 and packaging contract — the rules for rewriting the template itself, *not* the prompt
 for editing a diagram.
 
 ```text
-starters/                five ready-made designs to copy
+starters/                ten ready-made designs to copy
 templates/               the editable template
 symbols/                 canonical SVG sprite + semantic map
+assets/                  official Cisco icons and rack faces
 tools/edit-with-ai.html  offline AI editing helper
-tools/packager/          optional packager source
+tools/packager/          the packager, plus its maintainer scripts
 docs/                    prompt, layout standard, architecture
 scripts/                 repository validation
 examples/  tests/        showcase and contract fixture
-vendor-local/  dist/     untracked binaries and build output
+dist/                    build output, untracked
 ```
 
 </details>
@@ -225,11 +288,14 @@ vendor-local/  dist/     untracked binaries and build output
 
 Pre-release, but the workflow above works today.
 
-Code, tooling, and documentation are **MIT licensed** — see [`LICENSE`](LICENSE).
+Code, tooling, documentation **and the 19 vector symbols** are **MIT licensed** —
+see [`LICENSE`](LICENSE). The symbols are original work; reuse them anywhere.
 
-⚠️ **That grant excludes the vector symbols.** They are experimental interpretations
-informed by Cisco reference silhouettes, and the artwork review is not finished. Don't
-treat this repository as permission to redistribute Cisco artwork or close derivatives.
-See [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md).
+⚠️ **One exclusion: `assets/`.** The Cisco topology icons and rack faces come from
+third-party sources and ship here unmodified so the packager works from a clone.
+The MIT grant does not extend to them, and this repository is not a licence to
+redistribute them onward — read [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md)
+first. Delete `assets/` and everything still works; you simply design and ship with
+the vector symbols instead.
 
 Independent project. Not affiliated with or endorsed by Cisco.

@@ -23,9 +23,15 @@ Before proposing a repository change:
    embedded template sprite, and `examples/vector-symbol-showcase.html`.
 5. If a semantic mapping changes, synchronize `symbols/symbol-map.json` and the
    embedded `ICONS` map in the template.
-6. Run `npm test`. With reviewed local assets available, also run
+6. Run `npm test`. When the packaging path is touched, also run
    `npm run build:packager` and `npm run verify:packager`.
 
-Do not add downloaded icon packs, rack PNGs, generated packagers, portable HTML
-outputs, or Base64 raster payloads to a change. Rights and provenance must be
-reviewed before any new third-party visual asset is introduced.
+The artwork in `assets/` ships with the repository and is covered in
+[`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md). Adding to it is a rights
+decision, not a code decision: no new third-party image goes in without its
+provenance and licence recorded there first, and existing files are never
+recoloured, cropped or retraced — the packager verifies their checksums, so an
+altered file fails the build.
+
+Do not commit generated portable HTML, Base64 raster payloads, or anything built
+into `dist/`.

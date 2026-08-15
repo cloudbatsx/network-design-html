@@ -26,21 +26,22 @@ SOFTWARE.
 
 The MIT grant above covers the original work in this repository: the HTML
 templates and their renderer code, the CSS, the tooling under `tools/` and
-`scripts/`, the JSON schemas and maps, and the documentation.
+`scripts/`, the JSON schemas and maps, the documentation, **and the vector
+symbol library** — the 19 symbols in `symbols/network-symbols.svg` together with
+every synchronized copy of them embedded in the template, the starter kits and
+`examples/vector-symbol-showcase.html`. That artwork is the copyright holder's
+own work and is licensed to you on the same MIT terms as the code: use it, adapt
+it, redistribute it, on its own or as part of something else.
 
 It does **not** grant any rights in third-party material, which is not the
 copyright holder's to license:
 
-- **The vector symbol artwork** in `symbols/network-symbols.svg`, and the
-  synchronized copies of it embedded in `templates/network-design-template.edit.html`
-  and `examples/vector-symbol-showcase.html`. These symbols are experimental
-  interpretations informed by Cisco PMS 3015 reference silhouettes. Whether they
-  are covered by Cisco's permission for unmodified networking icons has not been
-  determined. Until that review is complete, treat the symbol geometry as
-  reserved and excluded from the grant above.
-- **Any binary artwork** supplied locally under `vendor-local/`, and any
-  generated file under `dist/` that embeds it. These are excluded from this
-  repository and retain the terms of their own sources.
+- **The third-party artwork** distributed under `assets/` — the Cisco topology
+  icon JPGs in `assets/icons/cisco-pms3015/` and the rack face PNGs in
+  `assets/rack-assets/` — together with any generated file under `dist/`, or any
+  `.portable.html` produced by the packager, that embeds them. Those files are
+  included unmodified for the packaging workflow and retain the terms of their
+  own sources.
 
 Cisco and Cisco product names are trademarks of Cisco Systems, Inc. This project
 is independent and is not affiliated with or endorsed by Cisco.

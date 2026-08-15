@@ -11,10 +11,10 @@ semantic key -> inline SVG symbol       (editable mode)
              -> literal asset:cisco ID  (portable mode)
 ```
 
-Editable mode is the default. It renders the inline SVG library and CSS rack
-placeholders without loading external files. Portable mode is enabled only when
-the packager inserts an asset vault; it renders the corresponding embedded
-raster bytes.
+Editable mode is the default. It renders the inline SVG symbol library and CSS
+rack faces without loading external files, and is a finished deliverable in its
+own right. Portable mode is enabled only when the packager inserts an asset
+vault; it renders the corresponding embedded raster bytes instead.
 
 ## Sources of truth
 
@@ -23,8 +23,9 @@ raster bytes.
 - `templates/network-design-template.edit.html` is the canonical user template
   and carries synchronized runtime copies of both.
 - `examples/vector-symbol-showcase.html` is a synchronized visual QA surface.
-- `tools/packager/packager-template.html` is the source for the optional local
-  browser packager.
+- `tools/packager/network-design-packager.html` is the packager itself: source in
+  the tree, opened directly, with no build step and no artwork inside it.
+- `assets/` is the shipped official artwork the packager reads at runtime.
 
 There is deliberately no runtime dependency from the editable HTML to the
 standalone sprite or map.
@@ -62,19 +63,29 @@ Official asset IDs must appear as complete string literals, for example
 `asset:cisco/workgroup switch.jpg`. Dynamically assembled filenames are not
 discoverable by the packager scanner and are therefore unsupported.
 
-## Local binary boundary
+## Artwork boundary
 
 The immutable logical directories in the contract do not dictate repository
-layout. The build maps them to ignored local inputs:
+layout. They are resolved against whichever artwork root the packager is given:
 
 ```text
-icons/cisco-pms3015/  -> vendor-local/icons/cisco-pms3015/
-rack-assets/          -> vendor-local/rack-assets/
+icons/cisco-pms3015/  -> <artwork root>/icons/cisco-pms3015/
+rack-assets/          -> <artwork root>/rack-assets/
 ```
 
-This preserves compatibility while keeping the first Git history source-only.
-Generated packagers and portable examples belong under the ignored `dist/`
-directory because those HTML files embed the same binary bytes.
+In this repository that root is `assets/`, which ships populated so a clone can
+package immediately. It is not privileged: the packager matches the two canonical
+folders by path suffix, so any checkout depth works, and any file supplied by name
+resolves even when it sits outside them. That is the supported path for a user's
+own artwork, and for replacing the Cisco set entirely.
+
+Resolution order for one identifier is: the official file at its canonical path,
+then a uniquely named file anywhere in the selection, then failure. Two different
+files sharing a name is reported rather than resolved, because picking one would
+silently change what a document depicts.
+
+Portable examples belong under the ignored `dist/` directory because those HTML
+files embed the same binary bytes.
 
 ## Symbol maintenance
 

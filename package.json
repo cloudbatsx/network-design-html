@@ -2,7 +2,7 @@
   "name": "network-design-html",
   "version": "0.1.0",
   "private": true,
-  "description": "Self-contained HTML network diagrams with editable SVG symbols and optional official-asset packaging.",
+  "description": "Self-contained HTML network diagrams with editable SVG symbols and one-click packaging into official Cisco artwork.",
   "scripts": {
     "validate": "node scripts/validate-repository.js",
     "build:packager": "node tools/packager/build-packager.js",

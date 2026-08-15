@@ -1,0 +1,581 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Offline packager for compliant network-design HTML templates. Reads official artwork from a folder you choose and embeds it into a self-contained portable file.">
+  <title>Network Design HTML Packager</title>
+  <style>
+    :root{--ink:#14242f;--muted:#5d707c;--page:#e8eef1;--paper:#fff;--line:#c9d4da;--blue:#007fa8;--blue2:#006687;--ok:#26734d;--warn:#a66300;--bad:#a02d2d;color-scheme:light;font-family:"Segoe UI",Arial,sans-serif}
+    *{box-sizing:border-box}body{margin:0;color:var(--ink);background:var(--page);line-height:1.45}button,input{font:inherit}code{font-family:Consolas,"Courier New",monospace}.app{width:min(1120px,100%);min-height:100vh;margin:auto;background:var(--paper);box-shadow:0 0 34px #14242f1f}
+    header{padding:28px 32px 24px;border-bottom:1px solid var(--line);background:linear-gradient(135deg,#fbfdfe,#edf6f8)}.eyebrow{margin:0 0 5px;color:var(--blue2);font-size:.75rem;font-weight:750;letter-spacing:.12em;text-transform:uppercase}h1{margin:0;font-size:clamp(1.75rem,4vw,2.65rem);line-height:1.08}.subtitle{max-width:850px;margin:9px 0 0;color:var(--muted)}main{padding:24px 30px 38px}
+    .stage{margin-bottom:18px;padding:18px 20px;border:1px solid var(--line);border-radius:9px;background:#fafcfd}.stage.done{border-color:#a9cdbb;background:#f4faf6}.stage h2{margin:0 0 4px;font-size:1.12rem}.stage h2 .n{display:inline-grid;place-items:center;width:24px;height:24px;margin-right:8px;border-radius:50%;color:#fff;background:var(--blue2);font-size:.82rem;vertical-align:2px}.stage.done h2 .n{background:var(--ok)}.stage p.hint{margin:0 0 13px;color:var(--muted);font-size:.88rem}
+    .drop{border:2px dashed #91a9b5;border-radius:10px;padding:18px;text-align:center;background:#fff;transition:.15s}.drop.drag{border-color:var(--blue);background:#eef8fb}.drop input[type=file]{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+    .actions,.build-actions{display:flex;flex-wrap:wrap;gap:8px}.actions{justify-content:center}.button{padding:9px 13px;border:1px solid var(--line);border-radius:6px;color:var(--ink);background:#fff;cursor:pointer;font-weight:650}.button:hover:not(:disabled){border-color:#8ca3ae;background:#f3f7f9}.button.primary{border-color:var(--blue2);color:#fff;background:var(--blue2)}.button.success{border-color:var(--ok);color:#fff;background:var(--ok)}.button:disabled{cursor:not-allowed;opacity:.45}
+    .summary{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px}.metric{padding:12px;border:1px solid var(--line);border-radius:7px;background:#fff}.metric span,.metric strong{display:block}.metric span{color:var(--muted);font-size:.76rem;text-transform:uppercase;letter-spacing:.04em}.metric strong{margin-top:2px;font-size:1.05rem}
+    .message{margin:12px 0 0;padding:11px 13px;border-left:4px solid var(--blue);background:#f3f8fa}.message.ok{border-color:var(--ok);background:#f1f8f4}.message.warning{border-color:var(--warn);background:#fff8ed}.message.error{border-color:var(--bad);color:#762121;background:#fff3f3}.message strong{display:block;margin-bottom:2px}.message span{font-size:.87rem}
+    .build-actions{margin-top:13px}.build-actions .success{margin-left:auto}
+    details{margin-top:14px;border-top:1px solid var(--line)}summary{padding:12px 0 7px;color:var(--blue2);font-weight:700;cursor:pointer}.asset-list{columns:2;column-gap:28px;margin:0;padding-left:20px;color:var(--muted);font-size:.78rem}.asset-list li{break-inside:avoid;margin-bottom:3px;overflow-wrap:anywhere}.asset-list li.mine{color:#7a4d10}.asset-list li.gone{color:var(--bad);font-weight:650}
+    .rules{margin-top:24px;padding:15px 17px;border-left:4px solid #c47b1c;background:#fff8ec}.rules h2{margin:0 0 6px;font-size:1rem}.rules ul{margin:0;padding-left:20px;color:#5b4a30;font-size:.86rem}.rules li{margin-bottom:4px}
+    footer{padding:15px 30px 20px;border-top:1px solid var(--line);color:var(--muted);font-size:.78rem}
+    @media(max-width:760px){header,main,footer{padding-inline:15px}.summary{grid-template-columns:1fr}.asset-list{columns:1}.build-actions .success{margin-left:0}}
+  </style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <p class="eyebrow">Network Design HTML · v2 · Offline · No install</p>
+    <h1>Network Design Packager</h1>
+    <p class="subtitle">Swaps the built-in vector symbols for official artwork. Point it at the <code>assets</code> folder that came with this repository, choose your design, and it writes one self-contained file with the real images inside. Everything outside the two artwork blocks is copied through byte for byte.</p>
+  </header>
+
+  <main>
+    <section class="stage" id="stage-art">
+      <h2><span class="n">1</span>Choose the artwork folder</h2>
+      <p class="hint">Pick the <code>assets</code> folder from this repository — it holds <code>icons/cisco-pms3015</code> and <code>rack-assets</code>. Your browser asks permission to read it; nothing is uploaded. You can also add your own images: drop loose <code>.jpg</code> or <code>.png</code> files here, or keep them in the folder alongside the official ones.</p>
+      <div class="drop" id="art-drop">
+        <input id="art-folder" type="file" webkitdirectory directory multiple>
+        <input id="art-files" type="file" accept="image/jpeg,image/png,.jpg,.jpeg,.png" multiple>
+        <div class="actions">
+          <button class="button primary" id="choose-folder" type="button">Choose artwork folder</button>
+          <button class="button" id="choose-images" type="button">Add my own images</button>
+          <button class="button" id="clear-art" type="button">Clear</button>
+        </div>
+      </div>
+      <div id="art-message"></div>
+    </section>
+
+    <section class="stage" id="stage-source" hidden>
+      <h2><span class="n">2</span>Choose your design file</h2>
+      <p class="hint">Any compliant <code>.edit.html</code> — a starter kit, the blank template, or a file you made with the AI helper. Drop a <code>.portable.html</code> here instead and its editable source is recovered first. The file is never executed by this page.</p>
+      <div class="drop" id="source-drop">
+        <input id="source-file" type="file" accept=".html,text/html">
+        <div class="actions">
+          <button class="button primary" id="choose-file" type="button">Choose design file</button>
+          <button class="button" id="clear-source" type="button">Clear</button>
+        </div>
+      </div>
+      <div id="source-message"></div>
+    </section>
+
+    <section class="stage" id="stage-build" hidden>
+      <h2><span class="n">3</span>Build the file with real artwork</h2>
+      <div class="summary">
+        <div class="metric"><span>Design</span><strong id="source-size">—</strong></div>
+        <div class="metric"><span>Contract</span><strong id="contract-version">—</strong></div>
+        <div class="metric"><span>Fingerprint</span><strong id="fingerprint">—</strong></div>
+        <div class="metric"><span>Images needed</span><strong id="asset-count">—</strong></div>
+      </div>
+      <div class="message" id="message"><strong id="message-title"></strong><span id="message-body"></span></div>
+      <div class="build-actions">
+        <button class="button" id="download-source" type="button">Download editable source</button>
+        <button class="button success" id="build-portable" type="button" disabled>Build portable HTML</button>
+        <button class="button success" id="download-portable" type="button" disabled>Download portable HTML</button>
+      </div>
+      <details><summary>Every image this design asks for, and where it came from</summary><ol class="asset-list" id="asset-list"></ol></details>
+    </section>
+
+    <aside class="rules">
+      <h2>The invariant</h2>
+      <ul>
+        <li>Designs may differ completely; the v2 contract, the protected block markers, and <code>asset:cisco/…</code> / <code>asset:rack/…</code> identifiers may not.</li>
+        <li>The packager alters only <code>NETWORK-ASSET-VAULT</code> and <code>EDITABLE-SOURCE-CAPSULE</code>. It proves that afterwards by comparing every other byte.</li>
+        <li>Your own artwork is matched by exact filename: a design asking for <code>asset:cisco/acme-switch.jpg</code> uses your <code>acme-switch.jpg</code>. Names are case-sensitive.</li>
+        <li>Uploaded HTML may contain its own JavaScript. Package only designs you trust; this page never runs them, but whoever opens the result will.</li>
+      </ul>
+    </aside>
+  </main>
+  <footer>No upload, server, CDN, framework, or external runtime · the full editable source is preserved inside the result · image bytes are checked against their own signature and checksum before embedding.</footer>
+</div>
+
+<script>
+"use strict";
+
+const MAX_SOURCE_BYTES = 10 * 1024 * 1024;
+const CONTRACT_SCHEMA = "network-design-package/v2";
+const ASSET_REFERENCE_SCHEMA = "asset-uri/v1";
+const PORTABLE_SCHEMA = "network-asset-vault/v2";
+
+/* The two canonical folders inside the artwork root. These mirror the immutable
+   assetUriSchemes mapping in every compliant design's contract block, which is
+   why they are matched here rather than configured. */
+const SCHEME_DIRS = Object.freeze({ cisco: "icons/cisco-pms3015", rack: "rack-assets" });
+const SCHEME_EXT = Object.freeze({ cisco: ".jpg", rack: ".png" });
+
+const BLOCKS = Object.freeze({
+  contract: { begin: "<!-- NETWORK-PACKAGER-CONTRACT:BEGIN -->", end: "<!-- NETWORK-PACKAGER-CONTRACT:END -->", id: "network-packager-contract" },
+  vault: { begin: "<!-- NETWORK-ASSET-VAULT:BEGIN -->", end: "<!-- NETWORK-ASSET-VAULT:END -->", id: "network-asset-vault" },
+  capsule: { begin: "<!-- EDITABLE-SOURCE-CAPSULE:BEGIN -->", end: "<!-- EDITABLE-SOURCE-CAPSULE:END -->", id: "editable-source-capsule" }
+});
+
+/* byPath holds artwork found in its canonical folder; byName is every indexed
+   file keyed on bare filename, which is what lets somebody drop their own image
+   in without recreating the official directory layout. */
+const artwork = { byPath: new Map(), byName: new Map(), folders: new Set(), files: 0 };
+let analysis = null, sourceName = "", portableSource = "";
+
+const $ = (id) => document.getElementById(id);
+const countOf = (source, token) => source.split(token).length - 1;
+
+function formatBytes(bytes) {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1048576) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / 1048576).toFixed(2)} MB`;
+}
+
+function note(host, kind, title, body) {
+  const box = $(host);
+  box.replaceChildren();
+  if (!kind) return;
+  const el = document.createElement("div");
+  el.className = `message ${kind}`;
+  const strong = document.createElement("strong");
+  strong.textContent = title;
+  const span = document.createElement("span");
+  span.textContent = body || "";
+  el.append(strong, span);
+  box.appendChild(el);
+}
+
+function setMessage(kind, title, body) {
+  const box = $("message");
+  box.className = `message ${kind || ""}`;
+  $("message-title").textContent = title;
+  $("message-body").textContent = body;
+}
+
+/* ---------- text helpers, shared with tools/packager/build-packager.js ---------- */
+
+function decodeUtf8Base64(value) {
+  const bytes = Uint8Array.from(atob(value), (character) => character.charCodeAt(0));
+  return new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+}
+
+function encodeBytesBase64(bytes) {
+  let binary = "";
+  for (let offset = 0; offset < bytes.length; offset += 32768) {
+    binary += String.fromCharCode(...bytes.subarray(offset, offset + 32768));
+  }
+  return btoa(binary);
+}
+
+const encodeUtf8Base64 = (value) => encodeBytesBase64(new TextEncoder().encode(value));
+
+function region(source, block) {
+  if (countOf(source, block.begin) !== 1 || countOf(source, block.end) !== 1) {
+    throw new Error(`${block.id} markers must each appear exactly once.`);
+  }
+  const begin = source.indexOf(block.begin);
+  const contentStart = begin + block.begin.length;
+  const end = source.indexOf(block.end, contentStart);
+  if (end < contentStart) throw new Error(`${block.id} markers are out of order.`);
+  return { begin, contentStart, end };
+}
+
+function replaceRegionInner(source, block, content) {
+  const found = region(source, block);
+  return source.slice(0, found.contentStart) + `\n${content}\n` + source.slice(found.end);
+}
+
+function readRegionScript(source, block) {
+  const found = region(source, block);
+  const inside = source.slice(found.contentStart, found.end);
+  const escaped = block.id.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const expression = new RegExp(`^\\s*<script\\b(?=[^>]*\\bid=["']${escaped}["'])[^>]*>([\\s\\S]*?)<\\/script>\\s*$`, "i");
+  const match = inside.match(expression);
+  if (!match) throw new Error(`${block.id} block must contain exactly its required script element.`);
+  return match[1].trim();
+}
+
+// Built by concatenation: a literal closing tag here would end this element.
+function scriptBlock(id, type, content) {
+  return `<script id="${id}" type="${type}">\n${content}\n${"</scr" + "ipt>"}`;
+}
+
+function safeJson(value) {
+  return JSON.stringify(value, null, 2)
+    .replace(/</g, "\\u003c").replace(/>/g, "\\u003e").replace(/&/g, "\\u0026")
+    .replace(/\u2028/g, "\\u2028").replace(/\u2029/g, "\\u2029");
+}
+
+function maskProtected(source) {
+  return replaceRegionInner(replaceRegionInner(source, BLOCKS.vault, "[VAULT]"), BLOCKS.capsule, "[CAPSULE]");
+}
+
+/* ---------- 1. Index the artwork folder ---------- */
+
+// Only the tail of the path matters: somebody may have the repository at any
+// depth, or have renamed the checkout. Matching the canonical folder pair is
+// what makes a file "official" rather than merely present.
+function canonicalPathOf(relativePath) {
+  const path = relativePath.replace(/\\/g, "/");
+  const name = path.slice(path.lastIndexOf("/") + 1);
+  for (const [scheme, directory] of Object.entries(SCHEME_DIRS)) {
+    const needle = `${directory}/${name}`;
+    if (path.toLowerCase().endsWith(needle.toLowerCase()) && name.toLowerCase().endsWith(SCHEME_EXT[scheme])) {
+      return `${directory}/${name}`;
+    }
+  }
+  return "";
+}
+
+function indexFiles(files) {
+  let added = 0, skipped = 0;
+  for (const file of files) {
+    const relative = file.webkitRelativePath || file.relativePath || file.name;
+    if (!/\.(jpe?g|png)$/i.test(file.name)) { skipped++; continue; }
+    const canonical = canonicalPathOf(relative);
+    if (canonical) {
+      artwork.byPath.set(canonical, file);
+      artwork.folders.add(canonical.slice(0, canonical.lastIndexOf("/")));
+    }
+    // Last one wins on a duplicate bare name, but a name that resolves to two
+    // different files is reported at build time rather than silently picked.
+    const bucket = artwork.byName.get(file.name) || [];
+    if (!bucket.some((existing) => existing.size === file.size && existing.lastModified === file.lastModified)) bucket.push(file);
+    artwork.byName.set(file.name, bucket);
+    added++;
+  }
+  artwork.files += added;
+  return { added, skipped };
+}
+
+function describeArtwork() {
+  const official = artwork.byPath.size;
+  const mine = artwork.files - official;
+  const parts = [`${official} official image${official === 1 ? "" : "s"} in ${artwork.folders.size || 0} recognised folder${artwork.folders.size === 1 ? "" : "s"}`];
+  if (mine > 0) parts.push(`${mine} other image${mine === 1 ? "" : "s"} available by filename`);
+  return parts.join(" · ");
+}
+
+function clearArtwork() {
+  artwork.byPath.clear(); artwork.byName.clear(); artwork.folders.clear(); artwork.files = 0;
+  $("art-folder").value = ""; $("art-files").value = "";
+  $("stage-art").classList.remove("done");
+  $("stage-source").hidden = true;
+  note("art-message", null);
+  clearSource();
+}
+
+function artworkChanged(result) {
+  const ready = artwork.files > 0;
+  $("stage-art").classList.toggle("done", ready);
+  $("stage-source").hidden = !ready;
+  if (!ready) {
+    note("art-message", "error", "No usable images found.",
+      ` ${result.skipped} file${result.skipped === 1 ? " was" : "s were"} skipped because only .jpg and .png artwork can be embedded. Choose the folder that contains icons/cisco-pms3015 and rack-assets.`);
+    return;
+  }
+  if (!artwork.byPath.size) {
+    note("art-message", "warning", "Images loaded, but none are in the official folders.",
+      ` ${describeArtwork()}. They can still be matched by exact filename. If you meant to load the official set, choose the assets folder itself.`);
+    return;
+  }
+  note("art-message", "ok", "Artwork ready.", ` ${describeArtwork()}. Now choose your design file.`);
+  // A design already loaded against the old index has to be re-resolved.
+  if (analysis) resolveAndRender();
+}
+
+/* ---------- 2. Read and validate the design ---------- */
+
+function cleanEditable(source) {
+  const vault = readRegionScript(source, BLOCKS.vault);
+  const capsule = readRegionScript(source, BLOCKS.capsule);
+  if (vault && vault !== "{}") JSON.parse(vault);
+  if (capsule && !/^[A-Za-z0-9+/=]+$/.test(capsule)) throw new Error("The editable source capsule is not valid Base64.");
+  source = replaceRegionInner(source, BLOCKS.vault, scriptBlock(BLOCKS.vault.id, "application/json", "{}"));
+  return replaceRegionInner(source, BLOCKS.capsule, scriptBlock(BLOCKS.capsule.id, "application/octet-stream", ""));
+}
+
+function normalizeInput(source) {
+  if (new Blob([source]).size > MAX_SOURCE_BYTES) throw new Error(`Input exceeds the ${formatBytes(MAX_SOURCE_BYTES)} limit.`);
+  const capsule = readRegionScript(source, BLOCKS.capsule);
+  if (capsule) {
+    source = decodeUtf8Base64(capsule);
+    if (new Blob([source]).size > MAX_SOURCE_BYTES) throw new Error("Recovered editable source exceeds the safety limit.");
+  }
+  return cleanEditable(source);
+}
+
+function validateContract(source) {
+  const contract = JSON.parse(readRegionScript(source, BLOCKS.contract));
+  if (contract.schema !== CONTRACT_SCHEMA) throw new Error(`Unsupported contract schema: ${contract.schema || "missing"}.`);
+  if (contract.assetReferences !== ASSET_REFERENCE_SCHEMA) throw new Error(`Unsupported asset-reference schema: ${contract.assetReferences || "missing"}.`);
+  const schemes = contract.assetUriSchemes;
+  if (!schemes || schemes.cisco !== `${SCHEME_DIRS.cisco}/` || schemes.rack !== `${SCHEME_DIRS.rack}/`) {
+    throw new Error("The immutable Cisco/rack URI scheme mapping is missing or changed.");
+  }
+  return contract;
+}
+
+function scanAssetIds(source) {
+  const withoutProtected = Object.values(BLOCKS).reduce((text, block) => {
+    const found = region(text, block);
+    return text.slice(0, found.contentStart) + "\n[PROTECTED]\n" + text.slice(found.end);
+  }, source);
+  const matches = withoutProtected.match(/asset:(?:cisco|rack)\/[^\s"'<>`\\]+(?: [^\s"'<>`\\]+)*/g) || [];
+  const ids = [...new Set(matches.map((value) => value.replace(/[),.;:]+$/, "")))].sort((left, right) => left.localeCompare(right));
+  if (!ids.length) throw new Error("No stable asset: identifiers were found outside the protected blocks.");
+  if (ids.length > 512) throw new Error("The design exceeds the 512-asset limit.");
+  return ids;
+}
+
+function assetIdToPath(id) {
+  const match = /^asset:(cisco|rack)\/([^/]+)$/.exec(id);
+  if (!match) throw new Error(`Invalid asset identifier syntax: ${id}.`);
+  const [, scheme, file] = match;
+  if (file === "." || file === ".." || file.includes("\\") || file.includes("%") || /[\u0000-\u001f]/.test(file)) {
+    throw new Error(`Unsafe asset identifier: ${id}.`);
+  }
+  if (!file.toLowerCase().endsWith(SCHEME_EXT[scheme])) throw new Error(`Wrong file type for ${id}.`);
+  return { path: `${SCHEME_DIRS[scheme]}/${file}`, name: file };
+}
+
+/* Official copy first, then a file of that exact name from anywhere in the
+   selection. Two different files sharing one name is reported, never guessed. */
+function resolveEntries(ids) {
+  return ids.map((id) => {
+    const { path, name } = assetIdToPath(id);
+    const official = artwork.byPath.get(path);
+    if (official) return { id, path, name, file: official, source: "official" };
+    const bucket = artwork.byName.get(name) || [];
+    if (bucket.length === 1) return { id, path, name, file: bucket[0], source: "mine" };
+    if (bucket.length > 1) return { id, path, name, file: null, source: "ambiguous" };
+    return { id, path, name, file: null, source: "missing" };
+  });
+}
+
+async function digestHex(bytes) {
+  if (!globalThis.crypto?.subtle) return "unavailable";
+  const digest = await crypto.subtle.digest("SHA-256", bytes);
+  return [...new Uint8Array(digest)].map((value) => value.toString(16).padStart(2, "0")).join("");
+}
+
+async function fingerprint(source) {
+  const hash = await digestHex(new TextEncoder().encode(source));
+  return hash === "unavailable" ? "local mode" : hash.slice(0, 12);
+}
+
+function renderAssetList(entries) {
+  const list = $("asset-list");
+  list.replaceChildren();
+  for (const entry of entries) {
+    const li = document.createElement("li");
+    if (entry.source === "mine") li.className = "mine";
+    if (entry.source === "missing" || entry.source === "ambiguous") li.className = "gone";
+    const suffix = { official: "", mine: "  — your image", missing: "  — NOT FOUND", ambiguous: "  — more than one file with this name" }[entry.source];
+    li.textContent = entry.id + suffix;
+    list.appendChild(li);
+  }
+}
+
+async function resolveAndRender() {
+  const entries = resolveEntries(analysis.ids);
+  analysis.entries = entries;
+  $("stage-build").hidden = false;
+  $("source-size").textContent = formatBytes(new Blob([analysis.clean]).size);
+  $("contract-version").textContent = "v2 universal";
+  $("fingerprint").textContent = await fingerprint(analysis.clean);
+  $("asset-count").textContent = String(entries.length);
+  renderAssetList(entries);
+
+  const missing = entries.filter((entry) => entry.source === "missing");
+  const ambiguous = entries.filter((entry) => entry.source === "ambiguous");
+  const mine = entries.filter((entry) => entry.source === "mine").length;
+  $("download-portable").disabled = true;
+  portableSource = "";
+
+  if (missing.length || ambiguous.length) {
+    $("build-portable").disabled = true;
+    const first = (missing[0] || ambiguous[0]).id;
+    setMessage("error", `${missing.length + ambiguous.length} image${missing.length + ambiguous.length === 1 ? " is" : "s are"} not available`,
+      `Starting with ${first}. Open the list below to see them all, then add the missing files to your artwork folder — or change the design to use a device type you have artwork for.`);
+    return;
+  }
+  $("build-portable").disabled = false;
+  setMessage("ok", "Ready to build",
+    `${sourceName} needs ${entries.length} image${entries.length === 1 ? "" : "s"}${mine ? `, ${mine} of them yours` : ""}. Only the two protected blocks will change.`);
+}
+
+async function loadSource(text, name) {
+  try {
+    sourceName = editableName(name || "network-design.edit.html");
+    const clean = normalizeInput(text);
+    validateContract(clean);
+    analysis = { clean, ids: scanAssetIds(clean), entries: [] };
+    $("stage-source").classList.add("done");
+    note("source-message", "ok", "Design loaded.", ` ${sourceName}`);
+    await resolveAndRender();
+  } catch (error) {
+    analysis = null; portableSource = "";
+    $("stage-source").classList.remove("done");
+    $("stage-build").hidden = true;
+    note("source-message", "error", "This design cannot be packaged.", " " + error.message);
+  }
+}
+
+/* ---------- 3. Build ---------- */
+
+function detectMime(bytes, name) {
+  if ([137, 80, 78, 71, 13, 10, 26, 10].every((value, index) => bytes[index] === value)) return "image/png";
+  if (bytes[0] === 255 && bytes[1] === 216 && bytes[2] === 255) return "image/jpeg";
+  throw new Error(`${name} is not a real JPEG or PNG file.`);
+}
+
+async function buildPortable() {
+  const button = $("build-portable");
+  button.disabled = true;
+  setMessage("", "Building…", "Reading, checking and embedding artwork.");
+  try {
+    const keys = {}, blobs = {};
+    const seen = new Map();   // File -> hash, so one file read is reused across ids
+    let rawBytes = 0;
+    for (const entry of analysis.entries) {
+      let hash = seen.get(entry.file);
+      if (!hash) {
+        const bytes = new Uint8Array(await entry.file.arrayBuffer());
+        const mime = detectMime(bytes, entry.name);
+        const expected = entry.path.startsWith(SCHEME_DIRS.rack) ? "image/png" : "image/jpeg";
+        if (mime !== expected) {
+          const plain = (type) => (type === "image/png" ? "PNG" : "JPEG");
+          throw new Error(`${entry.name} is a ${plain(mime)} file, but ${entry.id} has to be a ${plain(expected)}. Rename it or convert it.`);
+        }
+        hash = await digestHex(bytes);
+        if (hash === "unavailable") hash = `size-${bytes.length}-${entry.name}`;
+        seen.set(entry.file, hash);
+        if (!blobs[hash]) { blobs[hash] = { mime, bytes: bytes.length, sha256: hash, base64: encodeBytesBase64(bytes) }; rawBytes += bytes.length; }
+      }
+      keys[entry.id] = hash;
+    }
+
+    const payload = { schema: PORTABLE_SCHEMA, keys, blobs };
+    let portable = replaceRegionInner(analysis.clean, BLOCKS.vault, scriptBlock(BLOCKS.vault.id, "application/json", safeJson(payload)));
+    portable = replaceRegionInner(portable, BLOCKS.capsule, scriptBlock(BLOCKS.capsule.id, "application/octet-stream", encodeUtf8Base64(analysis.clean)));
+
+    // Two proofs, both cheap, both worth having before anybody downloads this.
+    if (decodeUtf8Base64(readRegionScript(portable, BLOCKS.capsule)) !== analysis.clean) {
+      throw new Error("The editable source could not be recovered from the file just built.");
+    }
+    if (maskProtected(portable) !== maskProtected(analysis.clean)) {
+      throw new Error("Bytes outside the two protected blocks changed.");
+    }
+
+    portableSource = portable;
+    $("download-portable").disabled = false;
+    setMessage("ok", "Portable HTML is ready",
+      `${formatBytes(rawBytes)} of artwork embedded across ${Object.keys(blobs).length} unique image${Object.keys(blobs).length === 1 ? "" : "s"}. Result: ${formatBytes(new Blob([portable]).size)}. Every byte outside the two protected blocks was preserved, and the editable source was read back out and compared.`);
+  } catch (error) {
+    portableSource = "";
+    $("download-portable").disabled = true;
+    setMessage("error", "Packaging failed", error.message);
+  } finally {
+    button.disabled = !analysis;
+  }
+}
+
+/* ---------- files in and out ---------- */
+
+function editableName(name) {
+  if (/\.portable\.html$/i.test(name)) return name.replace(/\.portable\.html$/i, ".edit.html");
+  if (/\.edit\.html$/i.test(name)) return name;
+  return name.replace(/\.html$/i, "") + ".edit.html";
+}
+
+const portableName = (name) => editableName(name).replace(/\.edit\.html$/i, ".portable.html");
+
+function download(text, name) {
+  const url = URL.createObjectURL(new Blob([text], { type: "text/html;charset=utf-8" }));
+  const link = document.createElement("a");
+  link.href = url; link.download = name; link.hidden = true;
+  document.body.appendChild(link); link.click(); link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1200);
+}
+
+async function readTextFile(file) {
+  if (file.size > MAX_SOURCE_BYTES) throw new Error(`Selected file exceeds ${formatBytes(MAX_SOURCE_BYTES)}.`);
+  return new TextDecoder("utf-8", { fatal: true }).decode(await file.arrayBuffer());
+}
+
+function clearSource() {
+  analysis = null; sourceName = ""; portableSource = "";
+  $("source-file").value = "";
+  $("stage-source").classList.remove("done");
+  $("stage-build").hidden = true;
+  note("source-message", null);
+}
+
+// Directory entries arrive one callback at a time; readEntries returns at most
+// 100 per call, so it has to be drained in a loop or large folders truncate.
+async function filesFromEntry(entry, prefix = "") {
+  if (entry.isFile) {
+    const file = await new Promise((resolve, reject) => entry.file(resolve, reject));
+    file.relativePath = prefix + file.name;
+    return [file];
+  }
+  const reader = entry.createReader();
+  const children = [];
+  for (;;) {
+    const batch = await new Promise((resolve, reject) => reader.readEntries(resolve, reject));
+    if (!batch.length) break;
+    children.push(...batch);
+  }
+  const nested = await Promise.all(children.map((child) => filesFromEntry(child, `${prefix}${entry.name}/`)));
+  return nested.flat();
+}
+
+async function filesFromDrop(event) {
+  const items = [...(event.dataTransfer?.items || [])];
+  const entries = items.map((item) => item.webkitGetAsEntry?.()).filter(Boolean);
+  if (!entries.length) return [...(event.dataTransfer?.files || [])];
+  const groups = await Promise.all(entries.map((entry) => filesFromEntry(entry)));
+  return groups.flat();
+}
+
+function wireDrop(zone, handler) {
+  ["dragenter", "dragover"].forEach((type) => zone.addEventListener(type, (event) => { event.preventDefault(); zone.classList.add("drag"); }));
+  ["dragleave", "drop"].forEach((type) => zone.addEventListener(type, (event) => { event.preventDefault(); zone.classList.remove("drag"); }));
+  zone.addEventListener("drop", async (event) => { event.preventDefault(); await handler(await filesFromDrop(event)); });
+}
+
+/* ---------- wiring ---------- */
+
+$("choose-folder").addEventListener("click", () => $("art-folder").click());
+$("choose-images").addEventListener("click", () => $("art-files").click());
+$("clear-art").addEventListener("click", clearArtwork);
+for (const id of ["art-folder", "art-files"]) {
+  $(id).addEventListener("change", () => {
+    const files = [...$(id).files];
+    if (files.length) artworkChanged(indexFiles(files));
+  });
+}
+wireDrop($("art-drop"), (files) => {
+  const images = files.filter((file) => /\.(jpe?g|png)$/i.test(file.name));
+  if (!images.length) { note("art-message", "error", "Nothing to add.", " Drop a folder of artwork, or .jpg / .png files."); return; }
+  artworkChanged(indexFiles(images));
+});
+
+$("choose-file").addEventListener("click", () => $("source-file").click());
+$("source-file").addEventListener("change", async () => {
+  const file = $("source-file").files[0];
+  if (!file) return;
+  try { await loadSource(await readTextFile(file), file.name); }
+  catch (error) { note("source-message", "error", "This file cannot be read.", " " + error.message); }
+});
+wireDrop($("source-drop"), async (files) => {
+  const file = files.find((item) => /\.html$/i.test(item.name));
+  if (!file) { note("source-message", "error", "No HTML file found.", " Drop one .edit.html or .portable.html file."); return; }
+  try { await loadSource(await readTextFile(file), file.name); }
+  catch (error) { note("source-message", "error", "This file cannot be read.", " " + error.message); }
+});
+$("clear-source").addEventListener("click", clearSource);
+$("download-source").addEventListener("click", () => analysis && download(analysis.clean, sourceName));
+$("build-portable").addEventListener("click", buildPortable);
+$("download-portable").addEventListener("click", () => portableSource && download(portableSource, portableName(sourceName)));
+
+/* Exposed for tools/packager/verify-packager.js and browser-driven checks: the
+   pure functions above have no DOM dependency, and testing them through the UI
+   would mean synthesising OS file dialogs. */
+globalThis.PACKAGER = { canonicalPathOf, indexFiles, resolveEntries, assetIdToPath, scanAssetIds, cleanEditable, normalizeInput, validateContract, maskProtected, artwork };
+</script>
+</body>
+</html>

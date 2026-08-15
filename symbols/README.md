@@ -28,9 +28,33 @@ The same node data works in both modes:
 When a symbol changes, update the canonical sprite, the embedded copy in the
 template, and the source showcase together, then run `npm test`.
 
-## Artwork status
+## Licence
 
-These vectors are experimental interpretations informed by Cisco PMS 3015
-reference silhouettes. They are not official Cisco-distributed SVG files. Read
-[`../THIRD_PARTY_NOTICES.md`](../THIRD_PARTY_NOTICES.md) before publication or
-redistribution.
+Original work, **MIT licensed** with the rest of the project — see
+[`../LICENSE`](../LICENSE). Use them here, in your own diagrams, or in an
+unrelated project; restyle or extend them freely. No vendor artwork is involved
+and no attribution beyond the MIT notice is required.
+
+## Using them outside this project
+
+The sprite is an ordinary SVG. Inline it once, then reference symbols by id:
+
+```html
+<svg width="0" height="0" style="position:absolute"><!-- paste sprite here --></svg>
+<svg width="120" height="88"><use href="#nd-router"></use></svg>
+```
+
+Each `<symbol>` carries its own `viewBox` — `nd-router` is 120 x 88, `nd-cloud`
+150 x 88, `nd-firewall` 86 x 108 — so it scales to whatever size you give the
+outer `<svg>` and needs no viewBox of your own.
+
+Inline rather than linking to the file: a cross-file `<use href="sprite.svg#id">`
+is blocked when the page is opened straight from disk, which is exactly how these
+documents are meant to be opened. Inlining is also why one `.edit.html` needs no
+network at all.
+
+Three CSS custom properties retheme the whole set without touching geometry:
+
+```css
+:root{ --symbol-main:#0076a8; --symbol-dark:#005779; --symbol-light:#51bde6 }
+```

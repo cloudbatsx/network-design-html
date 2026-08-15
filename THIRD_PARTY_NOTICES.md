@@ -1,54 +1,75 @@
 # Third-party and artwork notices
 
-## Cisco reference material
+This repository ships third-party artwork so that the packager works from a
+clone with nothing to install. Everything under `assets/` is included
+**unmodified** and is **not** covered by this project's MIT licence.
 
-The optional local packaging workflow can consume Cisco topology icon JPGs, but
-this repository is intentionally prepared without those downloaded binaries.
-Cisco's Network Topology Icons page states that its icons may be used freely but
-must not be altered. Cisco's copyright guidance separately describes permitted
-use of unmodified networking-element icons. Those statements should be reviewed
-in their current form for any intended distribution:
+## Cisco topology icons — `assets/icons/cisco-pms3015/`
+
+294 Cisco topology icon JPGs, byte-for-byte as published, used to render
+official device artwork in packaged output.
+
+Cisco's Network Topology Icons page states that its icons may be used freely
+but must not be altered, and Cisco's copyright guidance separately describes
+permitted use of unmodified networking-element icons. Review both in their
+current form before redistributing this repository or anything built from it:
 
 - <https://www.cisco.com/c/en/us/about/brand-center/network-topology-icons.html>
 - <https://www.cisco.com/c/en/us/about/brand-center/copyright-use.html>
 
-The SVG symbols in this project are experimental interpretations informed by
-Cisco PMS 3015 silhouettes. They are not official Cisco-distributed SVG assets.
-No conclusion is made here that the permission for unmodified Cisco icons covers
-these interpretations. Public redistribution remains gated on a specific rights
-review, permission, or replacement with a project-owned visual language.
+What this project does and does not claim:
 
-Cisco and Cisco product names are trademarks of Cisco Systems, Inc. This project
-is independent and is not affiliated with or endorsed by Cisco.
+- The files are unmodified. Nothing in the pipeline recolours, crops, traces or
+  restyles them; the packager verifies each file's signature and SHA-256 before
+  embedding it, so a modified icon is a build failure rather than a silent
+  change.
+- Inclusion here is not a grant. Downstream redistribution is the redistributor's
+  decision to make against Cisco's terms as they stand at that time.
+- Removing them is a supported configuration. Delete `assets/`, and every design
+  still renders completely with the project's own vector symbols; only the
+  packaging step needs artwork, and it will ask for whatever folder you point it
+  at — including one holding entirely your own images.
 
-## Local rack images
+## Rack images — `assets/rack-assets/`
 
-Ten optional local front/rear rack PNGs are excluded under `vendor-local/`.
-Project history associates their source material with the NetBox Device Type
-Library at commit `5efffb4a613402a37a7daf616f081e56147662c0`, whose repository
-publishes a CC0-1.0 license:
+Ten front/rear rack face PNGs. Project history associates their source material
+with the NetBox Device Type Library at commit
+`5efffb4a613402a37a7daf616f081e56147662c0`, whose repository publishes a CC0-1.0
+licence:
 
 - <https://github.com/netbox-community/devicetype-library/tree/5efffb4a613402a37a7daf616f081e56147662c0>
 
-Exact per-file lineage and any local transformations have not yet been recorded,
-so those PNGs and generated HTML files that embed them should not be published as
-part of this first repository version.
+Exact per-file lineage and any local transformations were never recorded. CC0
+imposes no condition that this gap would breach, but the gap is real and stated
+here rather than papered over.
 
-## Project license status
+## The vector symbols are not third-party material
 
-The original project code and documentation are released under the MIT License;
-see [`LICENSE`](LICENSE).
+The 19 SVG symbols in `symbols/network-symbols.svg`, and their synchronized
+copies inside the template, the starter kits and the showcase, are the project
+author's own drawings. They are **MIT licensed along with the rest of the
+project** — take them, restyle them, ship them in your own work.
 
-That grant is deliberately scoped. It does not cover the vector symbol artwork
-in `symbols/network-symbols.svg` or its synchronized copies in the template and
-showcase, because the question raised above — whether interpretations informed
-by Cisco reference silhouettes fall inside Cisco's permission for unmodified
-icons — is not resolved. Licensing that geometry under MIT would purport to
-grant rights that have not been established.
+They are listed on this page only to answer the question directly, because they
+sit next to genuine third-party artwork and depict the same kinds of equipment.
+Two things follow from being original work:
 
-The clean resolution is to replace the 19 symbols with project-owned artwork.
-That removes the question permanently and brings the whole repository under one
-license. Until then, the exclusion in `LICENSE` stands.
+- They are not Cisco files. No official vendor SVG is distributed here, and
+  nothing in this repository is derived from one.
+- Depicting a router as a cylinder with arrows, or a firewall as a brick wall,
+  is the ordinary visual vocabulary of network diagrams. That vocabulary belongs
+  to no vendor, and drawing in it is not derivation.
 
-Third-party materials, if locally supplied under `vendor-local/`, retain the
-terms of their own sources.
+The symbols also carry no vendor branding, which is what keeps a design built on
+them free of any trademark question: `assets/` is where vendor artwork enters,
+and only if you choose to package with it.
+
+## Project licence status
+
+The project's code, documentation and vector symbol artwork are released under
+the MIT License; see [`LICENSE`](LICENSE). The single exclusion is the
+third-party artwork distributed under `assets/`, described above, together with
+any file that embeds it.
+
+Cisco and Cisco product names are trademarks of Cisco Systems, Inc. This project
+is independent and is not affiliated with or endorsed by Cisco.
