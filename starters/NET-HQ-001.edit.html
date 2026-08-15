@@ -754,7 +754,7 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
         "x": 450,
         "y": 390,
         "address": "10.20.10.21",
-        "notes": "Inspects all north-south traffic. Anchors the guest wireless VLAN and is its sole egress — see finding 4. Rack U26–U28."
+        "notes": "Inspects all north-south traffic. Anchors the guest wireless VLAN and is its sole egress — see finding 4. Rack U26."
       },
       {
         "id": "hq-fw-02",
@@ -764,7 +764,7 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
         "x": 830,
         "y": 390,
         "address": "10.20.10.22",
-        "notes": "Stateful HA mate. Carries no production traffic until failover. Rack U22–U24."
+        "notes": "Stateful HA mate. Carries no production traffic until failover. Rack U22."
       },
       {
         "id": "hq-core-01",
@@ -972,8 +972,8 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
       { "id": "hq-srv-01", "model": "Cisco Catalyst 9300-48P", "role": "Server access switch", "position": 32, "height": 1, "asset": "c9300" },
       { "id": "cm-06", "model": "1U horizontal cable manager", "role": "Passive · cable management", "position": 31, "height": 1, "asset": "generic" },
       { "id": "hq-wlc-01", "model": "Cisco Catalyst 9800-40", "role": "Wireless LAN controller", "position": 30, "height": 1, "asset": "generic" },
-      { "id": "hq-fw-01", "model": "Cisco Secure Firewall FPR-4215", "role": "Perimeter firewall · active", "position": 26, "height": 3, "asset": "fpr4215" },
-      { "id": "hq-fw-02", "model": "Cisco Secure Firewall FPR-4215", "role": "Perimeter firewall · standby", "position": 22, "height": 3, "asset": "fpr4215" },
+      { "id": "hq-fw-01", "model": "Cisco Secure Firewall FPR-4215", "role": "Perimeter firewall · active", "position": 26, "height": 1, "asset": "fpr4215" },
+      { "id": "hq-fw-02", "model": "Cisco Secure Firewall FPR-4215", "role": "Perimeter firewall · standby", "position": 22, "height": 1, "asset": "fpr4215" },
       { "id": "hq-wan-01", "model": "Cisco Catalyst 8300-2N2S-6T", "role": "WAN router · carrier A", "position": 20, "height": 1, "asset": "generic" },
       { "id": "hq-wan-02", "model": "Cisco Catalyst 8300-2N2S-6T", "role": "WAN router · carrier B", "position": 18, "height": 1, "asset": "generic" },
       { "id": "hq-esx-02", "model": "Dell PowerEdge R750", "role": "Virtualization host 2", "position": 11, "height": 2, "asset": "r750" },
@@ -1111,8 +1111,8 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
           "detail": "No value here has been reconciled against a live device. Replace the addressing plan, the port assignments and the model list before this document is used to justify or make a change."
         },
         {
-          "title": "Chassis heights come from platform families, not purchase orders",
-          "detail": "Rack unit heights are taken from the platform family rather than a confirmed order. If an ordered SKU differs, positions shift and the rail kits are wrong. This applies to every unit in the schedule, not only the 3U firewalls."
+          "title": "Chassis heights come from datasheets, not purchase orders",
+          "detail": "Rack unit heights are taken from vendor datasheets rather than a confirmed order. If an ordered SKU differs, positions shift and the rail kits are wrong. This applies to every unit in the schedule."
         },
         {
           "title": "Weights and power are datasheet typical values",

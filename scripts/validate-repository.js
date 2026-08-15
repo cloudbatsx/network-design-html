@@ -180,6 +180,16 @@ check("starter kits exist", () => {
   assert(starterNames.length > 0, "no .edit.html starter kits found under starters/");
 });
 
+// The five official photography codes name real hardware with a real unit
+// height (per vendor datasheets): the same model was once scheduled at 1U in
+// nine documents and 3U in two, and nothing noticed. A schedule that disagrees
+// with the machine is wrong about the machine.
+const OFFICIAL_UNITS = Object.freeze({ c9500: 1, c9300: 1, fpr4215: 1, r750: 2, ups: 2 });
+// NET-HQ-002's elevation is hand-drawn at 3U and its risk register R5 declares
+// the deviation. The exemption dies when the sheet-kit figures are regenerated
+// from their data blocks; do not add to it.
+const DECLARED_HEIGHT_DEVIATIONS = new Set(["NET-HQ-002.edit.html:SJC-FW-01", "NET-HQ-002.edit.html:SJC-FW-02"]);
+
 // Each starter carries its own copy of the sprite and the semantic map. Without
 // this loop they drift apart silently, which is exactly how a documentation set
 // ends up with the stylesheet no longer describing the document.
@@ -221,6 +231,10 @@ for (const name of starterNames) {
     for (const device of data.rack?.devices || []) {
       want(typeof device.position === "number" && typeof device.height === "number", `${device.id} position/height must be numbers`);
       want(device.position >= 1 && device.position + device.height - 1 <= (data.rack.units || 42), `${device.id} does not fit the rack`);
+      if (Object.hasOwn(OFFICIAL_UNITS, device.asset) && !DECLARED_HEIGHT_DEVIATIONS.has(`${name}:${device.id}`)) {
+        want(device.height === OFFICIAL_UNITS[device.asset],
+          `${device.id} schedules ${device.asset} at ${device.height}U; the hardware is ${OFFICIAL_UNITS[device.asset]}U`);
+      }
       for (let unit = device.position; unit < device.position + device.height; unit++) {
         want(!occupied.has(unit), `${device.id} overlaps ${occupied.get(unit)} at U${unit}`);
         occupied.set(unit, device.id);

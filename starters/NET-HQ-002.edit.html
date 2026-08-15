@@ -2207,10 +2207,10 @@ reserved U13–16 growth is populated, which would add load on top of this.</div
     <td>Real draw varies with optics count and PoE load; the §9 margins could shift.</td>
     <td><span class="pill pill-w">MEDIUM</span></td>
     <td>Meter each feed at commissioning and re-issue §9 with measured values.</td></tr>
-<tr><td class="m">R5</td><td><b>FPR-4215 modelled at 3U.</b> Chassis height taken from the platform family, not a confirmed order.</td>
-    <td>If the ordered SKU differs, U22–28 shifts and the rail kit is wrong.</td>
+<tr><td class="m">R5</td><td><b>FPR-4215 modelled at 3U.</b> The 4200-series datasheet lists the 4215 at 1RU; this hand-drawn elevation keeps 3U until it is regenerated from the data block.</td>
+    <td>The two firewall heights are wrong, and U23–24 and U27–28 are shown occupied when they are free.</td>
     <td><span class="pill pill-w">MEDIUM</span></td>
-    <td>Confirm against the purchase order before ordering rails. Applies to every U in §8.</td></tr>
+    <td>Correct the schedule to 1U when the figure is regenerated from data. Heights elsewhere in §8 remain datasheet values, not purchase orders.</td></tr>
 <tr><td class="m">R6</td><td><b>Guest wireless egresses via SJC-FW-01 only</b> (VLAN 41, note ③).</td>
     <td>Guest SSID has no path on an FW-01 failure. Corporate wireless is unaffected.</td>
     <td><span class="pill" style="color:var(--ink-muted);border-color:var(--ink-muted)">LOW</span></td>
@@ -2939,8 +2939,8 @@ the basis rather than take it on trust.</caption>
           "id": "R5",
           "severity": "MEDIUM",
           "title": "FPR-4215 modelled at 3U",
-          "detail": "Chassis height is taken from the platform family, not from a confirmed order.",
-          "action": "Confirm the ordered chassis height before the elevation drives installation.",
+          "detail": "The 4200-series datasheet lists the 4215 at 1RU. This figure is hand-drawn and keeps the 3U modelling until it is regenerated from the data block; treat the two firewall heights as wrong, not merely unconfirmed.",
+          "action": "Correct the schedule to 1U when the elevation is regenerated from data, and reclaim U23-U24 and U27-U28.",
           "at": ["sjc-fw-01", "sjc-fw-02"]
         },
         {
