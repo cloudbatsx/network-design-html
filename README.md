@@ -163,15 +163,23 @@ Don't start from a blank page. Copy the one closest to your network.
 | Kit | Shape | Size |
 |---|---|---|
 | [**Branch site**](starters/NET-BR-001.edit.html) | One WAN edge, one firewall, one switch, wireless, 12U cabinet | 9 nodes — **start here** |
-| [**Regional hub**](starters/NET-RH-001.edit.html) | The next size up from a branch: three diverse transports, an SD-WAN edge pair, a collapsed core, campus access and wireless, and a 24U rack with every unit accounted for | 18 nodes |
+| [Regional hub, as an engineering sheet](starters/NET-RH-001.edit.html) | Three diverse transports, an SD-WAN edge pair, a collapsed core, campus access and wireless, and a 24U rack with every unit accounted for | 18 nodes |
 | [Enterprise edge, DMZ & services](starters/NET-ENT-001.edit.html) | Three zones with a DMZ hanging off the perimeter | 15 nodes |
 | [The same edge, as an engineering sheet](starters/NET-ENT-002.edit.html) | One network, drawn the other way — shared subnet bars and junction circles instead of repeated point-to-point lines, and no rack on purpose | 19 objects |
 | [Leaf-spine fabric](starters/NET-FAB-001.edit.html) | Non-hierarchical: every leaf to every spine, north-south via border leaf | 15 nodes |
 | [**Industrial control network**](starters/NET-OT-001.edit.html) | Not an IT network at all: stacked by Purdue level, an industrial DMZ that brokers every crossing, cell/area **rings** instead of stars, and a safety system deliberately wired to nothing | 18 nodes |
 | [Campus + rack](starters/NET-LAB-002.edit.html) | Two independent gateways, peer link, MLAG downstream | 17 nodes |
 | [The same campus, as an engineering sheet](starters/NET-LAB-003.edit.html) | Dual provider handoffs, a cross-connected perimeter, and access, wireless and services all dual-homed to both cores — every drawn link carries the id of its record | 15 nodes |
-| [Headquarters](starters/NET-HQ-001.edit.html) | Collapsed core, out-of-band zone, 22-device 42U rack | 20 nodes |
+| [**Headquarters**](starters/NET-HQ-001.edit.html) | Collapsed core, out-of-band zone, 22-device 42U rack | 20 nodes — **the next size up** |
 | [HQ campus, as an engineering sheet](starters/NET-HQ-002.edit.html) | Dual providers, StackWise Virtual core, three access floors, and a 42U rack scheduled to the unit with dual power feeds and an airflow record | 21 nodes |
+
+> **The AI editing workflow supports six of these kits.** The four *engineering
+> sheets* — NET-ENT-002, NET-HQ-002, NET-LAB-003 and NET-RH-001 — draw in their
+> own grammar: hand-tuned SVG geometry instead of the shared coordinate data.
+> `edit-with-ai.html` and the prompt in `docs/ai-json-rules.md` work with the
+> template and the other six starters; pointed at a sheet, the helper says so and
+> refuses rather than corrupting the drawing. Treat the sheets as finished
+> reference documents to copy from, not kits to edit by prompt — yet.
 
 **NET-ENT-001 and NET-ENT-002 are the same network.** They exist as a pair because
 the drawing is a choice, not a consequence of the data: one spells out every link,

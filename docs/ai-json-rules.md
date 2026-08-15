@@ -7,6 +7,12 @@ This is the prompt for **changing a diagram**. It asks the AI for the data block
 only — never for the HTML file. See [`packaging rules`](template-authoring-rules.md)
 instead if you are a maintainer changing the template itself.
 
+It applies to the template and the six standard starters — NET-BR-001,
+NET-ENT-001, NET-FAB-001, NET-HQ-001, NET-LAB-002, NET-OT-001. The four
+engineering-sheet kits (NET-ENT-002, NET-HQ-002, NET-LAB-003, NET-RH-001) draw
+in their own grammar of hand-tuned SVG geometry and are **not AI-editable yet**;
+prompting a model to edit one corrupts the drawing.
+
 > Keep the lists below in sync with the template. They are copied from `ICONS`
 > and `RACK_ASSETS` in `templates/network-design-template.edit.html` and from the
 > `.link.*` / `.zone.*` rules in its stylesheet. Only the drawn-faceplate table is
