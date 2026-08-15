@@ -382,6 +382,21 @@ test("wizard: the build request carries the title, id, zones, rack and gaps rule
   assert(/gaps list/.test(text));
 });
 
+test("wizard: every question left empty still builds a complete request", () => {
+  const text = t.freshRequestText("", "", "auto");
+  assert(/Choose a fitting document title/.test(text), "empty title did not delegate naming");
+  assert(/title's initials/.test(text), "empty id did not delegate the drawing id");
+  assert(/If the diagram shows rack-mountable devices/.test(text), "auto rack did not delegate");
+  assert(/gaps list/.test(text));
+  assert(!text.includes('""'), "an empty answer leaked into the request");
+});
+
+test("wizard: an explicit title still wins, and derives the id when that is empty", () => {
+  const text = t.freshRequestText("Acme Branch Network", "", "small");
+  assert(text.includes('Title "Acme Branch Network"'));
+  assert(text.includes("drawing id ABN-NET-001"));
+});
+
 test("wizard: choosing no rack records the absence as a gap", () => {
   const text = t.freshRequestText("T", "T-NET-001", "none");
   assert(/No rack/.test(text) && /absence of physical documentation as a gap/.test(text));

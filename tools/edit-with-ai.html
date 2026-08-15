@@ -93,21 +93,25 @@
       <p class="hint">Describe the change in plain English, then copy the prompt and paste it into your AI chat. The prompt already contains your current diagram, so you do not need to attach anything.</p>
       <details class="fresh" id="fresh-start">
         <summary>Starting fresh — from a diagram, or a blank page?</summary>
-        <p class="hint">Two prompts, both built for you. Works with the blank template loaded above.</p>
+        <p class="hint">Two prompts, both built for you. Works with the blank template — or with any
+        design you already made: load your last file above and your branding, style and
+        conventions carry over into the new document automatically.</p>
         <p><b>A — Have your AI read your diagram first.</b> Copy this into a new AI chat, attach
         your picture, send it, then correct anything it got wrong. Keep that chat open.</p>
         <div class="row">
           <button class="button" id="copy-extract" type="button">Copy the diagram-reading prompt</button>
           <span class="file-name" id="extract-state"></span>
         </div>
-        <p style="margin-top:14px"><b>B — Answer three questions.</b> This fills in the request
-        below; then press <b>Copy prompt</b> and paste it into that same chat.</p>
-        <label class="fresh-field">Document title
+        <p style="margin-top:14px"><b>B — Three questions, all optional.</b> Leave any of them
+        empty and the AI derives the answer from your diagram. Then press <b>Fill in the
+        request</b>, <b>Copy prompt</b>, and paste into that same chat.</p>
+        <label class="fresh-field">Document title <span class="fresh-hint">(empty = the AI names it from the diagram)</span>
           <input id="fresh-title" type="text" placeholder="Our Organization Network"></label>
-        <label class="fresh-field">Drawing id <span class="fresh-hint">(also becomes the saved filename)</span>
+        <label class="fresh-field">Drawing id <span class="fresh-hint">(also becomes the saved filename; empty = derived from the title)</span>
           <input id="fresh-drawing" type="text" placeholder="OUR-NET-001"></label>
         <label class="fresh-field">Physical rack
           <select id="fresh-rack">
+            <option value="auto" selected>Let the diagram decide</option>
             <option value="small">Small rack with the network devices</option>
             <option value="none">No rack — record its absence as a gap</option>
           </select></label>
@@ -347,11 +351,23 @@ function freshDrawingId(title) {
   return (initials ? initials + "-" : "") + "NET-001";
 }
 
+/* Every question is optional. An empty answer does not block the build - the
+   request tells the model to derive a sensible value from the diagram instead,
+   which keeps the reply pure JSON. The alternative - having the model ask the
+   person in chat - would train it to reply with prose, which is the one thing
+   the whole checking pipeline depends on it never doing. */
 function freshRequestText(title, drawing, rack) {
+  const cleanTitle = (title || "").trim();
+  const cleanDrawing = (drawing || "").trim();
+  const identity = cleanTitle
+    ? `Title "${cleanTitle}", drawing id ${cleanDrawing || freshDrawingId(cleanTitle)}. `
+    : "Choose a fitting document title from what the diagram shows, and a drawing id built from the title's initials (like ABC-NET-001). ";
   const rackLine = rack === "none"
     ? "No rack: record the absence of physical documentation as a gap."
-    : "Small rack with the rack-mountable devices - firewall, switches, servers.";
-  return `Build this whole design from the inventory above. Title "${title}", drawing id ${drawing}. ` +
+    : rack === "small"
+      ? "Small rack with the rack-mountable devices - firewall, switches, servers."
+      : "If the diagram shows rack-mountable devices, put them in a small rack; if it shows none, record the absence of physical documentation as a gap.";
+  return "Build this whole design from the inventory above. " + identity +
     "Put the internet and anything outside the organization in an external area, and the organization in an internal area. " +
     rackLine + " Anything you could not read from the diagram goes in the gaps list.";
 }
@@ -1588,11 +1604,9 @@ $("fresh-fill").addEventListener("click", () => {
     $("fresh-state").textContent = "Fresh builds start from the template - load starters/network-design-template.edit.html in step 1.";
     return;
   }
-  const title = $("fresh-title").value.trim() || "Our Organization Network";
-  const drawing = $("fresh-drawing").value.trim() || freshDrawingId(title);
   slice.value = "all";
   slice.dispatchEvent(new Event("change"));
-  $("request").value = freshRequestText(title, drawing, $("fresh-rack").value);
+  $("request").value = freshRequestText($("fresh-title").value, $("fresh-drawing").value, $("fresh-rack").value);
   $("fresh-state").textContent = "Request filled - now press Copy prompt and paste it into that same chat.";
 });
 $("brand-apply").addEventListener("click", () => {
