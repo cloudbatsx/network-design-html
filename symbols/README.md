@@ -1,7 +1,7 @@
 # Inline SVG symbol library
 
 This directory is the canonical maintainer source for the clean vector symbols
-embedded in [`../templates/network-design-template.edit.html`](../templates/network-design-template.edit.html).
+embedded in [`../starters/network-design-template.edit.html`](../starters/network-design-template.edit.html).
 The editable HTML carries its own synchronized copy and does not load this file
 at runtime.
 

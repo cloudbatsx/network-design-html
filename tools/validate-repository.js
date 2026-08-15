@@ -111,7 +111,7 @@ function walk(relativeDirectory = "") {
 
 let primary;
 let alternate;
-check("primary editable contract", () => { primary = validateEditable("templates/network-design-template.edit.html"); });
+check("primary editable contract", () => { primary = validateEditable("starters/network-design-template.edit.html"); });
 check("alternate editable fixture contract", () => { alternate = validateEditable("tests/fixtures/alternate-dashboard.edit.html"); });
 
 const sprite = read("symbols/network-symbols.svg");
@@ -320,8 +320,7 @@ checkEvery("rack faceplate library", (want) => {
 // neutral thing to ship.
 // Read fresh rather than reusing the `starters` array: that one only collects
 // files that survived validateEditable, so its indices stop matching the names.
-const faceDocuments = ["templates/network-design-template.edit.html",
-  ...starterNames.map((name) => `starters/${name}`)];
+const faceDocuments = starterNames.map((name) => `starters/${name}`);
 
 checkEvery("every rack document carries the current library", (want) => {
   for (const label of faceDocuments) {
@@ -534,7 +533,6 @@ checkEvery("the shared sheet self-check is byte-identical", (want) => {
 // does that - but at minimum every script a user's browser will run must parse.
 checkEvery("every embedded script parses", (want) => {
   const pages = [
-    "templates/network-design-template.edit.html",
     ...starterNames.map((name) => `starters/${name}`),
     "tools/edit-with-ai.html",
     "tools/packager/network-design-packager.html",

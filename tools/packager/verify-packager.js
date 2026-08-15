@@ -130,7 +130,7 @@ function verifyPackager() {
 }
 
 const pairs = [
-  verifyPair("templates/network-design-template.edit.html", "dist/examples/topology-and-rack.portable.html", 29),
+  verifyPair("starters/network-design-template.edit.html", "dist/examples/topology-and-rack.portable.html", 29),
   verifyPair("tests/fixtures/alternate-dashboard.edit.html", "dist/examples/alternate-dashboard.portable.html", 11)
 ];
 const packager = verifyPackager();

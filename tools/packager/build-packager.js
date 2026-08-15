@@ -21,7 +21,7 @@ const packagerPath = path.join(repoRoot, "tools", "packager", "network-design-pa
 
 const outputs = [
   {
-    editablePath: path.join(repoRoot, "templates", "network-design-template.edit.html"),
+    editablePath: path.join(repoRoot, "starters", "network-design-template.edit.html"),
     portablePath: path.join(repoRoot, "dist", "examples", "topology-and-rack.portable.html")
   },
   {

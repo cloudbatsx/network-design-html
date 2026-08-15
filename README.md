@@ -36,7 +36,7 @@ outside the data block is copied through **byte for byte**.
 
 No Node. No npm. No command line. Just a browser and an AI chat window.
 
-1. **Download two files** — a [starter kit](#starter-kits) (or the [blank template](templates/network-design-template.edit.html)) and [`edit-with-ai.html`](tools/edit-with-ai.html)
+1. **Download two files** — a [starter kit](#starter-kits) (or the [blank template](starters/network-design-template.edit.html), in the same folder) and [`edit-with-ai.html`](tools/edit-with-ai.html)
 2. **Open `edit-with-ai.html`** and pick your design file
 3. **Pick the part you're changing** — devices, connections, the rack, the gaps list — then **type your change** in plain English → **Copy prompt** → paste into your AI chat
 4. **Paste the reply back** → click **Check it**
@@ -298,8 +298,7 @@ file back, so it needs a strong model; it was called `gemini-editing-rules.md`,
 which pointed beginners at the one door a free model cannot open.
 
 ```text
-starters/                ten ready-made designs to copy
-templates/               the editable template
+starters/                ten ready-made designs to copy, plus the blank template
 symbols/                 canonical SVG sprite + semantic map
 assets/                  official Cisco icons and rack faces
 tools/edit-with-ai.html  offline AI editing helper

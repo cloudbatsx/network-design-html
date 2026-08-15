@@ -5,7 +5,7 @@
 //   rack-faces/rack-faces.svg          the sprite, for use outside this project
 //   rack-faces/rack-face-map.json      semantic keys -> symbol ids
 //   examples/rack-face-preview.html    the review page
-//   templates/ and starters/           the inlined copy each document carries
+//   starters/                          the inlined copy each document carries
 //
 // The drawing itself lives in rack-faces/rack-face-core.js. Edit that, then run:
 //
@@ -217,7 +217,7 @@ fs.writeFileSync(path.join(root, "examples", "rack-face-preview.html"), preview)
 // Only documents that actually draw a rack carry the library. The four
 // engineering-sheet kits use a different shell with no rack renderer at all;
 // giving them 39 KB of drawing code they never call would be dead weight.
-const candidates = ["templates/network-design-template.edit.html"];
+const candidates = [];
 const starterDir = path.join(root, "starters");
 if (fs.existsSync(starterDir)) {
   for (const name of fs.readdirSync(starterDir).filter(file => file.endsWith(".edit.html")).sort()) {
