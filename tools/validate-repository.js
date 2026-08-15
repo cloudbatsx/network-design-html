@@ -185,10 +185,6 @@ check("starter kits exist", () => {
 // nine documents and 3U in two, and nothing noticed. A schedule that disagrees
 // with the machine is wrong about the machine.
 const OFFICIAL_UNITS = Object.freeze({ c9500: 1, c9300: 1, fpr4215: 1, r750: 2, ups: 2 });
-// NET-HQ-002's elevation is hand-drawn at 3U and its risk register R5 declares
-// the deviation. The exemption dies when the sheet-kit figures are regenerated
-// from their data blocks; do not add to it.
-const DECLARED_HEIGHT_DEVIATIONS = new Set(["NET-HQ-002.edit.html:SJC-FW-01", "NET-HQ-002.edit.html:SJC-FW-02"]);
 
 // Each starter carries its own copy of the sprite and the semantic map. Without
 // this loop they drift apart silently, which is exactly how a documentation set
@@ -231,7 +227,7 @@ for (const name of starterNames) {
     for (const device of data.rack?.devices || []) {
       want(typeof device.position === "number" && typeof device.height === "number", `${device.id} position/height must be numbers`);
       want(device.position >= 1 && device.position + device.height - 1 <= (data.rack.units || 42), `${device.id} does not fit the rack`);
-      if (Object.hasOwn(OFFICIAL_UNITS, device.asset) && !DECLARED_HEIGHT_DEVIATIONS.has(`${name}:${device.id}`)) {
+      if (Object.hasOwn(OFFICIAL_UNITS, device.asset)) {
         want(device.height === OFFICIAL_UNITS[device.asset],
           `${device.id} schedules ${device.asset} at ${device.height}U; the hardware is ${OFFICIAL_UNITS[device.asset]}U`);
       }
@@ -564,10 +560,14 @@ checkEvery("sheet kits declare exactly their data-driven parts", (want) => {
     want(parts.has("rack") === hasRack, hasRack
       ? `${name} has a data-driven rack but does not declare it editable`
       : `${name} declares the rack editable but has no rack devices`);
-    const rendersFindings = source.includes("findings.forEach(");
+    // The shared self-check and the pin overlays also iterate findings, so a
+    // forEach is not proof the REGISTER rows render from data - that is what
+    // editing findings actually changes, and NET-HQ-002 showed the difference:
+    // pins moved, static rows did not. The renderer declares itself instead.
+    const rendersFindings = source.includes("FINDINGS-REGISTER-RENDERER");
     want(parts.has("findings") === rendersFindings, rendersFindings
-      ? `${name} renders its findings from data but does not declare them editable`
-      : `${name} declares findings editable but renders them as static rows`);
+      ? `${name} renders its findings register from data but does not declare it editable`
+      : `${name} declares findings editable but its register rows are static`);
   }
 });
 

@@ -144,6 +144,7 @@ tbody tr:nth-child(even){background:color-mix(in srgb,var(--rule-soft) 35%,trans
 .pill-b{color:var(--pdu-b);border-color:var(--pdu-b)}
 .pill-w{color:var(--status-warn);border-color:var(--status-warn)}
 .pill-d{color:var(--status-down);border-color:var(--status-down)}
+.pill-g{color:var(--status-up);border-color:var(--status-up)}
 
 .rackrow{display:flex;gap:26px;flex-wrap:wrap;align-items:flex-start}
 .rackrow>div{flex:1 1 380px;min-width:330px;max-width:520px}
@@ -1124,6 +1125,1760 @@ window.networkDesignIcons = {
     "wireless-router":{vector:"nd-wireless-router",official:"asset:cisco/wireless router.jpg"}
 };
 </script>
+<!-- PROOF-DATA:BEGIN -->
+<script id="proof-data" type="application/json">
+{
+  "editing": {
+    "grammar": "sheet",
+    "parts": [
+      "rack"
+    ]
+  },
+  "document": {
+    "title": "San Jose HQ Campus",
+    "subtitle": "A headquarters campus: dual Internet providers into a WAN edge pair, an active/standby firewall pair, a StackWise Virtual core, three floors of campus access with wireless, and a 42U rack scheduled to the unit with dual power feeds.",
+    "drawing": "NET-HQ-002",
+    "revision": "2.1",
+    "status": "Proposed / training",
+    "date": "2026-08-13",
+    "classification": "SAMPLE / REFERENCE",
+    "docClass": "Reference Design",
+    "subject": "HQ campus",
+    "site": "San Jose HQ - fictional",
+    "lineage": {
+      "source": "cloudbats-NET-SJC-HQ-001-v2.0.html",
+      "note": "Ported from the finished CloudBats deliverable. Both figures keep the geometry, structure and formatting the source gave them; what changed is the artwork, which now comes from the shared vector library instead of embedded raster PNGs."
+    },
+    "evidence": {
+      "text": "Proposed - validation required",
+      "color": "amber"
+    },
+    "brand": {
+      "name": "cloudbats",
+      "label": "Systems - Network Design - Starter kit",
+      "logoViewBox": "0 0 512 512",
+      "logoFill": "#0F172A",
+      "logoPath": "M112 72 H400 V352 Q400 400 376 424 Q356 440 336 424 Q316 400 296 400 H216 Q196 400 176 424 Q156 440 136 424 Q112 400 112 352 Z M312 136 A40 40 0 0 1 352 176 V304 A40 40 0 0 1 312 344 A40 40 0 0 1 272 304 V176 A40 40 0 0 1 312 136 Z"
+    }
+  },
+  "topology": {
+    "canvas": {
+      "viewBox": "0 0 1680 1090"
+    },
+    "zones": [
+      {
+        "x": 440,
+        "y": 22,
+        "width": 800,
+        "height": 140,
+        "rx": 8,
+        "fill": "color-mix(in srgb,var(--z-untrusted) 9%,transparent)",
+        "stroke": "var(--z-untrusted)",
+        "label": "Untrusted — public Internet",
+        "id": "untrusted",
+        "lx": 452,
+        "ly": 42,
+        "lfill": "var(--z-untrusted)"
+      },
+      {
+        "x": 440,
+        "y": 178,
+        "width": 800,
+        "height": 278,
+        "rx": 8,
+        "fill": "color-mix(in srgb,var(--z-dmz) 9%,transparent)",
+        "stroke": "var(--z-dmz)",
+        "label": "Perimeter — WAN edge & security",
+        "id": "perimeter",
+        "lx": 452,
+        "ly": 198,
+        "lfill": "var(--z-dmz)"
+      },
+      {
+        "x": 570,
+        "y": 486,
+        "width": 540,
+        "height": 134,
+        "rx": 8,
+        "fill": "color-mix(in srgb,var(--z-campus) 9%,transparent)",
+        "stroke": "var(--z-campus)",
+        "label": "SJC-CORE — StackWise Virtual domain 1 (one logical switch)",
+        "id": "sjc-core",
+        "lx": 582,
+        "ly": 504,
+        "lfill": "var(--z-campus)"
+      },
+      {
+        "x": 1400,
+        "y": 486,
+        "width": 250,
+        "height": 134,
+        "rx": 8,
+        "fill": "color-mix(in srgb,var(--z-oob) 9%,transparent)",
+        "stroke": "var(--z-oob)",
+        "label": "Out-of-band mgmt",
+        "id": "out-of-band-mgmt",
+        "lx": 1412,
+        "ly": 504,
+        "lfill": "var(--z-oob)"
+      },
+      {
+        "x": 90,
+        "y": 684,
+        "width": 1080,
+        "height": 134,
+        "rx": 8,
+        "fill": "color-mix(in srgb,var(--z-campus) 9%,transparent)",
+        "stroke": "var(--z-campus)",
+        "label": "Campus access — trusted",
+        "id": "campus-access",
+        "lx": 102,
+        "ly": 702,
+        "lfill": "var(--z-campus)"
+      },
+      {
+        "x": 1190,
+        "y": 684,
+        "width": 330,
+        "height": 134,
+        "rx": 8,
+        "fill": "color-mix(in srgb,var(--z-datacenter) 9%,transparent)",
+        "stroke": "var(--z-datacenter)",
+        "label": "Services",
+        "id": "services",
+        "lx": 1202,
+        "ly": 702,
+        "lfill": "var(--z-datacenter)"
+      },
+      {
+        "x": 80,
+        "y": 854,
+        "width": 1090,
+        "height": 136,
+        "rx": 8,
+        "fill": "color-mix(in srgb,var(--z-campus) 6%,transparent)",
+        "stroke": "var(--z-campus)",
+        "label": "Endpoints",
+        "id": "endpoints",
+        "lx": 92,
+        "ly": 872,
+        "lfill": "var(--z-campus)",
+        "dash": "6 4"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "isp-a",
+        "label": "ISP-A",
+        "role": null,
+        "details": "Comcast DIA 1G · 203.0.113.0/30",
+        "icon": "cloud",
+        "art": [
+          588,
+          44,
+          64,
+          64
+        ],
+        "align": "e",
+        "name": {
+          "x": 576,
+          "y": 62
+        },
+        "metas": [
+          {
+            "x": 576,
+            "y": 75,
+            "t": "Comcast DIA 1G"
+          },
+          {
+            "x": 576,
+            "y": 88,
+            "t": "203.0.113.0/30"
+          }
+        ]
+      },
+      {
+        "id": "isp-b",
+        "label": "ISP-B",
+        "role": null,
+        "details": "Lumen DIA 1G · 198.51.100.0/30",
+        "icon": "cloud",
+        "art": [
+          1028,
+          44,
+          64,
+          64
+        ],
+        "align": "s",
+        "name": {
+          "x": 1104,
+          "y": 62
+        },
+        "metas": [
+          {
+            "x": 1104,
+            "y": 75,
+            "t": "Lumen DIA 1G"
+          },
+          {
+            "x": 1104,
+            "y": 88,
+            "t": "198.51.100.0/30"
+          }
+        ]
+      },
+      {
+        "id": "sjc-wan-01",
+        "label": "SJC-WAN-01",
+        "role": null,
+        "details": "C8300-2N2S-6T · 10.20.10.11",
+        "icon": "router",
+        "art": [
+          588,
+          194,
+          64,
+          64
+        ],
+        "align": "e",
+        "name": {
+          "x": 576,
+          "y": 212
+        },
+        "metas": [
+          {
+            "x": 576,
+            "y": 225,
+            "t": "C8300-2N2S-6T"
+          },
+          {
+            "x": 576,
+            "y": 238,
+            "t": "10.20.10.11"
+          }
+        ]
+      },
+      {
+        "id": "sjc-wan-02",
+        "label": "SJC-WAN-02",
+        "role": null,
+        "details": "C8300-2N2S-6T · 10.20.10.12",
+        "icon": "router",
+        "art": [
+          1028,
+          194,
+          64,
+          64
+        ],
+        "align": "s",
+        "name": {
+          "x": 1104,
+          "y": 212
+        },
+        "metas": [
+          {
+            "x": 1104,
+            "y": 225,
+            "t": "C8300-2N2S-6T"
+          },
+          {
+            "x": 1104,
+            "y": 238,
+            "t": "10.20.10.12"
+          }
+        ]
+      },
+      {
+        "id": "sjc-fw-01",
+        "label": "SJC-FW-01",
+        "role": "ACTIVE",
+        "details": "FPR-4215 NGFW · 10.20.10.21",
+        "icon": "firewall",
+        "art": [
+          588,
+          344,
+          64,
+          64
+        ],
+        "align": "e",
+        "name": {
+          "x": 576,
+          "y": 362
+        },
+        "metas": [
+          {
+            "x": 576,
+            "y": 375,
+            "t": "FPR-4215 NGFW"
+          },
+          {
+            "x": 576,
+            "y": 388,
+            "t": "10.20.10.21"
+          }
+        ],
+        "roleText": {
+          "x": 576,
+          "y": 401,
+          "t": "ACTIVE"
+        }
+      },
+      {
+        "id": "sjc-fw-02",
+        "label": "SJC-FW-02",
+        "role": "STANDBY",
+        "details": "FPR-4215 NGFW · 10.20.10.22",
+        "icon": "firewall",
+        "art": [
+          1028,
+          344,
+          64,
+          64
+        ],
+        "align": "s",
+        "name": {
+          "x": 1104,
+          "y": 362
+        },
+        "metas": [
+          {
+            "x": 1104,
+            "y": 375,
+            "t": "FPR-4215 NGFW"
+          },
+          {
+            "x": 1104,
+            "y": 388,
+            "t": "10.20.10.22"
+          }
+        ],
+        "roleText": {
+          "x": 1104,
+          "y": 401,
+          "t": "STANDBY"
+        }
+      },
+      {
+        "id": "sjc-core-01",
+        "label": "SJC-CORE-01",
+        "role": null,
+        "details": "C9500X-28C8D · 10.20.10.1",
+        "icon": "core-switch",
+        "art": [
+          668,
+          504,
+          64,
+          64
+        ],
+        "align": "e",
+        "name": {
+          "x": 656,
+          "y": 530
+        },
+        "metas": [
+          {
+            "x": 656,
+            "y": 543,
+            "t": "C9500X-28C8D"
+          },
+          {
+            "x": 656,
+            "y": 556,
+            "t": "10.20.10.1"
+          }
+        ]
+      },
+      {
+        "id": "sjc-core-02",
+        "label": "SJC-CORE-02",
+        "role": null,
+        "details": "C9500X-28C8D · 10.20.10.2",
+        "icon": "core-switch",
+        "art": [
+          948,
+          504,
+          64,
+          64
+        ],
+        "align": "s",
+        "name": {
+          "x": 1024,
+          "y": 530
+        },
+        "metas": [
+          {
+            "x": 1024,
+            "y": 543,
+            "t": "C9500X-28C8D"
+          },
+          {
+            "x": 1024,
+            "y": 556,
+            "t": "10.20.10.2"
+          }
+        ]
+      },
+      {
+        "id": "sjc-oob-01",
+        "label": "SJC-OOB-01",
+        "role": null,
+        "details": "C1000-24T · 10.20.99.10",
+        "icon": "access-switch",
+        "art": [
+          1493,
+          504,
+          64,
+          64
+        ],
+        "name": {
+          "x": 1525,
+          "y": 584
+        },
+        "metas": [
+          {
+            "x": 1525,
+            "y": 597,
+            "t": "C1000-24T"
+          },
+          {
+            "x": 1525,
+            "y": 610,
+            "t": "10.20.99.10"
+          }
+        ]
+      },
+      {
+        "id": "sjc-acc-01",
+        "label": "SJC-ACC-01",
+        "role": null,
+        "details": "C9300-48P · 10.20.10.31",
+        "icon": "access-switch",
+        "art": [
+          168,
+          700,
+          64,
+          64
+        ],
+        "name": {
+          "x": 200,
+          "y": 780
+        },
+        "metas": [
+          {
+            "x": 200,
+            "y": 793,
+            "t": "C9300-48P"
+          },
+          {
+            "x": 200,
+            "y": 806,
+            "t": "10.20.10.31"
+          }
+        ]
+      },
+      {
+        "id": "sjc-acc-02",
+        "label": "SJC-ACC-02",
+        "role": null,
+        "details": "C9300-48P · 10.20.10.32",
+        "icon": "access-switch",
+        "art": [
+          448,
+          700,
+          64,
+          64
+        ],
+        "name": {
+          "x": 480,
+          "y": 780
+        },
+        "metas": [
+          {
+            "x": 480,
+            "y": 793,
+            "t": "C9300-48P"
+          },
+          {
+            "x": 480,
+            "y": 806,
+            "t": "10.20.10.32"
+          }
+        ]
+      },
+      {
+        "id": "sjc-acc-03",
+        "label": "SJC-ACC-03",
+        "role": null,
+        "details": "C9300-48P · 10.20.10.33",
+        "icon": "access-switch",
+        "art": [
+          728,
+          700,
+          64,
+          64
+        ],
+        "name": {
+          "x": 760,
+          "y": 780
+        },
+        "metas": [
+          {
+            "x": 760,
+            "y": 793,
+            "t": "C9300-48P"
+          },
+          {
+            "x": 760,
+            "y": 806,
+            "t": "10.20.10.33"
+          }
+        ]
+      },
+      {
+        "id": "sjc-srv-01",
+        "label": "SJC-SRV-01",
+        "role": null,
+        "details": "C9300-48P · 10.20.10.34",
+        "icon": "access-switch",
+        "art": [
+          1008,
+          700,
+          64,
+          64
+        ],
+        "name": {
+          "x": 1040,
+          "y": 780
+        },
+        "metas": [
+          {
+            "x": 1040,
+            "y": 793,
+            "t": "C9300-48P"
+          },
+          {
+            "x": 1040,
+            "y": 806,
+            "t": "10.20.10.34"
+          }
+        ]
+      },
+      {
+        "id": "sjc-wlc-01",
+        "label": "SJC-WLC-01",
+        "role": null,
+        "details": "C9800-40 · 10.20.10.41",
+        "icon": "wlan-controller",
+        "art": [
+          1238,
+          700,
+          64,
+          64
+        ],
+        "align": "s",
+        "name": {
+          "x": 1310,
+          "y": 722
+        },
+        "metas": [
+          {
+            "x": 1310,
+            "y": 735,
+            "t": "C9800-40"
+          },
+          {
+            "x": 1310,
+            "y": 748,
+            "t": "10.20.10.41"
+          }
+        ]
+      },
+      {
+        "id": "usr-f1",
+        "label": "USR-F1",
+        "role": null,
+        "details": "48 ports · VLAN 20 / 30",
+        "icon": "workstation",
+        "art": [
+          108,
+          870,
+          64,
+          64
+        ],
+        "name": {
+          "x": 140,
+          "y": 950
+        },
+        "metas": [
+          {
+            "x": 140,
+            "y": 963,
+            "t": "48 ports"
+          },
+          {
+            "x": 140,
+            "y": 976,
+            "t": "VLAN 20 / 30"
+          }
+        ]
+      },
+      {
+        "id": "ap-f1-4",
+        "label": "AP-F1 ×4",
+        "role": null,
+        "details": "CW9166I · VLAN 60",
+        "icon": "access-point",
+        "art": [
+          238,
+          870,
+          64,
+          64
+        ],
+        "name": {
+          "x": 270,
+          "y": 950
+        },
+        "metas": [
+          {
+            "x": 270,
+            "y": 963,
+            "t": "CW9166I"
+          },
+          {
+            "x": 270,
+            "y": 976,
+            "t": "VLAN 60"
+          }
+        ]
+      },
+      {
+        "id": "usr-f2",
+        "label": "USR-F2",
+        "role": null,
+        "details": "48 ports · VLAN 21 / 30",
+        "icon": "workstation",
+        "art": [
+          388,
+          870,
+          64,
+          64
+        ],
+        "name": {
+          "x": 420,
+          "y": 950
+        },
+        "metas": [
+          {
+            "x": 420,
+            "y": 963,
+            "t": "48 ports"
+          },
+          {
+            "x": 420,
+            "y": 976,
+            "t": "VLAN 21 / 30"
+          }
+        ]
+      },
+      {
+        "id": "ap-f2-4",
+        "label": "AP-F2 ×4",
+        "role": null,
+        "details": "CW9166I · VLAN 60",
+        "icon": "access-point",
+        "art": [
+          518,
+          870,
+          64,
+          64
+        ],
+        "name": {
+          "x": 550,
+          "y": 950
+        },
+        "metas": [
+          {
+            "x": 550,
+            "y": 963,
+            "t": "CW9166I"
+          },
+          {
+            "x": 550,
+            "y": 976,
+            "t": "VLAN 60"
+          }
+        ]
+      },
+      {
+        "id": "usr-f3",
+        "label": "USR-F3",
+        "role": null,
+        "details": "48 ports · VLAN 22 / 30",
+        "icon": "workstation",
+        "art": [
+          668,
+          870,
+          64,
+          64
+        ],
+        "name": {
+          "x": 700,
+          "y": 950
+        },
+        "metas": [
+          {
+            "x": 700,
+            "y": 963,
+            "t": "48 ports"
+          },
+          {
+            "x": 700,
+            "y": 976,
+            "t": "VLAN 22 / 30"
+          }
+        ]
+      },
+      {
+        "id": "ap-f3-4",
+        "label": "AP-F3 ×4",
+        "role": null,
+        "details": "CW9166I · VLAN 60",
+        "icon": "access-point",
+        "art": [
+          798,
+          870,
+          64,
+          64
+        ],
+        "name": {
+          "x": 830,
+          "y": 950
+        },
+        "metas": [
+          {
+            "x": 830,
+            "y": 963,
+            "t": "CW9166I"
+          },
+          {
+            "x": 830,
+            "y": 976,
+            "t": "VLAN 60"
+          }
+        ]
+      },
+      {
+        "id": "esx-cluster",
+        "label": "ESX CLUSTER",
+        "role": null,
+        "details": "SJC-ESX-01 · SJC-ESX-02 · Dell R750 ×2 · VLAN 50",
+        "icon": "server",
+        "art": [
+          1058,
+          870,
+          64,
+          64
+        ],
+        "name": {
+          "x": 1090,
+          "y": 950
+        },
+        "metas": [
+          {
+            "x": 1090,
+            "y": 963,
+            "t": "SJC-ESX-01 · SJC-ESX-02"
+          },
+          {
+            "x": 1090,
+            "y": 976,
+            "t": "Dell R750 ×2 · VLAN 50"
+          }
+        ]
+      }
+    ],
+    "links": [
+      {
+        "id": "ISP-A-HANDOFF",
+        "from": "isp-a",
+        "to": "sjc-wan-01",
+        "media": "lnk lnk-os2",
+        "d": "M620 108V194"
+      },
+      {
+        "id": "ISP-B-HANDOFF",
+        "from": "isp-b",
+        "to": "sjc-wan-02",
+        "media": "lnk lnk-os2",
+        "d": "M1060 108V194"
+      },
+      {
+        "id": "WAN-TRANSIT",
+        "from": "sjc-wan-01",
+        "to": "sjc-wan-02",
+        "media": "lnk lnk-om4",
+        "d": "M652 226H1028"
+      },
+      {
+        "id": "WAN1-FW1",
+        "from": "sjc-wan-01",
+        "to": "sjc-fw-01",
+        "media": "lnk lnk-om4 lnk-10g",
+        "d": "M620 258V344"
+      },
+      {
+        "id": "WAN2-FW2",
+        "from": "sjc-wan-02",
+        "to": "sjc-fw-02",
+        "media": "lnk lnk-om4 lnk-10g",
+        "d": "M1060 258V344"
+      },
+      {
+        "id": "FW-HA-A",
+        "from": "sjc-fw-01",
+        "to": "sjc-fw-02",
+        "media": "lnk lnk-om4 lnk-10g",
+        "d": "M652 373H1028"
+      },
+      {
+        "id": "FW-HA-B",
+        "from": "sjc-fw-01",
+        "to": "sjc-fw-02",
+        "media": "lnk lnk-om4 lnk-10g",
+        "d": "M652 379H1028"
+      },
+      {
+        "id": "PO10-M1",
+        "from": "sjc-fw-01",
+        "to": "sjc-core-01",
+        "media": "lnk lnk-om4 lnk-10g",
+        "d": "M608 408V438H688V504",
+        "fromLabel": "SJC-FW-01",
+        "toLabel": "SJC-CORE-01"
+      },
+      {
+        "id": "PO10-M2",
+        "from": "sjc-fw-01",
+        "to": "sjc-core-02",
+        "media": "lnk lnk-om4 lnk-10g",
+        "d": "M620 408V452H960V504",
+        "fromLabel": "SJC-FW-01",
+        "toLabel": "SJC-CORE-02"
+      },
+      {
+        "id": "PO11-M1",
+        "from": "sjc-fw-02",
+        "to": "sjc-core-01",
+        "media": "lnk lnk-om4 lnk-10g",
+        "d": "M1060 408V466H700V504",
+        "halo": true,
+        "fromLabel": "SJC-FW-02",
+        "toLabel": "SJC-CORE-01"
+      },
+      {
+        "id": "PO11-M2",
+        "from": "sjc-fw-02",
+        "to": "sjc-core-02",
+        "media": "lnk lnk-om4 lnk-10g",
+        "d": "M1072 408V438H992V504",
+        "fromLabel": "SJC-FW-02",
+        "toLabel": "SJC-CORE-02"
+      },
+      {
+        "id": "SVL-A",
+        "from": "sjc-core-01",
+        "to": "sjc-core-02",
+        "media": "lnk lnk-dac lnk-100g",
+        "d": "M732 533H948"
+      },
+      {
+        "id": "SVL-B",
+        "from": "sjc-core-01",
+        "to": "sjc-core-02",
+        "media": "lnk lnk-dac lnk-100g",
+        "d": "M732 539H948"
+      },
+      {
+        "id": "PO1-M1",
+        "from": "sjc-core-01",
+        "to": "sjc-acc-01",
+        "media": "lnk lnk-om4 lnk-10g lag-member",
+        "d": "M676 568V624H194V700",
+        "bundle": "Po1",
+        "halo": true,
+        "fromLabel": "SJC-CORE-01",
+        "fromPort": "Te1/0/5",
+        "toLabel": "SJC-ACC-01",
+        "toPort": "Te1/1/1"
+      },
+      {
+        "id": "PO1-M2",
+        "from": "sjc-core-02",
+        "to": "sjc-acc-01",
+        "media": "lnk lnk-om4 lnk-10g lag-member",
+        "d": "M956 568V629H206V700",
+        "bundle": "Po1",
+        "halo": true,
+        "fromLabel": "SJC-CORE-02",
+        "fromPort": "Te2/0/5",
+        "toLabel": "SJC-ACC-01",
+        "toPort": "Te1/1/2"
+      },
+      {
+        "id": "PO2-M1",
+        "from": "sjc-core-01",
+        "to": "sjc-acc-02",
+        "media": "lnk lnk-om4 lnk-10g lag-member",
+        "d": "M688 568V636H474V700",
+        "bundle": "Po2",
+        "halo": true,
+        "fromLabel": "SJC-CORE-01",
+        "fromPort": "Te1/0/6",
+        "toLabel": "SJC-ACC-02",
+        "toPort": "Te1/1/1"
+      },
+      {
+        "id": "PO2-M2",
+        "from": "sjc-core-02",
+        "to": "sjc-acc-02",
+        "media": "lnk lnk-om4 lnk-10g lag-member",
+        "d": "M968 568V641H486V700",
+        "bundle": "Po2",
+        "halo": true,
+        "fromLabel": "SJC-CORE-02",
+        "fromPort": "Te2/0/6",
+        "toLabel": "SJC-ACC-02",
+        "toPort": "Te1/1/2"
+      },
+      {
+        "id": "PO5-M1",
+        "from": "sjc-core-01",
+        "to": "sjc-wlc-01",
+        "media": "lnk lnk-om4 lnk-10g lag-member",
+        "d": "M724 568V653H1264V700",
+        "bundle": "Po5",
+        "halo": true,
+        "fromLabel": "SJC-CORE-01",
+        "fromPort": "Te1/0/9",
+        "toLabel": "SJC-WLC-01",
+        "toPort": "Te0/0/1"
+      },
+      {
+        "id": "PO5-M2",
+        "from": "sjc-core-02",
+        "to": "sjc-wlc-01",
+        "media": "lnk lnk-om4 lnk-10g lag-member",
+        "d": "M1004 568V648H1276V700",
+        "bundle": "Po5",
+        "halo": true,
+        "fromLabel": "SJC-CORE-02",
+        "fromPort": "Te2/0/9",
+        "toLabel": "SJC-WLC-01",
+        "toPort": "Te0/0/2"
+      },
+      {
+        "id": "PO4-M1",
+        "from": "sjc-core-01",
+        "to": "sjc-srv-01",
+        "media": "lnk lnk-dac lnk-10g lag-member",
+        "d": "M712 568V665H1034V700",
+        "bundle": "Po4",
+        "halo": true,
+        "fromLabel": "SJC-CORE-01",
+        "fromPort": "Te1/0/8",
+        "toLabel": "SJC-SRV-01",
+        "toPort": "Te1/1/1"
+      },
+      {
+        "id": "PO4-M2",
+        "from": "sjc-core-02",
+        "to": "sjc-srv-01",
+        "media": "lnk lnk-dac lnk-10g lag-member",
+        "d": "M992 568V660H1046V700",
+        "bundle": "Po4",
+        "halo": true,
+        "fromLabel": "SJC-CORE-02",
+        "fromPort": "Te2/0/8",
+        "toLabel": "SJC-SRV-01",
+        "toPort": "Te1/1/2"
+      },
+      {
+        "id": "PO3-M1",
+        "from": "sjc-core-01",
+        "to": "sjc-acc-03",
+        "media": "lnk lnk-om4 lnk-10g lag-member",
+        "d": "M700 568V672H754V700",
+        "bundle": "Po3",
+        "halo": true,
+        "fromLabel": "SJC-CORE-01",
+        "fromPort": "Te1/0/7",
+        "toLabel": "SJC-ACC-03",
+        "toPort": "Te1/1/1"
+      },
+      {
+        "id": "PO3-M2",
+        "from": "sjc-core-02",
+        "to": "sjc-acc-03",
+        "media": "lnk lnk-om4 lnk-10g lag-member",
+        "d": "M980 568V677H766V700",
+        "bundle": "Po3",
+        "halo": true,
+        "fromLabel": "SJC-CORE-02",
+        "fromPort": "Te2/0/7",
+        "toLabel": "SJC-ACC-03",
+        "toPort": "Te1/1/2"
+      },
+      {
+        "id": "ACC1-USR",
+        "from": "sjc-acc-01",
+        "to": "usr-f1",
+        "wrap": "cu",
+        "d": "M168 732H140V870"
+      },
+      {
+        "id": "ACC1-AP",
+        "from": "sjc-acc-01",
+        "to": "ap-f1-4",
+        "wrap": "cu",
+        "d": "M232 732H270V870"
+      },
+      {
+        "id": "ACC2-USR",
+        "from": "sjc-acc-02",
+        "to": "usr-f2",
+        "wrap": "cu",
+        "d": "M448 732H420V870"
+      },
+      {
+        "id": "ACC2-AP",
+        "from": "sjc-acc-02",
+        "to": "ap-f2-4",
+        "wrap": "cu",
+        "d": "M512 732H550V870"
+      },
+      {
+        "id": "ACC3-USR",
+        "from": "sjc-acc-03",
+        "to": "usr-f3",
+        "wrap": "cu",
+        "d": "M728 732H700V870"
+      },
+      {
+        "id": "ACC3-AP",
+        "from": "sjc-acc-03",
+        "to": "ap-f3-4",
+        "wrap": "cu",
+        "d": "M792 732H830V870"
+      },
+      {
+        "id": "SRV-ESX-DAC",
+        "from": "sjc-srv-01",
+        "to": "esx-cluster",
+        "media": "lnk lnk-dac lnk-10g",
+        "d": "M1072 732H1090V870"
+      },
+      {
+        "id": "CAPWAP-F3",
+        "from": "ap-f3-4",
+        "to": "sjc-wlc-01",
+        "wrap": "tun",
+        "d": "M830 934V1016H1254V764"
+      },
+      {
+        "id": "CAPWAP-F2",
+        "from": "ap-f2-4",
+        "to": "sjc-wlc-01",
+        "wrap": "tun",
+        "d": "M550 934V1036H1270V764"
+      },
+      {
+        "id": "CAPWAP-F1",
+        "from": "ap-f1-4",
+        "to": "sjc-wlc-01",
+        "wrap": "tun",
+        "d": "M270 934V1056H1286V764"
+      }
+    ],
+    "title": "SJC-HQ Layer 3 logical topology",
+    "desc": "Two carriers terminate on two WAN routers running eBGP in AS 65010.\nEach router connects to one of a pair of next-generation firewalls in an\nactive/standby high-availability cluster. Both firewalls connect by 2 by 10 gigabit\nport-channels into a collapsed core of two switches running as a single StackWise\nVirtual logical chassis. Five downstream devices dual-home into that core with\ntwo explicitly drawn physical members per port-channel, one from each core switch:\nthree IDF access switches, one server access switch and one wireless\nLAN controller. Twelve access points reach the controller over CAPWAP tunnels. An\nout-of-band management switch sits on a physically separate path.",
+    "furniture": [
+      {
+        "class": "d-title",
+        "x": 80,
+        "y": 40,
+        "t": "Figure 1 — Layer 3 logical topology"
+      },
+      {
+        "class": "d-sub",
+        "x": 80,
+        "y": 60,
+        "t": "Site B1.DC1 · SJC-HQ · CB-ND-SJC-HQ-001 rev 1.11 · 2026-08-13"
+      }
+    ],
+    "bundles": [
+      {
+        "id": "Po1",
+        "aria": "Po1: Core 01 Te1/0/5 and Core 02 Te2/0/5 to Access 01 Te1/1/1 and Te1/1/2",
+        "title": "Po1: CORE-01 Te1/0/5 to ACC-01 Te1/1/1; CORE-02 Te2/0/5 to ACC-01 Te1/1/2"
+      },
+      {
+        "id": "Po2",
+        "aria": "Po2: Core 01 Te1/0/6 and Core 02 Te2/0/6 to Access 02 Te1/1/1 and Te1/1/2",
+        "title": "Po2: CORE-01 Te1/0/6 to ACC-02 Te1/1/1; CORE-02 Te2/0/6 to ACC-02 Te1/1/2"
+      },
+      {
+        "id": "Po5",
+        "aria": "Po5: Core 01 Te1/0/9 and Core 02 Te2/0/9 to WLC 01 Te0/0/1 and Te0/0/2",
+        "title": "Po5: CORE-01 Te1/0/9 to WLC-01 Te0/0/1; CORE-02 Te2/0/9 to WLC-01 Te0/0/2"
+      },
+      {
+        "id": "Po4",
+        "aria": "Po4: Core 01 Te1/0/8 and Core 02 Te2/0/8 to Server Access 01 Te1/1/1 and Te1/1/2, DAC",
+        "title": "Po4: CORE-01 Te1/0/8 to SRV-01 Te1/1/1; CORE-02 Te2/0/8 to SRV-01 Te1/1/2 — DAC"
+      },
+      {
+        "id": "Po3",
+        "aria": "Po3: Core 01 Te1/0/7 and Core 02 Te2/0/7 to Access 03 Te1/1/1 and Te1/1/2",
+        "title": "Po3: CORE-01 Te1/0/7 to ACC-03 Te1/1/1; CORE-02 Te2/0/7 to ACC-03 Te1/1/2"
+      }
+    ],
+    "labels": [
+      {
+        "x": 561,
+        "y": 143,
+        "w": 118,
+        "h": 15,
+        "tx": 620,
+        "ty": 154.5,
+        "t": "1000BASE-LX · OS2"
+      },
+      {
+        "x": 1001,
+        "y": 143,
+        "w": 118,
+        "h": 15,
+        "tx": 1060,
+        "ty": 154.5,
+        "t": "1000BASE-LX · OS2"
+      },
+      {
+        "x": 747,
+        "y": 218,
+        "w": 186,
+        "h": 15,
+        "tx": 840,
+        "ty": 229.5,
+        "t": "iBGP AS 65010 · 10.20.254.8/30"
+      },
+      {
+        "x": 561,
+        "y": 293,
+        "w": 118,
+        "h": 15,
+        "tx": 620,
+        "ty": 304.5,
+        "t": "10GBASE-SR · OM4"
+      },
+      {
+        "x": 1001,
+        "y": 293,
+        "w": 118,
+        "h": 15,
+        "tx": 1060,
+        "ty": 304.5,
+        "t": "10GBASE-SR · OM4"
+      },
+      {
+        "x": 740,
+        "y": 368,
+        "w": 200,
+        "h": 15,
+        "tx": 840,
+        "ty": 379.5,
+        "t": "HA failover · Po1 (2×10GBASE-SR)"
+      },
+      {
+        "x": 553,
+        "y": 441,
+        "w": 134,
+        "h": 15,
+        "tx": 620,
+        "ty": 452.5,
+        "t": "Po10 (2×10GBASE-SR)"
+      },
+      {
+        "x": 993,
+        "y": 441,
+        "w": 134,
+        "h": 15,
+        "tx": 1060,
+        "ty": 452.5,
+        "t": "Po11 (2×10GBASE-SR)"
+      },
+      {
+        "x": 756,
+        "y": 528,
+        "w": 168,
+        "h": 15,
+        "tx": 840,
+        "ty": 539.5,
+        "t": "SVL Po1 (2×100GBASE-CR4)"
+      },
+      {
+        "x": 150,
+        "y": 664,
+        "w": 100,
+        "h": 15,
+        "tx": 200,
+        "ty": 675.5,
+        "t": "Po1 (2×10G-SR)"
+      },
+      {
+        "x": 430,
+        "y": 678,
+        "w": 100,
+        "h": 15,
+        "tx": 480,
+        "ty": 689.5,
+        "t": "Po2 (2×10G-SR)"
+      },
+      {
+        "x": 710,
+        "y": 664,
+        "w": 100,
+        "h": 15,
+        "tx": 760,
+        "ty": 675.5,
+        "t": "Po3 (2×10G-SR)"
+      },
+      {
+        "x": 990,
+        "y": 678,
+        "w": 100,
+        "h": 15,
+        "tx": 1040,
+        "ty": 689.5,
+        "t": "Po4 (2×10G-CR)"
+      },
+      {
+        "x": 1220,
+        "y": 664,
+        "w": 100,
+        "h": 15,
+        "tx": 1270,
+        "ty": 675.5,
+        "t": "Po5 (2×10G-SR)"
+      },
+      {
+        "x": 81,
+        "y": 828,
+        "w": 118,
+        "h": 15,
+        "tx": 140,
+        "ty": 839.5,
+        "t": "1000BASE-T · Cat6A"
+      },
+      {
+        "x": 227,
+        "y": 828,
+        "w": 86,
+        "h": 15,
+        "tx": 270,
+        "ty": 839.5,
+        "t": "PoE+ 802.3at"
+      },
+      {
+        "x": 361,
+        "y": 828,
+        "w": 118,
+        "h": 15,
+        "tx": 420,
+        "ty": 839.5,
+        "t": "1000BASE-T · Cat6A"
+      },
+      {
+        "x": 507,
+        "y": 828,
+        "w": 86,
+        "h": 15,
+        "tx": 550,
+        "ty": 839.5,
+        "t": "PoE+ 802.3at"
+      },
+      {
+        "x": 641,
+        "y": 828,
+        "w": 118,
+        "h": 15,
+        "tx": 700,
+        "ty": 839.5,
+        "t": "1000BASE-T · Cat6A"
+      },
+      {
+        "x": 787,
+        "y": 828,
+        "w": 86,
+        "h": 15,
+        "tx": 830,
+        "ty": 839.5,
+        "t": "PoE+ 802.3at"
+      },
+      {
+        "x": 1027,
+        "y": 828,
+        "w": 126,
+        "h": 15,
+        "tx": 1090,
+        "ty": 839.5,
+        "t": "4×10GBASE-CR · DAC"
+      },
+      {
+        "x": 933,
+        "y": 1028,
+        "w": 234,
+        "h": 15,
+        "tx": 1050,
+        "ty": 1039.5,
+        "t": "CAPWAP tunnels — 12 APs → SJC-WLC-01",
+        "fill": "var(--z-oob)"
+      }
+    ],
+    "portLabels": [
+      {
+        "x": 630,
+        "y": 190,
+        "t": "Gi0/0/0"
+      },
+      {
+        "x": 1070,
+        "y": 190,
+        "t": "Gi0/0/0"
+      },
+      {
+        "x": 630,
+        "y": 272,
+        "t": "Gi0/0/1"
+      },
+      {
+        "x": 1070,
+        "y": 272,
+        "t": "Gi0/0/1"
+      },
+      {
+        "x": 632,
+        "y": 338,
+        "t": "Eth1/1"
+      },
+      {
+        "x": 1072,
+        "y": 338,
+        "t": "Eth1/1"
+      },
+      {
+        "x": 634,
+        "y": 424,
+        "t": "Eth1/3-4"
+      },
+      {
+        "x": 1074,
+        "y": 424,
+        "t": "Eth1/3-4"
+      },
+      {
+        "x": 634,
+        "y": 482,
+        "t": "Te1/0/1 ·2/0/1"
+      },
+      {
+        "x": 920,
+        "y": 482,
+        "t": "Te1/0/2 ·2/0/2",
+        "anchor": "end"
+      },
+      {
+        "x": 738,
+        "y": 524,
+        "t": "Hu1/0/25-26"
+      },
+      {
+        "x": 942,
+        "y": 524,
+        "t": "Hu2/0/25-26",
+        "anchor": "end"
+      }
+    ],
+    "markers": [
+      {
+        "cx": 1116,
+        "cy": 376,
+        "tx": 1116,
+        "ty": 379.5,
+        "n": 1
+      },
+      {
+        "cx": 1625,
+        "cy": 512,
+        "tx": 1625,
+        "ty": 515.5,
+        "n": 2
+      },
+      {
+        "cx": 1310,
+        "cy": 770,
+        "tx": 1310,
+        "ty": 773.5,
+        "n": 3
+      }
+    ],
+    "footnote": {
+      "x": 80,
+      "y": 1072,
+      "t": "① Standby firewall carries no production traffic; failover is stateful.\n    ② OOB reaches the console port of every device in Figure 2 — paths omitted here to keep this layer readable; see §10.\n    ③ Guest SSID (VLAN 41) is tunnelled to the WLC and egresses via SJC-FW-01 only."
+    }
+  },
+  "rack": {
+    "id": "B1.DC1.A03",
+    "location": "Row A",
+    "units": 42,
+    "frontAisle": "cold aisle",
+    "rearAisle": "hot aisle",
+    "powerFeeds": [
+      {
+        "name": "A",
+        "circuit": "B1.DC1-PP1-A07",
+        "volts": 208,
+        "amps": 30,
+        "phase": "single",
+        "derate": 0.8
+      },
+      {
+        "name": "B",
+        "circuit": "B1.DC1-PP2-B14",
+        "volts": 208,
+        "amps": 30,
+        "phase": "single",
+        "derate": 0.8
+      }
+    ],
+    "reserved": [
+      {
+        "position": 42,
+        "height": 1,
+        "label": "PP-A1 - patch panel - 24x LC duplex OM4"
+      },
+      {
+        "position": 34,
+        "height": 1,
+        "label": "PP-B1 - patch panel - 48x RJ45 Cat6A"
+      },
+      {
+        "position": 41,
+        "height": 1,
+        "label": "cable manager"
+      },
+      {
+        "position": 39,
+        "height": 1,
+        "label": "cable manager"
+      },
+      {
+        "position": 37,
+        "height": 1,
+        "label": "cable manager"
+      },
+      {
+        "position": 35,
+        "height": 1,
+        "label": "cable manager"
+      },
+      {
+        "position": 33,
+        "height": 1,
+        "label": "cable manager"
+      },
+      {
+        "position": 31,
+        "height": 1,
+        "label": "cable manager"
+      },
+      {
+        "position": 29,
+        "height": 1,
+        "label": "blanking panel"
+      },
+      {
+        "position": 25,
+        "height": 1,
+        "label": "blanking panel"
+      },
+      {
+        "position": 21,
+        "height": 1,
+        "label": "blanking panel"
+      },
+      {
+        "position": 19,
+        "height": 1,
+        "label": "blanking panel"
+      },
+      {
+        "position": 17,
+        "height": 1,
+        "label": "blanking panel"
+      },
+      {
+        "position": 8,
+        "height": 1,
+        "label": "blanking panel"
+      },
+      {
+        "position": 5,
+        "height": 2,
+        "label": "blanking panel"
+      },
+      {
+        "position": 15,
+        "height": 2,
+        "label": "reserved - 100G spine pair"
+      },
+      {
+        "position": 13,
+        "height": 2,
+        "label": "reserved - compute growth"
+      },
+      {
+        "position": 27,
+        "height": 2,
+        "label": "blanking panel"
+      },
+      {
+        "position": 23,
+        "height": 2,
+        "label": "blanking panel"
+      }
+    ],
+    "devices": [
+      {
+        "id": "SJC-CORE-01",
+        "model": "Cisco C9500X-28C8D",
+        "role": "core",
+        "position": 38,
+        "height": 1,
+        "asset": "c9500",
+        "feed": null
+      },
+      {
+        "id": "SJC-CORE-02",
+        "model": "Cisco C9500X-28C8D",
+        "role": "core",
+        "position": 36,
+        "height": 1,
+        "asset": "c9500",
+        "feed": null
+      },
+      {
+        "id": "SJC-FW-01",
+        "model": "Cisco FPR-4215",
+        "role": "security",
+        "position": 26,
+        "height": 1,
+        "asset": "fpr4215",
+        "feed": null
+      },
+      {
+        "id": "SJC-FW-02",
+        "model": "Cisco FPR-4215",
+        "role": "security",
+        "position": 22,
+        "height": 1,
+        "asset": "fpr4215",
+        "feed": null
+      },
+      {
+        "id": "SJC-WAN-01",
+        "model": "Cisco C8300-2N2S-6T",
+        "role": "wan",
+        "position": 20,
+        "height": 1,
+        "asset": "generic",
+        "feed": null
+      },
+      {
+        "id": "SJC-WAN-02",
+        "model": "Cisco C8300-2N2S-6T",
+        "role": "wan",
+        "position": 18,
+        "height": 1,
+        "asset": "generic",
+        "feed": null
+      },
+      {
+        "id": "SJC-SRV-01",
+        "model": "Cisco C9300-48P",
+        "role": "access",
+        "position": 32,
+        "height": 1,
+        "asset": "c9300",
+        "feed": null
+      },
+      {
+        "id": "SJC-WLC-01",
+        "model": "Cisco C9800-40",
+        "role": "wireless",
+        "position": 30,
+        "height": 1,
+        "asset": "generic",
+        "feed": null
+      },
+      {
+        "id": "SJC-OOB-01",
+        "model": "Cisco C1000-24T",
+        "role": "oob",
+        "position": 40,
+        "height": 1,
+        "asset": "generic",
+        "feed": null
+      },
+      {
+        "id": "SJC-CON-01",
+        "model": "generic 16-port serial console server",
+        "role": "oob",
+        "position": 7,
+        "height": 1,
+        "asset": "generic",
+        "feed": null
+      },
+      {
+        "id": "SJC-ESX-01",
+        "model": "Dell PowerEdge R750",
+        "role": "compute",
+        "position": 9,
+        "height": 2,
+        "asset": "r750",
+        "feed": null
+      },
+      {
+        "id": "SJC-ESX-02",
+        "model": "Dell PowerEdge R750",
+        "role": "compute",
+        "position": 11,
+        "height": 2,
+        "asset": "r750",
+        "feed": null
+      },
+      {
+        "id": "SJC-UPS-01",
+        "model": "APC SMT3000RMI2UC",
+        "role": "power",
+        "position": 1,
+        "height": 2,
+        "asset": "ups",
+        "feed": null
+      },
+      {
+        "id": "SJC-UPS-02",
+        "model": "APC SMT3000RMI2UC",
+        "role": "power",
+        "position": 3,
+        "height": 2,
+        "asset": "ups",
+        "feed": null
+      }
+    ]
+  },
+  "sections": {
+    "findings": {
+      "id": "open-items",
+      "label": "Open items",
+      "noun": "open items and risks",
+      "heading": "Open items, assumptions & risk register",
+      "flavour": "gaps",
+      "items": [
+        {
+          "id": "R1",
+          "severity": "HIGH",
+          "title": "Single-feed power overload",
+          "detail": "Either feed alone carries 106% of derated capacity.",
+          "action": "Rebalance the load or add capacity before either feed is taken out of service."
+        },
+        {
+          "id": "R2",
+          "severity": "HIGH",
+          "title": "Reversed airflow on the core pair",
+          "detail": "SJC-CORE-01/02 shipped with port-side-exhaust fan trays, so air moves rear to front, against containment.",
+          "action": "Replace the fan trays or re-plan containment for this row.",
+          "at": [
+            "sjc-core-01",
+            "sjc-core-02"
+          ]
+        },
+        {
+          "id": "R3",
+          "severity": "MEDIUM",
+          "title": "Two single-corded devices",
+          "detail": "SJC-OOB-01 and SJC-CON-01 have one PSU each, both fed from feed A.",
+          "action": "Accept with a documented recovery target, or add a second supply.",
+          "at": [
+            "sjc-oob-01"
+          ]
+        },
+        {
+          "id": "R4",
+          "severity": "MEDIUM",
+          "title": "Weights and power are datasheet typical, not measured",
+          "detail": "No figure in the power or weight schedule comes from a measurement of this rack.",
+          "action": "Measure at commissioning and replace the typical values."
+        },
+        {
+          "id": "R5",
+          "severity": "LOW",
+          "title": "FPR-4215 corrected to 1RU",
+          "detail": "The 4200-series datasheet lists the 4215 at 1RU. Through rev 2.1 the hand-drawn elevation modelled both firewalls at 3U and the schedule matched the drawing rather than the hardware; the elevation and schedule now carry the datasheet height, and U23-U24 and U27-U28 are reclaimed as blanked space.",
+          "action": "Verify against the physical rack on the next site visit.",
+          "at": [
+            "sjc-fw-01",
+            "sjc-fw-02"
+          ]
+        },
+        {
+          "id": "R6",
+          "severity": "LOW",
+          "title": "Guest wireless egresses through SJC-FW-01 only",
+          "detail": "VLAN 41 has a single egress path, so losing that firewall removes guest access entirely.",
+          "action": "Accept and document, or provide a second egress.",
+          "at": [
+            "sjc-fw-01"
+          ]
+        },
+        {
+          "id": "R7",
+          "severity": "MEDIUM",
+          "title": "U15-U16 reserved for hardware that does not exist",
+          "detail": "Two units are held for a 100G spine pair that has not been ordered.",
+          "action": "Confirm the spine plan or release the units."
+        },
+        {
+          "id": "R8",
+          "severity": "MEDIUM",
+          "title": "Ten drawn links declare no endpoints",
+          "detail": "Figure 1 draws 24 connections but only 14 carry from/to metadata. The remaining 10 are geometry alone, so this document's data block records 14. They were not inferred from coordinates, because a link's endpoints are a design fact, not something a drawing position can be trusted to imply.",
+          "action": "Add from/to and port records to the remaining 10 paths, then regenerate."
+        }
+      ]
+    }
+  },
+  "validation": {
+    "named_objects": 21,
+    "zones": 7,
+    "links_declared": 14,
+    "links_drawn": 24,
+    "rack_units": 42,
+    "rack_devices": 14,
+    "print_review": "not run",
+    "grayscale_review": "not run"
+  }
+}
+</script>
+<!-- PROOF-DATA:END -->
 <div class="shell">
   <aside class="sidebar" aria-label="Document sidebar">
     <div class="brand">
@@ -1251,281 +3006,142 @@ the two views.</p>
 
 <div class="logical-map-wrap">
 <svg class="diagram" viewBox="0 0 1680 1090" role="img"
-     aria-labelledby="f1t f1d" preserveAspectRatio="xMidYMid meet">
-<title id="f1t">SJC-HQ Layer 3 logical topology</title>
-<desc id="f1d">Two carriers terminate on two WAN routers running eBGP in AS 65010.
-Each router connects to one of a pair of next-generation firewalls in an
-active/standby high-availability cluster. Both firewalls connect by 2 by 10 gigabit
-port-channels into a collapsed core of two switches running as a single StackWise
-Virtual logical chassis. Five downstream devices dual-home into that core with
-two explicitly drawn physical members per port-channel, one from each core switch:
-three IDF access switches, one server access switch and one wireless
-LAN controller. Twelve access points reach the controller over CAPWAP tunnels. An
-out-of-band management switch sits on a physically separate path.</desc>
+     aria-labelledby="f1t f1d" preserveAspectRatio="xMidYMid meet"></svg>
+<script>
+/* Figure 1 draws itself from the proof-data records. The static markup this
+   script replaces was hand-kept geometry the data only partly mirrored: 14 of
+   33 drawn adjacencies had records, the rest were geometry-only. Every drawn
+   path is now a record - carrier handoffs, the WAN transit, the HA and SVL
+   member pairs, the access and CAPWAP drops - so the figure and the data spine
+   cannot disagree, and nothing draws unless the data names it. The drawing is
+   still hand-tuned: the geometry is authored, not computed, and editing it
+   remains maintainer work - see editing.parts for what the AI helper may touch. */
+(function () {
+  "use strict";
+  var NS = "http://www.w3.org/2000/svg";
+  var data;
+  try { data = JSON.parse(document.getElementById("proof-data").textContent); }
+  catch (e) { console.error("proof-data did not parse", e); return; }
+  var topo = data.topology || {};
+  var icons = window.networkDesignIcons || {};
+  var svg = document.querySelector("svg.diagram");
+  if (!svg) { return; }
+  var errors = [];
 
-<!-- ---------- diagram furniture ---------- -->
-<text class="d-title" x="80" y="40">Figure 1 — Layer 3 logical topology</text>
-<text class="d-sub" x="80" y="60">Site B1.DC1 · SJC-HQ · CB-ND-SJC-HQ-001 rev 1.11 · 2026-08-13</text>
+  function el(name, attrs, text) {
+    var node = document.createElementNS(NS, name);
+    if (attrs) Object.keys(attrs).forEach(function (key) {
+      if (attrs[key] !== undefined && attrs[key] !== null) node.setAttribute(key, attrs[key]);
+    });
+    if (text !== undefined && text !== null) node.textContent = text;
+    return node;
+  }
 
-<!-- ---------- 1. ZONES ---------- -->
-<g id="zones">
-  <rect class="zone" x="440" y="22"  width="800" height="140" rx="8"
-        fill="color-mix(in srgb,var(--z-untrusted) 9%,transparent)" stroke="var(--z-untrusted)"/>
-  <text class="zone-lbl" x="452" y="42" fill="var(--z-untrusted)">Untrusted — public Internet</text>
+  svg.appendChild(el("title", { id: "f1t" }, topo.title));
+  svg.appendChild(el("desc", { id: "f1d" }, topo.desc));
+  (topo.furniture || []).forEach(function (item) {
+    svg.appendChild(el("text", { "class": item.class, x: item.x, y: item.y }, item.t));
+  });
 
-  <rect class="zone" x="440" y="178" width="800" height="278" rx="8"
-        fill="color-mix(in srgb,var(--z-dmz) 9%,transparent)" stroke="var(--z-dmz)"/>
-  <text class="zone-lbl" x="452" y="198" fill="var(--z-dmz)">Perimeter — WAN edge &amp; security</text>
+  var zones = el("g", { id: "zones" });
+  (topo.zones || []).forEach(function (zone) {
+    zones.appendChild(el("rect", { "class": "zone", x: zone.x, y: zone.y, width: zone.width, height: zone.height, rx: zone.rx, fill: zone.fill, stroke: zone.stroke, "stroke-dasharray": zone.dash }));
+    zones.appendChild(el("text", { "class": "zone-lbl", x: zone.lx, y: zone.ly, fill: zone.lfill }, zone.label));
+  });
+  svg.appendChild(zones);
 
-  <rect class="zone" x="570" y="486" width="540" height="134" rx="8"
-        fill="color-mix(in srgb,var(--z-campus) 9%,transparent)" stroke="var(--z-campus)"/>
-  <text class="zone-lbl" x="582" y="504" fill="var(--z-campus)">SJC-CORE — StackWise Virtual domain 1 (one logical switch)</text>
+  /* Links, in draw order. A record with fromLabel carries the figure's own
+     data-* attributes; a bundle groups its two members behind shared halos so
+     the CSS pair-emphasis works; wrap gathers the plain access and CAPWAP
+     drops into their original shared-class groups. */
+  var WRAP_CLASS = { cu: "lnk lnk-cu", tun: "lnk-tun" };
+  var bundleMeta = {};
+  (topo.bundles || []).forEach(function (b) { bundleMeta[b.id] = b; });
+  var links = el("g", { id: "links", "stroke-linecap": "butt" });
+  function pathAttrs(link) {
+    var attrs = { "class": link.media };
+    if (link.fromLabel) {
+      attrs["data-link-id"] = link.id;
+      attrs["data-from-node"] = link.fromLabel;
+      if (link.fromPort) attrs["data-from-port"] = link.fromPort;
+      attrs["data-to-node"] = link.toLabel;
+      if (link.toPort) attrs["data-to-port"] = link.toPort;
+    }
+    attrs.d = link.d;
+    return attrs;
+  }
+  var list = topo.links || [];
+  for (var i = 0; i < list.length; i++) {
+    var link = list[i];
+    if (!link.d) { errors.push("link " + link.id + " has no path data"); continue; }
+    if (link.bundle) {
+      var meta = bundleMeta[link.bundle] || {};
+      var group = el("g", { "class": "lag-bundle", "data-bundle": link.bundle, tabindex: 0, role: "img", "aria-label": meta.aria });
+      group.appendChild(el("title", null, meta.title));
+      var members = [];
+      while (i < list.length && list[i].bundle === link.bundle) { members.push(list[i]); i++; }
+      i--;
+      members.forEach(function (m) { group.appendChild(el("path", { "class": "lnk-halo", d: m.d })); });
+      members.forEach(function (m) { group.appendChild(el("path", pathAttrs(m))); });
+      links.appendChild(group);
+      continue;
+    }
+    if (link.wrap) {
+      var wrapGroup = el("g", { "class": WRAP_CLASS[link.wrap] });
+      while (i < list.length && list[i].wrap === link.wrap) { wrapGroup.appendChild(el("path", { d: list[i].d })); i++; }
+      i--;
+      links.appendChild(wrapGroup);
+      continue;
+    }
+    if (link.halo) links.appendChild(el("path", { "class": "lnk-halo", d: link.d }));
+    links.appendChild(el("path", pathAttrs(link)));
+  }
+  svg.appendChild(links);
 
-  <rect class="zone" x="1400" y="486" width="250" height="134" rx="8"
-        fill="color-mix(in srgb,var(--z-oob) 9%,transparent)" stroke="var(--z-oob)"/>
-  <text class="zone-lbl" x="1412" y="504" fill="var(--z-oob)">Out-of-band mgmt</text>
+  var labels = el("g", { id: "link-labels" });
+  (topo.labels || []).forEach(function (card) {
+    var g = el("g");
+    g.appendChild(el("rect", { "class": "l-lbl-bg", x: card.x, y: card.y, width: card.w, height: card.h }));
+    g.appendChild(el("text", { "class": "l-lbl", x: card.tx, y: card.ty, fill: card.fill }, card.t));
+    labels.appendChild(g);
+  });
+  var ports = el("g", { "class": "p-lbl" });
+  (topo.portLabels || []).forEach(function (p) {
+    ports.appendChild(el("text", { x: p.x, y: p.y, "text-anchor": p.anchor }, p.t));
+  });
+  labels.appendChild(ports);
+  svg.appendChild(labels);
 
-  <rect class="zone" x="90" y="684" width="1080" height="134" rx="8"
-        fill="color-mix(in srgb,var(--z-campus) 9%,transparent)" stroke="var(--z-campus)"/>
-  <text class="zone-lbl" x="102" y="702" fill="var(--z-campus)">Campus access — trusted</text>
+  var nodes = el("g", { id: "nodes" });
+  (topo.nodes || []).forEach(function (node) {
+    var vector = (icons[node.icon] || {}).vector;
+    if (!vector) errors.push("node " + node.id + " has no vector for icon \"" + node.icon + "\"");
+    var suffix = node.align ? " ta-" + node.align : "";
+    var g = el("g");
+    g.appendChild(el("use", { href: "#" + vector, x: node.art[0], y: node.art[1], width: node.art[2], height: node.art[3] }));
+    g.appendChild(el("text", { "class": "n-name" + suffix, x: node.name.x, y: node.name.y }, node.label));
+    (node.metas || []).forEach(function (m) {
+      g.appendChild(el("text", { "class": "n-meta" + suffix, x: m.x, y: m.y }, m.t));
+    });
+    if (node.roleText) g.appendChild(el("text", { "class": "n-role" + suffix, x: node.roleText.x, y: node.roleText.y }, node.roleText.t));
+    nodes.appendChild(g);
+  });
+  svg.appendChild(nodes);
 
-  <rect class="zone" x="1190" y="684" width="330" height="134" rx="8"
-        fill="color-mix(in srgb,var(--z-datacenter) 9%,transparent)" stroke="var(--z-datacenter)"/>
-  <text class="zone-lbl" x="1202" y="702" fill="var(--z-datacenter)">Services</text>
+  var annotations = el("g", { id: "annotations" });
+  (topo.markers || []).forEach(function (m) {
+    var g = el("g");
+    g.appendChild(el("circle", { "class": "marker-c", cx: m.cx, cy: m.cy, r: 9 }));
+    g.appendChild(el("text", { "class": "marker-t", x: m.tx, y: m.ty }, m.n));
+    annotations.appendChild(g);
+  });
+  if (topo.footnote) annotations.appendChild(el("text", { "class": "d-sub", x: topo.footnote.x, y: topo.footnote.y }, topo.footnote.t));
+  svg.appendChild(annotations);
 
-  <rect class="zone" x="80" y="854" width="1090" height="136" rx="8"
-        fill="color-mix(in srgb,var(--z-campus) 6%,transparent)" stroke="var(--z-campus)"
-        stroke-dasharray="6 4"/>
-  <text class="zone-lbl" x="92" y="872" fill="var(--z-campus)">Endpoints</text>
-</g>
-
-<!-- ---------- 2. LINKS ---------- -->
-<g id="links" stroke-linecap="butt">
-  <!-- carrier handoffs : OS2 single-mode -->
-  <path class="lnk lnk-os2" d="M620 108V194"/>
-  <path class="lnk lnk-os2" d="M1060 108V194"/>
-  <!-- inter-router transit -->
-  <path class="lnk lnk-om4" d="M652 226H1028"/>
-  <!-- router to firewall -->
-  <path class="lnk lnk-om4 lnk-10g" d="M620 258V344"/>
-  <path class="lnk lnk-om4 lnk-10g" d="M1060 258V344"/>
-  <!-- firewall HA bundle (double line = LAG) -->
-  <path class="lnk lnk-om4 lnk-10g" d="M652 373H1028"/>
-  <path class="lnk lnk-om4 lnk-10g" d="M652 379H1028"/>
-  <!-- firewall to core : each Po member terminates on a named physical core switch -->
-  <path class="lnk lnk-om4 lnk-10g" data-link-id="PO10-M1" data-from-node="SJC-FW-01" data-to-node="SJC-CORE-01" d="M608 408V438H688V504"/>
-  <path class="lnk lnk-om4 lnk-10g" data-link-id="PO10-M2" data-from-node="SJC-FW-01" data-to-node="SJC-CORE-02" d="M620 408V452H960V504"/>
-  <path class="lnk-halo" d="M1060 408V466H700V504"/>
-  <path class="lnk lnk-om4 lnk-10g" data-link-id="PO11-M1" data-from-node="SJC-FW-02" data-to-node="SJC-CORE-01" d="M1060 408V466H700V504"/>
-  <path class="lnk lnk-om4 lnk-10g" data-link-id="PO11-M2" data-from-node="SJC-FW-02" data-to-node="SJC-CORE-02" d="M1072 408V438H992V504"/>
-  <!-- StackWise Virtual link : 2x100G DAC -->
-  <path class="lnk lnk-dac lnk-100g" d="M732 533H948"/>
-  <path class="lnk lnk-dac lnk-100g" d="M732 539H948"/>
-  <!-- OOB is an all-device management fan-out. Individual drops are intentionally
-       omitted instead of drawing a misleading single adjacency; see note 2 and §10. -->
-
-  <!-- downstream physical MEC members: every path begins and ends on a device.
-       Unique horizontal lanes prevent coincident or hidden segments. -->
-  <g class="lag-bundle" data-bundle="Po1" tabindex="0" role="img" aria-label="Po1: Core 01 Te1/0/5 and Core 02 Te2/0/5 to Access 01 Te1/1/1 and Te1/1/2">
-    <title>Po1: CORE-01 Te1/0/5 to ACC-01 Te1/1/1; CORE-02 Te2/0/5 to ACC-01 Te1/1/2</title>
-    <path class="lnk-halo" d="M676 568V624H194V700"/><path class="lnk-halo" d="M956 568V629H206V700"/>
-    <path class="lnk lnk-om4 lnk-10g lag-member" data-link-id="PO1-M1" data-from-node="SJC-CORE-01" data-from-port="Te1/0/5" data-to-node="SJC-ACC-01" data-to-port="Te1/1/1" d="M676 568V624H194V700"/>
-    <path class="lnk lnk-om4 lnk-10g lag-member" data-link-id="PO1-M2" data-from-node="SJC-CORE-02" data-from-port="Te2/0/5" data-to-node="SJC-ACC-01" data-to-port="Te1/1/2" d="M956 568V629H206V700"/>
-  </g>
-  <g class="lag-bundle" data-bundle="Po2" tabindex="0" role="img" aria-label="Po2: Core 01 Te1/0/6 and Core 02 Te2/0/6 to Access 02 Te1/1/1 and Te1/1/2">
-    <title>Po2: CORE-01 Te1/0/6 to ACC-02 Te1/1/1; CORE-02 Te2/0/6 to ACC-02 Te1/1/2</title>
-    <path class="lnk-halo" d="M688 568V636H474V700"/><path class="lnk-halo" d="M968 568V641H486V700"/>
-    <path class="lnk lnk-om4 lnk-10g lag-member" data-link-id="PO2-M1" data-from-node="SJC-CORE-01" data-from-port="Te1/0/6" data-to-node="SJC-ACC-02" data-to-port="Te1/1/1" d="M688 568V636H474V700"/>
-    <path class="lnk lnk-om4 lnk-10g lag-member" data-link-id="PO2-M2" data-from-node="SJC-CORE-02" data-from-port="Te2/0/6" data-to-node="SJC-ACC-02" data-to-port="Te1/1/2" d="M968 568V641H486V700"/>
-  </g>
-  <g class="lag-bundle" data-bundle="Po5" tabindex="0" role="img" aria-label="Po5: Core 01 Te1/0/9 and Core 02 Te2/0/9 to WLC 01 Te0/0/1 and Te0/0/2">
-    <title>Po5: CORE-01 Te1/0/9 to WLC-01 Te0/0/1; CORE-02 Te2/0/9 to WLC-01 Te0/0/2</title>
-    <path class="lnk-halo" d="M724 568V653H1264V700"/><path class="lnk-halo" d="M1004 568V648H1276V700"/>
-    <path class="lnk lnk-om4 lnk-10g lag-member" data-link-id="PO5-M1" data-from-node="SJC-CORE-01" data-from-port="Te1/0/9" data-to-node="SJC-WLC-01" data-to-port="Te0/0/1" d="M724 568V653H1264V700"/>
-    <path class="lnk lnk-om4 lnk-10g lag-member" data-link-id="PO5-M2" data-from-node="SJC-CORE-02" data-from-port="Te2/0/9" data-to-node="SJC-WLC-01" data-to-port="Te0/0/2" d="M1004 568V648H1276V700"/>
-  </g>
-  <g class="lag-bundle" data-bundle="Po4" tabindex="0" role="img" aria-label="Po4: Core 01 Te1/0/8 and Core 02 Te2/0/8 to Server Access 01 Te1/1/1 and Te1/1/2, DAC">
-    <title>Po4: CORE-01 Te1/0/8 to SRV-01 Te1/1/1; CORE-02 Te2/0/8 to SRV-01 Te1/1/2 — DAC</title>
-    <path class="lnk-halo" d="M712 568V665H1034V700"/><path class="lnk-halo" d="M992 568V660H1046V700"/>
-    <path class="lnk lnk-dac lnk-10g lag-member" data-link-id="PO4-M1" data-from-node="SJC-CORE-01" data-from-port="Te1/0/8" data-to-node="SJC-SRV-01" data-to-port="Te1/1/1" d="M712 568V665H1034V700"/>
-    <path class="lnk lnk-dac lnk-10g lag-member" data-link-id="PO4-M2" data-from-node="SJC-CORE-02" data-from-port="Te2/0/8" data-to-node="SJC-SRV-01" data-to-port="Te1/1/2" d="M992 568V660H1046V700"/>
-  </g>
-  <g class="lag-bundle" data-bundle="Po3" tabindex="0" role="img" aria-label="Po3: Core 01 Te1/0/7 and Core 02 Te2/0/7 to Access 03 Te1/1/1 and Te1/1/2">
-    <title>Po3: CORE-01 Te1/0/7 to ACC-03 Te1/1/1; CORE-02 Te2/0/7 to ACC-03 Te1/1/2</title>
-    <path class="lnk-halo" d="M700 568V672H754V700"/><path class="lnk-halo" d="M980 568V677H766V700"/>
-    <path class="lnk lnk-om4 lnk-10g lag-member" data-link-id="PO3-M1" data-from-node="SJC-CORE-01" data-from-port="Te1/0/7" data-to-node="SJC-ACC-03" data-to-port="Te1/1/1" d="M700 568V672H754V700"/>
-    <path class="lnk lnk-om4 lnk-10g lag-member" data-link-id="PO3-M2" data-from-node="SJC-CORE-02" data-from-port="Te2/0/7" data-to-node="SJC-ACC-03" data-to-port="Te1/1/2" d="M980 568V677H766V700"/>
-  </g>
-
-  <!-- access to endpoints : Cat6A copper -->
-  <g class="lnk lnk-cu">
-    <path d="M168 732H140V870"/>  <path d="M232 732H270V870"/>
-    <path d="M448 732H420V870"/>  <path d="M512 732H550V870"/>
-    <path d="M728 732H700V870"/>  <path d="M792 732H830V870"/>
-  </g>
-  <!-- server access : DAC twinax -->
-  <path class="lnk lnk-dac lnk-10g" d="M1072 732H1090V870"/>
-
-  <!-- CAPWAP overlay tunnels : logical, therefore dashed -->
-  <g class="lnk-tun">
-    <path d="M830 934V1016H1254V764"/>
-    <path d="M550 934V1036H1270V764"/>
-    <path d="M270 934V1056H1286V764"/>
-  </g>
-</g>
-
-<!-- ---------- 3. LINK LABELS ---------- -->
-<g id="link-labels">
-  <g><rect class="l-lbl-bg" x="561" y="143" width="118" height="15"/><text class="l-lbl" x="620" y="154.5">1000BASE-LX · OS2</text></g>
-  <g><rect class="l-lbl-bg" x="1001" y="143" width="118" height="15"/><text class="l-lbl" x="1060" y="154.5">1000BASE-LX · OS2</text></g>
-  <g><rect class="l-lbl-bg" x="747" y="218" width="186" height="15"/><text class="l-lbl" x="840" y="229.5">iBGP AS 65010 · 10.20.254.8/30</text></g>
-  <g><rect class="l-lbl-bg" x="561" y="293" width="118" height="15"/><text class="l-lbl" x="620" y="304.5">10GBASE-SR · OM4</text></g>
-  <g><rect class="l-lbl-bg" x="1001" y="293" width="118" height="15"/><text class="l-lbl" x="1060" y="304.5">10GBASE-SR · OM4</text></g>
-  <g><rect class="l-lbl-bg" x="740" y="368" width="200" height="15"/><text class="l-lbl" x="840" y="379.5">HA failover · Po1 (2×10GBASE-SR)</text></g>
-  <g><rect class="l-lbl-bg" x="553" y="441" width="134" height="15"/><text class="l-lbl" x="620" y="452.5">Po10 (2×10GBASE-SR)</text></g>
-  <g><rect class="l-lbl-bg" x="993" y="441" width="134" height="15"/><text class="l-lbl" x="1060" y="452.5">Po11 (2×10GBASE-SR)</text></g>
-  <g><rect class="l-lbl-bg" x="756" y="528" width="168" height="15"/><text class="l-lbl" x="840" y="539.5">SVL Po1 (2×100GBASE-CR4)</text></g>
-  <g><rect class="l-lbl-bg" x="150" y="664" width="100" height="15"/><text class="l-lbl" x="200" y="675.5">Po1 (2×10G-SR)</text></g>
-  <g><rect class="l-lbl-bg" x="430" y="678" width="100" height="15"/><text class="l-lbl" x="480" y="689.5">Po2 (2×10G-SR)</text></g>
-  <g><rect class="l-lbl-bg" x="710" y="664" width="100" height="15"/><text class="l-lbl" x="760" y="675.5">Po3 (2×10G-SR)</text></g>
-  <g><rect class="l-lbl-bg" x="990" y="678" width="100" height="15"/><text class="l-lbl" x="1040" y="689.5">Po4 (2×10G-CR)</text></g>
-  <g><rect class="l-lbl-bg" x="1220" y="664" width="100" height="15"/><text class="l-lbl" x="1270" y="675.5">Po5 (2×10G-SR)</text></g>
-
-  <g><rect class="l-lbl-bg" x="81"   y="828" width="118" height="15"/><text class="l-lbl" x="140"  y="839.5">1000BASE-T · Cat6A</text></g>
-  <g><rect class="l-lbl-bg" x="227"  y="828" width="86"  height="15"/><text class="l-lbl" x="270"  y="839.5">PoE+ 802.3at</text></g>
-  <g><rect class="l-lbl-bg" x="361"  y="828" width="118" height="15"/><text class="l-lbl" x="420"  y="839.5">1000BASE-T · Cat6A</text></g>
-  <g><rect class="l-lbl-bg" x="507"  y="828" width="86"  height="15"/><text class="l-lbl" x="550"  y="839.5">PoE+ 802.3at</text></g>
-  <g><rect class="l-lbl-bg" x="641"  y="828" width="118" height="15"/><text class="l-lbl" x="700"  y="839.5">1000BASE-T · Cat6A</text></g>
-  <g><rect class="l-lbl-bg" x="787"  y="828" width="86"  height="15"/><text class="l-lbl" x="830"  y="839.5">PoE+ 802.3at</text></g>
-  <g><rect class="l-lbl-bg" x="1027" y="828" width="126" height="15"/><text class="l-lbl" x="1090" y="839.5">4×10GBASE-CR · DAC</text></g>
-
-  <g><rect class="l-lbl-bg" x="933" y="1028" width="234" height="15"/><text class="l-lbl" x="1050" y="1039.5" fill="var(--z-oob)">CAPWAP tunnels — 12 APs → SJC-WLC-01</text></g>
-
-  <!-- selected port identifiers (Standard §6.3); full port map in §5 — see note 2 -->
-  <g class="p-lbl">
-    <text x="630" y="190">Gi0/0/0</text>      <text x="1070" y="190">Gi0/0/0</text>
-    <text x="630" y="272">Gi0/0/1</text>      <text x="1070" y="272">Gi0/0/1</text>
-    <text x="632" y="338">Eth1/1</text>       <text x="1072" y="338">Eth1/1</text>
-    <text x="634" y="424">Eth1/3-4</text>     <text x="1074" y="424">Eth1/3-4</text>
-    <text x="634" y="482">Te1/0/1 ·2/0/1</text><text x="920" y="482" text-anchor="end">Te1/0/2 ·2/0/2</text>
-    <text x="738" y="524">Hu1/0/25-26</text>  <text x="942" y="524" text-anchor="end">Hu2/0/25-26</text>
-  </g>
-</g>
-
-<!-- ---------- 4. NODES ---------- -->
-<g id="nodes">
-  <!-- carriers : side labels so the vertical links stay clear of text -->
-  <g><use href="#nd-cloud" x="588" y="44" width="64" height="64"/>
-     <text class="n-name ta-e" x="576" y="62">ISP-A</text>
-     <text class="n-meta ta-e" x="576" y="75">Comcast DIA 1G</text>
-     <text class="n-meta ta-e" x="576" y="88">203.0.113.0/30</text></g>
-  <g><use href="#nd-cloud" x="1028" y="44" width="64" height="64"/>
-     <text class="n-name ta-s" x="1104" y="62">ISP-B</text>
-     <text class="n-meta ta-s" x="1104" y="75">Lumen DIA 1G</text>
-     <text class="n-meta ta-s" x="1104" y="88">198.51.100.0/30</text></g>
-
-  <!-- WAN routers -->
-  <g><use href="#nd-router" x="588" y="194" width="64" height="64"/>
-     <text class="n-name ta-e" x="576" y="212">SJC-WAN-01</text>
-     <text class="n-meta ta-e" x="576" y="225">C8300-2N2S-6T</text>
-     <text class="n-meta ta-e" x="576" y="238">10.20.10.11</text></g>
-  <g><use href="#nd-router" x="1028" y="194" width="64" height="64"/>
-     <text class="n-name ta-s" x="1104" y="212">SJC-WAN-02</text>
-     <text class="n-meta ta-s" x="1104" y="225">C8300-2N2S-6T</text>
-     <text class="n-meta ta-s" x="1104" y="238">10.20.10.12</text></g>
-
-  <!-- NGFW HA pair -->
-  <g><use href="#nd-firewall" x="588" y="344" width="64" height="64"/>
-     <text class="n-name ta-e" x="576" y="362">SJC-FW-01</text>
-     <text class="n-meta ta-e" x="576" y="375">FPR-4215 NGFW</text>
-     <text class="n-meta ta-e" x="576" y="388">10.20.10.21</text>
-     <text class="n-role ta-e" x="576" y="401">ACTIVE</text></g>
-  <g><use href="#nd-firewall" x="1028" y="344" width="64" height="64"/>
-     <text class="n-name ta-s" x="1104" y="362">SJC-FW-02</text>
-     <text class="n-meta ta-s" x="1104" y="375">FPR-4215 NGFW</text>
-     <text class="n-meta ta-s" x="1104" y="388">10.20.10.22</text>
-     <text class="n-role ta-s" x="1104" y="401">STANDBY</text></g>
-
-  <!-- collapsed core -->
-  <g><use href="#nd-l3-switch" x="668" y="504" width="64" height="64"/>
-     <text class="n-name ta-e" x="656" y="530">SJC-CORE-01</text>
-     <text class="n-meta ta-e" x="656" y="543">C9500X-28C8D</text>
-     <text class="n-meta ta-e" x="656" y="556">10.20.10.1</text></g>
-  <g><use href="#nd-l3-switch" x="948" y="504" width="64" height="64"/>
-     <text class="n-name ta-s" x="1024" y="530">SJC-CORE-02</text>
-     <text class="n-meta ta-s" x="1024" y="543">C9500X-28C8D</text>
-     <text class="n-meta ta-s" x="1024" y="556">10.20.10.2</text></g>
-
-  <!-- out-of-band -->
-  <g><use href="#nd-access-switch" x="1493" y="504" width="64" height="64"/>
-     <text class="n-name" x="1525" y="584">SJC-OOB-01</text>
-     <text class="n-meta" x="1525" y="597">C1000-24T</text>
-     <text class="n-meta" x="1525" y="610">10.20.99.10</text></g>
-
-  <!-- access layer -->
-  <g><use href="#nd-access-switch" x="168" y="700" width="64" height="64"/>
-     <text class="n-name" x="200" y="780">SJC-ACC-01</text>
-     <text class="n-meta" x="200" y="793">C9300-48P</text>
-     <text class="n-meta" x="200" y="806">10.20.10.31</text></g>
-  <g><use href="#nd-access-switch" x="448" y="700" width="64" height="64"/>
-     <text class="n-name" x="480" y="780">SJC-ACC-02</text>
-     <text class="n-meta" x="480" y="793">C9300-48P</text>
-     <text class="n-meta" x="480" y="806">10.20.10.32</text></g>
-  <g><use href="#nd-access-switch" x="728" y="700" width="64" height="64"/>
-     <text class="n-name" x="760" y="780">SJC-ACC-03</text>
-     <text class="n-meta" x="760" y="793">C9300-48P</text>
-     <text class="n-meta" x="760" y="806">10.20.10.33</text></g>
-  <g><use href="#nd-access-switch" x="1008" y="700" width="64" height="64"/>
-     <text class="n-name" x="1040" y="780">SJC-SRV-01</text>
-     <text class="n-meta" x="1040" y="793">C9300-48P</text>
-     <text class="n-meta" x="1040" y="806">10.20.10.34</text></g>
-  <g><use href="#nd-wlan-controller" x="1238" y="700" width="64" height="64"/>
-     <text class="n-name ta-s" x="1310" y="722">SJC-WLC-01</text>
-     <text class="n-meta ta-s" x="1310" y="735">C9800-40</text>
-     <text class="n-meta ta-s" x="1310" y="748">10.20.10.41</text></g>
-
-  <!-- endpoints -->
-  <g><use href="#nd-workstation" x="108" y="870" width="64" height="64"/>
-     <text class="n-name" x="140" y="950">USR-F1</text>
-     <text class="n-meta" x="140" y="963">48 ports</text>
-     <text class="n-meta" x="140" y="976">VLAN 20 / 30</text></g>
-  <g><use href="#nd-access-point" x="238" y="870" width="64" height="64"/>
-     <text class="n-name" x="270" y="950">AP-F1 ×4</text>
-     <text class="n-meta" x="270" y="963">CW9166I</text>
-     <text class="n-meta" x="270" y="976">VLAN 60</text></g>
-  <g><use href="#nd-workstation" x="388" y="870" width="64" height="64"/>
-     <text class="n-name" x="420" y="950">USR-F2</text>
-     <text class="n-meta" x="420" y="963">48 ports</text>
-     <text class="n-meta" x="420" y="976">VLAN 21 / 30</text></g>
-  <g><use href="#nd-access-point" x="518" y="870" width="64" height="64"/>
-     <text class="n-name" x="550" y="950">AP-F2 ×4</text>
-     <text class="n-meta" x="550" y="963">CW9166I</text>
-     <text class="n-meta" x="550" y="976">VLAN 60</text></g>
-  <g><use href="#nd-workstation" x="668" y="870" width="64" height="64"/>
-     <text class="n-name" x="700" y="950">USR-F3</text>
-     <text class="n-meta" x="700" y="963">48 ports</text>
-     <text class="n-meta" x="700" y="976">VLAN 22 / 30</text></g>
-  <g><use href="#nd-access-point" x="798" y="870" width="64" height="64"/>
-     <text class="n-name" x="830" y="950">AP-F3 ×4</text>
-     <text class="n-meta" x="830" y="963">CW9166I</text>
-     <text class="n-meta" x="830" y="976">VLAN 60</text></g>
-  <g><use href="#nd-server" x="1058" y="870" width="64" height="64"/>
-     <text class="n-name" x="1090" y="950">ESX CLUSTER</text>
-     <text class="n-meta" x="1090" y="963">SJC-ESX-01 · SJC-ESX-02</text>
-     <text class="n-meta" x="1090" y="976">Dell R750 ×2 · VLAN 50</text></g>
-</g>
-
-<!-- ---------- 5. ANNOTATIONS ---------- -->
-<g id="annotations">
-  <g><circle class="marker-c" cx="1116" cy="376" r="9"/><text class="marker-t" x="1116" y="379.5">1</text></g>
-  <g><circle class="marker-c" cx="1625" cy="512" r="9"/><text class="marker-t" x="1625" y="515.5">2</text></g>
-  <g><circle class="marker-c" cx="1310" cy="770" r="9"/><text class="marker-t" x="1310" y="773.5">3</text></g>
-  <text class="d-sub" x="80" y="1072">① Standby firewall carries no production traffic; failover is stateful.
-    ② OOB reaches the console port of every device in Figure 2 — paths omitted here to keep this layer readable; see §10.
-    ③ Guest SSID (VLAN 41) is tunnelled to the WLC and egresses via SJC-FW-01 only.</text>
-</g>
-
-</svg>
+  window.logicalRenderErrors = errors;
+  if (errors.length) console.error("Figure 1 render problems:", errors);
+})();
+</script>
 <div class="logical-hover-label" id="logical-hover-label" role="status" aria-live="polite"></div>
 </div>
 <aside class="nd-legend figure-legend" aria-labelledby="logical-legend-title">
@@ -1720,8 +3336,8 @@ the data in §13 rather than redrawn.</p>
 <title id="f2t">Rack B1.DC1.A03 front and rear elevation</title>
 <desc id="f2d">A 42U cabinet. From the top: a fibre patch panel, an out-of-band
 switch, two core switches, a copper patch panel, a server access switch and a
-wireless controller, each separated by 1U cable managers. Below them two 3U
-firewalls, two WAN routers, four rack units reserved for growth, two 2U servers,
+wireless controller, each separated by 1U cable managers. Below them two 1U
+firewalls with their reclaimed units blanked, two WAN routers, four rack units reserved for growth, two 2U servers,
 a console server and two 2U uninterruptible power supplies at the bottom. The rear
 view shows two vertical 0U power distribution units, feed A on the left in blue and
 feed B on the right in red, with dual cords to every device except two
@@ -1764,8 +3380,10 @@ single-corded units that are flagged.</desc>
   <rect x="78" y="629"  width="336" height="20" fill="var(--r-network)" stroke="var(--r-network-s)"/>
   <rect x="78" y="871"  width="336" height="20" fill="var(--r-network)" stroke="var(--r-network-s)"/>
   <!-- security -->
-  <rect x="78" y="409"  width="336" height="64" fill="var(--r-security)" stroke="var(--r-security-s)"/>
-  <rect x="78" y="497"  width="336" height="64" fill="var(--r-security)" stroke="var(--r-security-s)"/>
+  <g><rect class="rk-blank" x="78" y="409" width="336" height="42"/><rect x="78" y="409" width="336" height="42" fill="url(#hatch)" stroke="none"/></g>
+  <rect x="78" y="453"  width="336" height="20" fill="var(--r-security)" stroke="var(--r-security-s)"/>
+  <g><rect class="rk-blank" x="78" y="497" width="336" height="42"/><rect x="78" y="497" width="336" height="42" fill="url(#hatch)" stroke="none"/></g>
+  <rect x="78" y="541"  width="336" height="20" fill="var(--r-security)" stroke="var(--r-security-s)"/>
   <!-- compute -->
   <rect x="78" y="761"  width="336" height="42" fill="var(--r-compute)" stroke="var(--r-compute-s)"/>
   <rect x="78" y="805"  width="336" height="42" fill="var(--r-compute)" stroke="var(--r-compute-s)"/>
@@ -1804,9 +3422,11 @@ single-corded units that are flagged.</desc>
    <text class="rk-u-rng" x="84" y="357">U31</text><text class="rk-name" x="126" y="357">CM-06</text><text class="rk-model" x="216" y="357">1U horizontal cable mgr</text>
    <text class="rack-device-text rk-u-rng" x="84" y="379">U30</text><text class="rack-device-text rk-name" x="126" y="379">SJC-WLC-01</text><text class="rack-device-text rk-model" x="216" y="379">C9800-40</text>
    <text class="rk-lbl-sm" x="126" y="401">BLANKING PANEL 1U</text>
-   <text class="rack-product-text rk-u-rng" x="84" y="446">U26-28</text><text class="rack-product-text rk-name" x="126" y="446">SJC-FW-01</text><text class="rack-product-text rk-model" x="216" y="446">FPR-4215 NGFW · 3U</text>
+   <text class="rk-u-rng" x="84" y="435">U27-28</text><text class="rk-lbl-sm" x="126" y="435">BLANKING PANEL 2U</text>
+   <text class="rack-product-text rk-u-rng" x="84" y="467">U26</text><text class="rack-product-text rk-name" x="126" y="467">SJC-FW-01</text><text class="rack-product-text rk-model" x="216" y="467">FPR-4215 NGFW</text>
    <text class="rk-lbl-sm" x="126" y="489">BLANKING PANEL 1U</text>
-   <text class="rack-product-text rk-u-rng" x="84" y="534">U22-24</text><text class="rack-product-text rk-name" x="126" y="534">SJC-FW-02</text><text class="rack-product-text rk-model" x="216" y="534">FPR-4215 NGFW · 3U</text>
+   <text class="rk-u-rng" x="84" y="523">U23-24</text><text class="rk-lbl-sm" x="126" y="523">BLANKING PANEL 2U</text>
+   <text class="rack-product-text rk-u-rng" x="84" y="555">U22</text><text class="rack-product-text rk-name" x="126" y="555">SJC-FW-02</text><text class="rack-product-text rk-model" x="216" y="555">FPR-4215 NGFW</text>
    <text class="rk-lbl-sm" x="126" y="577">BLANKING PANEL 1U</text>
    <text class="rack-device-text rk-u-rng" x="84" y="599">U20</text><text class="rack-device-text rk-name" x="126" y="599">SJC-WAN-01</text><text class="rack-device-text rk-model" x="216" y="599">C8300-2N2S-6T</text>
    <text class="rk-lbl-sm" x="126" y="621">BLANKING PANEL 1U</text>
@@ -1826,8 +3446,8 @@ single-corded units that are flagged.</desc>
   <!-- airflow arrows : one per device, front-to-rear unless flagged -->
   <g class="af">
    <path d="M370 159h16m0 0-4-3m4 3-4 3"/><path d="M370 335h16m0 0-4-3m4 3-4 3"/>
-   <path d="M370 379h16m0 0-4-3m4 3-4 3"/><path d="M370 446h16m0 0-4-3m4 3-4 3"/>
-   <path d="M370 534h16m0 0-4-3m4 3-4 3"/><path d="M370 599h16m0 0-4-3m4 3-4 3"/>
+   <path d="M370 379h16m0 0-4-3m4 3-4 3"/><path d="M370 467h16m0 0-4-3m4 3-4 3"/>
+   <path d="M370 555h16m0 0-4-3m4 3-4 3"/><path d="M370 599h16m0 0-4-3m4 3-4 3"/>
    <path d="M370 643h16m0 0-4-3m4 3-4 3"/><path d="M370 787h16m0 0-4-3m4 3-4 3"/>
    <path d="M370 831h16m0 0-4-3m4 3-4 3"/><path d="M370 885h16m0 0-4-3m4 3-4 3"/>
    <path d="M370 963h16m0 0-4-3m4 3-4 3"/><path d="M370 1007h16m0 0-4-3m4 3-4 3"/>
@@ -1880,8 +3500,10 @@ single-corded units that are flagged.</desc>
   <rect x="612" y="585" width="322" height="20" fill="var(--r-network)" stroke="var(--r-network-s)"/>
   <rect x="612" y="629" width="322" height="20" fill="var(--r-network)" stroke="var(--r-network-s)"/>
   <rect x="612" y="871" width="322" height="20" fill="var(--r-network)" stroke="var(--r-network-s)"/>
-  <rect x="612" y="409" width="322" height="64" fill="var(--r-security)" stroke="var(--r-security-s)"/>
-  <rect x="612" y="497" width="322" height="64" fill="var(--r-security)" stroke="var(--r-security-s)"/>
+  <g><rect class="rk-blank" x="612" y="409" width="322" height="42"/><rect x="612" y="409" width="322" height="42" fill="url(#hatch)" stroke="none"/></g>
+  <rect x="612" y="453" width="322" height="20" fill="var(--r-security)" stroke="var(--r-security-s)"/>
+  <g><rect class="rk-blank" x="612" y="497" width="322" height="42"/><rect x="612" y="497" width="322" height="42" fill="url(#hatch)" stroke="none"/></g>
+  <rect x="612" y="541" width="322" height="20" fill="var(--r-security)" stroke="var(--r-security-s)"/>
   <rect x="612" y="761" width="322" height="42" fill="var(--r-compute)" stroke="var(--r-compute-s)"/>
   <rect x="612" y="805" width="322" height="42" fill="var(--r-compute)" stroke="var(--r-compute-s)"/>
   <rect x="612" y="937" width="322" height="42" fill="var(--r-power)" stroke="var(--r-power-s)"/>
@@ -1907,8 +3529,8 @@ single-corded units that are flagged.</desc>
    <g><path class="cord-a" d="M582 247h44"/><circle cx="628" cy="247" r="3.4" fill="var(--pdu-a)"/><path class="cord-b" d="M950 247h-44"/><circle cx="904" cy="247" r="3.4" fill="var(--pdu-b)"/></g>
    <g><path class="cord-a" d="M582 335h44"/><circle cx="628" cy="335" r="3.4" fill="var(--pdu-a)"/><path class="cord-b" d="M950 335h-44"/><circle cx="904" cy="335" r="3.4" fill="var(--pdu-b)"/></g>
    <g><path class="cord-a" d="M582 379h44"/><circle cx="628" cy="379" r="3.4" fill="var(--pdu-a)"/><path class="cord-b" d="M950 379h-44"/><circle cx="904" cy="379" r="3.4" fill="var(--pdu-b)"/></g>
-   <g><path class="cord-a" d="M582 446h44"/><circle cx="628" cy="446" r="3.4" fill="var(--pdu-a)"/><path class="cord-b" d="M950 446h-44"/><circle cx="904" cy="446" r="3.4" fill="var(--pdu-b)"/></g>
-   <g><path class="cord-a" d="M582 534h44"/><circle cx="628" cy="534" r="3.4" fill="var(--pdu-a)"/><path class="cord-b" d="M950 534h-44"/><circle cx="904" cy="534" r="3.4" fill="var(--pdu-b)"/></g>
+   <g><path class="cord-a" d="M582 467h44"/><circle cx="628" cy="467" r="3.4" fill="var(--pdu-a)"/><path class="cord-b" d="M950 467h-44"/><circle cx="904" cy="467" r="3.4" fill="var(--pdu-b)"/></g>
+   <g><path class="cord-a" d="M582 555h44"/><circle cx="628" cy="555" r="3.4" fill="var(--pdu-a)"/><path class="cord-b" d="M950 555h-44"/><circle cx="904" cy="555" r="3.4" fill="var(--pdu-b)"/></g>
    <g><path class="cord-a" d="M582 599h44"/><circle cx="628" cy="599" r="3.4" fill="var(--pdu-a)"/><path class="cord-b" d="M950 599h-44"/><circle cx="904" cy="599" r="3.4" fill="var(--pdu-b)"/></g>
    <g><path class="cord-a" d="M582 643h44"/><circle cx="628" cy="643" r="3.4" fill="var(--pdu-a)"/><path class="cord-b" d="M950 643h-44"/><circle cx="904" cy="643" r="3.4" fill="var(--pdu-b)"/></g>
    <g><path class="cord-a" d="M582 787h44"/><circle cx="628" cy="787" r="3.4" fill="var(--pdu-a)"/><path class="cord-b" d="M950 787h-44"/><circle cx="904" cy="787" r="3.4" fill="var(--pdu-b)"/></g>
@@ -1934,9 +3556,11 @@ single-corded units that are flagged.</desc>
    <text class="rk-name" x="648" y="357">CM-06</text>
    <text class="rack-device-text rk-name" x="648" y="379">SJC-WLC-01</text><text class="rack-device-text rk-model" x="740" y="379">2 PSU · C14</text>
    <text class="rk-lbl-sm" x="648" y="401">BLANKING PANEL 1U</text>
-   <text class="rack-product-text rk-name" x="648" y="446">SJC-FW-01</text><text class="rack-product-text rk-model" x="740" y="446">2 PSU · C14</text>
+   <text class="rk-lbl-sm" x="648" y="435">BLANKING PANEL 2U</text>
+   <text class="rack-product-text rk-name" x="648" y="467">SJC-FW-01</text><text class="rack-product-text rk-model" x="740" y="467">2 PSU · C14</text>
    <text class="rk-lbl-sm" x="648" y="489">BLANKING PANEL 1U</text>
-   <text class="rack-product-text rk-name" x="648" y="534">SJC-FW-02</text><text class="rack-product-text rk-model" x="740" y="534">2 PSU · C14</text>
+   <text class="rk-lbl-sm" x="648" y="523">BLANKING PANEL 2U</text>
+   <text class="rack-product-text rk-name" x="648" y="555">SJC-FW-02</text><text class="rack-product-text rk-model" x="740" y="555">2 PSU · C14</text>
    <text class="rk-lbl-sm" x="648" y="577">BLANKING PANEL 1U</text>
    <text class="rack-device-text rk-name" x="648" y="599">SJC-WAN-01</text><text class="rack-device-text rk-model" x="740" y="599">2 PSU · C14</text>
    <text class="rk-lbl-sm" x="648" y="621">BLANKING PANEL 1U</text>
@@ -1970,10 +3594,10 @@ single-corded units that are flagged.</desc>
   <rect class="rack-hover-target" tabindex="0" role="img" aria-label="SJC-SRV-01, Cisco C9300-48P, Server access switch, U32, rear view" data-device="SJC-SRV-01" data-model="Cisco C9300-48P" data-role="Server access switch" data-u="U32" data-view="rear" x="612" y="321" width="322" height="20"/>
   <rect class="rack-hover-target" tabindex="0" role="img" aria-label="SJC-WLC-01, Cisco C9800-40, Wireless LAN controller, U30, front view" data-device="SJC-WLC-01" data-model="Cisco C9800-40" data-role="Wireless LAN controller" data-u="U30" data-view="front" x="78" y="365" width="336" height="20"/>
   <rect class="rack-hover-target" tabindex="0" role="img" aria-label="SJC-WLC-01, Cisco C9800-40, Wireless LAN controller, U30, rear view" data-device="SJC-WLC-01" data-model="Cisco C9800-40" data-role="Wireless LAN controller" data-u="U30" data-view="rear" x="612" y="365" width="322" height="20"/>
-  <rect class="rack-hover-target" tabindex="0" role="img" aria-label="SJC-FW-01, Cisco FPR-4215 NGFW, Perimeter firewall - active, U26-U28, front view" data-device="SJC-FW-01" data-model="Cisco FPR-4215 NGFW" data-role="Perimeter firewall - active" data-u="U26-U28" data-view="front" x="78" y="409" width="336" height="64"/>
-  <rect class="rack-hover-target" tabindex="0" role="img" aria-label="SJC-FW-01, Cisco FPR-4215 NGFW, Perimeter firewall - active, U26-U28, rear view" data-device="SJC-FW-01" data-model="Cisco FPR-4215 NGFW" data-role="Perimeter firewall - active" data-u="U26-U28" data-view="rear" x="612" y="409" width="322" height="64"/>
-  <rect class="rack-hover-target" tabindex="0" role="img" aria-label="SJC-FW-02, Cisco FPR-4215 NGFW, Perimeter firewall - standby, U22-U24, front view" data-device="SJC-FW-02" data-model="Cisco FPR-4215 NGFW" data-role="Perimeter firewall - standby" data-u="U22-U24" data-view="front" x="78" y="497" width="336" height="64"/>
-  <rect class="rack-hover-target" tabindex="0" role="img" aria-label="SJC-FW-02, Cisco FPR-4215 NGFW, Perimeter firewall - standby, U22-U24, rear view" data-device="SJC-FW-02" data-model="Cisco FPR-4215 NGFW" data-role="Perimeter firewall - standby" data-u="U22-U24" data-view="rear" x="612" y="497" width="322" height="64"/>
+  <rect class="rack-hover-target" tabindex="0" role="img" aria-label="SJC-FW-01, Cisco FPR-4215 NGFW, Perimeter firewall - active, U26, front view" data-device="SJC-FW-01" data-model="Cisco FPR-4215 NGFW" data-role="Perimeter firewall - active" data-u="U26" data-view="front" x="78" y="453" width="336" height="20"/>
+  <rect class="rack-hover-target" tabindex="0" role="img" aria-label="SJC-FW-01, Cisco FPR-4215 NGFW, Perimeter firewall - active, U26, rear view" data-device="SJC-FW-01" data-model="Cisco FPR-4215 NGFW" data-role="Perimeter firewall - active" data-u="U26" data-view="rear" x="612" y="453" width="322" height="20"/>
+  <rect class="rack-hover-target" tabindex="0" role="img" aria-label="SJC-FW-02, Cisco FPR-4215 NGFW, Perimeter firewall - standby, U22, front view" data-device="SJC-FW-02" data-model="Cisco FPR-4215 NGFW" data-role="Perimeter firewall - standby" data-u="U22" data-view="front" x="78" y="541" width="336" height="20"/>
+  <rect class="rack-hover-target" tabindex="0" role="img" aria-label="SJC-FW-02, Cisco FPR-4215 NGFW, Perimeter firewall - standby, U22, rear view" data-device="SJC-FW-02" data-model="Cisco FPR-4215 NGFW" data-role="Perimeter firewall - standby" data-u="U22" data-view="rear" x="612" y="541" width="322" height="20"/>
   <rect class="rack-hover-target" tabindex="0" role="img" aria-label="SJC-WAN-01, Cisco C8300-2N2S-6T, WAN edge router, U20, front view" data-device="SJC-WAN-01" data-model="Cisco C8300-2N2S-6T" data-role="WAN edge router" data-u="U20" data-view="front" x="78" y="585" width="336" height="20"/>
   <rect class="rack-hover-target" tabindex="0" role="img" aria-label="SJC-WAN-01, Cisco C8300-2N2S-6T, WAN edge router, U20, rear view" data-device="SJC-WAN-01" data-model="Cisco C8300-2N2S-6T" data-role="WAN edge router" data-u="U20" data-view="rear" x="612" y="585" width="322" height="20"/>
   <rect class="rack-hover-target" tabindex="0" role="img" aria-label="SJC-WAN-02, Cisco C8300-2N2S-6T, WAN edge router, U18, front view" data-device="SJC-WAN-02" data-model="Cisco C8300-2N2S-6T" data-role="WAN edge router" data-u="U18" data-view="front" x="78" y="629" width="336" height="20"/>
@@ -2045,9 +3669,9 @@ datasheet typical values — see risk R4.</caption>
 <tr><td class="m">31</td><td class="num">31</td><td class="num">1</td><td class="m">CM-06</td><td>1U horizontal cable manager</td><td>Passive</td><td>—</td><td class="m">—</td><td class="num">0.9</td><td class="num">0</td></tr>
 <tr><td class="m">30</td><td class="num">30</td><td class="num">1</td><td class="m">SJC-WLC-01</td><td>Cisco C9800-40</td><td>Network</td><td>Front → rear</td><td class="m">2</td><td class="num">8.6</td><td class="num">250</td></tr>
 <tr><td class="m">29</td><td class="num">29</td><td class="num">1</td><td colspan="2">Blanking panel</td><td>Passive</td><td>—</td><td class="m">—</td><td class="num">0.35</td><td class="num">0</td></tr>
-<tr><td class="m">26-28</td><td class="num">26</td><td class="num">3</td><td class="m">SJC-FW-01</td><td>Cisco Secure Firewall FPR-4215</td><td>Security</td><td>Front → rear</td><td class="m">2</td><td class="num">26.9</td><td class="num">700</td></tr>
+<tr><td class="m">26</td><td class="num">26</td><td class="num">1</td><td class="m">SJC-FW-01</td><td>Cisco Secure Firewall FPR-4215</td><td>Security</td><td>Front → rear</td><td class="m">2</td><td class="num">26.9</td><td class="num">700</td></tr>
 <tr><td class="m">25</td><td class="num">25</td><td class="num">1</td><td colspan="2">Blanking panel</td><td>Passive</td><td>—</td><td class="m">—</td><td class="num">0.35</td><td class="num">0</td></tr>
-<tr><td class="m">22-24</td><td class="num">22</td><td class="num">3</td><td class="m">SJC-FW-02</td><td>Cisco Secure Firewall FPR-4215</td><td>Security</td><td>Front → rear</td><td class="m">2</td><td class="num">26.9</td><td class="num">700</td></tr>
+<tr><td class="m">22</td><td class="num">22</td><td class="num">1</td><td class="m">SJC-FW-02</td><td>Cisco Secure Firewall FPR-4215</td><td>Security</td><td>Front → rear</td><td class="m">2</td><td class="num">26.9</td><td class="num">700</td></tr>
 <tr><td class="m">21</td><td class="num">21</td><td class="num">1</td><td colspan="2">Blanking panel</td><td>Passive</td><td>—</td><td class="m">—</td><td class="num">0.35</td><td class="num">0</td></tr>
 <tr><td class="m">20</td><td class="num">20</td><td class="num">1</td><td class="m">SJC-WAN-01</td><td>Cisco C8300-2N2S-6T</td><td>Network</td><td>Front → rear</td><td class="m">2</td><td class="num">8.2</td><td class="num">250</td></tr>
 <tr><td class="m">19</td><td class="num">19</td><td class="num">1</td><td colspan="2">Blanking panel</td><td>Passive</td><td>—</td><td class="m">—</td><td class="num">0.35</td><td class="num">0</td></tr>
@@ -2215,10 +3839,10 @@ reserved U13–16 growth is populated, which would add load on top of this.</div
     <td>Real draw varies with optics count and PoE load; the §9 margins could shift.</td>
     <td><span class="pill pill-w">MEDIUM</span></td>
     <td>Meter each feed at commissioning and re-issue §9 with measured values.</td></tr>
-<tr><td class="m">R5</td><td><b>FPR-4215 modelled at 3U.</b> The 4200-series datasheet lists the 4215 at 1RU; this hand-drawn elevation keeps 3U until it is regenerated from the data block.</td>
-    <td>The two firewall heights are wrong, and U23–24 and U27–28 are shown occupied when they are free.</td>
-    <td><span class="pill pill-w">MEDIUM</span></td>
-    <td>Correct the schedule to 1U when the figure is regenerated from data. Heights elsewhere in §8 remain datasheet values, not purchase orders.</td></tr>
+<tr><td class="m">R5</td><td><b>FPR-4215 corrected to 1RU.</b> The 4200-series datasheet lists the 4215 at 1RU; through rev 2.1 the elevation modelled both firewalls at 3U and the schedule matched the drawing rather than the hardware.</td>
+    <td>Resolved. Both firewalls are scheduled at the datasheet height; U23–24 and U27–28 are reclaimed and blanked.</td>
+    <td><span class="pill pill-g">LOW</span></td>
+    <td>Verify against the physical rack on the next site visit. Heights elsewhere in §8 remain datasheet values, not purchase orders.</td></tr>
 <tr><td class="m">R6</td><td><b>Guest wireless egresses via SJC-FW-01 only</b> (VLAN 41, note ③).</td>
     <td>Guest SSID has no path on an FW-01 failure. Corporate wireless is unaffected.</td>
     <td><span class="pill" style="color:var(--ink-muted);border-color:var(--ink-muted)">LOW</span></td>
@@ -2347,649 +3971,6 @@ the basis rather than take it on trust.</caption>
   </main>
 </div>
 
-<!-- PROOF-DATA:BEGIN -->
-<script id="proof-data" type="application/json">
-{
-  "editing": { "grammar": "sheet", "parts": ["rack", "findings"] },
-  "document": {
-    "title": "San Jose HQ Campus",
-    "subtitle": "A headquarters campus: dual Internet providers into a WAN edge pair, an active/standby firewall pair, a StackWise Virtual core, three floors of campus access with wireless, and a 42U rack scheduled to the unit with dual power feeds.",
-    "drawing": "NET-HQ-002",
-    "revision": "2.1",
-    "status": "Proposed / training",
-    "date": "2026-08-13",
-    "classification": "SAMPLE / REFERENCE",
-    "docClass": "Reference Design",
-    "subject": "HQ campus",
-    "site": "San Jose HQ - fictional",
-    "lineage": {
-      "source": "cloudbats-NET-SJC-HQ-001-v2.0.html",
-      "note": "Ported from the finished CloudBats deliverable. Both figures keep the geometry, structure and formatting the source gave them; what changed is the artwork, which now comes from the shared vector library instead of embedded raster PNGs."
-    },
-    "evidence": { "text": "Proposed - validation required", "color": "amber" },
-    "brand": {
-      "name": "cloudbats",
-      "label": "Systems - Network Design - Starter kit",
-      "logoViewBox": "0 0 512 512",
-      "logoFill": "#0F172A",
-      "logoPath": "M112 72 H400 V352 Q400 400 376 424 Q356 440 336 424 Q316 400 296 400 H216 Q196 400 176 424 Q156 440 136 424 Q112 400 112 352 Z M312 136 A40 40 0 0 1 352 176 V304 A40 40 0 0 1 312 344 A40 40 0 0 1 272 304 V176 A40 40 0 0 1 312 136 Z"
-    }
-  },
-  "topology": {
-    "canvas": { "viewBox": "0 0 1680 1090" },
-    "zones": [
-      {
-        "x": 440,
-        "y": 22,
-        "width": 800,
-        "height": 140,
-        "rx": 8,
-        "fill": "color-mix(in srgb,var(--z-untrusted) 9%,transparent)",
-        "stroke": "var(--z-untrusted)",
-        "label": "Untrusted — public Internet",
-        "id": "untrusted",
-        "lx": 452,
-        "ly": 42,
-        "lfill": "var(--z-untrusted)"
-      },
-      {
-        "x": 440,
-        "y": 178,
-        "width": 800,
-        "height": 278,
-        "rx": 8,
-        "fill": "color-mix(in srgb,var(--z-dmz) 9%,transparent)",
-        "stroke": "var(--z-dmz)",
-        "label": "Perimeter — WAN edge & security",
-        "id": "perimeter",
-        "lx": 452,
-        "ly": 198,
-        "lfill": "var(--z-dmz)"
-      },
-      {
-        "x": 570,
-        "y": 486,
-        "width": 540,
-        "height": 134,
-        "rx": 8,
-        "fill": "color-mix(in srgb,var(--z-campus) 9%,transparent)",
-        "stroke": "var(--z-campus)",
-        "label": "SJC-CORE — StackWise Virtual domain 1 (one logical switch)",
-        "id": "sjc-core",
-        "lx": 582,
-        "ly": 504,
-        "lfill": "var(--z-campus)"
-      },
-      {
-        "x": 1400,
-        "y": 486,
-        "width": 250,
-        "height": 134,
-        "rx": 8,
-        "fill": "color-mix(in srgb,var(--z-oob) 9%,transparent)",
-        "stroke": "var(--z-oob)",
-        "label": "Out-of-band mgmt",
-        "id": "out-of-band-mgmt",
-        "lx": 1412,
-        "ly": 504,
-        "lfill": "var(--z-oob)"
-      },
-      {
-        "x": 90,
-        "y": 684,
-        "width": 1080,
-        "height": 134,
-        "rx": 8,
-        "fill": "color-mix(in srgb,var(--z-campus) 9%,transparent)",
-        "stroke": "var(--z-campus)",
-        "label": "Campus access — trusted",
-        "id": "campus-access",
-        "lx": 102,
-        "ly": 702,
-        "lfill": "var(--z-campus)"
-      },
-      {
-        "x": 1190,
-        "y": 684,
-        "width": 330,
-        "height": 134,
-        "rx": 8,
-        "fill": "color-mix(in srgb,var(--z-datacenter) 9%,transparent)",
-        "stroke": "var(--z-datacenter)",
-        "label": "Services",
-        "id": "services",
-        "lx": 1202,
-        "ly": 702,
-        "lfill": "var(--z-datacenter)"
-      },
-      {
-        "x": 80,
-        "y": 854,
-        "width": 1090,
-        "height": 136,
-        "rx": 8,
-        "fill": "color-mix(in srgb,var(--z-campus) 6%,transparent)",
-        "stroke": "var(--z-campus)",
-        "label": "Endpoints",
-        "id": "endpoints",
-        "lx": 92,
-        "ly": 872,
-        "lfill": "var(--z-campus)"
-      }
-    ],
-    "nodes": [
-      {
-        "id": "isp-a",
-        "label": "ISP-A",
-        "role": null,
-        "details": "Comcast DIA 1G · 203.0.113.0/30",
-        "icon": "cloud",
-        "art": [588, 44, 64, 64]
-      },
-      {
-        "id": "isp-b",
-        "label": "ISP-B",
-        "role": null,
-        "details": "Lumen DIA 1G · 198.51.100.0/30",
-        "icon": "cloud",
-        "art": [1028, 44, 64, 64]
-      },
-      {
-        "id": "sjc-wan-01",
-        "label": "SJC-WAN-01",
-        "role": null,
-        "details": "C8300-2N2S-6T · 10.20.10.11",
-        "icon": "router",
-        "art": [588, 194, 64, 64]
-      },
-      {
-        "id": "sjc-wan-02",
-        "label": "SJC-WAN-02",
-        "role": null,
-        "details": "C8300-2N2S-6T · 10.20.10.12",
-        "icon": "router",
-        "art": [1028, 194, 64, 64]
-      },
-      {
-        "id": "sjc-fw-01",
-        "label": "SJC-FW-01",
-        "role": "ACTIVE",
-        "details": "FPR-4215 NGFW · 10.20.10.21",
-        "icon": "firewall",
-        "art": [588, 344, 64, 64]
-      },
-      {
-        "id": "sjc-fw-02",
-        "label": "SJC-FW-02",
-        "role": "STANDBY",
-        "details": "FPR-4215 NGFW · 10.20.10.22",
-        "icon": "firewall",
-        "art": [1028, 344, 64, 64]
-      },
-      {
-        "id": "sjc-core-01",
-        "label": "SJC-CORE-01",
-        "role": null,
-        "details": "C9500X-28C8D · 10.20.10.1",
-        "icon": "core-switch",
-        "art": [668, 504, 64, 64]
-      },
-      {
-        "id": "sjc-core-02",
-        "label": "SJC-CORE-02",
-        "role": null,
-        "details": "C9500X-28C8D · 10.20.10.2",
-        "icon": "core-switch",
-        "art": [948, 504, 64, 64]
-      },
-      {
-        "id": "sjc-oob-01",
-        "label": "SJC-OOB-01",
-        "role": null,
-        "details": "C1000-24T · 10.20.99.10",
-        "icon": "access-switch",
-        "art": [1493, 504, 64, 64]
-      },
-      {
-        "id": "sjc-acc-01",
-        "label": "SJC-ACC-01",
-        "role": null,
-        "details": "C9300-48P · 10.20.10.31",
-        "icon": "access-switch",
-        "art": [168, 700, 64, 64]
-      },
-      {
-        "id": "sjc-acc-02",
-        "label": "SJC-ACC-02",
-        "role": null,
-        "details": "C9300-48P · 10.20.10.32",
-        "icon": "access-switch",
-        "art": [448, 700, 64, 64]
-      },
-      {
-        "id": "sjc-acc-03",
-        "label": "SJC-ACC-03",
-        "role": null,
-        "details": "C9300-48P · 10.20.10.33",
-        "icon": "access-switch",
-        "art": [728, 700, 64, 64]
-      },
-      {
-        "id": "sjc-srv-01",
-        "label": "SJC-SRV-01",
-        "role": null,
-        "details": "C9300-48P · 10.20.10.34",
-        "icon": "access-switch",
-        "art": [1008, 700, 64, 64]
-      },
-      {
-        "id": "sjc-wlc-01",
-        "label": "SJC-WLC-01",
-        "role": null,
-        "details": "C9800-40 · 10.20.10.41",
-        "icon": "wlan-controller",
-        "art": [1238, 700, 64, 64]
-      },
-      {
-        "id": "usr-f1",
-        "label": "USR-F1",
-        "role": null,
-        "details": "48 ports · VLAN 20 / 30",
-        "icon": "workstation",
-        "art": [108, 870, 64, 64]
-      },
-      {
-        "id": "ap-f1-4",
-        "label": "AP-F1 ×4",
-        "role": null,
-        "details": "CW9166I · VLAN 60",
-        "icon": "access-point",
-        "art": [238, 870, 64, 64]
-      },
-      {
-        "id": "usr-f2",
-        "label": "USR-F2",
-        "role": null,
-        "details": "48 ports · VLAN 21 / 30",
-        "icon": "workstation",
-        "art": [388, 870, 64, 64]
-      },
-      {
-        "id": "ap-f2-4",
-        "label": "AP-F2 ×4",
-        "role": null,
-        "details": "CW9166I · VLAN 60",
-        "icon": "access-point",
-        "art": [518, 870, 64, 64]
-      },
-      {
-        "id": "usr-f3",
-        "label": "USR-F3",
-        "role": null,
-        "details": "48 ports · VLAN 22 / 30",
-        "icon": "workstation",
-        "art": [668, 870, 64, 64]
-      },
-      {
-        "id": "ap-f3-4",
-        "label": "AP-F3 ×4",
-        "role": null,
-        "details": "CW9166I · VLAN 60",
-        "icon": "access-point",
-        "art": [798, 870, 64, 64]
-      },
-      {
-        "id": "esx-cluster",
-        "label": "ESX CLUSTER",
-        "role": null,
-        "details": "SJC-ESX-01 · SJC-ESX-02 · Dell R750 ×2 · VLAN 50",
-        "icon": "server",
-        "art": [1058, 870, 64, 64]
-      }
-    ],
-    "links": [
-      {
-        "id": "PO10-M1",
-        "from": "sjc-fw-01",
-        "to": "sjc-core-01",
-        "media": "lnk lnk-om4 lnk-10g",
-        "d": "M608 408V438H688V504"
-      },
-      {
-        "id": "PO10-M2",
-        "from": "sjc-fw-01",
-        "to": "sjc-core-02",
-        "media": "lnk lnk-om4 lnk-10g",
-        "d": "M620 408V452H960V504"
-      },
-      {
-        "id": "PO11-M1",
-        "from": "sjc-fw-02",
-        "to": "sjc-core-01",
-        "media": "lnk lnk-om4 lnk-10g",
-        "d": "M1060 408V466H700V504"
-      },
-      {
-        "id": "PO11-M2",
-        "from": "sjc-fw-02",
-        "to": "sjc-core-02",
-        "media": "lnk lnk-om4 lnk-10g",
-        "d": "M1072 408V438H992V504"
-      },
-      {
-        "id": "PO1-M1",
-        "from": "sjc-core-01",
-        "to": "sjc-acc-01",
-        "media": "lnk lnk-om4 lnk-10g lag-member",
-        "d": "M676 568V624H194V700"
-      },
-      {
-        "id": "PO1-M2",
-        "from": "sjc-core-02",
-        "to": "sjc-acc-01",
-        "media": "lnk lnk-om4 lnk-10g lag-member",
-        "d": "M956 568V629H206V700"
-      },
-      {
-        "id": "PO2-M1",
-        "from": "sjc-core-01",
-        "to": "sjc-acc-02",
-        "media": "lnk lnk-om4 lnk-10g lag-member",
-        "d": "M688 568V636H474V700"
-      },
-      {
-        "id": "PO2-M2",
-        "from": "sjc-core-02",
-        "to": "sjc-acc-02",
-        "media": "lnk lnk-om4 lnk-10g lag-member",
-        "d": "M968 568V641H486V700"
-      },
-      {
-        "id": "PO5-M1",
-        "from": "sjc-core-01",
-        "to": "sjc-wlc-01",
-        "media": "lnk lnk-om4 lnk-10g lag-member",
-        "d": "M724 568V653H1264V700"
-      },
-      {
-        "id": "PO5-M2",
-        "from": "sjc-core-02",
-        "to": "sjc-wlc-01",
-        "media": "lnk lnk-om4 lnk-10g lag-member",
-        "d": "M1004 568V648H1276V700"
-      },
-      {
-        "id": "PO4-M1",
-        "from": "sjc-core-01",
-        "to": "sjc-srv-01",
-        "media": "lnk lnk-dac lnk-10g lag-member",
-        "d": "M712 568V665H1034V700"
-      },
-      {
-        "id": "PO4-M2",
-        "from": "sjc-core-02",
-        "to": "sjc-srv-01",
-        "media": "lnk lnk-dac lnk-10g lag-member",
-        "d": "M992 568V660H1046V700"
-      },
-      {
-        "id": "PO3-M1",
-        "from": "sjc-core-01",
-        "to": "sjc-acc-03",
-        "media": "lnk lnk-om4 lnk-10g lag-member",
-        "d": "M700 568V672H754V700"
-      },
-      {
-        "id": "PO3-M2",
-        "from": "sjc-core-02",
-        "to": "sjc-acc-03",
-        "media": "lnk lnk-om4 lnk-10g lag-member",
-        "d": "M980 568V677H766V700"
-      }
-    ]
-  },
-  "rack": {
-    "id": "B1.DC1.A03",
-    "location": "Row A",
-    "units": 42,
-    "frontAisle": "cold aisle",
-    "rearAisle": "hot aisle",
-    "powerFeeds": [
-      { "name": "A", "circuit": "B1.DC1-PP1-A07", "volts": 208, "amps": 30, "phase": "single", "derate": 0.8 },
-      { "name": "B", "circuit": "B1.DC1-PP2-B14", "volts": 208, "amps": 30, "phase": "single", "derate": 0.8 }
-    ],
-    "reserved": [
-      { "position": 42, "height": 1, "label": "PP-A1 - patch panel - 24x LC duplex OM4" },
-      { "position": 34, "height": 1, "label": "PP-B1 - patch panel - 48x RJ45 Cat6A" },
-      { "position": 41, "height": 1, "label": "cable manager" },
-      { "position": 39, "height": 1, "label": "cable manager" },
-      { "position": 37, "height": 1, "label": "cable manager" },
-      { "position": 35, "height": 1, "label": "cable manager" },
-      { "position": 33, "height": 1, "label": "cable manager" },
-      { "position": 31, "height": 1, "label": "cable manager" },
-      { "position": 29, "height": 1, "label": "blanking panel" },
-      { "position": 25, "height": 1, "label": "blanking panel" },
-      { "position": 21, "height": 1, "label": "blanking panel" },
-      { "position": 19, "height": 1, "label": "blanking panel" },
-      { "position": 17, "height": 1, "label": "blanking panel" },
-      { "position": 8, "height": 1, "label": "blanking panel" },
-      { "position": 5, "height": 2, "label": "blanking panel" },
-      { "position": 15, "height": 2, "label": "reserved - 100G spine pair" },
-      { "position": 13, "height": 2, "label": "reserved - compute growth" }
-    ],
-    "devices": [
-      {
-        "id": "SJC-CORE-01",
-        "model": "Cisco C9500X-28C8D",
-        "role": "core",
-        "position": 38,
-        "height": 1,
-        "asset": "c9500",
-        "feed": null
-      },
-      {
-        "id": "SJC-CORE-02",
-        "model": "Cisco C9500X-28C8D",
-        "role": "core",
-        "position": 36,
-        "height": 1,
-        "asset": "c9500",
-        "feed": null
-      },
-      {
-        "id": "SJC-FW-01",
-        "model": "Cisco FPR-4215",
-        "role": "security",
-        "position": 26,
-        "height": 3,
-        "asset": "fpr4215",
-        "feed": null
-      },
-      {
-        "id": "SJC-FW-02",
-        "model": "Cisco FPR-4215",
-        "role": "security",
-        "position": 22,
-        "height": 3,
-        "asset": "fpr4215",
-        "feed": null
-      },
-      {
-        "id": "SJC-WAN-01",
-        "model": "Cisco C8300-2N2S-6T",
-        "role": "wan",
-        "position": 20,
-        "height": 1,
-        "asset": "generic",
-        "feed": null
-      },
-      {
-        "id": "SJC-WAN-02",
-        "model": "Cisco C8300-2N2S-6T",
-        "role": "wan",
-        "position": 18,
-        "height": 1,
-        "asset": "generic",
-        "feed": null
-      },
-      {
-        "id": "SJC-SRV-01",
-        "model": "Cisco C9300-48P",
-        "role": "access",
-        "position": 32,
-        "height": 1,
-        "asset": "c9300",
-        "feed": null
-      },
-      {
-        "id": "SJC-WLC-01",
-        "model": "Cisco C9800-40",
-        "role": "wireless",
-        "position": 30,
-        "height": 1,
-        "asset": "generic",
-        "feed": null
-      },
-      {
-        "id": "SJC-OOB-01",
-        "model": "Cisco C1000-24T",
-        "role": "oob",
-        "position": 40,
-        "height": 1,
-        "asset": "generic",
-        "feed": null
-      },
-      {
-        "id": "SJC-CON-01",
-        "model": "generic 16-port serial console server",
-        "role": "oob",
-        "position": 7,
-        "height": 1,
-        "asset": "generic",
-        "feed": null
-      },
-      {
-        "id": "SJC-ESX-01",
-        "model": "Dell PowerEdge R750",
-        "role": "compute",
-        "position": 9,
-        "height": 2,
-        "asset": "r750",
-        "feed": null
-      },
-      {
-        "id": "SJC-ESX-02",
-        "model": "Dell PowerEdge R750",
-        "role": "compute",
-        "position": 11,
-        "height": 2,
-        "asset": "r750",
-        "feed": null
-      },
-      {
-        "id": "SJC-UPS-01",
-        "model": "APC SMT3000RMI2UC",
-        "role": "power",
-        "position": 1,
-        "height": 2,
-        "asset": "ups",
-        "feed": null
-      },
-      {
-        "id": "SJC-UPS-02",
-        "model": "APC SMT3000RMI2UC",
-        "role": "power",
-        "position": 3,
-        "height": 2,
-        "asset": "ups",
-        "feed": null
-      }
-    ]
-  },
-  "sections": {
-    "findings": {
-      "id": "open-items",
-      "label": "Open items",
-      "noun": "open items and risks",
-      "heading": "Open items, assumptions & risk register",
-      "flavour": "gaps",
-      "items": [
-        {
-          "id": "R1",
-          "severity": "HIGH",
-          "title": "Single-feed power overload",
-          "detail": "Either feed alone carries 106% of derated capacity.",
-          "action": "Rebalance the load or add capacity before either feed is taken out of service."
-        },
-        {
-          "id": "R2",
-          "severity": "HIGH",
-          "title": "Reversed airflow on the core pair",
-          "detail": "SJC-CORE-01/02 shipped with port-side-exhaust fan trays, so air moves rear to front, against containment.",
-          "action": "Replace the fan trays or re-plan containment for this row.",
-          "at": ["sjc-core-01", "sjc-core-02"]
-        },
-        {
-          "id": "R3",
-          "severity": "MEDIUM",
-          "title": "Two single-corded devices",
-          "detail": "SJC-OOB-01 and SJC-CON-01 have one PSU each, both fed from feed A.",
-          "action": "Accept with a documented recovery target, or add a second supply.",
-          "at": ["sjc-oob-01"]
-        },
-        {
-          "id": "R4",
-          "severity": "MEDIUM",
-          "title": "Weights and power are datasheet typical, not measured",
-          "detail": "No figure in the power or weight schedule comes from a measurement of this rack.",
-          "action": "Measure at commissioning and replace the typical values."
-        },
-        {
-          "id": "R5",
-          "severity": "MEDIUM",
-          "title": "FPR-4215 modelled at 3U",
-          "detail": "The 4200-series datasheet lists the 4215 at 1RU. This figure is hand-drawn and keeps the 3U modelling until it is regenerated from the data block; treat the two firewall heights as wrong, not merely unconfirmed.",
-          "action": "Correct the schedule to 1U when the elevation is regenerated from data, and reclaim U23-U24 and U27-U28.",
-          "at": ["sjc-fw-01", "sjc-fw-02"]
-        },
-        {
-          "id": "R6",
-          "severity": "LOW",
-          "title": "Guest wireless egresses through SJC-FW-01 only",
-          "detail": "VLAN 41 has a single egress path, so losing that firewall removes guest access entirely.",
-          "action": "Accept and document, or provide a second egress.",
-          "at": ["sjc-fw-01"]
-        },
-        {
-          "id": "R7",
-          "severity": "MEDIUM",
-          "title": "U15-U16 reserved for hardware that does not exist",
-          "detail": "Two units are held for a 100G spine pair that has not been ordered.",
-          "action": "Confirm the spine plan or release the units."
-        },
-        {
-          "id": "R8",
-          "severity": "MEDIUM",
-          "title": "Ten drawn links declare no endpoints",
-          "detail": "Figure 1 draws 24 connections but only 14 carry from/to metadata. The remaining 10 are geometry alone, so this document's data block records 14. They were not inferred from coordinates, because a link's endpoints are a design fact, not something a drawing position can be trusted to imply.",
-          "action": "Add from/to and port records to the remaining 10 paths, then regenerate."
-        }
-      ]
-    }
-  },
-  "validation": {
-    "named_objects": 21,
-    "zones": 7,
-    "links_declared": 14,
-    "links_drawn": 24,
-    "rack_units": 42,
-    "rack_devices": 14,
-    "print_review": "not run",
-    "grayscale_review": "not run"
-  }
-}
-</script>
-<!-- PROOF-DATA:END -->
 
 <!-- NETWORK-PACKAGER-CONTRACT:BEGIN -->
 <script id="network-packager-contract" type="application/json">
@@ -4137,8 +5118,8 @@ if (typeof module !== "undefined" && module.exports) module.exports = RACK_FACE_
     {id:'SJC-CORE-02',model:'Cisco C9500X-28C8D',role:'Collapsed core switch',u:36,span:1,asset:'c9500'},
     {id:'SJC-SRV-01',model:'Cisco C9300-48P',role:'Server access switch',u:32,span:1,asset:'c9300'},
     {id:'SJC-WLC-01',model:'Cisco C9800-40',role:'Wireless LAN controller',u:30,span:1,asset:null},
-    {id:'SJC-FW-01',model:'Cisco FPR-4215 NGFW',role:'Perimeter firewall - active',u:26,span:3,asset:'fpr4215'},
-    {id:'SJC-FW-02',model:'Cisco FPR-4215 NGFW',role:'Perimeter firewall - standby',u:22,span:3,asset:'fpr4215'},
+    {id:'SJC-FW-01',model:'Cisco FPR-4215 NGFW',role:'Perimeter firewall - active',u:26,span:1,asset:'fpr4215'},
+    {id:'SJC-FW-02',model:'Cisco FPR-4215 NGFW',role:'Perimeter firewall - standby',u:22,span:1,asset:'fpr4215'},
     {id:'SJC-WAN-01',model:'Cisco C8300-2N2S-6T',role:'WAN edge router - ISP-A',u:20,span:1,asset:null},
     {id:'SJC-WAN-02',model:'Cisco C8300-2N2S-6T',role:'WAN edge router - ISP-B',u:18,span:1,asset:null},
     {id:'SJC-ESX-02',model:'Dell PowerEdge R750',role:'Virtualization host',u:11,span:2,asset:'r750'},
