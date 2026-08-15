@@ -144,6 +144,7 @@ tbody tr:nth-child(even){background:color-mix(in srgb,var(--rule-soft) 35%,trans
 .pill-b{color:var(--pdu-b);border-color:var(--pdu-b)}
 .pill-w{color:var(--status-warn);border-color:var(--status-warn)}
 .pill-d{color:var(--status-down);border-color:var(--status-down)}
+.pill-g{color:var(--status-up);border-color:var(--status-up)}
 
 .rackrow{display:flex;gap:26px;flex-wrap:wrap;align-items:flex-start}
 .rackrow>div{flex:1 1 380px;min-width:330px;max-width:520px}
@@ -1130,8 +1131,7 @@ window.networkDesignIcons = {
   "editing": {
     "grammar": "sheet",
     "parts": [
-      "rack",
-      "findings"
+      "rack"
     ]
   },
   "document": {
@@ -2644,6 +2644,16 @@ window.networkDesignIcons = {
         "position": 13,
         "height": 2,
         "label": "reserved - compute growth"
+      },
+      {
+        "position": 27,
+        "height": 2,
+        "label": "blanking panel"
+      },
+      {
+        "position": 23,
+        "height": 2,
+        "label": "blanking panel"
       }
     ],
     "devices": [
@@ -2670,7 +2680,7 @@ window.networkDesignIcons = {
         "model": "Cisco FPR-4215",
         "role": "security",
         "position": 26,
-        "height": 3,
+        "height": 1,
         "asset": "fpr4215",
         "feed": null
       },
@@ -2679,7 +2689,7 @@ window.networkDesignIcons = {
         "model": "Cisco FPR-4215",
         "role": "security",
         "position": 22,
-        "height": 3,
+        "height": 1,
         "asset": "fpr4215",
         "feed": null
       },
@@ -2820,10 +2830,10 @@ window.networkDesignIcons = {
         },
         {
           "id": "R5",
-          "severity": "MEDIUM",
-          "title": "FPR-4215 modelled at 3U",
-          "detail": "The 4200-series datasheet lists the 4215 at 1RU. This figure is hand-drawn and keeps the 3U modelling until it is regenerated from the data block; treat the two firewall heights as wrong, not merely unconfirmed.",
-          "action": "Correct the schedule to 1U when the elevation is regenerated from data, and reclaim U23-U24 and U27-U28.",
+          "severity": "LOW",
+          "title": "FPR-4215 corrected to 1RU",
+          "detail": "The 4200-series datasheet lists the 4215 at 1RU. Through rev 2.1 the hand-drawn elevation modelled both firewalls at 3U and the schedule matched the drawing rather than the hardware; the elevation and schedule now carry the datasheet height, and U23-U24 and U27-U28 are reclaimed as blanked space.",
+          "action": "Verify against the physical rack on the next site visit.",
           "at": [
             "sjc-fw-01",
             "sjc-fw-02"
@@ -3326,8 +3336,8 @@ the data in §13 rather than redrawn.</p>
 <title id="f2t">Rack B1.DC1.A03 front and rear elevation</title>
 <desc id="f2d">A 42U cabinet. From the top: a fibre patch panel, an out-of-band
 switch, two core switches, a copper patch panel, a server access switch and a
-wireless controller, each separated by 1U cable managers. Below them two 3U
-firewalls, two WAN routers, four rack units reserved for growth, two 2U servers,
+wireless controller, each separated by 1U cable managers. Below them two 1U
+firewalls with their reclaimed units blanked, two WAN routers, four rack units reserved for growth, two 2U servers,
 a console server and two 2U uninterruptible power supplies at the bottom. The rear
 view shows two vertical 0U power distribution units, feed A on the left in blue and
 feed B on the right in red, with dual cords to every device except two
@@ -3370,8 +3380,10 @@ single-corded units that are flagged.</desc>
   <rect x="78" y="629"  width="336" height="20" fill="var(--r-network)" stroke="var(--r-network-s)"/>
   <rect x="78" y="871"  width="336" height="20" fill="var(--r-network)" stroke="var(--r-network-s)"/>
   <!-- security -->
-  <rect x="78" y="409"  width="336" height="64" fill="var(--r-security)" stroke="var(--r-security-s)"/>
-  <rect x="78" y="497"  width="336" height="64" fill="var(--r-security)" stroke="var(--r-security-s)"/>
+  <g><rect class="rk-blank" x="78" y="409" width="336" height="42"/><rect x="78" y="409" width="336" height="42" fill="url(#hatch)" stroke="none"/></g>
+  <rect x="78" y="453"  width="336" height="20" fill="var(--r-security)" stroke="var(--r-security-s)"/>
+  <g><rect class="rk-blank" x="78" y="497" width="336" height="42"/><rect x="78" y="497" width="336" height="42" fill="url(#hatch)" stroke="none"/></g>
+  <rect x="78" y="541"  width="336" height="20" fill="var(--r-security)" stroke="var(--r-security-s)"/>
   <!-- compute -->
   <rect x="78" y="761"  width="336" height="42" fill="var(--r-compute)" stroke="var(--r-compute-s)"/>
   <rect x="78" y="805"  width="336" height="42" fill="var(--r-compute)" stroke="var(--r-compute-s)"/>
@@ -3410,9 +3422,11 @@ single-corded units that are flagged.</desc>
    <text class="rk-u-rng" x="84" y="357">U31</text><text class="rk-name" x="126" y="357">CM-06</text><text class="rk-model" x="216" y="357">1U horizontal cable mgr</text>
    <text class="rack-device-text rk-u-rng" x="84" y="379">U30</text><text class="rack-device-text rk-name" x="126" y="379">SJC-WLC-01</text><text class="rack-device-text rk-model" x="216" y="379">C9800-40</text>
    <text class="rk-lbl-sm" x="126" y="401">BLANKING PANEL 1U</text>
-   <text class="rack-product-text rk-u-rng" x="84" y="446">U26-28</text><text class="rack-product-text rk-name" x="126" y="446">SJC-FW-01</text><text class="rack-product-text rk-model" x="216" y="446">FPR-4215 NGFW · 3U</text>
+   <text class="rk-u-rng" x="84" y="435">U27-28</text><text class="rk-lbl-sm" x="126" y="435">BLANKING PANEL 2U</text>
+   <text class="rack-product-text rk-u-rng" x="84" y="467">U26</text><text class="rack-product-text rk-name" x="126" y="467">SJC-FW-01</text><text class="rack-product-text rk-model" x="216" y="467">FPR-4215 NGFW</text>
    <text class="rk-lbl-sm" x="126" y="489">BLANKING PANEL 1U</text>
-   <text class="rack-product-text rk-u-rng" x="84" y="534">U22-24</text><text class="rack-product-text rk-name" x="126" y="534">SJC-FW-02</text><text class="rack-product-text rk-model" x="216" y="534">FPR-4215 NGFW · 3U</text>
+   <text class="rk-u-rng" x="84" y="523">U23-24</text><text class="rk-lbl-sm" x="126" y="523">BLANKING PANEL 2U</text>
+   <text class="rack-product-text rk-u-rng" x="84" y="555">U22</text><text class="rack-product-text rk-name" x="126" y="555">SJC-FW-02</text><text class="rack-product-text rk-model" x="216" y="555">FPR-4215 NGFW</text>
    <text class="rk-lbl-sm" x="126" y="577">BLANKING PANEL 1U</text>
    <text class="rack-device-text rk-u-rng" x="84" y="599">U20</text><text class="rack-device-text rk-name" x="126" y="599">SJC-WAN-01</text><text class="rack-device-text rk-model" x="216" y="599">C8300-2N2S-6T</text>
    <text class="rk-lbl-sm" x="126" y="621">BLANKING PANEL 1U</text>
@@ -3432,8 +3446,8 @@ single-corded units that are flagged.</desc>
   <!-- airflow arrows : one per device, front-to-rear unless flagged -->
   <g class="af">
    <path d="M370 159h16m0 0-4-3m4 3-4 3"/><path d="M370 335h16m0 0-4-3m4 3-4 3"/>
-   <path d="M370 379h16m0 0-4-3m4 3-4 3"/><path d="M370 446h16m0 0-4-3m4 3-4 3"/>
-   <path d="M370 534h16m0 0-4-3m4 3-4 3"/><path d="M370 599h16m0 0-4-3m4 3-4 3"/>
+   <path d="M370 379h16m0 0-4-3m4 3-4 3"/><path d="M370 467h16m0 0-4-3m4 3-4 3"/>
+   <path d="M370 555h16m0 0-4-3m4 3-4 3"/><path d="M370 599h16m0 0-4-3m4 3-4 3"/>
    <path d="M370 643h16m0 0-4-3m4 3-4 3"/><path d="M370 787h16m0 0-4-3m4 3-4 3"/>
    <path d="M370 831h16m0 0-4-3m4 3-4 3"/><path d="M370 885h16m0 0-4-3m4 3-4 3"/>
    <path d="M370 963h16m0 0-4-3m4 3-4 3"/><path d="M370 1007h16m0 0-4-3m4 3-4 3"/>
@@ -3486,8 +3500,10 @@ single-corded units that are flagged.</desc>
   <rect x="612" y="585" width="322" height="20" fill="var(--r-network)" stroke="var(--r-network-s)"/>
   <rect x="612" y="629" width="322" height="20" fill="var(--r-network)" stroke="var(--r-network-s)"/>
   <rect x="612" y="871" width="322" height="20" fill="var(--r-network)" stroke="var(--r-network-s)"/>
-  <rect x="612" y="409" width="322" height="64" fill="var(--r-security)" stroke="var(--r-security-s)"/>
-  <rect x="612" y="497" width="322" height="64" fill="var(--r-security)" stroke="var(--r-security-s)"/>
+  <g><rect class="rk-blank" x="612" y="409" width="322" height="42"/><rect x="612" y="409" width="322" height="42" fill="url(#hatch)" stroke="none"/></g>
+  <rect x="612" y="453" width="322" height="20" fill="var(--r-security)" stroke="var(--r-security-s)"/>
+  <g><rect class="rk-blank" x="612" y="497" width="322" height="42"/><rect x="612" y="497" width="322" height="42" fill="url(#hatch)" stroke="none"/></g>
+  <rect x="612" y="541" width="322" height="20" fill="var(--r-security)" stroke="var(--r-security-s)"/>
   <rect x="612" y="761" width="322" height="42" fill="var(--r-compute)" stroke="var(--r-compute-s)"/>
   <rect x="612" y="805" width="322" height="42" fill="var(--r-compute)" stroke="var(--r-compute-s)"/>
   <rect x="612" y="937" width="322" height="42" fill="var(--r-power)" stroke="var(--r-power-s)"/>
@@ -3513,8 +3529,8 @@ single-corded units that are flagged.</desc>
    <g><path class="cord-a" d="M582 247h44"/><circle cx="628" cy="247" r="3.4" fill="var(--pdu-a)"/><path class="cord-b" d="M950 247h-44"/><circle cx="904" cy="247" r="3.4" fill="var(--pdu-b)"/></g>
    <g><path class="cord-a" d="M582 335h44"/><circle cx="628" cy="335" r="3.4" fill="var(--pdu-a)"/><path class="cord-b" d="M950 335h-44"/><circle cx="904" cy="335" r="3.4" fill="var(--pdu-b)"/></g>
    <g><path class="cord-a" d="M582 379h44"/><circle cx="628" cy="379" r="3.4" fill="var(--pdu-a)"/><path class="cord-b" d="M950 379h-44"/><circle cx="904" cy="379" r="3.4" fill="var(--pdu-b)"/></g>
-   <g><path class="cord-a" d="M582 446h44"/><circle cx="628" cy="446" r="3.4" fill="var(--pdu-a)"/><path class="cord-b" d="M950 446h-44"/><circle cx="904" cy="446" r="3.4" fill="var(--pdu-b)"/></g>
-   <g><path class="cord-a" d="M582 534h44"/><circle cx="628" cy="534" r="3.4" fill="var(--pdu-a)"/><path class="cord-b" d="M950 534h-44"/><circle cx="904" cy="534" r="3.4" fill="var(--pdu-b)"/></g>
+   <g><path class="cord-a" d="M582 467h44"/><circle cx="628" cy="467" r="3.4" fill="var(--pdu-a)"/><path class="cord-b" d="M950 467h-44"/><circle cx="904" cy="467" r="3.4" fill="var(--pdu-b)"/></g>
+   <g><path class="cord-a" d="M582 555h44"/><circle cx="628" cy="555" r="3.4" fill="var(--pdu-a)"/><path class="cord-b" d="M950 555h-44"/><circle cx="904" cy="555" r="3.4" fill="var(--pdu-b)"/></g>
    <g><path class="cord-a" d="M582 599h44"/><circle cx="628" cy="599" r="3.4" fill="var(--pdu-a)"/><path class="cord-b" d="M950 599h-44"/><circle cx="904" cy="599" r="3.4" fill="var(--pdu-b)"/></g>
    <g><path class="cord-a" d="M582 643h44"/><circle cx="628" cy="643" r="3.4" fill="var(--pdu-a)"/><path class="cord-b" d="M950 643h-44"/><circle cx="904" cy="643" r="3.4" fill="var(--pdu-b)"/></g>
    <g><path class="cord-a" d="M582 787h44"/><circle cx="628" cy="787" r="3.4" fill="var(--pdu-a)"/><path class="cord-b" d="M950 787h-44"/><circle cx="904" cy="787" r="3.4" fill="var(--pdu-b)"/></g>
@@ -3540,9 +3556,11 @@ single-corded units that are flagged.</desc>
    <text class="rk-name" x="648" y="357">CM-06</text>
    <text class="rack-device-text rk-name" x="648" y="379">SJC-WLC-01</text><text class="rack-device-text rk-model" x="740" y="379">2 PSU · C14</text>
    <text class="rk-lbl-sm" x="648" y="401">BLANKING PANEL 1U</text>
-   <text class="rack-product-text rk-name" x="648" y="446">SJC-FW-01</text><text class="rack-product-text rk-model" x="740" y="446">2 PSU · C14</text>
+   <text class="rk-lbl-sm" x="648" y="435">BLANKING PANEL 2U</text>
+   <text class="rack-product-text rk-name" x="648" y="467">SJC-FW-01</text><text class="rack-product-text rk-model" x="740" y="467">2 PSU · C14</text>
    <text class="rk-lbl-sm" x="648" y="489">BLANKING PANEL 1U</text>
-   <text class="rack-product-text rk-name" x="648" y="534">SJC-FW-02</text><text class="rack-product-text rk-model" x="740" y="534">2 PSU · C14</text>
+   <text class="rk-lbl-sm" x="648" y="523">BLANKING PANEL 2U</text>
+   <text class="rack-product-text rk-name" x="648" y="555">SJC-FW-02</text><text class="rack-product-text rk-model" x="740" y="555">2 PSU · C14</text>
    <text class="rk-lbl-sm" x="648" y="577">BLANKING PANEL 1U</text>
    <text class="rack-device-text rk-name" x="648" y="599">SJC-WAN-01</text><text class="rack-device-text rk-model" x="740" y="599">2 PSU · C14</text>
    <text class="rk-lbl-sm" x="648" y="621">BLANKING PANEL 1U</text>
@@ -3576,10 +3594,10 @@ single-corded units that are flagged.</desc>
   <rect class="rack-hover-target" tabindex="0" role="img" aria-label="SJC-SRV-01, Cisco C9300-48P, Server access switch, U32, rear view" data-device="SJC-SRV-01" data-model="Cisco C9300-48P" data-role="Server access switch" data-u="U32" data-view="rear" x="612" y="321" width="322" height="20"/>
   <rect class="rack-hover-target" tabindex="0" role="img" aria-label="SJC-WLC-01, Cisco C9800-40, Wireless LAN controller, U30, front view" data-device="SJC-WLC-01" data-model="Cisco C9800-40" data-role="Wireless LAN controller" data-u="U30" data-view="front" x="78" y="365" width="336" height="20"/>
   <rect class="rack-hover-target" tabindex="0" role="img" aria-label="SJC-WLC-01, Cisco C9800-40, Wireless LAN controller, U30, rear view" data-device="SJC-WLC-01" data-model="Cisco C9800-40" data-role="Wireless LAN controller" data-u="U30" data-view="rear" x="612" y="365" width="322" height="20"/>
-  <rect class="rack-hover-target" tabindex="0" role="img" aria-label="SJC-FW-01, Cisco FPR-4215 NGFW, Perimeter firewall - active, U26-U28, front view" data-device="SJC-FW-01" data-model="Cisco FPR-4215 NGFW" data-role="Perimeter firewall - active" data-u="U26-U28" data-view="front" x="78" y="409" width="336" height="64"/>
-  <rect class="rack-hover-target" tabindex="0" role="img" aria-label="SJC-FW-01, Cisco FPR-4215 NGFW, Perimeter firewall - active, U26-U28, rear view" data-device="SJC-FW-01" data-model="Cisco FPR-4215 NGFW" data-role="Perimeter firewall - active" data-u="U26-U28" data-view="rear" x="612" y="409" width="322" height="64"/>
-  <rect class="rack-hover-target" tabindex="0" role="img" aria-label="SJC-FW-02, Cisco FPR-4215 NGFW, Perimeter firewall - standby, U22-U24, front view" data-device="SJC-FW-02" data-model="Cisco FPR-4215 NGFW" data-role="Perimeter firewall - standby" data-u="U22-U24" data-view="front" x="78" y="497" width="336" height="64"/>
-  <rect class="rack-hover-target" tabindex="0" role="img" aria-label="SJC-FW-02, Cisco FPR-4215 NGFW, Perimeter firewall - standby, U22-U24, rear view" data-device="SJC-FW-02" data-model="Cisco FPR-4215 NGFW" data-role="Perimeter firewall - standby" data-u="U22-U24" data-view="rear" x="612" y="497" width="322" height="64"/>
+  <rect class="rack-hover-target" tabindex="0" role="img" aria-label="SJC-FW-01, Cisco FPR-4215 NGFW, Perimeter firewall - active, U26, front view" data-device="SJC-FW-01" data-model="Cisco FPR-4215 NGFW" data-role="Perimeter firewall - active" data-u="U26" data-view="front" x="78" y="453" width="336" height="20"/>
+  <rect class="rack-hover-target" tabindex="0" role="img" aria-label="SJC-FW-01, Cisco FPR-4215 NGFW, Perimeter firewall - active, U26, rear view" data-device="SJC-FW-01" data-model="Cisco FPR-4215 NGFW" data-role="Perimeter firewall - active" data-u="U26" data-view="rear" x="612" y="453" width="322" height="20"/>
+  <rect class="rack-hover-target" tabindex="0" role="img" aria-label="SJC-FW-02, Cisco FPR-4215 NGFW, Perimeter firewall - standby, U22, front view" data-device="SJC-FW-02" data-model="Cisco FPR-4215 NGFW" data-role="Perimeter firewall - standby" data-u="U22" data-view="front" x="78" y="541" width="336" height="20"/>
+  <rect class="rack-hover-target" tabindex="0" role="img" aria-label="SJC-FW-02, Cisco FPR-4215 NGFW, Perimeter firewall - standby, U22, rear view" data-device="SJC-FW-02" data-model="Cisco FPR-4215 NGFW" data-role="Perimeter firewall - standby" data-u="U22" data-view="rear" x="612" y="541" width="322" height="20"/>
   <rect class="rack-hover-target" tabindex="0" role="img" aria-label="SJC-WAN-01, Cisco C8300-2N2S-6T, WAN edge router, U20, front view" data-device="SJC-WAN-01" data-model="Cisco C8300-2N2S-6T" data-role="WAN edge router" data-u="U20" data-view="front" x="78" y="585" width="336" height="20"/>
   <rect class="rack-hover-target" tabindex="0" role="img" aria-label="SJC-WAN-01, Cisco C8300-2N2S-6T, WAN edge router, U20, rear view" data-device="SJC-WAN-01" data-model="Cisco C8300-2N2S-6T" data-role="WAN edge router" data-u="U20" data-view="rear" x="612" y="585" width="322" height="20"/>
   <rect class="rack-hover-target" tabindex="0" role="img" aria-label="SJC-WAN-02, Cisco C8300-2N2S-6T, WAN edge router, U18, front view" data-device="SJC-WAN-02" data-model="Cisco C8300-2N2S-6T" data-role="WAN edge router" data-u="U18" data-view="front" x="78" y="629" width="336" height="20"/>
@@ -3651,9 +3669,9 @@ datasheet typical values — see risk R4.</caption>
 <tr><td class="m">31</td><td class="num">31</td><td class="num">1</td><td class="m">CM-06</td><td>1U horizontal cable manager</td><td>Passive</td><td>—</td><td class="m">—</td><td class="num">0.9</td><td class="num">0</td></tr>
 <tr><td class="m">30</td><td class="num">30</td><td class="num">1</td><td class="m">SJC-WLC-01</td><td>Cisco C9800-40</td><td>Network</td><td>Front → rear</td><td class="m">2</td><td class="num">8.6</td><td class="num">250</td></tr>
 <tr><td class="m">29</td><td class="num">29</td><td class="num">1</td><td colspan="2">Blanking panel</td><td>Passive</td><td>—</td><td class="m">—</td><td class="num">0.35</td><td class="num">0</td></tr>
-<tr><td class="m">26-28</td><td class="num">26</td><td class="num">3</td><td class="m">SJC-FW-01</td><td>Cisco Secure Firewall FPR-4215</td><td>Security</td><td>Front → rear</td><td class="m">2</td><td class="num">26.9</td><td class="num">700</td></tr>
+<tr><td class="m">26</td><td class="num">26</td><td class="num">1</td><td class="m">SJC-FW-01</td><td>Cisco Secure Firewall FPR-4215</td><td>Security</td><td>Front → rear</td><td class="m">2</td><td class="num">26.9</td><td class="num">700</td></tr>
 <tr><td class="m">25</td><td class="num">25</td><td class="num">1</td><td colspan="2">Blanking panel</td><td>Passive</td><td>—</td><td class="m">—</td><td class="num">0.35</td><td class="num">0</td></tr>
-<tr><td class="m">22-24</td><td class="num">22</td><td class="num">3</td><td class="m">SJC-FW-02</td><td>Cisco Secure Firewall FPR-4215</td><td>Security</td><td>Front → rear</td><td class="m">2</td><td class="num">26.9</td><td class="num">700</td></tr>
+<tr><td class="m">22</td><td class="num">22</td><td class="num">1</td><td class="m">SJC-FW-02</td><td>Cisco Secure Firewall FPR-4215</td><td>Security</td><td>Front → rear</td><td class="m">2</td><td class="num">26.9</td><td class="num">700</td></tr>
 <tr><td class="m">21</td><td class="num">21</td><td class="num">1</td><td colspan="2">Blanking panel</td><td>Passive</td><td>—</td><td class="m">—</td><td class="num">0.35</td><td class="num">0</td></tr>
 <tr><td class="m">20</td><td class="num">20</td><td class="num">1</td><td class="m">SJC-WAN-01</td><td>Cisco C8300-2N2S-6T</td><td>Network</td><td>Front → rear</td><td class="m">2</td><td class="num">8.2</td><td class="num">250</td></tr>
 <tr><td class="m">19</td><td class="num">19</td><td class="num">1</td><td colspan="2">Blanking panel</td><td>Passive</td><td>—</td><td class="m">—</td><td class="num">0.35</td><td class="num">0</td></tr>
@@ -3821,10 +3839,10 @@ reserved U13–16 growth is populated, which would add load on top of this.</div
     <td>Real draw varies with optics count and PoE load; the §9 margins could shift.</td>
     <td><span class="pill pill-w">MEDIUM</span></td>
     <td>Meter each feed at commissioning and re-issue §9 with measured values.</td></tr>
-<tr><td class="m">R5</td><td><b>FPR-4215 modelled at 3U.</b> The 4200-series datasheet lists the 4215 at 1RU; this hand-drawn elevation keeps 3U until it is regenerated from the data block.</td>
-    <td>The two firewall heights are wrong, and U23–24 and U27–28 are shown occupied when they are free.</td>
-    <td><span class="pill pill-w">MEDIUM</span></td>
-    <td>Correct the schedule to 1U when the figure is regenerated from data. Heights elsewhere in §8 remain datasheet values, not purchase orders.</td></tr>
+<tr><td class="m">R5</td><td><b>FPR-4215 corrected to 1RU.</b> The 4200-series datasheet lists the 4215 at 1RU; through rev 2.1 the elevation modelled both firewalls at 3U and the schedule matched the drawing rather than the hardware.</td>
+    <td>Resolved. Both firewalls are scheduled at the datasheet height; U23–24 and U27–28 are reclaimed and blanked.</td>
+    <td><span class="pill pill-g">LOW</span></td>
+    <td>Verify against the physical rack on the next site visit. Heights elsewhere in §8 remain datasheet values, not purchase orders.</td></tr>
 <tr><td class="m">R6</td><td><b>Guest wireless egresses via SJC-FW-01 only</b> (VLAN 41, note ③).</td>
     <td>Guest SSID has no path on an FW-01 failure. Corporate wireless is unaffected.</td>
     <td><span class="pill" style="color:var(--ink-muted);border-color:var(--ink-muted)">LOW</span></td>
@@ -5100,8 +5118,8 @@ if (typeof module !== "undefined" && module.exports) module.exports = RACK_FACE_
     {id:'SJC-CORE-02',model:'Cisco C9500X-28C8D',role:'Collapsed core switch',u:36,span:1,asset:'c9500'},
     {id:'SJC-SRV-01',model:'Cisco C9300-48P',role:'Server access switch',u:32,span:1,asset:'c9300'},
     {id:'SJC-WLC-01',model:'Cisco C9800-40',role:'Wireless LAN controller',u:30,span:1,asset:null},
-    {id:'SJC-FW-01',model:'Cisco FPR-4215 NGFW',role:'Perimeter firewall - active',u:26,span:3,asset:'fpr4215'},
-    {id:'SJC-FW-02',model:'Cisco FPR-4215 NGFW',role:'Perimeter firewall - standby',u:22,span:3,asset:'fpr4215'},
+    {id:'SJC-FW-01',model:'Cisco FPR-4215 NGFW',role:'Perimeter firewall - active',u:26,span:1,asset:'fpr4215'},
+    {id:'SJC-FW-02',model:'Cisco FPR-4215 NGFW',role:'Perimeter firewall - standby',u:22,span:1,asset:'fpr4215'},
     {id:'SJC-WAN-01',model:'Cisco C8300-2N2S-6T',role:'WAN edge router - ISP-A',u:20,span:1,asset:null},
     {id:'SJC-WAN-02',model:'Cisco C8300-2N2S-6T',role:'WAN edge router - ISP-B',u:18,span:1,asset:null},
     {id:'SJC-ESX-02',model:'Dell PowerEdge R750',role:'Virtualization host',u:11,span:2,asset:'r750'},
