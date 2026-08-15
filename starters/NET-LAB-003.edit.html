@@ -1,0 +1,3245 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>cloudbats &mdash; Unified Reference: Enterprise campus | NET-LAB-003 v3.1</title>
+  <meta name="author" content="Sayed Haque &mdash; cloudbats">
+  <meta name="document-id" content="NET-LAB-002">
+  <meta name="revision" content="3.0">
+  <meta name="date" content="2026-08-13">
+  <meta name="classification" content="SAMPLE / REFERENCE">
+  <meta name="document-status" content="UNIFIED REFERENCE">
+  <meta name="description" content="Enterprise campus Layer 3 reference design and 42U R113 rack elevation, presented in the CloudBats documentation shell. Official Cisco topology symbols and exact orthographic rack faces retained from revision 2.8.">
+<style>
+/* ===== LAYER 0 - NET-LAB-002 engineering component layer (from v2.8) ===== */
+
+    :root {
+      --ink: #12202b;
+      --muted: #5a6b78;
+      --line: #cbd5dc;
+      --paper: #ffffff;
+      --canvas: #edf2f5;
+      --cisco: #0086b3;
+      --cisco-dark: #006c91;
+      --aggregate: #197c76;
+      --ha: #9c3970;
+      --status-up: #16a34a;
+      --status-warn: #d97706;
+      --status-down: #dc2626;
+      --status-planned: #9ca3af;
+      --font-ui: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+      --font-mono: ui-monospace, "Cascadia Mono", Consolas, "SFMono-Regular", monospace;
+      --u: 36px;
+      --rack-bay: 390px;
+      --rack-frame-top: 12px;
+      --rack-frame-bottom: 12px;
+      --rack-offset-top: 16px;
+      color-scheme: light;
+      font-family: var(--font-ui);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--canvas);
+      line-height: 1.45;
+    }
+    button, input { font: inherit; }
+    button:disabled { cursor: not-allowed; opacity: .48; }
+    :focus-visible { outline: 3px solid var(--shell-focus, #c96f00); outline-offset: 3px; }
+    a { color: var(--cisco-dark); }
+    code {
+      padding: .08rem .3rem;
+      border-radius: 4px;
+      background: #edf2f5;
+      font-family: var(--font-mono);
+      font-size: .91em;
+    }
+
+    .skip-link {
+      position: fixed;
+      z-index: 100;
+      top: 8px;
+      left: 8px;
+      transform: translateY(-160%);
+      padding: 9px 12px;
+      border-radius: 6px;
+      color: #fff;
+      background: #12202b;
+      font-weight: 750;
+    }
+    .skip-link:focus { transform: translateY(0); }
+
+    .app {
+      width: min(1740px, calc(100% - 40px));
+      min-height: 100vh;
+      margin: 18px auto 56px;
+    }
+    .titleblock {
+      padding: 16px 20px;
+      border: 2px solid #243641;
+      border-radius: 7px;
+      background: #fff;
+      box-shadow: 0 2px 7px rgba(18,32,43,.08);
+    }
+    .brandrow {
+      display: flex;
+      justify-content: space-between;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--line);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+    }
+    .brandrow span:last-child { color: var(--muted); font-weight: 600; }
+    h1 { margin: 14px 0 4px; font-size: 25px; line-height: 1.2; }
+    .subtitle { max-width: 850px; margin: 9px 0 0; color: var(--muted); }
+    .nd-meta {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 10px 24px;
+      margin-top: 15px;
+      font-size: 12px;
+    }
+    .nd-meta span { color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+    .nd-meta b { display: block; margin-top: 3px; font-family: var(--font-mono); color: var(--ink); }
+    .nd-badge { display: inline-block !important; width: max-content; padding: 2px 7px; border-radius: 3px; background: var(--cisco-dark); color: #fff !important; font: 700 11px Inter,"Segoe UI",Arial,sans-serif !important; letter-spacing: .05em; }
+    .conventions { margin-top: 14px; padding-top: 11px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px; }
+    .conventions b { color: var(--ink); }
+
+    .tabs {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      display: flex;
+      gap: 4px;
+      margin: 20px 0 22px;
+      padding: 7px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: rgba(255, 255, 255, .97);
+      box-shadow: 0 5px 18px rgba(18,32,43,.09);
+      backdrop-filter: blur(10px);
+    }
+    .tab {
+      padding: 9px 14px;
+      border: 1px solid transparent;
+      border-radius: 7px;
+      color: var(--muted);
+      background: transparent;
+      cursor: pointer;
+      font-weight: 650;
+    }
+    .tab:hover { background: #f1f5f7; }
+    .tab[aria-selected="true"] {
+      color: #fff;
+      background: var(--cisco-dark);
+    }
+    .tab.print { margin-left: auto; border-color: var(--line); color: var(--ink); }
+
+    .panel { display: none; padding: 0 0 26px; }
+    .panel.active { display: block; }
+    .section-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 14px;
+    }
+    .section-head h2 { margin: 0 0 4px; font-size: 1.45rem; }
+    .section-head p { margin: 0; color: var(--muted); font-size: .9rem; }
+    .toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; }
+    .tool {
+      padding: 7px 10px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      color: var(--ink);
+      background: #fff;
+      cursor: pointer;
+    }
+    .tool:hover { border-color: #95a7b4; background: #f5f8fa; }
+
+    .overview-grid { display: grid; grid-template-columns: 1.15fr .85fr; gap: 18px; }
+    .card { padding: 16px; border: 1px solid var(--line); border-radius: 8px; background: #fff; box-shadow: 0 2px 8px rgba(18,32,43,.06); }
+    .card h3 { margin-top: 0; }
+    .card li { margin: 7px 0; line-height: 1.4; }
+    .summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(165px, 1fr)); gap: 12px; margin-top: 18px; }
+    .stat { padding: 14px; border: 1px solid var(--line); border-radius: 7px; background: #fff; }
+    .stat strong { display: block; color: var(--cisco-dark); font-size: 24px; }
+    .stat span { color: var(--muted); font-size: 12px; }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; margin: 10px 0 4px; background: #fff; font-size: 12.5px; }
+    caption { padding: 8px 0 6px; color: var(--muted); text-align: left; font-size: 12px; }
+    th, td { padding: 6px 8px; border: 1px solid #e1e7eb; text-align: left; vertical-align: top; }
+    th { background: #edf3f6; color: var(--muted); font-size: 11px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
+    td.m, .m { font-family: var(--font-mono); }
+    tbody tr:nth-child(even) { background: #fafcfd; }
+    .status { white-space: nowrap; font-weight: 800; }
+    .status.pass { color: var(--status-up); }
+    .status.open { color: var(--status-warn); }
+    .status.notrun { color: #6b7280; }
+    .callout { margin: 12px 0; padding: 10px 14px; border-left: 4px solid var(--cisco); background: #eef8fb; font-size: 13px; }
+    .integrity {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin-top: 14px;
+      padding: 10px 13px;
+      border: 1px solid #a9bac4;
+      border-radius: 7px;
+      background: #f7fafb;
+      color: #42545f;
+      font-size: 12.5px;
+    }
+    .integrity::before { content: "CHECK"; padding: 2px 6px; border-radius: 3px; background: #6b7280; color: #fff; font-size: 9px; font-weight: 850; letter-spacing: .08em; }
+    .integrity.pass { border-color: #8fc79e; background: #f0f9f2; color: #205c31; }
+    .integrity.pass::before { content: "PASS"; background: var(--status-up); }
+    .integrity.fail { border-color: #e0a0a0; background: #fff4f4; color: #8f1f1f; }
+    .integrity.fail::before { content: "FAIL"; background: var(--status-down); }
+    .figure-legend { display: grid; grid-template-columns: repeat(auto-fit,minmax(230px,1fr)); gap: 12px 22px; margin-top: 14px; padding: 14px; border: 1px solid var(--line); border-radius: 7px; background: #fff; }
+    .figure-legend h3 { grid-column: 1/-1; margin: 0; }
+    .figure-legend ul { margin: 0; padding-left: 18px; }
+    .legend-note { grid-column: 1/-1; margin: 0; color: var(--muted); font-size: 12px; }
+
+    .nd-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 18px;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px 8px 0 0;
+      background: #f9fbfc;
+      color: var(--muted);
+      font-size: .78rem;
+    }
+    .nd-legend span { display: inline-flex; align-items: center; gap: 7px; }
+    .swatch-line { width: 30px; border-top: 2px solid var(--cisco-dark); }
+    .swatch-line.aggregate { border-top: 4px solid var(--aggregate); }
+    .swatch-line.ha { border-top: 2px dashed var(--ha); }
+    .swatch-zone { width: 22px; height: 13px; border: 1px dashed #91a3b0; background: #eef4f7; }
+
+    .topology-scroll {
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background:
+        linear-gradient(#fff, #fff) padding-box,
+        repeating-linear-gradient(0deg, transparent 0 29px, rgba(108, 128, 141, .06) 29px 30px),
+        repeating-linear-gradient(90deg, transparent 0 29px, rgba(108, 128, 141, .06) 29px 30px);
+    }
+    #logical-svg {
+      display: block;
+      width: 100%;
+      min-width: 1050px;
+      height: auto;
+    }
+    .zone { stroke: #9eb0bb; stroke-width: 1; stroke-dasharray: 7 5; }
+    .zone.external { fill: #f7f9fa; }
+    .zone.edge { fill: #fff8f4; stroke: #d7aa8a; }
+    .zone.campus { fill: #f3fafb; stroke: #90b8c2; }
+    .zone-label { fill: #667985; font-size: 13px; font-weight: 750; letter-spacing: .09em; }
+    .link-halo { fill: none; stroke: #fff; stroke-width: 10; stroke-linecap: round; stroke-linejoin: round; opacity: .96; pointer-events: none; }
+    .link { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .link.l3 { stroke: var(--cisco-dark); stroke-width: 2.5; }
+    .link.aggregate { stroke: var(--aggregate); stroke-width: 5; }
+    .link.ha { stroke: var(--ha); stroke-width: 2.5; stroke-dasharray: 8 6; }
+    .link.access { stroke: #526773; stroke-width: 2; }
+    .link.backup { stroke: #77909e; stroke-width: 1.7; stroke-dasharray: 5 5; }
+    .link-label-bg { fill: #fff; opacity: .94; stroke: #dae2e7; }
+    .link-label { fill: #42545f; font-size: 11px; font-weight: 600; }
+    .logical-node { cursor: pointer; outline: none; }
+    .node-shell { fill: #fff; stroke: #adbdc6; stroke-width: 1.4; rx: 9; }
+    .logical-node:hover .node-shell,
+    .logical-node:focus .node-shell,
+    .logical-node.selected .node-shell { stroke: var(--cisco-dark); stroke-width: 3; filter: url(#node-shadow); }
+    .node-name { fill: #132630; font-size: 14px; font-weight: 750; text-anchor: middle; }
+    .node-role { fill: #60727d; font-size: 11px; text-anchor: middle; }
+    .node-badge { fill: #e7f5f9; stroke: #8bbcca; }
+    .node-badge-text { fill: #006b8c; font-size: 9px; font-weight: 800; text-anchor: middle; letter-spacing: .05em; }
+
+    .inspector {
+      display: grid;
+      grid-template-columns: 140px 1fr;
+      gap: 8px 16px;
+      min-height: 90px;
+      margin-top: 14px;
+      padding: 14px 16px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcfd;
+      font-size: .86rem;
+    }
+    .inspector h3 { grid-column: 1 / -1; margin: 0 0 2px; font-size: 1rem; }
+    .inspector .label { color: var(--muted); }
+    .control-status { min-width: 52px; color: var(--muted); font-family: var(--font-mono); font-size: 11px; text-align: center; }
+
+    .rack-note {
+      margin: 0 0 16px;
+      padding: 10px 12px;
+      border-left: 4px solid var(--cisco);
+      background: #eef8fb;
+      color: #36515f;
+      font-size: .84rem;
+    }
+    .rack-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(500px, 1fr));
+      gap: 26px;
+      overflow-x: auto;
+      align-items: start;
+    }
+    .rack-figure { min-width: 500px; margin: 0; }
+    .rack-figure figcaption {
+      margin: 0 0 9px;
+      text-align: center;
+      font-weight: 750;
+    }
+    .rack-wrap {
+      position: relative;
+      width: calc(var(--rack-bay) + 100px);
+      height: calc(
+        var(--rack-offset-top) +
+        var(--rack-frame-top) +
+        var(--u) * 42 +
+        var(--rack-frame-bottom) +
+        18px
+      );
+      margin: 0 auto;
+    }
+    .rack-bay {
+      position: absolute;
+      top: var(--rack-offset-top);
+      left: 50px;
+      width: var(--rack-bay);
+      /*
+        The global border-box rule means the frame borders must be added to
+        the 42U interior. Device offsets are calculated against the padding
+        box, which is now exactly 42 rack units high.
+      */
+      height: calc(
+        var(--u) * 42 +
+        var(--rack-frame-top) +
+        var(--rack-frame-bottom)
+      );
+      border: 8px solid #26343d;
+      border-top-width: var(--rack-frame-top);
+      border-bottom-width: var(--rack-frame-bottom);
+      background:
+        repeating-linear-gradient(to bottom, transparent 0 calc(var(--u) - 1px), rgba(31, 52, 64, .22) calc(var(--u) - 1px) var(--u)),
+        #e9eef1;
+      box-shadow: inset 0 0 0 2px #788892, 0 5px 20px rgba(18, 32, 43, .18);
+    }
+    .rack-bay::before,
+    .rack-bay::after {
+      content: "";
+      position: absolute;
+      z-index: 8;
+      top: -2px;
+      bottom: -2px;
+      width: 10px;
+      background: repeating-linear-gradient(to bottom, #485861 0 6px, #8a979e 6px 9px, #485861 9px 18px);
+      opacity: .72;
+      pointer-events: none;
+    }
+    .rack-bay::before { left: 0; }
+    .rack-bay::after { right: 0; }
+    .ruler {
+      position: absolute;
+      z-index: 12;
+      /* Ruler rows align to the equipment aperture, not the outer frame. */
+      top: calc(var(--rack-offset-top) + var(--rack-frame-top));
+      width: 42px;
+      height: calc(var(--u) * 42);
+      color: #526671;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 650;
+    }
+    .ruler.left { left: 2px; text-align: right; }
+    .ruler.right { right: 2px; text-align: left; }
+    .u-mark {
+      position: absolute;
+      display: flex;
+      align-items: center;
+      width: 100%;
+      height: var(--u);
+      border-top: 1px solid #c7d1d7;
+    }
+    .ruler.left .u-mark { justify-content: flex-end; padding-right: 7px; }
+    .ruler.right .u-mark { justify-content: flex-start; padding-left: 7px; }
+    .device-face {
+      position: absolute;
+      z-index: 5;
+      left: 10px;
+      right: 10px;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      border: 1px solid #111b20;
+      background: #151d22;
+      cursor: pointer;
+    }
+    .device-face img { display: block; width: 100%; height: 100%; object-fit: fill; }
+    .device-face:hover,
+    .device-face:focus,
+    .device-face.selected { z-index: 15; outline: 3px solid #e39b2f; outline-offset: 1px; }
+    .reserved-slot {
+      position: absolute;
+      z-index: 3;
+      left: 10px;
+      right: 10px;
+      border: 2px dashed #9aa9b1;
+      background: repeating-linear-gradient(135deg, rgba(255,255,255,.75) 0 7px, rgba(217,226,231,.7) 7px 14px);
+      color: #61737d;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      font-size: 10px;
+      font-weight: 750;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+    }
+    .open-slot {
+      position: absolute;
+      z-index: 2;
+      left: 10px;
+      right: 10px;
+      display: grid;
+      place-items: center;
+      border: 1px solid #c5d0d6;
+      background: rgba(255,255,255,.58);
+      color: #71828c;
+      font-family: var(--font-mono);
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: .04em;
+      text-align: center;
+    }
+    .rack-label,
+    .logical-label {
+      z-index: 16;
+      display: none;
+      padding: 8px 10px;
+      border-radius: 6px;
+      color: #fff;
+      background: rgba(17, 31, 39, .96);
+      box-shadow: 0 4px 15px rgba(0,0,0,.22);
+      font-size: 11px;
+      line-height: 1.45;
+      pointer-events: none;
+    }
+    .rack-label { position: absolute; min-width: 210px; }
+    .logical-label {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 60;
+      width: max-content;
+      max-width: min(340px, calc(100vw - 24px));
+    }
+    .rack-label strong,
+    .logical-label strong { display: block; font-size: 12px; }
+    .logical-label span,
+    .logical-label code { display: block; margin-top: 3px; }
+    .logical-label code {
+      color: inherit;
+      background: transparent;
+      border: 0;
+      padding: 0;
+      font-family: inherit;
+    }
+    .logical-label .logical-notes { color: #c9d4da; }
+    .rack-label.visible { display: block; }
+    .logical-label.visible { display: block; }
+
+    .inventory {
+      width: 100%;
+      margin-top: 26px;
+      border-collapse: collapse;
+      font-size: .82rem;
+    }
+    .inventory caption { margin-bottom: 8px; text-align: left; font-weight: 750; font-size: 1rem; }
+    .inventory th, .inventory td { padding: 8px 9px; border: 1px solid #d5dee3; text-align: left; vertical-align: top; }
+    .inventory thead { background: #edf3f6; }
+    .inventory tbody tr:hover { background: #f6fafb; }
+
+    .source-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+    .source-card {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      background: #fbfcfd;
+    }
+    .source-card h3 { margin: 0 0 7px; font-size: 1.05rem; }
+    .source-card p { margin: 7px 0; color: #435762; font-size: .88rem; }
+    .source-card ul { margin: 8px 0 0; padding-left: 20px; font-size: .85rem; }
+    .provenance {
+      margin-top: 18px;
+      padding: 15px 18px;
+      border: 1px solid #e0c796;
+      border-radius: 8px;
+      background: #fffaf0;
+      color: #59491e;
+      font-size: .86rem;
+    }
+    .provenance h3 { margin: 0 0 6px; font-size: 1rem; }
+    .checklist { columns: 2; column-gap: 30px; }
+    footer {
+      padding: 16px 30px 24px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: .76rem;
+    }
+
+    @media (max-width: 900px) {
+      .app { width: min(100% - 20px, 1740px); }
+      .overview-grid, .summary { grid-template-columns: 1fr 1fr; }
+      .nd-meta { grid-template-columns: 1fr 1fr; }
+      .section-head { display: block; }
+      .toolbar { margin-top: 12px; }
+      .source-grid { grid-template-columns: 1fr; }
+      .checklist { columns: 1; }
+    }
+    @media (max-width: 620px) {
+      .overview-grid, .summary, .nd-meta { grid-template-columns: 1fr; }
+      .tabs { overflow-x: auto; }
+      .tab { white-space: nowrap; }
+      h1 { font-size: 21px; }
+      .titleblock { padding: 14px; }
+      .brandrow { gap: 12px; letter-spacing: .1em; }
+      .inspector { grid-template-columns: 1fr; }
+      .inspector h3 { grid-column: 1; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      * { scroll-behavior: auto !important; transition: none !important; }
+    }
+    @page { size: letter landscape; margin: .35in; }
+    @media print {
+      :root { color-scheme: light; }
+      body, .app { width: 100%; margin: 0; background: #fff; box-shadow: none; }
+      .tabs, .toolbar, .skip-link, .integrity { display: none !important; }
+      .panel { display: block !important; padding: 18px 0; break-before: page; }
+      #logical-panel { break-before: auto; }
+      .titleblock { box-shadow: none; }
+      .topology-scroll { overflow: visible; }
+      #logical-svg { min-width: 0; }
+      .rack-grid { transform: scale(.72); transform-origin: top left; width: 139%; break-inside: avoid; }
+      #rack-panel { overflow: hidden; }
+      thead { display: table-header-group; }
+      tr { break-inside: avoid; }
+      * { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+      a { color: #000; text-decoration: none; }
+    }
+
+    /* Shared page-shell token contract */
+    :root{
+      --shell-font-ui:Inter,"Segoe UI",Arial,sans-serif;
+      --shell-font-mono:Consolas,"Cascadia Mono",Menlo,monospace;
+      --shell-font-size:15px;--shell-line-height:1.5;
+      --shell-ink:#102532;--shell-muted:#5c6d77;--shell-rule:#ccd6dc;
+      --shell-surface:#fff;--shell-surface-glass:rgba(255,255,255,.97);--shell-surface-hover:#eef4f7;
+      --shell-accent:#006c91;--shell-on-accent:#fff;--shell-focus:#c96f00;--shell-skip-surface:#102532;
+      --shell-panel-radius:8px;--shell-control-radius:6px;--shell-shadow:0 5px 18px rgba(18,32,43,.09);
+      --shell-header-padding:18px 20px;--shell-header-padding-compact:14px;
+      --shell-brand-gap:6px 16px;--shell-meta-gap:10px 24px;
+      --shell-nav-gap:8px;--shell-tab-gap:5px;--shell-nav-margin:18px 0 22px;--shell-nav-padding:8px;
+      --shell-control-min-height:44px;--shell-control-padding:10px 15px;
+    }
+
+    /* Shared document-control header contract */
+    .document-header{
+      --document-ink:var(--shell-ink);--document-muted:var(--shell-muted);--document-rule:var(--shell-rule);
+      --document-accent:#006c91;--document-warning:#b45309;--document-neutral:#5f6b73;--document-reference:#2d6f5e;
+      margin:0;padding:var(--shell-header-padding);border:2px solid var(--document-ink);border-radius:var(--shell-panel-radius);
+      background:var(--shell-surface);color:var(--document-ink);box-shadow:var(--shell-shadow);
+      font-family:var(--shell-font-ui);font-size:var(--shell-font-size);line-height:var(--shell-line-height);
+    }
+    .document-brand{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:var(--shell-brand-gap);margin:0 0 12px;padding:0 0 10px;border-bottom:1px solid var(--document-rule);font-size:12px;text-transform:uppercase}
+    .document-brand__name{color:var(--document-ink);font-weight:800;letter-spacing:.18em}
+    .document-brand__type{color:var(--document-muted);font-weight:600;letter-spacing:.14em}
+    .document-header h1{margin:0 0 4px;color:var(--document-ink);font-size:25px;line-height:1.25}
+    .document-subtitle{max-width:none;margin:0;color:var(--document-muted);line-height:1.5}
+    .document-meta{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--shell-meta-gap);margin:15px 0 0;font-size:12px}
+    .document-field{min-width:0}
+    .document-meta dt{color:var(--document-muted);font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+    .document-meta dd{margin:3px 0 0;color:var(--document-ink);font-size:13px;font-weight:650;overflow-wrap:anywhere}
+    .document-code{font-family:var(--shell-font-mono);font-variant-numeric:tabular-nums}
+    .document-badge{display:inline-block;width:max-content;max-width:100%;padding:2px 7px;border-radius:3px;color:#fff;font-size:11px;font-weight:750;letter-spacing:.05em;line-height:1.45;text-transform:uppercase;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    .document-badge--classification{background:var(--document-accent)}
+    .document-badge--neutral{background:var(--document-neutral)}
+    .document-badge--warning{background:var(--document-warning)}
+    .document-badge--reference{background:var(--document-reference)}
+    .document-conventions{display:block;margin:14px 0 0;padding:11px 0 0;border-top:1px solid var(--document-rule);color:var(--document-muted);font-size:12px;line-height:1.5}
+    .document-conventions b{color:var(--document-ink)}
+    @media(max-width:900px){.document-meta{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media(max-width:620px){.document-header{padding:var(--shell-header-padding-compact)}.document-brand{align-items:flex-start}.document-brand__name,.document-brand__type{letter-spacing:.11em}.document-meta{grid-template-columns:1fr}}
+    @media print{.document-header{break-inside:avoid;box-shadow:none}.document-meta{grid-template-columns:repeat(3,minmax(0,1fr))}.document-conventions{display:block}}
+
+/* Shared five-view navigation contract */
+    .skip-link { position: fixed; left: 12px; top: 8px; z-index: 100; transform: translateY(-160%); padding: 9px 12px; border-radius: var(--shell-control-radius); background: var(--shell-skip-surface); color: var(--shell-on-accent); font-family: var(--shell-font-ui); font-size: var(--shell-font-size); line-height: var(--shell-line-height); font-weight: 800; text-decoration: none; transition: transform .16s ease; }
+    .skip-link:focus-visible { transform: translateY(0); }
+    .view-bar { position: sticky; top: 0; z-index: 50; display: flex; align-items: stretch; gap: var(--shell-nav-gap); margin: var(--shell-nav-margin); padding: var(--shell-nav-padding); background: var(--shell-surface-glass); border: 1px solid var(--shell-rule); border-radius: var(--shell-panel-radius); box-shadow: var(--shell-shadow); backdrop-filter: blur(8px); font-family: var(--shell-font-ui); font-size: var(--shell-font-size); line-height: var(--shell-line-height); }
+    .view-tabs { position: static; top: auto; z-index: auto; display: flex; flex: 1 1 auto; flex-wrap: nowrap; min-width: 0; gap: var(--shell-tab-gap); margin: 0; padding: 0; overflow-x: auto; background: transparent; border: 0; border-radius: 0; box-shadow: none; backdrop-filter: none; scrollbar-width: thin; }
+    .view-tab, .print-action { min-height: var(--shell-control-min-height); flex: 0 0 auto; border: 0; border-radius: var(--shell-control-radius); background: transparent; padding: var(--shell-control-padding); color: var(--shell-muted); font: inherit; font-weight: 700; white-space: nowrap; cursor: pointer; }
+    .view-tab:hover, .print-action:hover { background: var(--shell-surface-hover); color: var(--shell-ink); }
+    .view-tab[aria-selected="true"] { background: var(--shell-accent); color: var(--shell-on-accent); }
+    .view-tab:focus-visible, .print-action:focus-visible, .skip-link:focus-visible { outline: 3px solid var(--shell-focus); outline-offset: 2px; }
+    .print-action { margin-left: auto; border: 1px solid var(--shell-rule); background: var(--shell-surface); color: var(--shell-ink); }
+@media (max-width: 620px) { .view-bar { position: static; display: grid; grid-template-columns: minmax(0,1fr); gap: var(--shell-nav-gap); } .view-tabs { width: 100%; } .print-action { width: 100%; margin-left: 0; } }
+    @media (prefers-reduced-motion: reduce) { .skip-link, .view-tab, .print-action { transition: none !important; scroll-behavior: auto !important; } }
+    @media print { .view-bar, .skip-link { display: none !important; } section[data-view][hidden] { display: block !important; } }
+
+    /* Shared Figure 1 legend contract */
+    .logical-figure-legend { display: grid; grid-template-columns: 1.25fr 1.15fr .8fr; gap: 16px 28px; margin-top: 12px; padding: 16px; border: 1px solid var(--shell-rule); border-radius: var(--shell-panel-radius); background: var(--shell-surface); color: var(--shell-muted); font-family: var(--shell-font-ui); font-size: 12.5px; line-height: 1.45; }
+    .logical-figure-legend > h3 { grid-column: 1 / -1; margin: 0; color: var(--shell-ink); font-size: 14px; line-height: 1.3; }
+    .logical-figure-legend h4 { margin: 0 0 8px; color: var(--shell-ink); font-size: 13px; line-height: 1.3; }
+    .logical-figure-legend ul { list-style: none; margin: 0; padding: 0; }
+    .logical-figure-legend li { display: flex; align-items: center; gap: 9px; margin: 0; padding: 2.5px 0; min-width: 0; }
+    .logical-figure-legend svg { display: block; flex: 0 0 auto; }
+    .logical-figure-legend .legend-device-icon { width: 30px; height: 30px; }
+    .logical-figure-legend .device-list { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 0 14px; }
+    .logical-figure-legend .legend-swatch { display: inline-block; flex: 0 0 auto; width: 34px; height: 14px; border: 1px solid var(--shell-rule); border-radius: 3px; }
+    .logical-figure-legend .legend-note { grid-column: 1 / -1; margin: 0; padding-top: 10px; border-top: 1px solid var(--shell-rule); color: var(--shell-muted); font-size: 11.5px; line-height: 1.45; }
+    .logical-figure-legend .legend-note b { color: var(--shell-ink); }
+    @media (max-width: 900px) { .logical-figure-legend { grid-template-columns: 1fr; } .logical-figure-legend > h3, .logical-figure-legend .legend-note { grid-column: 1; } }
+    @media (max-width: 520px) { .logical-figure-legend .device-list { grid-template-columns: 1fr; } }
+    @media print { .logical-figure-legend { break-inside: avoid; gap: 8px 14px; margin-top: 7px; padding: 10px; font-size: 8pt; } .logical-figure-legend > h3, .logical-figure-legend h4 { font-size: 9pt; } .logical-figure-legend li { gap: 5px; padding: 1px 0; } .logical-figure-legend .legend-device-icon { width: 20px; height: 20px; } .logical-figure-legend .legend-note { padding-top: 5px; font-size: 7.5pt; } }
+  
+
+
+/* ============================================================================
+   CLOUDBATS NETWORK-DESIGN DOCUMENT — EXTRACTED TEMPLATE v1
+   Extracted 2026-08-13 from the four cloudbats-*.html topology documents:
+     cloudbats-meta_v1j  ·  cloudbats-iqt_v1k  ·  cloudbats-wisk_v1z  ·  cloudbats-wisk_v2k
+
+   The stylesheet is TWO STACKED LAYERS. Do not merge them — the ordering is the
+   mechanism that makes one file both a screen document and a Letter PDF.
+
+     LAYER 1  "print/legacy"  — pt units, @page Letter, Segoe UI, hex colors.
+                                Defines every CONTENT PRIMITIVE (.note/.figwrap/
+                                tables/cards). This is what survives to PDF.
+     LAYER 2  "shell"         — px units, :root vars, Inter/Sora, flex sidebar.
+                                Overrides Layer 1 typography for screen and adds
+                                the chrome (sidebar, TOC, badges, toggles).
+                                Its @media print block hands control back to L1.
+   ========================================================================= */
+
+/* ===== LAYER 1 — PRINT / LEGACY BASE ===================================== */
+
+  @page { size: Letter; margin: 14mm 14mm 14mm 14mm; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif; font-size: 10.2pt; line-height: 1.5; color: #1e293b; max-width: 1200px; margin: 0 auto; padding: 22px; }
+  header { border-bottom: 3px solid #14324e; padding-bottom: 10px; margin-bottom: 14px; }
+  header h1 { font-size: 20pt; color: #14324e; margin: 0 0 4px 0; font-weight: 700; }
+  header .sub { font-size: 11pt; color: #0e7490; font-weight: 600; margin: 2px 0 8px 0; }
+  header .meta { font-size: 8.4pt; color: #64748b; font-style: italic; }
+  h2 { font-size: 12.5pt; color: #14324e; margin: 22px 0 8px 0; border-left: 4px solid #0e7490; padding-left: 8px; }
+  h3 { font-size: 10.6pt; color: #0e7490; margin: 14px 0 6px 0; }
+  p { margin: 6px 0; }
+  ul { margin: 6px 0; padding-left: 20px; }
+  li { margin: 5px 0; }
+
+  /* -- figures: the only sanctioned way to place a diagram -- */
+  .figwrap { margin: 10px 0 6px 0; }
+  .figwrap svg { width: 100%; height: auto; display: block; }
+  .caption { font-size: 8.2pt; color: #64748b; font-style: italic; margin: 2px 0 4px 0; }
+
+  /* -- callout boxes: semantic, NOT decorative. See PARAMETERS block below. -- */
+  .note { background: #f0f9ff; border: 1px solid #bae6fd; border-left: 4px solid #0e7490; padding: 8px 12px; font-size: 9.4pt; margin: 8px 0 16px 0; border-radius: 4px; }
+  .warn { background: #fffbeb; border: 1px solid #fde68a; border-left: 4px solid #b45309; padding: 8px 12px; font-size: 9.4pt; margin: 8px 0 16px 0; border-radius: 4px; }
+  .notes { list-style: disc; }
+  .notes li { margin: 4px 0; }
+  .stack { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 14px; font-size: 9.6pt; }
+  footer { margin-top: 22px; border-top: 1px solid #cbd5e1; padding-top: 8px; font-size: 8pt; color: #94a3b8; }
+  .tag { display:inline-block; font-size:7.6pt; font-weight:700; padding:1px 7px; border-radius:8px; background:#0e7490; color:#fff; vertical-align:middle; margin-left:6px; }
+
+  /* -- tables -- */
+  .data-table { width:100%; border-collapse:collapse; font-size:8.8pt; margin:10px 0 12px 0; }
+  .data-table th, .data-table td { border:1px solid #dbe4ee; padding:6px 7px; vertical-align:top; text-align:left; }
+  .data-table th { background:#14324e; color:#fff; font-weight:700; }
+  .data-table tr:nth-child(even) td { background:#f8fafc; }
+  .data-table code, p code, li code, .map-table code, .stack code { font-family: Consolas, 'Courier New', monospace; font-size: 8.6pt; background:#eef2f7; border-radius:3px; padding:0 4px; color:#0f172a; white-space:nowrap; }
+  .map-table { width:100%; border-collapse:collapse; font-size:8.9pt; margin:10px 0 12px 0; }
+  .map-table th, .map-table td { border:1px solid #dbe4ee; padding:6px 8px; vertical-align:top; text-align:left; }
+  .map-table th { background:#14324e; color:#fff; font-weight:700; }
+  .map-table td:first-child { font-weight:700; color:#14324e; width:230px; }
+  .cover-ok td { background:#ecfdf5 !important; }
+  .cover-todo td { background:#fff7ed !important; }
+  .legend { font-size:8.2pt; color:#475569; margin:4px 0 14px 0; }
+  .legend b { color:#14324e; }
+
+  /* -- document-control / revision-history strip (footer area) -- */
+  .doc-control { width:100%; border-collapse:collapse; font-size:8.2pt; margin:8px 0 4px 0; }
+  .doc-control th, .doc-control td { border:1px solid #dbe4ee; padding:3px 7px; text-align:left; vertical-align:top; font-style:normal; color:#334155; }
+  .doc-control th { background:#f8fafc; color:#14324e; white-space:nowrap; width:1%; }
+  .revhist-title { font-size:8.4pt; color:#64748b; font-weight:700; margin:8px 0 0 0; font-style:normal; }
+
+  /* -- series strip: the 4-document breadcrumb, present in every doc -- */
+  .series-strip { font-size: 8.8pt; color: #475569; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 7px 12px; margin: 0 0 14px 0; }
+  .series-strip .ss-here { color: #0e7490; font-weight: 700; }
+  .series-strip .ss-rev { color: #94a3b8; font-size: 8pt; font-weight: 600; }
+  .series-strip .ss-arrow { color: #94a3b8; padding: 0 5px; }
+
+  /* ==== TOGGLEABLE LAYERS ==================================================
+     EXACTLY TWO per document, no more, no fewer. Slot A is the evidence /
+     candour layer, Slot B is always the equipment exhibit. The body carries
+     the state class; @media print force-reveals so nothing is lost in PDF.
+     Slot A class is renamed per document — pick ONE row and delete the other:
+        .mem-layer   + body.show-mem     (evidence-provenance docs)
+        .gap-layer   + body.show-gaps    (gap / assumption / design-callout docs)
+     ====================================================================== */
+  body:not(.show-gaps) .gap-layer { display:none !important; }
+  body:not(.show-gaps) .mem       { display:none !important; }
+  @media print { .gap-layer { display:revert !important; } .mem { display:block !important; } }
+
+  body:not(.show-equip) .equip-layer { display:none !important; }
+
+  /* -- Slot A accent box. Recolor per document; keep the shape. -- */
+  .mem { background: #fdf4ff; border: 1px solid #f0abfc; border-left: 4px solid #a21caf; padding: 8px 12px; font-size: 9.4pt; margin: 8px 0 16px 0; border-radius: 4px; }
+
+  /* -- numbered finding list. ONE flavour per document:
+        .patterns/.patnum (teal, "what worked")  |  .gaps/.gapnum (red, "what's missing")
+        |  .gains/.gainnum (blue, "what this buys you")  -- */
+  .gaps  { list-style: none; padding-left: 0; margin: 10px 0; }
+  .gaps li { display: flex; gap: 10px; align-items: flex-start; margin: 8px 0; padding: 8px 10px; background: #fef2f2; border-left: 3px solid #dc2626; border-radius: 4px; }
+  .gapnum { flex: 0 0 auto; display: inline-flex; align-items:center; justify-content:center; background:#dc2626; color:#fff; font-weight:700; font-size: 10pt; border-radius:50%; width:22px; height:22px; }
+  .gaps b { color: #7f1d1d; }
+
+  /* -- Slot B: equipment exhibit cards + cost table (invariant across all four) -- */
+  .equip-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap:12px; margin:12px 0 14px 0; }
+  .equip-card { border:1px solid #e2e8f0; border-radius:6px; background:#fff; overflow:hidden; display:flex; flex-direction:column; min-height:292px; }
+  .equip-card img { width:100%; height:132px; object-fit:contain; background:#f8fafc; border-bottom:1px solid #e2e8f0; padding:8px; }
+  .equip-body { padding:9px 10px 10px 10px; display:flex; flex-direction:column; gap:5px; flex:1; }
+  .equip-card h3 { margin:0; font-size:9.8pt; color:#14324e; }
+  .u-badge { align-self:flex-start; display:inline-block; background:#14324e; color:#fff; font-size:7.7pt; font-weight:800; border-radius:999px; padding:2px 8px; letter-spacing:0; }
+  .price { font-weight:800; color:#0f766e; font-size:10.6pt; }
+  .why { font-size:8.5pt; color:#475569; }
+  .source { margin-top:auto; font-size:7.8pt; color:#64748b; }
+  .source a { color:#0e7490; text-decoration:none; border-bottom:1px dotted #0e7490; }
+  .imgfb { display:none; height:132px; background:#f8fafc; border-bottom:1px solid #e2e8f0; align-items:center; justify-content:center; text-align:center; flex-direction:column; color:#94a3b8; font-size:8.4pt; font-weight:700; letter-spacing:.5px; padding:8px; }
+  .imgfb .fbmodel { font-size:9.6pt; color:#64748b; }
+  .cost-table { width:100%; border-collapse:collapse; font-size:8.8pt; margin:10px 0 12px 0; }
+  .cost-table th, .cost-table td { border:1px solid #dbe4ee; padding:6px 7px; vertical-align:top; }
+  .cost-table th { background:#14324e; color:#fff; text-align:left; font-weight:700; }
+  .cost-table .money { text-align:right; white-space:nowrap; }
+  .cost-table tfoot td { background:#ecfeff; font-weight:800; color:#14324e; }
+
+
+/* ===== LAYER 2 — CLOUDBATS STANDARD DOCUMENTATION SHELL ================== */
+/*  Everything below is IDENTICAL in all four documents. Copy verbatim.
+    The only per-document edits are the --red/--green/--purple status vars
+    and the matching .badge.<status> rule.                                   */
+
+  :root {
+    --navy:#0f172a;
+    --navy-2:#1e293b;
+    --slate-600:#475569;
+    --slate-500:#64748b;
+    --slate-300:#cbd5e1;
+    --slate-100:#f1f5f9;
+    --slate-50:#f8fafc;
+    --teal:#06b6d4;
+    --teal-dark:#0891b2;
+    --amber:#d97706;
+    --amber-bg:#fffbeb;
+    --amber-bd:#fde68a;
+    --purple:#7c3aed;
+    --purple-bg:#f5f3ff;
+    --purple-bd:#ddd6fe;
+    --red:#dc2626;
+    --red-bg:#fef2f2;
+    --red-bd:#fecaca;
+    --green:#0f766e;
+    --green-bg:#ecfdf5;
+    --green-bd:#a7f3d0;
+    --border:#e2e8f0;
+    --maxw:1160px;
+    --sidebar-w:272px;
+  }
+  html { scroll-behavior:smooth; }
+  body {
+    max-width:none;
+    margin:0;
+    padding:0;
+    font-family:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
+    font-size:16px;
+    line-height:1.65;
+    color:var(--navy);
+    background:var(--slate-50);
+  }
+  h1, h2, h3, h4 { font-family:'Sora',system-ui,sans-serif; line-height:1.25; }
+  code, pre, .mono { font-family:'JetBrains Mono',ui-monospace,Consolas,monospace; }
+  a { color:var(--teal-dark); }
+  a:focus-visible, button:focus-visible { outline:3px solid rgba(6,182,212,.35); outline-offset:2px; }
+
+  .shell { display:flex; max-width:1540px; margin:0 auto; }
+  .sidebar {
+    width:var(--sidebar-w);
+    flex-shrink:0;
+    position:sticky;
+    top:0;
+    align-self:flex-start;
+    height:100vh;
+    overflow-y:auto;
+    padding:28px 20px 40px 28px;
+    border-right:1px solid var(--border);
+  }
+  .sidebar .brand { display:flex; align-items:center; gap:10px; margin-bottom:22px; }
+  .sidebar .brand svg { width:28px; height:28px; min-width:0; flex-shrink:0; }
+  .sidebar .brand span { font-family:'Sora',sans-serif; font-weight:700; font-size:17px; letter-spacing:-.02em; }
+  .sidebar .doclabel {
+    font-size:11px;
+    line-height:1.45;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    color:var(--slate-500);
+    font-weight:600;
+    margin:0 0 18px 0;
+    padding-bottom:14px;
+    border-bottom:1px solid var(--border);
+  }
+  .toc { list-style:none; margin:0; padding:0; font-size:13.5px; }
+  .toc > li { margin:0 0 2px 0; }
+  .toc a { display:block; color:var(--slate-600); text-decoration:none; padding:6px 10px; border-radius:6px; font-weight:500; }
+  .toc a:hover { background:var(--slate-100); color:var(--navy); }
+  .toc .num { color:var(--teal-dark); font-weight:700; margin-right:6px; }
+
+  .toc-control { margin:2px 0 0; }
+  .sidebar-control {
+    display:grid;
+    grid-template-columns:minmax(0,1fr) 40px;
+    align-items:center;
+    gap:6px;
+    min-height:44px;
+  }
+  .sidebar-control > span,
+  .sidebar-control > a {
+    min-width:0;
+    padding:6px 10px;
+    border-radius:6px;
+    color:var(--slate-600);
+    font-size:13.5px;
+    line-height:1.35;
+    font-weight:500;
+    text-decoration:none;
+  }
+  .sidebar-control > a:hover { background:var(--slate-100); color:var(--navy); }
+  .sidebar-control .num { color:var(--teal-dark); font-weight:700; margin-right:6px; }
+  .visibility-toggle {
+    width:40px;
+    height:40px;
+    display:grid;
+    place-items:center;
+    padding:0;
+    border:1px solid transparent;
+    border-radius:7px;
+    background:transparent;
+    color:var(--slate-500);
+    cursor:pointer;
+  }
+  .visibility-toggle:hover { background:var(--slate-100); color:var(--navy); }
+  .visibility-toggle svg {
+    width:19px;
+    height:19px;
+    fill:none;
+    stroke:currentColor;
+    stroke-width:2;
+    stroke-linecap:round;
+    stroke-linejoin:round;
+  }
+  .visibility-toggle .eye-slash { display:none; }
+  .visibility-toggle[aria-pressed="false"] .eye-slash { display:block; }
+  /* ON-state tint identifies the layer. Slot A = status colour, Slot B = amber. */
+  #gapToggle[aria-pressed="true"]   { color:var(--red); background:var(--red-bg); border-color:var(--red-bd); }
+  #equipToggle[aria-pressed="true"] { color:var(--amber); background:var(--amber-bg); border-color:var(--amber-bd); }
+
+  main { flex:1; min-width:0; padding:44px 48px 100px; }
+  .content { max-width:var(--maxw); }
+
+  .doc-header { border:0; padding:0; margin:0 0 8px 0; }
+  .doc-header h1 { font-size:34px; color:var(--navy); margin:14px 0 6px; letter-spacing:-.02em; }
+  .doc-header .tagline { font-size:16.5px; line-height:1.6; color:var(--slate-600); font-weight:400; margin:0 0 18px; max-width:900px; }
+  .meta-row { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:6px; }
+  .badge {
+    display:inline-flex;
+    align-items:center;
+    gap:5px;
+    font-size:12px;
+    line-height:1.4;
+    font-weight:600;
+    padding:4px 10px;
+    border-radius:999px;
+    background:var(--slate-100);
+    color:var(--slate-600);
+    border:1px solid var(--border);
+  }
+  .badge.navy   { background:var(--navy); color:#fff; border-color:var(--navy); }
+  .badge.teal   { background:#ecfeff; color:var(--teal-dark); border-color:#a5f3fc; }
+  .badge.amber  { background:var(--amber-bg); color:var(--amber); border-color:var(--amber-bd); }
+  .badge.purple { background:var(--purple-bg); color:var(--purple); border-color:var(--purple-bd); }
+  .badge.red    { background:var(--red-bg); color:var(--red); border-color:var(--red-bd); }
+  .badge.green  { background:var(--green-bg); color:var(--green); border-color:var(--green-bd); }
+
+  hr.rule { border:0; border-top:1px solid var(--border); margin:36px 0; }
+  section { scroll-margin-top:20px; margin-bottom:52px; }
+  .kicker { font-size:12px; line-height:1.4; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:var(--teal-dark); margin:0 0 6px; }
+  section > h2 { font-size:26px; color:var(--navy); margin:0 0 14px; border:0; padding:0; }
+  section > h3, .gap-layer > h3, .equip-layer > h3 { font-size:19px; color:var(--navy); margin:30px 0 10px; }
+
+  .series-strip { font-size:13px; line-height:1.55; margin:0 0 30px; padding:9px 12px; }
+  .note, .warn, .mem { font-size:14px; line-height:1.55; }
+  .gaps { font-size:14px; }
+  .caption { font-size:12.5px; line-height:1.5; margin:5px 0 14px; }
+  .data-table, .map-table, .cost-table { font-size:13px; }
+  .doc-control { font-size:12px; }
+  .legend { font-size:12px; }
+  .figwrap { max-width:100%; overflow-x:auto; overscroll-behavior-inline:contain; }
+  .figwrap > svg { min-width:760px; }
+
+  footer.doc-footer { border-top:1px solid var(--border); margin-top:60px; padding-top:22px; font-size:12.5px; line-height:1.6; color:var(--slate-500); }
+
+  /* -- tablet/mobile: sidebar collapses to a control bar; TOC links hide,
+        the two layer toggles survive (they are functional, not navigational) -- */
+  @media (max-width:980px) {
+    .shell { display:block; }
+    .sidebar {
+      display:block;
+      position:static;
+      width:auto;
+      height:auto;
+      overflow:visible;
+      padding:12px 20px;
+      border-right:0;
+      border-bottom:1px solid var(--border);
+      background:#fff;
+    }
+    .sidebar > .brand,
+    .sidebar > .doclabel { display:none; }
+    .sidebar-nav { display:block; }
+    .sidebar-nav .toc {
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:8px;
+    }
+    .sidebar-nav .toc > li:not(.toc-control) { display:none; }
+    .toc-control { margin:0; }
+    .sidebar-control { border:1px solid var(--border); border-radius:8px; background:var(--slate-50); padding-left:2px; }
+    main { padding:32px 20px 80px; }
+    .doc-header h1 { font-size:30px; }
+    table { display:block; max-width:100%; overflow-x:auto; }
+  }
+
+  @media (max-width:560px) {
+    .doc-header h1 { font-size:27px; }
+    .sidebar-nav .toc { grid-template-columns:1fr; }
+  }
+
+  /* -- print: drop the chrome, hand typography back to Layer 1, and
+        FORCE-REVEAL the hidden layers so the PDF is the complete document -- */
+  @media print {
+    body { background:#fff; font-size:9.5pt; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+    .sidebar { display:none !important; }
+    .shell { display:block; max-width:none; }
+    main { padding:0; }
+    .content { max-width:none; }
+    .doc-header h1 { font-size:20pt; }
+    .doc-header .tagline { font-size:10pt; }
+    section { margin-bottom:24px; }
+    .figwrap { overflow:visible; }
+    .figwrap > svg { min-width:0; }
+    body:not(.show-gaps) .gap-layer { display:revert !important; }
+    body:not(.show-gaps) .mem { display:block !important; }
+  }
+
+
+
+
+/* ===== LAYER 3 — v2.8 / shell bridge =====================================
+   Layer 0 is the NET-LAB-002 engineering component layer, carried over from
+   revision 2.8 unchanged apart from three namespaced class tokens
+   (.badge -> .nd-badge, .legend -> .nd-legend, .meta -> .nd-meta) which the
+   CloudBats shell also defines. Layers 1 and 2 are the shell. This block
+   resolves the remaining conflicts and adds the two behaviours the shell
+   never had: scroll-spy and a mobile-visible table of contents.
+   ====================================================================== */
+
+  /* -- the v2.8 title block now lives inside section 0 -- */
+  .content .document-header { margin: 6px 0 4px; }
+  .content .document-header h1 { font-size: 21px; line-height: 1.3; }
+  .content .document-subtitle { font-size: 14px; }
+
+  /* -- section furniture the shell expects -- */
+  .section-lede { font-size: 14.5px; line-height: 1.6; color: var(--slate-600); margin: -4px 0 18px; max-width: 940px; }
+  section > h3 { font-family: 'Sora', system-ui, sans-serif; }
+
+  /* -- the rack is wider than the content column; let it scroll in place -- */
+  .content .rack-grid { overflow-x: auto; overscroll-behavior-inline: contain; padding-bottom: 6px; }
+  .content .logical-scroll, .content #logical-scroll { overscroll-behavior-inline: contain; }
+
+  /* -- the retired tab bar used to supply this spacing -- */
+  .content .section-head { display: none; }
+
+  /* -- scroll-spy: exactly one entry current -- */
+  .toc a[aria-current="true"],
+  .sidebar-control > a[aria-current="true"] {
+    background: var(--slate-100);
+    color: var(--navy);
+    box-shadow: inset 2px 0 0 var(--teal-dark);
+  }
+  .toc a[aria-current="true"] .num { color: var(--navy); }
+
+  /* -- ten sections cannot be navigated on a phone with the TOC hidden -- */
+  @media (max-width: 980px) {
+    .sidebar-nav .toc > li:not(.toc-control) { display: block; }
+    .sidebar { max-height: 45vh; overflow-y: auto; }
+  }
+
+  /* -- WEB-006: the shell declares scroll-behavior:smooth unguarded -- */
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+  /* -- equipment exhibit, built at load from the embedded rack faces -- */
+  .equip-card .equip-faces { display: grid; grid-template-columns: 1fr; gap: 6px; padding: 8px; background: #f8fafc; border-bottom: 1px solid var(--border); }
+  .equip-card .equip-faces figure { margin: 0; }
+  .equip-card .equip-faces img { width: 100%; height: 58px; object-fit: contain; display: block; }
+  .equip-card .equip-faces figcaption { font-size: 10px; letter-spacing: .06em; text-transform: uppercase; color: var(--slate-500); font-weight: 700; margin-top: 2px; }
+
+  @media print {
+    .skip-link { display: none !important; }
+    .content .rack-grid { overflow: visible; }
+    thead { display: table-header-group; }
+    .figwrap, .note, .warn, .gaps, .figure-legend { break-inside: avoid; }
+  }
+
+</style>
+</head>
+<a class="skip-link" href="#document-content">Skip to content</a>
+<body class="show-gaps">
+<div class="shell">
+  <aside class="sidebar" aria-label="Document sidebar">
+    <div class="brand">
+      <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M112 72 H400 V352 Q400 400 376 424 Q356 440 336 424 Q316 400 296 400 H216 Q196 400 176 424 Q156 440 136 424 Q112 400 112 352 Z M312 136 A40 40 0 0 1 352 176 V304 A40 40 0 0 1 312 344 A40 40 0 0 1 272 304 V176 A40 40 0 0 1 312 136 Z" fill-rule="evenodd" fill="#0F172A"/></svg>
+      <span>cloudbats</span>
+    </div>
+    <p class="doclabel">Systems &middot; Network Design<br>NET-LAB-002 &middot; Unified Reference</p>
+
+    <nav class="sidebar-nav" aria-label="Document sections">
+      <ul class="toc">
+        <li><a href="#overview"><span class="num">0</span>Overview</a></li>
+        <li><a href="#logical-topology"><span class="num">1</span>Logical topology</a></li>
+        <li><a href="#identity-addressing"><span class="num">2</span>Identity &amp; addressing</a></li>
+        <li><a href="#physical-view"><span class="num">3</span>Physical view &middot; R113</a></li>
+        <li><a href="#change-management"><span class="num">4</span>Change management</a></li>
+        <li><a href="#operations-observability"><span class="num">5</span>Ops &amp; observability</a></li>
+
+        <li class="toc-control">
+          <div class="sidebar-control">
+            <a id="gapLink" href="#open-items"><span class="num">6</span>Open items</a>
+            <button class="visibility-toggle" id="gapToggle" type="button" aria-labelledby="gapLink" aria-controls="open-items" aria-pressed="true" title="Hide open items and risks">
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path d="M2.3 12s3.4-5.5 9.7-5.5 9.7 5.5 9.7 5.5-3.4 5.5-9.7 5.5S2.3 12 2.3 12Z"/>
+                <circle cx="12" cy="12" r="3"/>
+                <path class="eye-slash" d="M4 4l16 16"/>
+              </svg>
+            </button>
+          </div>
+        </li>
+
+        <li><a href="#validation-plan"><span class="num">7</span>Validation plan</a></li>
+        <li><a href="#standards-sources"><span class="num">8</span>Standards &amp; sources</a></li>
+
+        <li class="toc-control">
+          <div class="sidebar-control">
+            <a id="equipmentExhibitLink" href="#equipment-exhibit"><span class="num">A</span>Equipment exhibit</a>
+            <button class="visibility-toggle" id="equipToggle" type="button" aria-labelledby="equipmentExhibitLink" aria-controls="equipment-exhibit" aria-pressed="false" title="Show equipment exhibit">
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path d="M2.3 12s3.4-5.5 9.7-5.5 9.7 5.5 9.7 5.5-3.4 5.5-9.7 5.5S2.3 12 2.3 12Z"/>
+                <circle cx="12" cy="12" r="3"/>
+                <path class="eye-slash" d="M4 4l16 16"/>
+              </svg>
+            </button>
+          </div>
+        </li>
+      </ul>
+    </nav>
+  </aside>
+
+
+  <main id="document-content">
+    <div class="content">
+
+
+<header class="doc-header">
+  <div class="meta-row">
+    <span class="badge navy">Network &amp; Security</span>
+    <span class="badge teal">Unified Reference &middot; Enterprise campus</span>
+    <span class="badge">v3.0 &middot; 2026-08-13</span>
+    <span class="badge red">Assumptions &middot; validation required</span>
+  </div>
+  <h1>NET-LAB-003 &mdash; Enterprise campus reference design &amp; R113 rack elevation</h1>
+  <p class="tagline">A Layer&nbsp;3 campus hierarchy with selected aggregate context, reconciled against an exact 42U front and rear rack elevation &mdash; a teaching reference, not an as-built record, with every unverified value left visibly open.</p>
+</header>
+
+<div class="series-strip"><b>Network design set</b> &mdash;&nbsp; <span>NET-SJC-HQ-001 &middot; San Jose HQ</span><span class="ss-arrow">&rarr;</span><span>NET-SEA-RH-001 &middot; Seattle hub</span><span class="ss-arrow">&rarr;</span><span class="ss-here">NET-LAB-002 &middot; Enterprise campus &mdash; this document</span><span class="ss-arrow">&rarr;</span><span>NET-FAB-001 &middot; Private cloud fabric</span><span class="ss-arrow">&rarr;</span><span>NET-ENT-001 &middot; Edge, DMZ &amp; services</span></div>
+
+
+<section id="overview">
+<p class="kicker">Section 0</p>
+<h2>Overview &mdash; what this document is</h2>
+<p class="section-lede">Purpose, scope, inventory posture, and the current navigation-standardization increment.</p>
+<div class="overview-grid">
+      <article class="card"><h3>Design intent</h3><ul>
+        <li>Provide a portable, self-contained reference built on the Seattle 1.2 and San Jose 1.8 document grammar.</li>
+        <li>Show a redundant campus path from two provider edges through a firewall pair and two collapsed-core members.</li>
+        <li>Pair the logical view with synchronized 42U front/rear elevations using exact embedded product faces.</li>
+        <li>Keep unverified ports, circuits, power, airflow, and patching visibly open instead of presenting assumptions as as-built facts.</li>
+      </ul></article>
+<article class="card"><h3>Scope &amp; exclusions</h3><p>This is a fictional training/reference design, not a construction package or operational record. Figure 1 is an L3 hierarchy view; selected Layer 2 aggregate relationships remain only where they explain redundancy, and their physical implementation stays in the engineering schedule. It does not define complete L1 patching, firewall policy, WLAN radio design, carrier handoffs, device serials, power feeds, or a bill of materials.</p><p><b>Revision 2.8 focus:</b> the shared three-column Figure 1 legend, removal of redundant topology zoom controls, and a higher-contrast shared focus ring. Network geometry, rack, schedules, topology-specific colors, and semantic status colors are unchanged.</p></article>
+    </div>
+    <div class="summary"><div class="stat"><strong>42U</strong><span>Rack height</span></div><div class="stat"><strong>9</strong><span>Installed rack devices</span></div><div class="stat"><strong>29U</strong><span>Open rack capacity</span></div><div class="stat"><strong>15</strong><span>Logical nodes</span></div><div class="stat"><strong>24</strong><span>Figure link records</span></div></div>
+    <div class="integrity" id="integrity-status" role="status" aria-live="polite">Running embedded revision, figure, rack, and dependency checks…</div>
+
+<h3>0.1 &middot; Document control</h3>
+<header class="document-header" aria-labelledby="document-title" aria-describedby="document-subtitle">
+    <div class="document-brand"><span class="document-brand__name">CLOUDBATS</span><span class="document-brand__type">Network Design Document</span></div>
+    <h1 id="document-title">Standards-Aligned Enterprise Campus — L3 Logical Topology &amp; Rack Elevation</h1>
+    <p id="document-subtitle" class="document-subtitle">Unified enterprise-campus reference design · Layer 3 hierarchy with selected aggregate context, exact 42U front/rear elevation, and implementation-readiness schedules.</p>
+    <dl class="document-meta" aria-label="Document control">
+      <div class="document-field"><dt>Document ID</dt><dd class="document-code" data-doc-field="document-id">NET-LAB-002</dd></div>
+  <div class="document-field"><dt>Revision</dt><dd class="document-code" data-doc-field="revision">3.0</dd></div>
+      <div class="document-field"><dt>Release date</dt><dd><time class="document-code" datetime="2026-08-13" data-doc-field="date">2026-08-13</time></dd></div>
+      <div class="document-field"><dt>Site</dt><dd>TRAINING-CAMPUS · MDF-1</dd></div>
+      <div class="document-field"><dt>Author</dt><dd>Sayed Haque</dd></div>
+      <div class="document-field"><dt>Reviewed by</dt><dd>NOT ASSIGNED</dd></div>
+      <div class="document-field"><dt>Approved by</dt><dd>NOT ASSIGNED</dd></div>
+      <div class="document-field"><dt>Classification</dt><dd><span class="document-badge document-badge--classification" data-doc-field="classification">SAMPLE / REFERENCE</span></dd></div>
+      <div class="document-field"><dt>Status</dt><dd><span class="document-badge document-badge--reference" data-doc-field="status">UNIFIED REFERENCE</span></dd></div>
+    </dl>
+    <p class="document-conventions"><b>Conventions.</b> Rack R113 follows EIA/ECA-310 and IEC 60297 (1U = 44.45 mm) · <b>U1 = bottom</b>, all ranges inclusive · device and infrastructure identifiers follow TIA-606-D-style administration · link speeds use IEEE 802.3 notation where verified · topology symbols and physical rack faces are deliberately distinct.</p>
+  </header>
+
+</section>
+
+<hr class="rule">
+
+<section id="logical-topology">
+<p class="kicker">Section 1</p>
+<h2>Enterprise Layer 3 logical topology</h2>
+<p class="section-lede">North-to-south routed hierarchy with selected aggregate relationships retained only as redundancy context. Click a node for details; use separate L2 and physical sheets for port-level implementation.</p>
+<div class="topology-scroll" id="logical-scroll">
+      <svg id="logical-svg" viewBox="0 0 1360 920" role="img" aria-labelledby="logical-title logical-desc">
+        <title id="logical-title">Redundant enterprise campus Layer 3 logical topology</title>
+        <desc id="logical-desc">A north-to-south routed hierarchy from Internet service through paired edge routers, high-availability firewalls, and collapsed core switches to campus and service networks. Selected aggregate members document redundancy context; physical implementation remains in the schedule.</desc>
+        <defs>
+          <filter id="node-shadow" x="-20%" y="-20%" width="140%" height="150%">
+            <feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#152d39" flood-opacity=".20"/>
+          </filter>
+        </defs>
+
+        <rect class="zone external" x="28" y="28" width="1304" height="270" rx="12"/>
+        <text class="zone-label" x="48" y="55">EXTERNAL / SERVICE PROVIDER</text>
+        <rect class="zone edge" x="28" y="310" width="1304" height="106" rx="12"/>
+        <text class="zone-label" x="48" y="336">PERIMETER SECURITY ZONE</text>
+        <rect class="zone campus" x="28" y="428" width="1304" height="454" rx="12"/>
+        <text class="zone-label" x="48" y="451">CAMPUS / INTERNAL TRUST</text>
+
+        <!-- Connections are intentionally behind nodes and carry explicit meaning in the legend. -->
+        <g aria-label="Network links">
+          <path id="L01" class="link l3" d="M680 156 L680 166 L445 166 L445 174"><title>L01 · Provider DIA A · Internet to edge-rtr-01 · 10 GbE</title></path>
+          <path id="L02" class="link l3" d="M680 156 L680 166 L915 166 L915 174"><title>L02 · Provider DIA B · Internet to edge-rtr-02 · 10 GbE</title></path>
+          <path id="L03" class="link l3" d="M445 294 L445 312"><title>L03 · edge-rtr-01 to edge-fw-01 routed transit · details TBD</title></path>
+          <path id="L04" class="link l3" d="M915 294 L915 312"><title>L04 · edge-rtr-02 to edge-fw-02 routed transit · details TBD</title></path>
+          <path class="link-halo" d="M425 294V300H895V312"/>
+          <path id="L05" class="link backup" d="M425 294V300H895V312"><title>L05 · edge-rtr-01 to edge-fw-02 backup routed transit · details TBD</title></path>
+          <path class="link-halo" d="M935 294V306H465V312"/>
+          <path id="L06" class="link backup" d="M935 294V306H465V312"><title>L06 · edge-rtr-02 to edge-fw-01 backup routed transit · details TBD</title></path>
+          <path id="L07" class="link ha" d="M555 364 L805 364"><title>L07 · Firewall HA state/config relationship; physical members and interfaces TBD</title></path>
+
+          <path id="L08" class="link aggregate" d="M445 414 L445 456"><title>L08 · edge-fw-01 to core-sw-01 · 40 GbE · details TBD</title></path>
+          <path class="link-halo" d="M465 414V430H895V456"/>
+          <path id="L09" class="link aggregate" d="M465 414V430H895V456"><title>L09 · edge-fw-01 to core-sw-02 · 40 GbE · details TBD</title></path>
+          <path id="L10" class="link aggregate" d="M915 414 L915 456"><title>L10 · edge-fw-02 to core-sw-02 · 40 GbE · details TBD</title></path>
+          <path class="link-halo" d="M895 414V440H465V456"/>
+          <path id="L11" class="link aggregate" d="M895 414V440H465V456"><title>L11 · edge-fw-02 to core-sw-01 · 40 GbE · details TBD</title></path>
+          <path id="L12-A" class="link aggregate" d="M555 501 L805 501"><title>L12-A · Core peer-link member A · 100 GbE · interfaces and media TBD</title></path>
+          <path id="L12-B" class="link aggregate" d="M555 517 L805 517"><title>L12-B · Core peer-link member B · 100 GbE · interfaces and media TBD</title></path>
+
+          <path class="link-halo" d="M395 562V584H220V640"/>
+          <path id="L13-A" class="link aggregate" d="M395 562V584H220V640"><title>L13-A · core-sw-01 to access-sw-01 aggregate member · ports/media TBD</title></path>
+          <path class="link-halo" d="M835 562V590H280V640"/>
+          <path id="L13-B" class="link aggregate" d="M835 562V590H280V640"><title>L13-B · core-sw-02 to access-sw-01 aggregate member · ports/media TBD</title></path>
+          <path class="link-halo" d="M455 562V596H520V640"/>
+          <path id="L14-A" class="link aggregate" d="M455 562V596H520V640"><title>L14-A · core-sw-01 to access-sw-02 aggregate member · ports/media TBD</title></path>
+          <path class="link-halo" d="M895 562V602H580V640"/>
+          <path id="L14-B" class="link aggregate" d="M895 562V602H580V640"><title>L14-B · core-sw-02 to access-sw-02 aggregate member · ports/media TBD</title></path>
+          <path class="link-halo" d="M515 562V614H975V640"/>
+          <path id="L15-A" class="link aggregate" d="M515 562V614H975V640"><title>L15-A · core-sw-01 to services-sw-01 aggregate member · ports/media TBD</title></path>
+          <path class="link-halo" d="M955 562V608H1035V640"/>
+          <path id="L15-B" class="link aggregate" d="M955 562V608H1035V640"><title>L15-B · core-sw-02 to services-sw-01 aggregate member · ports/media TBD</title></path>
+
+          <path id="L16" class="link access" d="M250 752 L250 786 L120 786 L120 802"><title>L16 · access-sw-01 to ap-01 · details TBD</title></path>
+          <path id="L17" class="link access" d="M250 752 L250 786 L380 786 L380 802"><title>L17 · access-sw-01 to user endpoint aggregate · details TBD</title></path>
+          <path id="L18" class="link access" d="M550 752 L550 802"><title>L18 · access-sw-02 to ap-02 · details TBD</title></path>
+          <path id="L19" class="link access" d="M1005 752 L1005 786 L880 786 L880 802"><title>L19 · services-sw-01 to hv-01 · details TBD</title></path>
+          <path id="L20" class="link access" d="M1005 752 L1005 786 L1135 786 L1135 802"><title>L20 · services-sw-01 to hv-02 · details TBD</title></path>
+        </g>
+
+        <g aria-label="Link labels">
+          <g transform="translate(618 158)"><rect class="link-label-bg" width="124" height="21" rx="4"/><text class="link-label" x="62" y="14" text-anchor="middle">DIA · 2 × 10 GbE</text></g>
+          <g transform="translate(598 353)"><rect class="link-label-bg" width="164" height="21" rx="4"/><text class="link-label" x="82" y="14" text-anchor="middle">HA state + config sync</text></g>
+          <g transform="translate(590 421)"><rect class="link-label-bg" width="180" height="21" rx="4"/><text class="link-label" x="90" y="14" text-anchor="middle">4 × 40 GbE routed links</text></g>
+          <g transform="translate(607 487)"><rect class="link-label-bg" width="146" height="21" rx="4"/><text class="link-label" x="73" y="14" text-anchor="middle">Peer link · 2 × 100G</text></g>
+          <g transform="translate(578 588)"><rect class="link-label-bg" width="204" height="21" rx="4"/><text class="link-label" x="102" y="14" text-anchor="middle">MLAG/LACP · diverse members</text></g>
+        </g>
+
+        <!-- Official Cisco symbols are embedded as unmodified JPGs from the PMS 3015 package. -->
+        <g class="logical-node" tabindex="0" data-device="internet" data-name="Internet / ISP cloud" data-role="External routed service" data-address="Provider-assigned /30s" data-notes="Treat a cloud as an external or abstract network—not as a generic decoration." transform="translate(570 70)">
+          <rect class="node-shell" width="220" height="86"/>
+          <use class="node-icon" href="#nd-cloud" x="56" y="4" width="108" height="63"/>
+          <text class="node-name" x="110" y="77">Internet / ISP cloud</text>
+        </g>
+
+        <g class="logical-node" tabindex="0" data-device="edge-rtr-01" data-name="edge-rtr-01" data-role="WAN edge router" data-address="198.51.100.2/30 · AS 65010" data-notes="eBGP to ISP-A; routed transit to perimeter." transform="translate(335 174)">
+          <rect class="node-shell" width="220" height="120"/>
+          <use class="node-icon" href="#nd-router" x="70" y="9" width="80" height="54"/>
+          <text class="node-name" x="110" y="81">edge-rtr-01</text>
+          <text class="node-role" x="110" y="99">WAN router · ISP-A</text>
+          <rect class="node-badge" x="77" y="105" width="66" height="12" rx="5"/><text class="node-badge-text" x="110" y="114">ROUTED</text>
+        </g>
+        <g class="logical-node" tabindex="0" data-device="edge-rtr-02" data-name="edge-rtr-02" data-role="WAN edge router" data-address="203.0.113.2/30 · AS 65010" data-notes="eBGP to ISP-B; routed transit to perimeter." transform="translate(805 174)">
+          <rect class="node-shell" width="220" height="120"/>
+          <use class="node-icon" href="#nd-router" x="70" y="9" width="80" height="54"/>
+          <text class="node-name" x="110" y="81">edge-rtr-02</text>
+          <text class="node-role" x="110" y="99">WAN router · ISP-B</text>
+          <rect class="node-badge" x="77" y="105" width="66" height="12" rx="5"/><text class="node-badge-text" x="110" y="114">ROUTED</text>
+        </g>
+
+        <g class="logical-node" tabindex="0" data-device="edge-fw-01" data-name="edge-fw-01" data-role="Perimeter firewall · active" data-address="Outside 198.18.0.2/29 · Inside 10.255.0.1/31" data-notes="Security policy, NAT, VPN termination, IPS. Physical model: Cisco FPR4215-NGFW-K9 at R113 U39." transform="translate(335 312)">
+          <rect class="node-shell" width="220" height="102"/>
+          <use class="node-icon" href="#nd-firewall" x="91" y="6" width="38" height="66"/>
+          <text class="node-name" x="110" y="84">edge-fw-01</text>
+          <text class="node-role" x="110" y="98">Perimeter · active</text>
+        </g>
+        <g class="logical-node" tabindex="0" data-device="edge-fw-02" data-name="edge-fw-02" data-role="Perimeter firewall · standby" data-address="Outside 198.18.0.3/29 · Inside 10.255.0.3/31" data-notes="HA mate to edge-fw-01. Physical model: Cisco FPR4215-NGFW-K9 at R113 U38." transform="translate(805 312)">
+          <rect class="node-shell" width="220" height="102"/>
+          <use class="node-icon" href="#nd-firewall" x="91" y="6" width="38" height="66"/>
+          <text class="node-name" x="110" y="84">edge-fw-02</text>
+          <text class="node-role" x="110" y="98">Perimeter · standby</text>
+        </g>
+
+        <g class="logical-node" tabindex="0" data-device="core-sw-01" data-name="core-sw-01" data-role="Collapsed core / distribution" data-address="Loopback 10.255.255.1/32 · OSPF area 0" data-notes="Default gateway redundancy and routed access. Physical model: Cisco Catalyst 9500X-28C8D at R113 U42." transform="translate(335 456)">
+          <rect class="node-shell" width="220" height="106"/>
+          <use class="node-icon" href="#nd-l3-switch" x="77" y="5" width="66" height="66"/>
+          <text class="node-name" x="110" y="86">core-sw-01</text>
+          <text class="node-role" x="110" y="101">L3 collapsed core</text>
+        </g>
+        <g class="logical-node" tabindex="0" data-device="core-sw-02" data-name="core-sw-02" data-role="Collapsed core / distribution" data-address="Loopback 10.255.255.2/32 · OSPF area 0" data-notes="Default gateway redundancy and routed access. Physical model: Cisco Catalyst 9500X-28C8D at R113 U41." transform="translate(805 456)">
+          <rect class="node-shell" width="220" height="106"/>
+          <use class="node-icon" href="#nd-l3-switch" x="77" y="5" width="66" height="66"/>
+          <text class="node-name" x="110" y="86">core-sw-02</text>
+          <text class="node-role" x="110" y="101">L3 collapsed core</text>
+        </g>
+
+        <g class="logical-node" tabindex="0" data-device="access-sw-01" data-name="access-sw-01" data-role="User access switch" data-address="Mgmt 10.10.99.11/24 · VLANs 10, 20, 30" data-notes="Dual-homed Layer-2 access. Physical model: Cisco Catalyst 9300-48P at R113 U35." transform="translate(140 640)">
+          <rect class="node-shell" width="220" height="112"/>
+          <use class="node-icon" href="#nd-access-switch" x="58" y="7" width="104" height="53"/>
+          <text class="node-name" x="110" y="80">access-sw-01</text>
+          <text class="node-role" x="110" y="98">Access · Users / Voice</text>
+          <rect class="node-badge" x="82" y="101" width="56" height="10" rx="5"/><text class="node-badge-text" x="110" y="109">LAYER 2</text>
+        </g>
+        <g class="logical-node" tabindex="0" data-device="access-sw-02" data-name="access-sw-02" data-role="User access switch" data-address="Mgmt 10.10.99.12/24 · VLANs 10, 20, 40" data-notes="Dual-homed Layer-2 access. Physical model: Cisco Catalyst 9300-48P at R113 U34." transform="translate(440 640)">
+          <rect class="node-shell" width="220" height="112"/>
+          <use class="node-icon" href="#nd-access-switch" x="58" y="7" width="104" height="53"/>
+          <text class="node-name" x="110" y="80">access-sw-02</text>
+          <text class="node-role" x="110" y="98">Access · Users / WLAN</text>
+          <rect class="node-badge" x="82" y="101" width="56" height="10" rx="5"/><text class="node-badge-text" x="110" y="109">LAYER 2</text>
+        </g>
+        <g class="logical-node" tabindex="0" data-device="services-sw-01" data-name="services-sw-01" data-role="Server access / service leaf" data-address="Mgmt 10.50.99.11/24 · VLANs 50, 51" data-notes="Dual-homed service access; hosts use redundant NICs and bonds." transform="translate(895 640)">
+          <rect class="node-shell" width="220" height="112"/>
+          <use class="node-icon" href="#nd-access-switch" x="58" y="7" width="104" height="53"/>
+          <text class="node-name" x="110" y="80">services-sw-01</text>
+          <text class="node-role" x="110" y="98">Server access · VLAN 50/51</text>
+          <rect class="node-badge" x="82" y="101" width="56" height="10" rx="5"/><text class="node-badge-text" x="110" y="109">LAYER 2</text>
+        </g>
+
+        <g class="logical-node" tabindex="0" data-device="ap-01" data-name="ap-01" data-role="Lightweight wireless access point" data-address="Mgmt 10.10.99.31/24 · Corp/Guest SSIDs" data-notes="PoE access; Corp users map to VLAN 20 and guests to isolated VLAN 40." transform="translate(30 802)">
+          <rect class="node-shell" width="180" height="96"/>
+          <use class="node-icon" href="#nd-access-point" x="46" y="5" width="88" height="49"/>
+          <text class="node-name" x="90" y="72">ap-01</text>
+          <text class="node-role" x="90" y="88">Corp / Guest WLAN</text>
+        </g>
+        <g class="logical-node" tabindex="0" data-device="users-a" data-name="User endpoints · A" data-role="Access clients" data-address="VLAN 10 · 10.10.10.0/24" data-notes="Aggregate endpoint symbol; individual clients are normally omitted from an overview topology." transform="translate(290 802)">
+          <rect class="node-shell" width="180" height="96"/>
+          <use class="node-icon" href="#nd-workstation" x="56" y="3" width="68" height="61"/>
+          <text class="node-name" x="90" y="77">Users · VLAN 10</text>
+          <text class="node-role" x="90" y="91">10.10.10.0/24</text>
+        </g>
+        <g class="logical-node" tabindex="0" data-device="ap-02" data-name="ap-02" data-role="Lightweight wireless access point" data-address="Mgmt 10.10.99.32/24 · Corp/Guest SSIDs" data-notes="PoE access; radio details belong in the wireless design, not this topology." transform="translate(460 802)">
+          <rect class="node-shell" width="180" height="96"/>
+          <use class="node-icon" href="#nd-access-point" x="46" y="5" width="88" height="49"/>
+          <text class="node-name" x="90" y="72">ap-02</text>
+          <text class="node-role" x="90" y="88">Corp / Guest WLAN</text>
+        </g>
+        <g class="logical-node" tabindex="0" data-device="hv-01" data-name="hv-01" data-role="Virtualization host" data-address="Mgmt 10.50.50.21/24 · 2 × 25GbE" data-notes="Physical model: Dell PowerEdge R750 at R113 U30–U31." transform="translate(790 802)">
+          <rect class="node-shell" width="180" height="96"/>
+          <use class="node-icon" href="#nd-server" x="69" y="3" width="42" height="60"/>
+          <text class="node-name" x="90" y="77">hv-01</text>
+          <text class="node-role" x="90" y="91">Compute · VLAN 50</text>
+        </g>
+        <g class="logical-node" tabindex="0" data-device="hv-02" data-name="hv-02" data-role="Virtualization host" data-address="Mgmt 10.50.50.22/24 · 2 × 25GbE" data-notes="Physical model: Dell PowerEdge R750 at R113 U27–U28." transform="translate(1045 802)">
+          <rect class="node-shell" width="180" height="96"/>
+          <use class="node-icon" href="#nd-server" x="69" y="3" width="42" height="60"/>
+          <text class="node-name" x="90" y="77">hv-02</text>
+          <text class="node-role" x="90" y="91">Compute · VLAN 50</text>
+        </g>
+      </svg>
+    </div>
+    <div class="logical-label" id="logical-label" role="tooltip" aria-hidden="true"></div>
+
+    <div class="inspector" id="inspector" aria-live="polite">
+      <h3>Select a device</h3>
+      <span class="label">Purpose</span><span>Choose any topology node to inspect its role, addressing context, and documentation note.</span>
+      <span class="label">Convention</span><span>The symbol identifies the device class; the text identifies the actual system.</span>
+    </div>
+    <aside class="figure-legend logical-figure-legend" aria-labelledby="logical-legend-title">
+      <h3 id="logical-legend-title">Figure 1 legend</h3>
+      <div><h4>Devices and symbols</h4><ul class="device-list">
+        <li><svg class="legend-device-icon" viewBox="0 0 64 64" aria-hidden="true" data-legend-device="internet"></svg>Carrier / cloud</li>
+        <li><svg class="legend-device-icon" viewBox="0 0 64 64" aria-hidden="true" data-legend-device="edge-rtr-01"></svg>WAN edge router</li>
+        <li><svg class="legend-device-icon" viewBox="0 0 64 64" aria-hidden="true" data-legend-device="edge-fw-01"></svg>Next-gen firewall</li>
+        <li><svg class="legend-device-icon" viewBox="0 0 64 64" aria-hidden="true" data-legend-device="core-sw-01"></svg>L3 / collapsed-core switch</li>
+        <li><svg class="legend-device-icon" viewBox="0 0 64 64" aria-hidden="true" data-legend-device="access-sw-01"></svg>L2 access / service switch</li>
+        <li><svg class="legend-device-icon" viewBox="0 0 64 64" aria-hidden="true" data-legend-device="ap-01"></svg>Wireless AP</li>
+        <li><svg class="legend-device-icon" viewBox="0 0 64 64" aria-hidden="true" data-legend-device="users-a"></svg>User endpoint population</li>
+        <li><svg class="legend-device-icon" viewBox="0 0 64 64" aria-hidden="true" data-legend-device="hv-01"></svg>Virtualization host</li>
+      </ul></div>
+      <div><h4>Links and media</h4><ul>
+        <li><svg width="34" height="14" aria-hidden="true"><line x1="1" y1="7" x2="33" y2="7" stroke="var(--cisco-dark)" stroke-width="2.5"/></svg>Routed / Layer 3 · media TBD</li>
+        <li><svg width="34" height="14" aria-hidden="true"><line x1="1" y1="7" x2="33" y2="7" stroke="var(--aggregate)" stroke-width="5"/></svg>Aggregate / retained redundant member · media TBD</li>
+        <li><svg width="34" height="14" aria-hidden="true"><line x1="1" y1="7" x2="33" y2="7" stroke="var(--ha)" stroke-width="2.5" stroke-dasharray="8 6"/></svg>Firewall HA / state relationship</li>
+        <li><svg width="34" height="14" aria-hidden="true"><line x1="1" y1="7" x2="33" y2="7" stroke="#77909e" stroke-width="1.7" stroke-dasharray="5 5"/></svg>Backup routed relationship</li>
+        <li><svg width="34" height="14" aria-hidden="true"><line x1="1" y1="7" x2="33" y2="7" stroke="#526773" stroke-width="2"/></svg>Access / service attachment</li>
+        <li><svg width="34" height="14" aria-hidden="true"><line x1="17" y1="1" x2="17" y2="13" stroke="var(--cisco-dark)" stroke-width="2"/><line x1="1" y1="7" x2="33" y2="7" stroke="white" stroke-width="7"/><line x1="1" y1="7" x2="33" y2="7" stroke="var(--aggregate)" stroke-width="2.5"/></svg>White gap: paths cross, not connected</li>
+      </ul></div>
+      <div><h4>Trust and service zones</h4><ul>
+        <li><span class="legend-swatch" style="background:#f7f9fa;border-color:#9eb0bb;border-style:dashed"></span>External / service provider</li>
+        <li><span class="legend-swatch" style="background:#fff8f4;border-color:#d7aa8a;border-style:dashed"></span>Perimeter security</li>
+        <li><span class="legend-swatch" style="background:#f3fafb;border-color:#90b8c2;border-style:dashed"></span>Campus / internal trust</li>
+      </ul></div>
+      <p class="legend-note"><b>Member and interaction convention.</b> L12-A/B and L13-A/B through L15-A/B are individually drawn. Hover or focus a node for a compact label; click, Enter, or Space selects its persistent inspector record. Exact interfaces, LAG IDs, transceiver PIDs, cable media, and installed state remain commissioning dependencies; the engineering schedule does not infer them. Device symbols use the embedded Cisco PMS 3015 conceptual icon set.</p>
+    </aside>
+
+<h3>1.1 &middot; Logical adjacency and member schedule</h3>
+<p class="section-lede">Every Figure 1 identifier reconciles the L3 overview and its selected aggregate context to an auditable record. A blank or TBD field is intentionally unresolved.</p>
+<div class="table-wrap"><table><caption>Backbone and aggregate relationships shown in Figure 1</caption><thead><tr><th scope="col">Figure ID</th><th scope="col">A end</th><th scope="col">B end</th><th scope="col">Members / speed</th><th scope="col">Nature</th><th scope="col">Interfaces / media</th><th scope="col">Status</th></tr></thead><tbody>
+      <tr><td class="m">L01</td><td>Internet / ISP cloud</td><td class="m">edge-rtr-01</td><td>1 × 10 GbE</td><td>Provider DIA A</td><td>TBD</td><td class="status open">OPEN</td></tr>
+      <tr><td class="m">L02</td><td>Internet / ISP cloud</td><td class="m">edge-rtr-02</td><td>1 × 10 GbE</td><td>Provider DIA B</td><td>TBD</td><td class="status open">OPEN</td></tr>
+      <tr><td class="m">L03–L06</td><td class="m">edge-rtr-01/02</td><td class="m">edge-fw-01/02</td><td>4 routed paths · speed TBD</td><td>Primary and cross-connect transit</td><td>TBD</td><td class="status open">OPEN</td></tr>
+      <tr><td class="m">L07</td><td class="m">edge-fw-01</td><td class="m">edge-fw-02</td><td>State/config relationship</td><td>Firewall HA</td><td>Physical members TBD</td><td class="status open">OPEN</td></tr>
+      <tr><td class="m">L08–L11</td><td class="m">edge-fw-01/02</td><td class="m">core-sw-01/02</td><td>4 × 40 GbE</td><td>Routed inside transit</td><td>TBD</td><td class="status open">OPEN</td></tr>
+      <tr><td class="m">L12-A/B</td><td class="m">core-sw-01</td><td class="m">core-sw-02</td><td>2 × 100 GbE</td><td>Physical peer-link bundle</td><td>Po / ports / media TBD</td><td class="status open">OPEN</td></tr>
+      <tr><td class="m">L13-A/B</td><td class="m">core-sw-01/02</td><td class="m">access-sw-01</td><td>2 diverse members · speed TBD</td><td>MLAG/LACP aggregate</td><td>Po / ports / media TBD</td><td class="status open">OPEN</td></tr>
+      <tr><td class="m">L14-A/B</td><td class="m">core-sw-01/02</td><td class="m">access-sw-02</td><td>2 diverse members · speed TBD</td><td>MLAG/LACP aggregate</td><td>Po / ports / media TBD</td><td class="status open">OPEN</td></tr>
+      <tr><td class="m">L15-A/B</td><td class="m">core-sw-01/02</td><td class="m">services-sw-01</td><td>2 diverse members · speed TBD</td><td>MLAG/LACP aggregate</td><td>Po / ports / media TBD</td><td class="status open">OPEN</td></tr>
+      <tr><td class="m">L16–L20</td><td>Access/service switches</td><td>APs, users, hv-01/02</td><td>Access links · speed TBD</td><td>Endpoint/service attachment</td><td>TBD</td><td class="status open">OPEN</td></tr>
+    </tbody></table></div>
+</section>
+
+<hr class="rule">
+
+<section id="identity-addressing">
+<p class="kicker">Section 2</p>
+<h2>Addressing, VLAN, and routing context</h2>
+<p class="section-lede">Example values visible in Figure 1. These records require IPAM and configuration approval before reuse.</p>
+<div class="table-wrap"><table><caption>Visible addressing and segmentation records</caption><thead><tr><th scope="col">Object</th><th scope="col">Prefix / address</th><th scope="col">VLAN / protocol</th><th scope="col">Purpose</th><th scope="col">Authority</th></tr></thead><tbody>
+      <tr><td>Provider handoff A</td><td class="m">198.51.100.2/30</td><td>eBGP · AS 65010</td><td>edge-rtr-01 provider edge example</td><td>Documentation example only</td></tr>
+      <tr><td>Provider handoff B</td><td class="m">203.0.113.2/30</td><td>eBGP · AS 65010</td><td>edge-rtr-02 provider edge example</td><td>Documentation example only</td></tr>
+      <tr><td>Firewall outside pair</td><td class="m">198.18.0.2/29 · 198.18.0.3/29</td><td>Security transit</td><td>Example outside addresses</td><td>Approval required</td></tr>
+      <tr><td>Firewall inside pair</td><td class="m">10.255.0.1/31 · 10.255.0.3/31</td><td>Routed transit</td><td>Example inside addresses</td><td>Topology notation; validate pairing</td></tr>
+      <tr><td>Core loopbacks</td><td class="m">10.255.255.1/32 · 10.255.255.2/32</td><td>OSPF area 0</td><td>Collapsed-core routing identities</td><td>Approval required</td></tr>
+      <tr><td>User data</td><td class="m">10.10.10.0/24</td><td>VLAN 10</td><td>Wired user endpoints</td><td>Example only</td></tr>
+      <tr><td>Corporate WLAN</td><td>TBD</td><td>VLAN 20</td><td>Corporate wireless users</td><td class="status open">OPEN</td></tr>
+      <tr><td>Voice</td><td>TBD</td><td>VLAN 30</td><td>Voice endpoints</td><td class="status open">OPEN</td></tr>
+      <tr><td>Guest WLAN</td><td>TBD</td><td>VLAN 40</td><td>Isolated guest wireless</td><td class="status open">OPEN</td></tr>
+      <tr><td>Compute</td><td class="m">10.50.50.0/24</td><td>VLAN 50</td><td>Virtualization hosts</td><td>Example only</td></tr>
+      <tr><td>Services</td><td>TBD</td><td>VLAN 51</td><td>Server/service segment</td><td class="status open">OPEN</td></tr>
+      <tr><td>Campus management</td><td class="m">10.10.99.0/24</td><td>Management</td><td>Switch and AP management examples</td><td>Approval required</td></tr>
+      <tr><td>Service management</td><td class="m">10.50.99.0/24</td><td>Management</td><td>Service-switch management example</td><td>Approval required</td></tr>
+    </tbody></table></div>
+</section>
+
+<hr class="rule">
+
+<section id="physical-view">
+<p class="kicker">Section 3</p>
+<h2>Physical rack elevation · R113 · 42U</h2>
+<p class="section-lede">MDF-1 · front viewed from cold aisle · rear viewed from hot aisle · rack units numbered bottom-up.</p>
+<div class="toolbar" aria-label="Rack controls">
+        <button class="tool" type="button" id="rack-compact" aria-controls="rack-front-wrap rack-rear-wrap" aria-pressed="false">Compact</button>
+        <button class="tool" type="button" id="rack-full" aria-controls="rack-front-wrap rack-rear-wrap" aria-pressed="true">Full size</button>
+        <span class="control-status" id="rack-scale-status" role="status" aria-live="polite">Full</span>
+      </div>
+    
+<p class="rack-note"><strong>Exact 42U interior.</strong> Rack-unit labels sit outside both rails; U42 begins at the inner top and U1 ends at the inner bottom. Installed product faces are exact embedded front/rear orthographic assets. One unit is reserved and 29 units are explicitly open—not blanked or available-by-assumption.</p>
+
+    <div class="rack-grid">
+      <figure class="rack-figure">
+        <figcaption>Front elevation · cold aisle</figcaption>
+        <div class="rack-wrap" id="rack-front-wrap">
+          <div class="ruler left" aria-hidden="true"></div>
+          <div class="rack-bay" id="rack-front" role="img" aria-label="Front elevation of 42U rack R113"></div>
+          <div class="ruler right" aria-hidden="true"></div>
+          <div class="rack-label"></div>
+        </div>
+      </figure>
+      <figure class="rack-figure">
+        <figcaption>Rear elevation · hot aisle</figcaption>
+        <div class="rack-wrap" id="rack-rear-wrap">
+          <div class="ruler left" aria-hidden="true"></div>
+          <div class="rack-bay" id="rack-rear" role="img" aria-label="Rear elevation of 42U rack R113"></div>
+          <div class="ruler right" aria-hidden="true"></div>
+          <div class="rack-label"></div>
+        </div>
+      </figure>
+    </div>
+
+    <table class="inventory">
+      <caption>R113 installed equipment schedule</caption>
+      <thead><tr><th scope="col">Rack position</th><th scope="col">Device ID</th><th scope="col">Manufacturer / model</th><th scope="col">Role</th><th scope="col">Asset treatment</th></tr></thead>
+      <tbody>
+        <tr><td>U42</td><td><code>core-sw-01</code></td><td>Cisco Catalyst 9500X-28C8D</td><td>Collapsed core</td><td>Exact front/rear face</td></tr>
+        <tr><td>U41</td><td><code>core-sw-02</code></td><td>Cisco Catalyst 9500X-28C8D</td><td>Collapsed core</td><td>Exact front/rear face</td></tr>
+        <tr><td>U39</td><td><code>edge-fw-01</code></td><td>Cisco FPR4215-NGFW-K9</td><td>Perimeter firewall · active</td><td>Exact front/rear face</td></tr>
+        <tr><td>U38</td><td><code>edge-fw-02</code></td><td>Cisco FPR4215-NGFW-K9</td><td>Perimeter firewall · standby</td><td>Exact front/rear face</td></tr>
+        <tr><td>U35</td><td><code>access-sw-01</code></td><td>Cisco Catalyst 9300-48P</td><td>User access</td><td>Exact front/rear face</td></tr>
+        <tr><td>U34</td><td><code>access-sw-02</code></td><td>Cisco Catalyst 9300-48P</td><td>User access</td><td>Exact front/rear face</td></tr>
+        <tr><td>U30–U31</td><td><code>hv-01</code></td><td>Dell PowerEdge R750</td><td>Virtualization host</td><td>Exact front/rear face</td></tr>
+        <tr><td>U27–U28</td><td><code>hv-02</code></td><td>Dell PowerEdge R750</td><td>Virtualization host</td><td>Exact front/rear face</td></tr>
+        <tr><td>U2–U3</td><td><code>ups-01</code></td><td>APC SMT3000RMI2UC</td><td>Rack UPS</td><td>Exact front/rear face</td></tr>
+      </tbody>
+    </table>
+    <aside class="figure-legend" aria-labelledby="rack-legend-title">
+      <h3 id="rack-legend-title">Figure 2 legend</h3>
+      <div><b>Rack states</b><ul><li>Photographic orthographic face: installed device.</li><li>Dashed hatched field: reserved, not installed.</li><li>White outlined field: open U; blanking treatment not documented.</li></ul></div>
+      <div><b>Orientation</b><ul><li>Front: viewed from the cold aisle.</li><li>Rear: viewed from the hot aisle.</li><li>U1 is bottom; all ranges are inclusive.</li></ul></div>
+      <div><b>Capacity</b><ul><li>Installed: 12U across 9 devices.</li><li>Reserved: 1U at U36.</li><li>Open: 29U across six contiguous ranges.</li></ul></div>
+      <p class="legend-note"><b>Not encoded in Figure 2.</b> A/B PDU feeds, per-device cord assignment, airflow direction, asset tags, weights, serial numbers, cabinet dimensions, and verified blanking-panel state are not supplied. They remain explicit commissioning dependencies.</p>
+    </aside>
+
+<h3>3.1 &middot; Cross-view reconciliation and rack occupancy</h3>
+<p class="section-lede">Every logical node is reconciled to R113, an external/abstract object, an out-of-rack endpoint, or a documented open placement.</p>
+<div class="table-wrap"><table><caption>Logical-to-physical reconciliation</caption><thead><tr><th scope="col">Logical object(s)</th><th scope="col">Physical disposition</th><th scope="col">Rack position</th><th scope="col">Result</th></tr></thead><tbody>
+      <tr><td>Internet / ISP cloud</td><td>Abstract provider network</td><td>Not applicable</td><td class="status pass">RECONCILED</td></tr>
+      <tr><td class="m">edge-rtr-01/02</td><td>Carrier/CPE placement not supplied</td><td>TBD / outside R113 scope</td><td class="status open">OPEN</td></tr>
+      <tr><td class="m">edge-fw-01/02</td><td>Installed in R113</td><td>U39 / U38</td><td class="status pass">RECONCILED</td></tr>
+      <tr><td class="m">core-sw-01/02</td><td>Installed in R113</td><td>U42 / U41</td><td class="status pass">RECONCILED</td></tr>
+      <tr><td class="m">access-sw-01/02</td><td>Installed in R113</td><td>U35 / U34</td><td class="status pass">RECONCILED</td></tr>
+      <tr><td class="m">services-sw-01</td><td>Physical model and placement not supplied</td><td>TBD</td><td class="status open">OPEN</td></tr>
+      <tr><td class="m">ap-01/02 · users-a</td><td>Out-of-rack endpoints</td><td>Not applicable</td><td class="status pass">RECONCILED</td></tr>
+      <tr><td class="m">hv-01/02</td><td>Installed in R113</td><td>U30–U31 / U27–U28</td><td class="status pass">RECONCILED</td></tr>
+      <tr><td class="m">ups-01</td><td>Rack-only infrastructure record</td><td>U2–U3</td><td class="status pass">RECONCILED</td></tr>
+    </tbody></table></div>
+    <div class="table-wrap"><table><caption>R113 capacity arithmetic</caption><thead><tr><th scope="col">State</th><th scope="col">Ranges</th><th scope="col">Units</th><th scope="col">Percent</th></tr></thead><tbody>
+      <tr><td>Installed devices</td><td>U2–3, U27–28, U30–31, U34–35, U38–39, U41–42</td><td>12U</td><td>28.6%</td></tr>
+      <tr><td>Reserved patch field</td><td>U36</td><td>1U</td><td>2.4%</td></tr>
+      <tr><td>Open · no blanking state claimed</td><td>U1, U4–26, U29, U32–33, U37, U40</td><td>29U</td><td>69.0%</td></tr>
+      <tr><td><b>Total</b></td><td>U1–U42 accounted exactly once</td><td><b>42U</b></td><td><b>100%</b></td></tr>
+    </tbody></table></div>
+</section>
+
+<hr class="rule">
+
+<section id="change-management">
+<p class="kicker">Section 4</p>
+<h2>Configuration &amp; change management</h2>
+<p class="section-lede">Document control, release audit, and the configuration record that does not exist.</p>
+<div class="warn"><p style="margin:0"><b>No configuration or change-control record exists for this design.</b> There is no device configuration, no infrastructure-as-code repository, and no approval, maintenance-window or rollback artifact. NET-STD-001 &sect;16 cannot be satisfied in the current state. What follows is control of the <i>document</i>, which is the only change record that genuinely exists.</p></div>
+
+<h3>4.1 &middot; Revision history</h3>
+<table class="inventory revision-history">
+      <caption>Document revision history</caption>
+      <thead><tr><th scope="col">Revision</th><th scope="col">Date</th><th scope="col">Status</th><th scope="col">Change summary</th><th scope="col">Owner</th></tr></thead>
+      <tbody>
+<tr><td><code>2.8</code></td><td>2026-08-13</td><td>Unified reference</td><td>Standardized Figure 1 as the shared three-column legend with visual device symbols, complete link semantics, and the three actual trust boundaries; removed the redundant pre-diagram key and topology zoom controls/state code; and raised the shared focus ring contrast. Topology geometry, rack placement, engineering data, embedded assets, selection, inspector, navigation, and rack controls are unchanged.</td><td>OpenAI Codex</td></tr>
+<tr><td><code>2.7</code></td><td>2026-08-13</td><td>Unified reference</td><td>Introduced the shared page-shell token contract for the common document header, view navigation, print action, and skip link: standardized UI and monospace type stacks, neutral shell surfaces, spacing, radii, elevation shadow, focus treatment, and 44-pixel control sizing. Lab identity, conventions, semantic status colors, topology, rack placement, engineering data, and embedded assets are unchanged.</td><td>OpenAI Codex</td></tr>
+        <tr><td><code>2.6</code></td><td>2026-08-13</td><td>Unified reference</td><td>Standardized the document-control header as a shared, accessible nine-field component with a consistent brand, title, subtitle, metadata order, explicit classification and status, visible conventions, responsive stacking, and print treatment. Lab identity and conventions are preserved; topology, rack placement, engineering data, navigation, and embedded assets are unchanged.</td><td>OpenAI Codex</td></tr>
+        <tr><td><code>2.5</code></td><td>2026-08-12</td><td>Unified reference</td><td>Standardized the five-view navigation contract with a separate print action, 44px controls, visible keyboard focus, roving tab focus, responsive horizontal scrolling, deep-link routing, and Back/Forward support. Topology, rack placement, engineering data, and embedded assets are unchanged.</td><td>OpenAI Codex</td></tr>
+        <tr><td><code>2.4</code></td><td>2026-08-12</td><td>Unified reference</td><td>Clarified the L3 view boundary; adopted SJC-style orthogonal paths and crossover halos; reconciled all 24 figure links to individual JSON records; added skip navigation, complete tab relationships, control state, focus treatment, and an embedded integrity preflight.</td><td>Sayed Haque</td></tr>
+        <tr><td><code>2.3</code></td><td>2026-08-12</td><td>Standardized reference</td><td>Retrofitted the Seattle/SJC five-view document system, formal title block, overview and engineering schedules, risk/QA registers, design-data JSON, open-U accounting, deep links, keyboard tabs, and corrected redundant core-member paths.</td><td>Sayed Haque</td></tr>
+        <tr><td><code>2.2</code></td><td>2026-08-12</td><td>Proposed / training</td><td>Added standardized hover and keyboard-focus detail popups to logical topology nodes while retaining the persistent click inspector.</td><td>Network design lab</td></tr>
+        <tr><td><code>2.1</code></td><td>2026-08-12</td><td>Proposed / training</td><td>Corrected the rack frame box model so the equipment aperture is exactly 42U; aligned both rulers and hover labels to the same interior origin.</td><td>Network design lab</td></tr>
+        <tr><td><code>2.0</code></td><td>2026-08-12</td><td>Proposed / training</td><td>Reissued as an integrated standards-aligned sheet; clarified the mixed-layer overview scope, retained the original rack implementation, and added formal revision control.</td><td>Network design lab</td></tr>
+        <tr><td><code>1.1</code></td><td>2026-08-10</td><td>Reference baseline</td><td>Clean logical layout, interactive device inspector, embedded official Cisco symbols, and exact front/rear 42U rack elevations.</td><td>Network design lab</td></tr>
+      </tbody>
+    </table>
+
+<h3>4.2 &middot; Document QA checklist</h3>
+<p class="section-lede">Static and embedded release checks for revision 2.8. OPEN and NOT RUN states are retained where external evidence or print review is required.</p>
+<div class="table-wrap"><table><caption>Release audit</caption><thead><tr><th scope="col">#</th><th scope="col">Check</th><th scope="col">Result</th><th scope="col">Evidence</th></tr></thead><tbody>
+      <tr><td>1</td><td>Filename, title, metadata, title block, revision history, JSON, and footer agree</td><td class="status pass">PASS</td><td>Seven-touchpoint revision audit</td></tr>
+      <tr><td>2</td><td>Five reference views and same-view deep links are available</td><td class="status pass">PASS</td><td>Overview, logical, rack, engineering, sources</td></tr>
+      <tr><td>3</td><td>Core peer link and three downstream bundles show separate redundant members</td><td class="status pass">PASS</td><td>L12-A/B through L15-A/B</td></tr>
+      <tr><td>4</td><td>Every logical node has a cross-view disposition</td><td class="status pass">PASS</td><td>Reconciliation table</td></tr>
+      <tr><td>5</td><td>All 42 rack units are accounted exactly once on both faces</td><td class="status pass">PASS</td><td>12U installed + 1U reserved + 29U open</td></tr>
+      <tr><td>6</td><td>Front/rear rack positions derive from one device array</td><td class="status pass">PASS</td><td>Shared rackDevices data</td></tr>
+      <tr><td>7</td><td>No duplicate IDs; embedded JSON and JavaScript parse</td><td class="status pass">PASS</td><td>Static parser and script syntax validation</td></tr>
+      <tr><td>8</td><td>Keyboard selection and tab navigation support Enter/Space/arrows</td><td class="status pass">PASS</td><td>Interaction audit</td></tr>
+      <tr><td>9</td><td>Every Figure 1 link ID has exactly one machine-readable link record</td><td class="status pass">PASS</td><td>24 SVG links ↔ 24 design-data links</td></tr>
+      <tr><td>10</td><td>Power, airflow, BOM, and implementation state are not overclaimed</td><td class="status pass">PASS</td><td>OPEN/NOT RUN retained</td></tr>
+      <tr><td>11</td><td>Exact interfaces, cable media, and routing adjacency validated</td><td class="status open">OPEN</td><td>Requires approved implementation records</td></tr>
+      <tr><td>12</td><td>Grayscale conversion preserves meaning</td><td class="status notrun">NOT RUN</td><td>Requires production print review</td></tr>
+      <tr><td>13</td><td>Letter-landscape print preview has no clipping</td><td class="status notrun">NOT RUN</td><td>Requires final browser/printer-driver preview</td></tr>
+    </tbody></table></div>
+</section>
+
+<hr class="rule">
+
+<section id="operations-observability">
+<p class="kicker">Section 5</p>
+<h2>Operations &amp; observability &mdash; what has never been measured</h2>
+<p class="section-lede">This section is deliberately short, because there is almost nothing in it. That is the finding.</p>
+<div class="warn"><ul class="notes" style="margin:4px 0"><li><b>No monitoring system is defined.</b> No NMS, flow collector, syslog target or metrics store. Nothing in this design is currently observable.</li><li><b>No out-of-band management path exists.</b> Every device in R113 is reachable only through the production path it also serves.</li></ul></div>
+
+<div class="table-wrap"><table><caption>Validation state</caption><thead><tr><th scope="col">Check</th><th scope="col">Available evidence</th><th scope="col">Required action</th><th scope="col">Status</th></tr></thead><tbody>
+      <tr><td>UPS platform</td><td>APC SMT3000RMI2UC model at U2–U3</td><td>Verify ordered SKU, voltage, battery condition, and protected outlets</td><td class="status open">OPEN</td></tr>
+      <tr><td>A/B feed architecture</td><td>No circuits, PDUs, or cord assignments documented</td><td>Create circuit/PDU/device-feed schedule</td><td class="status open">OPEN</td></tr>
+      <tr><td>Normal-state load</td><td>No measured or approved typical watts</td><td>Record installed PSU/PoE/compute loads and calculate</td><td class="status notrun">NOT RUN</td></tr>
+      <tr><td>Failed-feed capacity</td><td>No redundant-feed topology or derated circuit capacity</td><td>Confirm each source can carry 100% of protected load</td><td class="status notrun">NOT RUN</td></tr>
+      <tr><td>Runtime/autonomy</td><td>Actual UPS load and battery state unavailable</td><td>Calculate and validate by controlled test</td><td class="status notrun">NOT RUN</td></tr>
+      <tr><td>Thermal rejection</td><td>Rack watts unavailable</td><td>Calculate W × 3.412 BTU/hr after load schedule exists</td><td class="status notrun">NOT RUN</td></tr>
+      <tr><td>Airflow compatibility</td><td>Cold/hot aisle orientation declared; ordered airflow SKUs unknown</td><td>Verify intake/exhaust direction for every installed device</td><td class="status open">OPEN</td></tr>
+      <tr><td>Blanking state</td><td>29U shown as open, not blanked</td><td>Document installed blanking panels or flag containment exception</td><td class="status open">OPEN</td></tr>
+    </tbody></table></div>
+</section>
+
+<hr class="rule">
+
+<section id="open-items" class="gap-layer">
+<p class="kicker">Section 6</p>
+<h2>Open items, assumptions &amp; risk register</h2>
+<p class="section-lede">Open findings are part of the design record and must not disappear during reuse.</p>
+<div class="table-wrap"><table><caption>Open risk register</caption><thead><tr><th scope="col">ID</th><th scope="col">Finding</th><th scope="col">Impact</th><th scope="col">Severity</th><th scope="col">Required action</th></tr></thead><tbody>
+      <tr><td class="m">R1</td><td>Carrier and edge-router physical placement is undocumented</td><td>Rack, power, and patch plan may be incomplete</td><td class="status open">HIGH</td><td>Confirm demarc/CPE ownership and placement</td></tr>
+      <tr><td class="m">R2</td><td>services-sw-01 has no device type or rack position</td><td>Server attachment cannot be built or capacity-checked</td><td class="status open">HIGH</td><td>Select platform and assign physical location</td></tr>
+      <tr><td class="m">R3</td><td>Link ports, media, and LAG IDs are TBD</td><td>Diagram cannot drive configuration or patching</td><td class="status open">HIGH</td><td>Produce an interface/cable authority and validate platform syntax</td></tr>
+      <tr><td class="m">R4</td><td>Power resiliency and failed-feed capacity are unvalidated</td><td>Overload or single-point failure cannot be excluded</td><td class="status open">HIGH</td><td>Complete circuit/PDU/load/feed schedule and calculations</td></tr>
+      <tr><td class="m">R5</td><td>29U are shown open with no blanking record</td><td>Air recirculation and containment performance may suffer</td><td class="status open">MEDIUM</td><td>Install/document blanking panels or accept the exception</td></tr>
+      <tr><td class="m">R6</td><td>Example addressing is not synchronized with IPAM</td><td>Collision or incorrect configuration if reused literally</td><td class="status open">HIGH</td><td>Replace all example values from approved IPAM</td></tr>
+      <tr><td class="m">R7</td><td>Firewall policy, guest isolation, and management controls are not specified</td><td>Security intent is incomplete</td><td class="status open">HIGH</td><td>Create zone-pair/policy matrix and management-plane requirements</td></tr>
+      <tr><td class="m">R8</td><td>Airflow SKUs and cabinet dimensions/ratings are unknown</td><td>Thermal or physical incompatibility may be missed</td><td class="status open">MEDIUM</td><td>Verify ordered SKUs and cabinet/floor limits</td></tr>
+    </tbody></table></div>
+</section>
+
+<hr class="rule">
+
+<section id="validation-plan">
+<p class="kicker">Section 7</p>
+<h2>Patch, cabling, and BOM dependencies</h2>
+<p class="section-lede">The topology expresses intended relationships; it is not a patching authority until both ends, media, paths, and labels are approved.</p>
+<div class="table-wrap"><table><caption>Implementation dependencies</caption><thead><tr><th scope="col">ID</th><th scope="col">Dependency</th><th scope="col">Known</th><th scope="col">Missing before construction</th><th scope="col">Status</th></tr></thead><tbody>
+      <tr><td class="m">D1</td><td>Carrier handoffs</td><td>Two 10 GbE DIA relationships</td><td>Carrier/circuit IDs, demarc, CPE ownership, ports, optics, addresses</td><td class="status open">OPEN</td></tr>
+      <tr><td class="m">D2</td><td>Firewall HA</td><td>State/config relationship intended</td><td>Member count, exact ports, media, failover/state roles</td><td class="status open">OPEN</td></tr>
+      <tr><td class="m">D3</td><td>Core peer link</td><td>Two 100 GbE members intended</td><td>Bundle ID, ports, optic/DAC PID, length, labels</td><td class="status open">OPEN</td></tr>
+      <tr><td class="m">D4</td><td>Core downstream bundles</td><td>Two diverse members to each access/service switch</td><td>LAG IDs, exact endpoints, speed/media, supported topology</td><td class="status open">OPEN</td></tr>
+      <tr><td class="m">D5</td><td>Patch field</td><td>U36 reserved</td><td>Panel type, port count, termination, ownership, labeling</td><td class="status open">OPEN</td></tr>
+      <tr><td class="m">D6</td><td>Rack hardware</td><td>Nine exact chassis models/faces</td><td>Rails, cable managers, shelves, blanking panels, cage nuts, grounding</td><td class="status open">OPEN</td></tr>
+      <tr><td class="m">D7</td><td>BOM</td><td>Platform families visible</td><td>Orderable PIDs, licenses, optics, cables, spares, support coverage</td><td class="status open">OPEN</td></tr>
+    </tbody></table></div>
+</section>
+
+<hr class="rule">
+
+<section id="standards-sources">
+<p class="kicker">Section 8</p>
+<h2>Standards, asset provenance, and reuse rules</h2>
+<p class="section-lede">This section travels with the deliverable so its conventions, icon choices, physical assets, and reuse terms remain auditable after the file is shared.</p>
+<div class="table-wrap"><table><caption>Standards and conventions applied by this reference</caption><thead><tr><th scope="col">Standard / source</th><th scope="col">Scope used here</th><th scope="col">Application and verification state</th></tr></thead><tbody>
+      <tr><td>EIA/ECA-310 · IEC 60297</td><td>19-inch rack geometry and 44.45 mm rack unit</td><td>42U interior, U1 bottom, matched front/rear scale</td></tr>
+      <tr><td>ANSI/TIA-606-D-style administration</td><td>Consistent facility, rack, device, link, and cable identifiers</td><td>Document/rack/device/figure IDs applied; final cable labels remain OPEN</td></tr>
+      <tr><td>IEEE 802.3</td><td>Ethernet speeds and media nomenclature</td><td>Speeds shown where declared; exact PHY/media remain OPEN</td></tr>
+      <tr><td>IEEE 802.1AX</td><td>Link aggregation terminology</td><td>Peer and downstream bundles draw individual members</td></tr>
+      <tr><td>ASHRAE TC 9.9 guidance</td><td>Cold-aisle intake / hot-aisle exhaust context</td><td>View orientation declared; per-device airflow validation remains OPEN</td></tr>
+      <tr><td>Cisco PMS 3015 topology icons</td><td>Recognizable conceptual network symbols</td><td>Official raster symbols embedded without alteration</td></tr>
+      <tr><td>NetBox community device-type library</td><td>Orthographic product faces and NetBox-style rack position semantics</td><td>Pinned source described below; U position is lowest occupied unit</td></tr>
+    </tbody></table></div>
+
+    <div class="source-grid">
+      <article class="source-card">
+        <h3>Logical symbols · official Cisco library</h3>
+        <p>The logical view uses Cisco’s official PMS 3015 conceptual topology icons. Cisco describes these icons as globally recognized and generally accepted for network topologies, and permits use without alteration.</p>
+        <ul>
+          <li><a href="https://www.cisco.com/c/en/us/about/brand-center/network-topology-icons.html" target="_blank" rel="noreferrer">Cisco Network Topology Icons</a></li>
+          <li><a href="https://www.cisco.com/c/dam/en_us/about/ac50/ac47/3015_jpeg.zip" target="_blank" rel="noreferrer">Official PMS 3015 JPG package</a></li>
+          <li>Embedded files used: <code>cloud.jpg</code>, <code>router.jpg</code>, <code>firewall.jpg</code>, <code>layer 3 switch.jpg</code>, <code>workgroup switch.jpg</code>, <code>lightweight ap.jpg</code>, <code>fileserver.jpg</code>, and <code>pc.jpg</code>.</li>
+        </ul>
+      </article>
+
+      <article class="source-card">
+        <h3>Physical faces · NetBox device-type library</h3>
+        <p>The rack uses exact orthographic front/rear assets maintained in the NetBox Community Device Type Library. The repository is distributed under CC0-1.0; model metadata verifies each device’s U-height.</p>
+        <ul>
+          <li><a href="https://github.com/netbox-community/devicetype-library" target="_blank" rel="noreferrer">NetBox Community Device Type Library</a></li>
+          <li><a href="https://github.com/netbox-community/devicetype-library/tree/5efffb4a613402a37a7daf616f081e56147662c0/elevation-images" target="_blank" rel="noreferrer">Pinned elevation image source · commit 5efffb4</a></li>
+          <li>Models used: Catalyst 9500X-28C8D, Catalyst 9300-48P, FPR4215-NGFW-K9, PowerEdge R750, and SMT3000RMI2UC.</li>
+        </ul>
+      </article>
+
+      <article class="source-card">
+        <h3>Rack conventions</h3>
+        <p>Rack units are labeled <code>U1</code> through <code>U42</code> from bottom to top. The front and rear views use the same U coordinates. A device occupies the full range listed in the inventory, and ruler marks are kept outside the equipment image.</p>
+        <ul>
+          <li><a href="https://www.server-racks.com/eia-310.html" target="_blank" rel="noreferrer">EIA-310 rack overview</a></li>
+          <li>Record view direction, rack ID, room, revision, and as-of date.</li>
+          <li>Keep planned/reserved space visually distinct from installed assets.</li>
+        </ul>
+      </article>
+
+      <article class="source-card">
+        <h3>Diagramming conventions demonstrated</h3>
+        <ul class="checklist">
+          <li>L3 hierarchy and supporting aggregate scope explicitly declared</li>
+          <li>Device IDs separate from roles</li>
+          <li>Trust/function boundaries labeled</li>
+          <li>Line semantics defined in legend</li>
+          <li>Subnets and VLANs use CIDR/ID notation</li>
+          <li>HA relationship is not a physical cable</li>
+          <li>Redundant links remain visually traceable</li>
+          <li>Front and rear U positions stay synchronized</li>
+          <li>Exact physical model names in inventory</li>
+          <li>Sources and reuse terms travel with the file</li>
+        </ul>
+      </article>
+    </div>
+
+    <div class="provenance">
+      <h3>Important reuse distinction</h3>
+      <div><strong>Cisco logical symbols:</strong> use as supplied; do not redraw, recolor, reshape, or combine them into a modified icon. Resizing for placement is acceptable. <strong>Rack faces:</strong> community-maintained orthographic assets under the NetBox library’s CC0 terms. Product names and marks remain the property of their respective owners. This HTML is a reference design, not a vendor-certified architecture.</div>
+    </div>
+</section>
+
+<hr class="rule">
+
+<!-- ============ APPENDIX A — SLOT B: equipment exhibit ============ -->
+<section id="equipment-exhibit" class="equip-layer">
+<p class="kicker">Appendix A</p>
+<h2>Equipment exhibit</h2>
+<p class="section-lede">The five device types installed in rack R113, front and rear. Hidden by default; this is illustration, not record.</p>
+
+<div class="note"><p style="margin:0">These are the same embedded orthographic faces used to draw Figure&nbsp;2, presented at card scale so each chassis can be recognised on its own. They are built at page load from the figure's own asset set, so the exhibit adds no weight to the file and cannot drift from the rack.</p></div>
+
+<div class="equip-grid" id="equip-grid"></div>
+
+<div class="warn"><p style="margin:0"><b>No pricing table is shown.</b> This document carries no cost data and none has been invented to fill the slot. Datasheet values &mdash; depth, weight, airflow, PSU rating &mdash; are not attached to any card; they remain open items in &sect;5.</p></div>
+</section>
+
+<footer class="doc-footer">
+  Prepared by Sayed Haque &middot; 2026-08-10 &middot; Presentation edition &middot; revision 3.0 &mdash; presented in the CloudBats documentation shell 2026-08-13; the five-view tab structure is replaced by a sidebar index and a numbered spine, while the Layer&nbsp;3 figure, the official Cisco topology symbols, the R113 rack elevation, the document-control block and every engineering schedule are carried over unchanged from revision 2.8 &middot; full method and worked examples live in the archived working versions (v2.8 and earlier) &middot; Every element is a design assumption to validate, not a recorded fact: no configuration, measurement or as-built survey stands behind any value in this file &middot; Fictional training campus; all addressing is RFC&nbsp;1918 / RFC&nbsp;5737 documentation range, and facility, serial and personal identifiers are redacted throughout.
+</footer>
+
+
+    </div>
+  </main>
+</div>
+
+<script type="application/json" id="design-data">
+{
+  "meta": {
+    "doc_id": "NET-LAB-002",
+    "revision": "3.0",
+    "date": "2026-08-13",
+    "author": "Sayed Haque",
+    "classification": "SAMPLE / REFERENCE",
+    "status": "UNIFIED REFERENCE"
+  },
+  "sites": [
+    { "slug": "training-campus", "name": "Training Enterprise Campus", "facility": "MDF-1" }
+  ],
+  "racks": [
+    {
+      "id": "R113",
+      "site": "training-campus",
+      "location": "MDF-1",
+      "u_height": 42,
+      "desc_units": false,
+      "front_aisle": "cold",
+      "rear_aisle": "hot",
+      "width_mm": null,
+      "depth_mm": null,
+      "max_weight_kg": null,
+      "power_feeds": []
+    }
+  ],
+  "device_types": [
+    { "slug": "c9500x-28c8d", "manufacturer": "Cisco", "model": "Catalyst 9500X-28C8D", "u_height": 1, "airflow": null },
+    { "slug": "fpr4215-ngfw-k9", "manufacturer": "Cisco", "model": "FPR4215-NGFW-K9", "u_height": 1, "airflow": null },
+    { "slug": "c9300-48p", "manufacturer": "Cisco", "model": "Catalyst 9300-48P", "u_height": 1, "airflow": null },
+    { "slug": "poweredge-r750", "manufacturer": "Dell", "model": "PowerEdge R750", "u_height": 2, "airflow": null },
+    { "slug": "smt3000rmi2uc", "manufacturer": "APC", "model": "SMT3000RMI2UC", "u_height": 2, "airflow": null }
+  ],
+  "devices": [
+    { "name": "core-sw-01", "device_type": "c9500x-28c8d", "role": "collapsed-core", "rack": "R113", "position": 42, "face": "front", "primary_ip": "10.255.255.1/32" },
+    { "name": "core-sw-02", "device_type": "c9500x-28c8d", "role": "collapsed-core", "rack": "R113", "position": 41, "face": "front", "primary_ip": "10.255.255.2/32" },
+    { "name": "edge-fw-01", "device_type": "fpr4215-ngfw-k9", "role": "perimeter-firewall-active", "rack": "R113", "position": 39, "face": "front", "primary_ip": null },
+    { "name": "edge-fw-02", "device_type": "fpr4215-ngfw-k9", "role": "perimeter-firewall-standby", "rack": "R113", "position": 38, "face": "front", "primary_ip": null },
+    { "name": "access-sw-01", "device_type": "c9300-48p", "role": "user-access", "rack": "R113", "position": 35, "face": "front", "primary_ip": "10.10.99.11/24" },
+    { "name": "access-sw-02", "device_type": "c9300-48p", "role": "user-access", "rack": "R113", "position": 34, "face": "front", "primary_ip": "10.10.99.12/24" },
+    { "name": "hv-01", "device_type": "poweredge-r750", "role": "virtualization-host", "rack": "R113", "position": 30, "face": "front", "primary_ip": "10.50.50.21/24" },
+    { "name": "hv-02", "device_type": "poweredge-r750", "role": "virtualization-host", "rack": "R113", "position": 27, "face": "front", "primary_ip": "10.50.50.22/24" },
+    { "name": "ups-01", "device_type": "smt3000rmi2uc", "role": "rack-ups", "rack": "R113", "position": 2, "face": "front", "primary_ip": null }
+  ],
+  "logical_objects": [
+    { "id": "internet", "name": "Internet / ISP cloud", "kind": "abstract-network", "physical_disposition": "external" },
+    { "id": "edge-rtr-01", "name": "edge-rtr-01", "kind": "router", "physical_disposition": "TBD or outside R113" },
+    { "id": "edge-rtr-02", "name": "edge-rtr-02", "kind": "router", "physical_disposition": "TBD or outside R113" },
+    { "id": "edge-fw-01", "name": "edge-fw-01", "kind": "firewall", "physical_disposition": "R113 U39" },
+    { "id": "edge-fw-02", "name": "edge-fw-02", "kind": "firewall", "physical_disposition": "R113 U38" },
+    { "id": "core-sw-01", "name": "core-sw-01", "kind": "layer-3-switch", "physical_disposition": "R113 U42" },
+    { "id": "core-sw-02", "name": "core-sw-02", "kind": "layer-3-switch", "physical_disposition": "R113 U41" },
+    { "id": "access-sw-01", "name": "access-sw-01", "kind": "layer-2-switch", "physical_disposition": "R113 U35" },
+    { "id": "access-sw-02", "name": "access-sw-02", "kind": "layer-2-switch", "physical_disposition": "R113 U34" },
+    { "id": "services-sw-01", "name": "services-sw-01", "kind": "layer-2-switch", "physical_disposition": "TBD" },
+    { "id": "ap-01", "name": "ap-01", "kind": "wireless-ap", "physical_disposition": "out of rack" },
+    { "id": "users-a", "name": "User endpoints · A", "kind": "endpoint-group", "physical_disposition": "out of rack" },
+    { "id": "ap-02", "name": "ap-02", "kind": "wireless-ap", "physical_disposition": "out of rack" },
+    { "id": "hv-01", "name": "hv-01", "kind": "server", "physical_disposition": "R113 U30-U31" },
+    { "id": "hv-02", "name": "hv-02", "kind": "server", "physical_disposition": "R113 U27-U28" }
+  ],
+  "rack_units_non_device": [
+    { "rack": "R113", "position": 36, "u": 1, "state": "reserved", "name": "reserved patch field" },
+    { "rack": "R113", "position": 40, "u": 1, "state": "open" },
+    { "rack": "R113", "position": 37, "u": 1, "state": "open" },
+    { "rack": "R113", "position": 32, "u": 2, "state": "open" },
+    { "rack": "R113", "position": 29, "u": 1, "state": "open" },
+    { "rack": "R113", "position": 4, "u": 23, "state": "open" },
+    { "rack": "R113", "position": 1, "u": 1, "state": "open" }
+  ],
+  "links": [
+    { "id": "L01", "a": "Internet / ISP cloud", "b": "edge-rtr-01", "nature": "provider-dia", "speed": "10 GbE", "interfaces": null },
+    { "id": "L02", "a": "Internet / ISP cloud", "b": "edge-rtr-02", "nature": "provider-dia", "speed": "10 GbE", "interfaces": null },
+    { "id": "L03", "a": "edge-rtr-01", "b": "edge-fw-01", "nature": "routed-transit-primary", "speed": null, "interfaces": null },
+    { "id": "L04", "a": "edge-rtr-02", "b": "edge-fw-02", "nature": "routed-transit-primary", "speed": null, "interfaces": null },
+    { "id": "L05", "a": "edge-rtr-01", "b": "edge-fw-02", "nature": "routed-transit-backup", "speed": null, "interfaces": null },
+    { "id": "L06", "a": "edge-rtr-02", "b": "edge-fw-01", "nature": "routed-transit-backup", "speed": null, "interfaces": null },
+    { "id": "L07", "a": "edge-fw-01", "b": "edge-fw-02", "nature": "ha-state-config", "speed": null, "interfaces": null },
+    { "id": "L08", "a": "edge-fw-01", "b": "core-sw-01", "nature": "routed-inside-transit", "speed": "40 GbE", "interfaces": null },
+    { "id": "L09", "a": "edge-fw-01", "b": "core-sw-02", "nature": "routed-inside-transit", "speed": "40 GbE", "interfaces": null },
+    { "id": "L10", "a": "edge-fw-02", "b": "core-sw-02", "nature": "routed-inside-transit", "speed": "40 GbE", "interfaces": null },
+    { "id": "L11", "a": "edge-fw-02", "b": "core-sw-01", "nature": "routed-inside-transit", "speed": "40 GbE", "interfaces": null },
+    { "id": "L12-A", "a": "core-sw-01", "b": "core-sw-02", "nature": "peer-link-member", "speed": "100 GbE", "interfaces": null },
+    { "id": "L12-B", "a": "core-sw-01", "b": "core-sw-02", "nature": "peer-link-member", "speed": "100 GbE", "interfaces": null },
+    { "id": "L13-A", "a": "core-sw-01", "b": "access-sw-01", "nature": "aggregate-member", "speed": null, "interfaces": null },
+    { "id": "L13-B", "a": "core-sw-02", "b": "access-sw-01", "nature": "aggregate-member", "speed": null, "interfaces": null },
+    { "id": "L14-A", "a": "core-sw-01", "b": "access-sw-02", "nature": "aggregate-member", "speed": null, "interfaces": null },
+    { "id": "L14-B", "a": "core-sw-02", "b": "access-sw-02", "nature": "aggregate-member", "speed": null, "interfaces": null },
+    { "id": "L15-A", "a": "core-sw-01", "b": "services-sw-01", "nature": "aggregate-member", "speed": null, "interfaces": null },
+    { "id": "L15-B", "a": "core-sw-02", "b": "services-sw-01", "nature": "aggregate-member", "speed": null, "interfaces": null },
+    { "id": "L16", "a": "access-sw-01", "b": "ap-01", "nature": "access-attachment", "speed": null, "interfaces": null },
+    { "id": "L17", "a": "access-sw-01", "b": "users-a", "nature": "access-attachment", "speed": null, "interfaces": null },
+    { "id": "L18", "a": "access-sw-02", "b": "ap-02", "nature": "access-attachment", "speed": null, "interfaces": null },
+    { "id": "L19", "a": "services-sw-01", "b": "hv-01", "nature": "service-attachment", "speed": null, "interfaces": null },
+    { "id": "L20", "a": "services-sw-01", "b": "hv-02", "nature": "service-attachment", "speed": null, "interfaces": null }
+  ],
+  "prefixes": [
+    { "prefix": "10.10.10.0/24", "vlan": 10, "name": "USER-DATA", "gateway": null },
+    { "prefix": null, "vlan": 20, "name": "CORP-WLAN", "gateway": null },
+    { "prefix": null, "vlan": 30, "name": "VOICE", "gateway": null },
+    { "prefix": null, "vlan": 40, "name": "GUEST-WLAN", "gateway": null },
+    { "prefix": "10.50.50.0/24", "vlan": 50, "name": "COMPUTE", "gateway": null },
+    { "prefix": null, "vlan": 51, "name": "SERVICES", "gateway": null }
+  ],
+  "validation": {
+    "rack_total_u": 42,
+    "installed_u": 12,
+    "reserved_u": 1,
+    "open_u": 29,
+    "overlaps": 0,
+    "external_resources_required": false,
+    "power_calculation": "not run",
+    "print_review": "not run"
+  }
+}
+</script>
+<script>
+
+  /* Official rack artwork lives outside this file. Editable mode resolves to
+     null so a face draws as a generic chassis, exactly as the other starters
+     do; the identifiers are what the packager scans for and embeds. */
+  const rackAssetIds = {
+    c9500:   { front: 'asset:rack/cisco-c9500x-28c8d.front.png', rear: 'asset:rack/cisco-c9500x-28c8d.rear.png' },
+    c9300:   { front: 'asset:rack/cisco-c9300-48p.front.png',    rear: 'asset:rack/cisco-c9300-48p.rear.png' },
+    fpr4215: { front: 'asset:rack/cisco-fpr4215-ngfw-k9.front.png', rear: 'asset:rack/cisco-fpr4215-ngfw-k9.rear.png' },
+    r750:    { front: 'asset:rack/dell-poweredge-r750.front.png', rear: 'asset:rack/dell-poweredge-r750.rear.png' },
+    ups:     { front: 'asset:rack/apc-smt3000rmi2uc.front.png',  rear: 'asset:rack/apc-smt3000rmi2uc.rear.png' }
+  };
+  const rackAssets = new Proxy({}, {
+    get: function (t, key) { return rackAssetIds[key] ? { front: null, rear: null } : undefined; },
+    has: function (t, key) { return key in rackAssetIds; }
+  });;
+
+  const rackDevices = [
+    { id: 'core-sw-01', model: 'Cisco Catalyst 9500X-28C8D', role: 'Collapsed core', u: 42, span: 1, asset: 'c9500' },
+    { id: 'core-sw-02', model: 'Cisco Catalyst 9500X-28C8D', role: 'Collapsed core', u: 41, span: 1, asset: 'c9500' },
+    { id: 'edge-fw-01', model: 'Cisco FPR4215-NGFW-K9', role: 'Perimeter firewall · active', u: 39, span: 1, asset: 'fpr4215' },
+    { id: 'edge-fw-02', model: 'Cisco FPR4215-NGFW-K9', role: 'Perimeter firewall · standby', u: 38, span: 1, asset: 'fpr4215' },
+    { id: 'access-sw-01', model: 'Cisco Catalyst 9300-48P', role: 'User access', u: 35, span: 1, asset: 'c9300' },
+    { id: 'access-sw-02', model: 'Cisco Catalyst 9300-48P', role: 'User access', u: 34, span: 1, asset: 'c9300' },
+    { id: 'hv-01', model: 'Dell PowerEdge R750', role: 'Virtualization host', u: 30, span: 2, asset: 'r750' },
+    { id: 'hv-02', model: 'Dell PowerEdge R750', role: 'Virtualization host', u: 27, span: 2, asset: 'r750' },
+    { id: 'ups-01', model: 'APC SMT3000RMI2UC', role: 'Rack UPS', u: 2, span: 2, asset: 'ups' }
+  ];
+
+  const rackOpenSlots = [
+    { u: 40, span: 1 },
+    { u: 37, span: 1 },
+    { u: 32, span: 2 },
+    { u: 29, span: 1 },
+    { u: 4, span: 23 },
+    { u: 1, span: 1 }
+  ];
+
+  const rootStyle = document.documentElement.style;
+
+  function buildRulers(wrap) {
+    wrap.querySelectorAll('.ruler').forEach(ruler => {
+      ruler.replaceChildren();
+      for (let u = 42; u >= 1; u--) {
+        const mark = document.createElement('span');
+        mark.className = 'u-mark';
+        mark.style.top = `calc((42 - ${u}) * var(--u))`;
+        mark.textContent = `U${u}`;
+        ruler.appendChild(mark);
+      }
+    });
+  }
+
+  function buildRack(view) {
+    const bay = document.getElementById(`rack-${view}`);
+    const wrap = document.getElementById(`rack-${view}-wrap`);
+    bay.replaceChildren();
+    buildRulers(wrap);
+
+    rackOpenSlots.forEach(slot => {
+      const open = document.createElement('div');
+      open.className = 'open-slot';
+      open.style.bottom = `calc((${slot.u} - 1) * var(--u))`;
+      open.style.height = `calc(${slot.span} * var(--u))`;
+      const range = slot.span === 1 ? `U${slot.u}` : `U${slot.u}–U${slot.u + slot.span - 1}`;
+      open.textContent = slot.span > 1 ? `${range} · OPEN` : 'OPEN';
+      open.setAttribute('aria-hidden', 'true');
+      bay.appendChild(open);
+    });
+
+    const reserved = document.createElement('div');
+    reserved.className = 'reserved-slot';
+    reserved.style.bottom = 'calc((36 - 1) * var(--u))';
+    reserved.style.height = 'calc(1 * var(--u))';
+    reserved.textContent = 'U36 · reserved patch field';
+    bay.appendChild(reserved);
+
+    rackDevices.forEach(device => {
+      const face = document.createElement('div');
+      face.className = 'device-face';
+      face.tabIndex = 0;
+      face.dataset.device = device.id;
+      face.setAttribute('role', 'button');
+      face.setAttribute('aria-pressed', 'false');
+      face.style.bottom = `calc((${device.u} - 1) * var(--u))`;
+      face.style.height = `calc(${device.span} * var(--u))`;
+      face.setAttribute('aria-label', `${device.id}, ${device.model}, ${device.role}, ${device.span === 1 ? `U${device.u}` : `U${device.u} through U${device.u + device.span - 1}`}, ${view} view`);
+
+      const faceSrc = rackAssets[device.asset][view];
+      if (faceSrc) {
+        const img = document.createElement('img');
+        img.src = faceSrc;
+        img.alt = '';
+        img.draggable = false;
+        face.appendChild(img);
+      }
+
+      const show = () => showRackLabel(wrap, face, device, view);
+      face.addEventListener('mouseenter', show);
+      face.addEventListener('focus', show);
+      face.addEventListener('click', () => {
+        document.querySelectorAll('.device-face.selected').forEach(n => {
+          n.classList.remove('selected');
+          n.setAttribute('aria-pressed', 'false');
+        });
+        face.classList.add('selected');
+        face.setAttribute('aria-pressed', 'true');
+        show();
+      });
+      face.addEventListener('keydown', event => {
+        if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); face.click(); }
+      });
+      face.addEventListener('mouseleave', () => wrap.querySelector('.rack-label').classList.remove('visible'));
+      face.addEventListener('blur', () => wrap.querySelector('.rack-label').classList.remove('visible'));
+      bay.appendChild(face);
+    });
+  }
+
+  function showRackLabel(wrap, face, device, view) {
+    const label = wrap.querySelector('.rack-label');
+    const bay = face.closest('.rack-bay');
+    const range = device.span === 1 ? `U${device.u}` : `U${device.u}–U${device.u + device.span - 1}`;
+    label.innerHTML = `<strong>${device.id} · ${range}</strong>${device.model}<br>${device.role} · ${view} view`;
+    const top = Math.max(18, bay.offsetTop + face.offsetTop + Math.min(16, face.offsetHeight / 2));
+    label.style.top = `${top}px`;
+    label.style.left = view === 'front' ? 'calc(50px + var(--rack-bay) + 10px)' : '0';
+    label.classList.add('visible');
+  }
+
+  buildRack('front');
+  buildRack('rear');
+
+  const logicalLabel = document.getElementById('logical-label');
+  const logicalScroll = document.getElementById('logical-scroll');
+  let activeLogicalNode = null;
+
+  function populateLogicalLabel(node) {
+    const name = document.createElement('strong');
+    name.textContent = node.dataset.name;
+
+    const role = document.createElement('span');
+    role.textContent = node.dataset.role;
+
+    const address = document.createElement('code');
+    address.textContent = node.dataset.address;
+
+    const notes = document.createElement('span');
+    notes.className = 'logical-notes';
+    notes.textContent = node.dataset.notes;
+
+    logicalLabel.replaceChildren(name, role, address, notes);
+  }
+
+  function positionLogicalLabel(node) {
+    if (!node || !node.isConnected || !node.getClientRects().length) return;
+
+    const nodeRect = node.getBoundingClientRect();
+    const scrollRect = logicalScroll.getBoundingClientRect();
+    const visible = nodeRect.right > scrollRect.left && nodeRect.left < scrollRect.right &&
+      nodeRect.bottom > scrollRect.top && nodeRect.top < scrollRect.bottom;
+
+    if (!visible) {
+      logicalLabel.classList.remove('visible');
+      logicalLabel.setAttribute('aria-hidden', 'true');
+      return;
+    }
+
+    logicalLabel.classList.add('visible');
+    logicalLabel.setAttribute('aria-hidden', 'false');
+    const labelRect = logicalLabel.getBoundingClientRect();
+    const gap = 12;
+    const edge = 12;
+
+    let left = nodeRect.right + gap;
+    if (left + labelRect.width > window.innerWidth - edge) left = nodeRect.left - labelRect.width - gap;
+    left = Math.max(edge, Math.min(left, window.innerWidth - labelRect.width - edge));
+
+    let top = nodeRect.top + (nodeRect.height - labelRect.height) / 2;
+    top = Math.max(edge, Math.min(top, window.innerHeight - labelRect.height - edge));
+
+    logicalLabel.style.left = `${Math.round(left)}px`;
+    logicalLabel.style.top = `${Math.round(top)}px`;
+  }
+
+  function showLogicalLabel(node) {
+    activeLogicalNode = node;
+    populateLogicalLabel(node);
+    node.setAttribute('aria-describedby', 'logical-label');
+    positionLogicalLabel(node);
+  }
+
+  function hideLogicalLabel(node = activeLogicalNode) {
+    if (node) node.removeAttribute('aria-describedby');
+    logicalLabel.classList.remove('visible');
+    logicalLabel.setAttribute('aria-hidden', 'true');
+    activeLogicalNode = null;
+  }
+
+  function refreshLogicalLabel() {
+    if (activeLogicalNode) positionLogicalLabel(activeLogicalNode);
+  }
+
+  
+
+  document.querySelectorAll('[data-legend-device]').forEach(icon => {
+    const source = document.querySelector(`#logical-svg .logical-node[data-device="${icon.dataset.legendDevice}"] image`);
+    const href = source?.getAttribute('href') || source?.getAttributeNS('http://www.w3.org/1999/xlink', 'href');
+    if (!href) return;
+    const image = document.createElementNS('http://www.w3.org/2000/svg', 'image');
+    image.setAttribute('href', href);
+    image.setAttribute('x', '4');
+    image.setAttribute('y', '4');
+    image.setAttribute('width', '56');
+    image.setAttribute('height', '56');
+    image.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+    icon.replaceChildren(image);
+  });
+
+  const inspector = document.getElementById('inspector');
+  document.querySelectorAll('.logical-node').forEach(node => {
+    node.setAttribute('role', 'button');
+    node.setAttribute('aria-pressed', 'false');
+    node.setAttribute('aria-label', `${node.dataset.name}. ${node.dataset.role}. ${node.dataset.address}`);
+    const select = () => {
+      document.querySelectorAll('.logical-node.selected').forEach(n => {
+        n.classList.remove('selected');
+        n.setAttribute('aria-pressed', 'false');
+      });
+      node.classList.add('selected');
+      node.setAttribute('aria-pressed', 'true');
+      inspector.innerHTML = `
+        <h3>${node.dataset.name}</h3>
+        <span class="label">Role</span><span>${node.dataset.role}</span>
+        <span class="label">Address / context</span><span>${node.dataset.address}</span>
+        <span class="label">Documentation note</span><span>${node.dataset.notes}</span>`;
+    };
+    node.addEventListener('mouseenter', () => showLogicalLabel(node));
+    node.addEventListener('mouseleave', () => {
+      if (document.activeElement !== node) hideLogicalLabel(node);
+    });
+    node.addEventListener('focus', () => showLogicalLabel(node));
+    node.addEventListener('blur', () => hideLogicalLabel(node));
+    node.addEventListener('click', select);
+    node.addEventListener('keydown', event => {
+      if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); select(); }
+    });
+  });
+
+  logicalScroll.addEventListener('scroll', refreshLogicalLabel, { passive: true });
+  window.addEventListener('scroll', refreshLogicalLabel, { passive: true, capture: true });
+  window.addEventListener('resize', refreshLogicalLabel, { passive: true });
+
+  const rackCompactButton = document.getElementById('rack-compact');
+  const rackFullButton = document.getElementById('rack-full');
+  const rackScaleStatus = document.getElementById('rack-scale-status');
+  function setRackScale(mode) {
+    const compact = mode === 'compact';
+    rootStyle.setProperty('--u', compact ? '24px' : '36px');
+    rootStyle.setProperty('--rack-bay', compact ? '260px' : '390px');
+    rackCompactButton.setAttribute('aria-pressed', String(compact));
+    rackFullButton.setAttribute('aria-pressed', String(!compact));
+    rackScaleStatus.textContent = compact ? 'Compact' : 'Full';
+  }
+  rackCompactButton.addEventListener('click', () => setRackScale('compact'));
+  rackFullButton.addEventListener('click', () => setRackScale('full'));
+
+  function runIntegrityPreflight() {
+    const status = document.getElementById('integrity-status');
+    const failures = [];
+    let designData;
+    try { designData = JSON.parse(document.getElementById('design-data').textContent); }
+    catch (error) { failures.push(`design-data JSON: ${error.message}`); }
+
+    const revision = document.querySelector('meta[name="revision"]')?.content;
+    if (!revision) failures.push('revision metadata missing');
+    if (!document.title.includes(`v${revision}`)) failures.push('document title revision mismatch');
+    if (designData?.meta?.revision !== revision) failures.push('design-data revision mismatch');
+    if (!document.querySelector('footer')?.textContent.includes(`revision ${revision}`)) failures.push('footer revision mismatch');
+
+    const allIds = Array.from(document.querySelectorAll('[id]'), element => element.id);
+    const duplicateIds = allIds.filter((id, index) => allIds.indexOf(id) !== index);
+    if (duplicateIds.length) failures.push(`duplicate IDs: ${Array.from(new Set(duplicateIds)).join(', ')}`);
+
+    const nodeIds = Array.from(document.querySelectorAll('.logical-node'), node => node.dataset.device).sort();
+    const dataNodeIds = (designData?.logical_objects || []).map(node => node.id).sort();
+    if (JSON.stringify(nodeIds) !== JSON.stringify(dataNodeIds)) failures.push('logical node ↔ design-data mismatch');
+
+    const figureLinkIds = Array.from(document.querySelectorAll('#logical-svg path[id]'), path => path.id).sort();
+    const dataLinkIds = (designData?.links || []).map(link => link.id).sort();
+    if (JSON.stringify(figureLinkIds) !== JSON.stringify(dataLinkIds)) failures.push('figure link ↔ design-data mismatch');
+
+    const units = Array(43).fill(null);
+    const claimUnits = (position, span, label) => {
+      for (let unit = position; unit < position + span; unit++) {
+        if (unit < 1 || unit > 42) failures.push(`${label} extends outside R113`);
+        else if (units[unit]) failures.push(`R113 U${unit} overlap: ${units[unit]} / ${label}`);
+        else units[unit] = label;
+      }
+    };
+    rackDevices.forEach(device => claimUnits(device.u, device.span, device.id));
+    rackOpenSlots.forEach(slot => claimUnits(slot.u, slot.span, 'open'));
+    claimUnits(36, 1, 'reserved patch field');
+    if (units.slice(1).some(unit => !unit)) failures.push('one or more R113 units are unaccounted');
+
+    const runtimeDependencies = document.querySelectorAll('script[src], link[rel="stylesheet"], img[src^="http"], image[href^="http"]');
+    if (runtimeDependencies.length) failures.push(`${runtimeDependencies.length} external runtime dependencies`);
+
+    const result = {
+      pass: failures.length === 0,
+      failures,
+      logicalNodes: nodeIds.length,
+      figureLinks: figureLinkIds.length,
+      rackUnitsAccounted: units.slice(1).filter(Boolean).length,
+      externalRuntimeDependencies: runtimeDependencies.length
+    };
+    window.networkDesignQA = result;
+    status.classList.add(result.pass ? 'pass' : 'fail');
+    status.textContent = result.pass
+      ? `Embedded integrity checks passed · ${result.logicalNodes} nodes · ${result.figureLinks} links · ${result.rackUnitsAccounted}U accounted · no external runtime dependencies.`
+      : `Embedded integrity checks failed · ${failures.join(' · ')}`;
+    return result;
+  }
+  runIntegrityPreflight();
+
+  /* ===================================================================
+     CloudBats shell behaviour, appended inside the same IIFE as the
+     v2.8 rack builder, logical inspector and integrity preflight.
+     Nothing above this line was rewritten except the retired tab router.
+     =================================================================== */
+
+  var _body = document.body;
+  var gapButton = document.getElementById('gapToggle');
+  var exhibitButton = document.getElementById('equipToggle');
+  var gapLink = document.getElementById('gapLink');
+  var exhibitLink = document.getElementById('equipmentExhibitLink');
+
+  function setGapVisibility(on){
+    _body.classList.toggle('show-gaps', on);
+    gapButton.setAttribute('aria-pressed', on ? 'true' : 'false');
+    gapButton.title = on ? 'Hide open items and risks' : 'Show open items and risks';
+  }
+  function setExhibitVisibility(on){
+    _body.classList.toggle('show-equip', on);
+    exhibitButton.setAttribute('aria-pressed', on ? 'true' : 'false');
+    exhibitButton.title = on ? 'Hide equipment exhibit' : 'Show equipment exhibit';
+  }
+
+  /* ---- Appendix A built from the rack faces already embedded for Fig. 2,
+          so the exhibit costs no additional bytes ---- */
+  function buildEquipmentExhibit(){
+    var host = document.getElementById('equip-grid');
+    if(!host) return;
+    var seen = {};
+    rackDevices.forEach(function(d){
+      if(seen[d.asset]) { seen[d.asset].count++; return; }
+      seen[d.asset] = { device:d, count:1 };
+    });
+    Object.keys(seen).forEach(function(key){
+      var e = seen[key], d = e.device, art = rackAssets[key];
+      var card = document.createElement('div');
+      card.className = 'equip-card';
+      var faces = document.createElement('div');
+      faces.className = 'equip-faces';
+      [['front','Front'],['rear','Rear']].forEach(function(pair){
+        if(!art || !art[pair[0]]) return;
+        var fig = document.createElement('figure');
+        var img = document.createElement('img');
+        if (!art[pair[0]]) { return; }
+        img.src = art[pair[0]];
+        img.alt = d.model + ', ' + pair[1].toLowerCase() + ' face';
+        img.draggable = false;
+        var cap = document.createElement('figcaption');
+        cap.textContent = pair[1];
+        fig.appendChild(img); fig.appendChild(cap);
+        faces.appendChild(fig);
+      });
+      var bodyEl = document.createElement('div');
+      bodyEl.className = 'equip-body';
+      var h3 = document.createElement('h3'); h3.textContent = d.model;
+      var u = document.createElement('span'); u.className = 'u-badge';
+      u.textContent = d.span + 'U · ×' + e.count;
+      var why = document.createElement('div'); why.className = 'why'; why.textContent = d.role + '.';
+      var src = document.createElement('div'); src.className = 'source';
+      src.textContent = 'Orthographic face as installed in R113 · rack position declared, datasheet values not attached';
+      bodyEl.appendChild(h3); bodyEl.appendChild(u); bodyEl.appendChild(why); bodyEl.appendChild(src);
+      card.appendChild(faces); card.appendChild(bodyEl);
+      host.appendChild(card);
+    });
+  }
+
+  /* ---- legacy deep links from the retired five-view build ---- */
+  var ALIAS = {
+    'summary':'overview','logical-panel':'logical-topology','rack-panel':'physical-view',
+    'adjacency':'logical-topology','addressing':'identity-addressing','rackdev':'physical-view',
+    'power':'operations-observability','patch':'validation-plan','risks':'open-items',
+    'qa':'change-management','sources-panel':'standards-sources','revisions':'change-management',
+    'logical':'logical-topology','rack':'physical-view','engineering':'identity-addressing',
+    'sources':'standards-sources','overview':'overview'
+  };
+
+  function revealHashTarget(){
+    var raw;
+    try { raw = decodeURIComponent(window.location.hash.slice(1)); }
+    catch (e) { raw = window.location.hash.slice(1); }
+    if(!raw) return;
+    var id = ALIAS[raw] || raw;
+    var target = document.getElementById(id);
+    if(!target) return;
+    if(id === 'open-items') setGapVisibility(true);
+    if(id === 'equipment-exhibit') setExhibitVisibility(true);
+    window.requestAnimationFrame(function(){
+      window.requestAnimationFrame(function(){ target.scrollIntoView(); });
+    });
+  }
+
+  /* ---- scroll-spy over the numbered spine ---- */
+  function initScrollSpy(){
+    var sections = [].slice.call(document.querySelectorAll('main .content section[id]'));
+    var links = {};
+    [].slice.call(document.querySelectorAll('.toc a[href^="#"]')).forEach(function(a){
+      links[a.getAttribute('href').slice(1)] = a;
+    });
+    if(!sections.length || !('IntersectionObserver' in window)) return;
+    var visible = {};
+    function paint(){
+      var current = null, i;
+      for(i = 0; i < sections.length; i++){ if(visible[sections[i].id]){ current = sections[i].id; break; } }
+      if(!current && (window.innerHeight + window.pageYOffset) >= (document.body.scrollHeight - 4)){
+        current = sections[sections.length - 1].id;
+      }
+      for(var k in links){ if(links[k]) links[k].removeAttribute('aria-current'); }
+      if(current && links[current]) links[current].setAttribute('aria-current','true');
+    }
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){ visible[e.target.id] = e.isIntersecting; });
+      paint();
+    }, { rootMargin: '-15% 0px -70% 0px', threshold: 0 });
+    sections.forEach(function(s){ io.observe(s); });
+    window.addEventListener('scroll', paint, { passive: true });
+    paint();
+  }
+
+  gapButton.addEventListener('click', function(){ setGapVisibility(!_body.classList.contains('show-gaps')); });
+  exhibitButton.addEventListener('click', function(){ setExhibitVisibility(!_body.classList.contains('show-equip')); });
+  gapLink.addEventListener('click', function(){ setGapVisibility(true); });
+  exhibitLink.addEventListener('click', function(){ setExhibitVisibility(true); });
+  window.addEventListener('hashchange', revealHashTarget);
+
+  buildEquipmentExhibit();
+  setGapVisibility(_body.classList.contains('show-gaps'));
+  setExhibitVisibility(_body.classList.contains('show-equip'));
+  initScrollSpy();
+  revealHashTarget();
+
+</script>
+<style>
+  /* The sprite carries no fill attributes; every colour comes from these
+     classes. Insert the symbols without this rule and all nineteen render as
+     solid black. Values match templates/network-design-template.edit.html. */
+  #network-vector-symbols{position:absolute;width:0;height:0;overflow:hidden;pointer-events:none}
+  .sym-primary{fill:var(--symbol-main,#007fa8)}
+  .sym-dark{fill:var(--symbol-dark,#006687)}
+  .sym-light{fill:var(--symbol-light,#51bde6)}
+  .sym-detail{fill:var(--symbol-detail,#fff)}
+  .sym-outline{fill:#fff;stroke:var(--symbol-main,#007fa8);stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+  .sym-detail-stroke{fill:none;stroke:var(--symbol-detail,#fff);stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+  .gap-mark{pointer-events:none}
+  .gap-dot{fill:#b42318;stroke:#fff;stroke-width:2}
+  .gap-num{fill:#fff;font-size:13px;font-weight:700;text-anchor:middle;font-family:system-ui,sans-serif}
+  .gap-zone{fill:none;stroke:#b42318;stroke-width:2;stroke-dasharray:7 5;opacity:.75}
+</style>
+<svg id="network-vector-symbols" width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute">
+<defs id="vector-symbol-library">
+            <filter id="card-shadow" x="-25%" y="-25%" width="150%" height="165%">
+              <feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#26485c" flood-opacity=".12"/>
+            </filter>
+
+            <!--
+              Shared switch-top glyph: four parallel arrows, alternating two
+              right and two left, as shown by the Cisco workgroup-switch and
+              WLAN-controller references. The rows are staggered to follow the
+              isometric top plane without crossing or touching.
+            -->
+            <g id="nd-switch-arrow-glyph" class="sym-detail">
+              <path data-direction="right" d="M63 14h28v-2.8l10 3.8-10 3.8V16H63Z"/>
+              <path data-direction="left" d="M75 18.8H45V16l-10 3.8 10 3.8v-2.8h30Z"/>
+              <path data-direction="right" d="M49 23.3h30v-2.8l10 3.8-10 3.8v-2.8H49Z"/>
+              <path data-direction="left" d="M61 27.5H32v-2.8l-10 3.8 10 3.8v-2.8h29Z"/>
+            </g>
+
+            <!-- Seven symbols carried forward from experiment 01. -->
+            <symbol id="nd-cloud" viewBox="0 0 150 88">
+              <title>Network cloud</title>
+              <path class="sym-outline" stroke-width="2.4" d="M26 72C14 72 6 64 6 54c0-9 6-17 16-20 3-13 15-22 30-22 8 0 15 2 21 7 6-5 14-7 23-7 15 0 27 8 30 20 10 2 17 10 17 20 0 11-9 20-22 20H26Z"/>
+            </symbol>
+
+            <symbol id="nd-firewall" viewBox="0 0 86 108">
+              <title>Firewall</title>
+              <polygon class="sym-light" points="15,22 29,10 74,10 60,22"/>
+              <polygon class="sym-dark" points="60,22 74,10 74,82 60,94"/>
+              <rect class="sym-primary" x="15" y="22" width="45" height="72"/>
+              <g class="sym-detail-stroke" stroke-width="2">
+                <path d="M15 40H60M15 58H60M15 76H60"/>
+                <path d="M29 22V40M47 22V40M23 40V58M41 40V58M29 58V76M47 58V76M23 76V94M41 76V94"/>
+                <path d="M60 40 74 28M60 58 74 46M60 76 74 64"/>
+              </g>
+            </symbol>
+
+            <symbol id="nd-router" viewBox="0 0 120 88">
+              <title>Router</title>
+              <path class="sym-dark" d="M12 36v22c0 12 21 21 48 21s48-9 48-21V36c-8 9-26 15-48 15S20 45 12 36Z"/>
+              <ellipse class="sym-primary" cx="60" cy="35" rx="48" ry="20"/>
+              <path class="sym-light" d="M18 30c7-8 23-13 42-13 21 0 38 6 44 15-10-6-25-9-42-9-19 0-35 3-44 7Z" opacity=".75"/>
+              <g class="sym-detail"><path d="M60 18 70 27h-7v10h-7V27h-7Z"/><path d="m60 52-10-9h7V33h7v10h7Z"/><path d="m32 35 10-9v6h13v6H42v6Z"/><path d="m88 35-10 9v-6H65v-6h13v-6Z"/></g>
+            </symbol>
+
+            <symbol id="nd-l3-switch" viewBox="0 0 106 106">
+              <title>Layer 3 switch</title>
+              <polygon class="sym-light" points="14,26 28,14 91,14 77,26"/>
+              <polygon class="sym-dark" points="77,26 91,14 91,78 77,92"/>
+              <rect class="sym-primary" x="14" y="26" width="63" height="66"/>
+              <circle class="sym-detail" cx="45.5" cy="59" r="9"/>
+              <g class="sym-detail" transform="translate(45.5 59)">
+                <path id="l3-arrow" d="M-3-12v-13h-5l8-9 8 9H3v13Z"/>
+                <use href="#l3-arrow" transform="rotate(45)"/><use href="#l3-arrow" transform="rotate(90)"/><use href="#l3-arrow" transform="rotate(135)"/><use href="#l3-arrow" transform="rotate(180)"/><use href="#l3-arrow" transform="rotate(225)"/><use href="#l3-arrow" transform="rotate(270)"/><use href="#l3-arrow" transform="rotate(315)"/>
+              </g>
+            </symbol>
+
+            <symbol id="nd-server" viewBox="0 0 92 108">
+              <title>Server</title>
+              <polygon class="sym-light" points="14,20 27,9 75,9 62,20"/>
+              <polygon class="sym-dark" points="62,20 75,9 75,88 62,99"/>
+              <rect class="sym-primary" x="14" y="20" width="48" height="79"/>
+              <g class="sym-detail-stroke" stroke-width="2"><rect x="20" y="29" width="14" height="12" rx="1"/><rect x="41" y="29" width="14" height="12" rx="1"/><rect x="20" y="50" width="14" height="14" rx="1"/><rect x="41" y="50" width="14" height="14" rx="1"/><rect x="20" y="73" width="14" height="17" rx="1"/><rect x="41" y="73" width="14" height="17" rx="1"/></g>
+            </symbol>
+
+            <symbol id="nd-access-point" viewBox="0 0 120 76">
+              <title>Wireless access point</title>
+              <polygon class="sym-light" points="12,28 30,13 108,13 90,28"/><polygon class="sym-dark" points="90,28 108,13 108,51 90,66"/><polygon class="sym-primary" points="12,28 90,28 90,66 12,66"/>
+              <g class="sym-detail-stroke" stroke-width="2.6"><circle cx="27" cy="47" r="7"/><circle cx="42" cy="47" r="7"/><circle cx="57" cy="47" r="7"/><circle cx="72" cy="47" r="7"/></g><circle class="sym-detail" cx="82" cy="47" r="2.6"/>
+            </symbol>
+
+            <symbol id="nd-workstation" viewBox="0 0 126 104">
+              <title>Workstation</title>
+              <polygon class="sym-dark" points="25,12 92,12 84,62 18,62"/><polygon class="sym-primary" points="29,16 88,16 81,57 22,57"/><polygon class="sym-light" points="33,20 83,20 78,52 27,52" opacity=".38"/>
+              <path class="sym-primary" d="M45 62h15l3 10h16l7 7H31l8-7h8Z"/><polygon class="sym-dark" points="24,80 89,80 105,94 9,94"/><polygon class="sym-light" points="28,83 86,83 96,91 18,91"/><path class="sym-primary" d="M104 78c10 0 15 5 15 10s-4 9-10 9c-5 0-8-3-8-7 0-3 2-6 6-7-3-1-6-1-9 0l-2-3c3-1 5-2 8-2Z"/>
+            </symbol>
+
+            <!-- Twelve new clean-vector interpretations for experiment 02. -->
+            <symbol id="nd-access-switch" viewBox="0 0 120 72">
+              <title>Access switch</title>
+              <polygon class="sym-light" points="10,33 34,11 110,11 86,33"/><polygon class="sym-dark" points="86,33 110,11 110,37 86,59"/><polygon class="sym-primary" points="10,33 86,33 86,59 10,59"/>
+              <use href="#nd-switch-arrow-glyph"/>
+            </symbol>
+
+            <symbol id="nd-wlan-controller" viewBox="0 0 120 76">
+              <title>Wireless LAN controller</title>
+              <polygon class="sym-light" points="10,33 34,11 110,11 86,33"/><polygon class="sym-dark" points="86,33 110,11 110,43 86,65"/><polygon class="sym-primary" points="10,33 86,33 86,65 10,65"/>
+              <use href="#nd-switch-arrow-glyph"/>
+              <g class="sym-detail-stroke" stroke-width="2.2"><circle cx="21" cy="49" r="6.5"/><circle cx="34.5" cy="49" r="6.5"/><circle cx="48" cy="49" r="6.5"/><circle cx="61.5" cy="49" r="6.5"/><circle cx="75" cy="49" r="6.5"/></g>
+            </symbol>
+
+            <symbol id="nd-vpn-headend" viewBox="0 0 100 106">
+              <title>VPN headend</title>
+              <polygon class="sym-light" points="14,20 27,9 82,9 69,20"/><polygon class="sym-dark" points="69,20 82,9 82,91 69,102"/><rect class="sym-primary" x="14" y="20" width="55" height="82" rx="2"/>
+              <g class="sym-detail-stroke" stroke-width="2"><rect x="20" y="31" width="42" height="22" rx="2"/><rect x="20" y="65" width="42" height="22" rx="2"/></g>
+              <g class="sym-detail"><path d="M26 38h22v-5l10 9-10 9v-5H26Z"/><path d="M56 72H34v-5l-10 9 10 9v-5h22Z"/></g>
+              <g class="sym-detail-stroke" stroke-width="1.8"><ellipse cx="75.5" cy="43" rx="3" ry="7"/><ellipse cx="75.5" cy="77" rx="3" ry="7"/></g>
+            </symbol>
+
+            <symbol id="nd-dc-switch" viewBox="0 0 104 104">
+              <title>Data-center server-access switch</title>
+              <polygon class="sym-light" points="13,26 28,12 91,12 76,26"/><polygon class="sym-dark" points="76,26 91,12 91,77 76,91"/><rect class="sym-primary" x="13" y="26" width="63" height="65"/>
+              <g class="sym-detail-stroke" stroke-width="1.8"><path d="M28 42H61M28 58H61M28 74H61M28 42V74M44.5 42V74M61 42V74"/></g>
+              <g class="sym-detail"><circle cx="28" cy="42" r="4"/><circle cx="44.5" cy="42" r="4"/><circle cx="61" cy="42" r="4"/><circle cx="28" cy="58" r="4"/><circle cx="44.5" cy="58" r="4"/><circle cx="61" cy="58" r="4"/><circle cx="28" cy="74" r="4"/><circle cx="44.5" cy="74" r="4"/><circle cx="61" cy="74" r="4"/></g>
+            </symbol>
+
+            <symbol id="nd-ip-phone" viewBox="0 0 126 88">
+              <title>IP phone</title>
+              <polygon class="sym-primary" points="21,38 101,38 116,70 8,70"/><polygon class="sym-light" points="31,25 92,25 101,38 21,38"/><polygon class="sym-dark" points="101,38 116,70 106,80 99,53"/>
+              <polygon class="sym-detail" points="66,42 94,42 99,53 69,53"/><polygon class="sym-light" points="69,44 91,44 94,50 71,50"/>
+              <g class="sym-detail"><circle cx="45" cy="49" r="2.2"/><circle cx="52" cy="49" r="2.2"/><circle cx="59" cy="49" r="2.2"/><circle cx="45" cy="56" r="2.2"/><circle cx="52" cy="56" r="2.2"/><circle cx="59" cy="56" r="2.2"/><circle cx="45" cy="63" r="2.2"/><circle cx="52" cy="63" r="2.2"/><circle cx="59" cy="63" r="2.2"/></g>
+              <path class="sym-primary" d="M20 19c6-7 14-11 23-11l11 8-10 14-10-5c-3 4-5 8-6 13l-13-2c0-7 2-12 5-17Z"/><path class="sym-detail-stroke" stroke-width="2" d="m22 22 12 5M39 12l8 8"/>
+            </symbol>
+
+            <symbol id="nd-laptop" viewBox="0 0 126 96">
+              <title>Laptop</title>
+              <polygon class="sym-dark" points="31,10 104,10 91,62 19,62"/><polygon class="sym-primary" points="34,14 99,14 88,57 24,57"/><polygon class="sym-light" points="39,19 94,19 85,52 30,52" opacity=".4"/>
+              <polygon class="sym-primary" points="19,63 91,63 117,87 5,87"/><polygon class="sym-light" points="24,66 87,66 105,82 13,82"/>
+              <g class="sym-detail-stroke" stroke-width="1.2" opacity=".9"><path d="M31 69h53M25 73h66M19 77h80"/></g>
+            </symbol>
+
+            <symbol id="nd-printer" viewBox="0 0 126 82">
+              <title>Printer</title>
+              <polygon class="sym-light" points="12,24 28,10 96,10 80,24"/><polygon class="sym-dark" points="80,24 96,10 96,61 80,75"/><rect class="sym-primary" x="12" y="24" width="68" height="51"/>
+              <path class="sym-detail-stroke" stroke-width="2" d="M18 48H74"/><polygon class="sym-primary" points="96,43 120,35 111,49 96,56"/><polygon class="sym-light" points="98,42 116,36 108,43 98,48"/>
+            </symbol>
+
+            <symbol id="nd-database" viewBox="0 0 110 90">
+              <title>Relational database</title>
+              <path class="sym-dark" d="M13 30v33c0 12 19 21 42 21s42-9 42-21V30c-8 9-23 14-42 14S21 39 13 30Z"/><rect class="sym-primary" x="13" y="27" width="84" height="36"/><ellipse class="sym-primary" cx="55" cy="28" rx="42" ry="18"/><ellipse class="sym-light" cx="55" cy="25" rx="35" ry="11" opacity=".25"/>
+            </symbol>
+
+            <symbol id="nd-storage-array" viewBox="0 0 126 98">
+              <title>Storage array</title>
+              <polygon class="sym-light" points="10,26 27,10 113,10 96,26"/><polygon class="sym-dark" points="96,26 113,10 113,76 96,92"/><rect class="sym-primary" x="10" y="26" width="86" height="66"/>
+              <g class="sym-detail-stroke" stroke-width="2"><ellipse cx="29" cy="49" rx="10" ry="5"/><path d="M19 49v21c0 3 4 5 10 5s10-2 10-5V49"/><ellipse cx="54" cy="49" rx="10" ry="5"/><path d="M44 49v21c0 3 4 5 10 5s10-2 10-5V49"/><ellipse cx="79" cy="49" rx="10" ry="5"/><path d="M69 49v21c0 3 4 5 10 5s10-2 10-5V49"/></g>
+            </symbol>
+
+            <symbol id="nd-nms" viewBox="0 0 108 106">
+              <title>Network management system</title>
+              <polygon class="sym-light" points="13,25 28,11 94,11 79,25"/><polygon class="sym-dark" points="79,25 94,11 94,78 79,92"/><rect class="sym-primary" x="13" y="25" width="66" height="67"/>
+              <rect class="sym-detail-stroke" stroke-width="2" x="27" y="37" width="38" height="33" rx="2"/><circle class="sym-detail-stroke" stroke-width="4" cx="48" cy="52" r="11"/><path class="sym-detail-stroke" stroke-width="5" d="m40 61-16 17"/>
+            </symbol>
+
+            <symbol id="nd-branch-office" viewBox="0 0 90 114">
+              <title>Branch office</title>
+              <polygon class="sym-light" points="14,23 28,10 76,10 62,23"/><polygon class="sym-dark" points="62,23 76,10 76,96 62,108"/><rect class="sym-primary" x="14" y="23" width="48" height="85"/>
+              <g class="sym-detail"><rect x="20" y="31" width="5" height="8"/><rect x="31" y="31" width="5" height="8"/><rect x="42" y="31" width="5" height="8"/><rect x="53" y="31" width="5" height="8"/><rect x="20" y="47" width="5" height="8"/><rect x="31" y="47" width="5" height="8"/><rect x="42" y="47" width="5" height="8"/><rect x="53" y="47" width="5" height="8"/><rect x="20" y="63" width="5" height="8"/><rect x="31" y="63" width="5" height="8"/><rect x="42" y="63" width="5" height="8"/><rect x="53" y="63" width="5" height="8"/><rect x="20" y="79" width="5" height="8"/><rect x="31" y="79" width="5" height="8"/><rect x="42" y="79" width="5" height="8"/><rect x="53" y="79" width="5" height="8"/></g>
+            </symbol>
+
+            <symbol id="nd-wireless-router" viewBox="0 0 120 110">
+              <title>Wireless router</title>
+              <g class="sym-detail-stroke" stroke="var(--symbol-main, #0076a8)" stroke-width="4"><path d="M26 28V5M94 28V5"/></g><g class="sym-primary"><rect x="22" y="3" width="8" height="5"/><rect x="90" y="3" width="8" height="5"/></g>
+              <path class="sym-dark" d="M12 54v22c0 12 21 21 48 21s48-9 48-21V54c-8 9-26 15-48 15S20 63 12 54Z"/><ellipse class="sym-primary" cx="60" cy="53" rx="48" ry="20"/>
+              <g class="sym-detail"><path d="M60 36 70 45h-7v10h-7V45h-7Z"/><path d="m60 70-10-9h7V51h7v10h7Z"/><path d="m32 53 10-9v6h13v6H42v6Z"/><path d="m88 53-10 9v-6H65v-6h13v-6Z"/></g>
+            </symbol>
+          </defs>
+</svg>
+<script id="network-icon-map">
+/* Semantic key -> inline vector symbol + official asset identifier.
+   Mirrors symbols/symbol-map.json; the official ids are what the packager scans for. */
+window.networkDesignIcons = {
+    "cloud":{vector:"nd-cloud",official:"asset:cisco/cloud.jpg"},
+    "router":{vector:"nd-router",official:"asset:cisco/router.jpg"},
+    "firewall":{vector:"nd-firewall",official:"asset:cisco/firewall.jpg"},
+    "core-switch":{vector:"nd-l3-switch",official:"asset:cisco/layer 3 switch.jpg"},
+    "access-switch":{vector:"nd-access-switch",official:"asset:cisco/workgroup switch.jpg"},
+    "access-point":{vector:"nd-access-point",official:"asset:cisco/lightweight ap.jpg"},
+    "server":{vector:"nd-server",official:"asset:cisco/fileserver.jpg"},
+    "pc":{vector:"nd-workstation",official:"asset:cisco/pc.jpg"},
+    "workstation":{vector:"nd-workstation",official:"asset:cisco/pc.jpg"},
+    "wlan-controller":{vector:"nd-wlan-controller",official:"asset:cisco/wlan controller.jpg"},
+    "vpn-headend":{vector:"nd-vpn-headend",official:"asset:cisco/vpn concentrator.jpg"},
+    "dc-switch":{vector:"nd-dc-switch",official:"asset:cisco/server switch.jpg"},
+    "ip-phone":{vector:"nd-ip-phone",official:"asset:cisco/ip phone.jpg"},
+    "laptop":{vector:"nd-laptop",official:"asset:cisco/laptop.jpg"},
+    "printer":{vector:"nd-printer",official:"asset:cisco/printer.jpg"},
+    "database":{vector:"nd-database",official:"asset:cisco/relational database.jpg"},
+    "storage-array":{vector:"nd-storage-array",official:"asset:cisco/fc storage.jpg"},
+    "network-management":{vector:"nd-nms",official:"asset:cisco/network management.jpg"},
+    "branch-office":{vector:"nd-branch-office",official:"asset:cisco/branch office.jpg"},
+    "wireless-router":{vector:"nd-wireless-router",official:"asset:cisco/wireless router.jpg"}
+};
+</script>
+<!-- PROOF-DATA:BEGIN -->
+<script id="proof-data" type="application/json">
+{
+  "document": {
+    "title": "Enterprise Campus Reference",
+    "subtitle": "A campus reference: dual provider handoffs into an edge router pair, a cross-connected active/standby perimeter, a peer-linked collapsed core, and access, wireless and services tiers each dual-homed to both cores.",
+    "drawing": "NET-LAB-003",
+    "revision": "3.1",
+    "status": "Unified reference",
+    "date": "2026-08-13",
+    "classification": "SAMPLE / REFERENCE",
+    "docClass": "Reference Design",
+    "subject": "Enterprise campus",
+    "site": "Training campus - fictional",
+    "lineage": {
+      "source": "cloudbats-NET-LAB-002-v3.0.html",
+      "note": "Ported from the finished CloudBats deliverable. The source already cross-referenced its figure and its data - every drawn link carries the id of its record - so nothing here was inferred. Numbered NET-LAB-003 because the natively written NET-LAB-002 starter already holds that id."
+    },
+    "evidence": { "text": "Reference pattern - validation required", "color": "amber" },
+    "brand": {
+      "name": "cloudbats",
+      "label": "Systems - Network Design - Starter kit",
+      "logoViewBox": "0 0 512 512",
+      "logoFill": "#0F172A",
+      "logoPath": "M112 72 H400 V352 Q400 400 376 424 Q356 440 336 424 Q316 400 296 400 H216 Q196 400 176 424 Q156 440 136 424 Q112 400 112 352 Z M312 136 A40 40 0 0 1 352 176 V304 A40 40 0 0 1 312 344 A40 40 0 0 1 272 304 V176 A40 40 0 0 1 312 136 Z"
+    }
+  },
+  "topology": {
+    "canvas": { "viewBox": "0 0 1360 920" },
+    "title": "Redundant enterprise campus Layer 3 logical topology",
+    "desc": "A north-to-south routed hierarchy from Internet service through paired edge routers, high-availability firewalls, and collapsed core switches to campus and service networks. Selected aggregate members document redundancy context; physical implementation remains in the schedule.",
+    "zones": [
+      {
+        "id": "external",
+        "x": 28,
+        "y": 28,
+        "width": 1304,
+        "height": 270,
+        "rx": 12,
+        "label": "EXTERNAL / SERVICE PROVIDER",
+        "lx": 48,
+        "ly": 55
+      },
+      {
+        "id": "edge",
+        "x": 28,
+        "y": 310,
+        "width": 1304,
+        "height": 106,
+        "rx": 12,
+        "label": "PERIMETER SECURITY ZONE",
+        "lx": 48,
+        "ly": 336
+      },
+      {
+        "id": "campus",
+        "x": 28,
+        "y": 428,
+        "width": 1304,
+        "height": 454,
+        "rx": 12,
+        "label": "CAMPUS / INTERNAL TRUST",
+        "lx": 48,
+        "ly": 451
+      }
+    ],
+    "nodes": [
+      {
+        "id": "internet",
+        "label": "Internet / ISP cloud",
+        "role": "External routed service",
+        "address": "Provider-assigned /30s",
+        "notes": "Treat a cloud as an external or abstract network—not as a generic decoration.",
+        "kind": "abstract-network",
+        "icon": "cloud",
+        "at": [570, 70],
+        "shell": [220, 86],
+        "art": [56, 4, 108, 63],
+        "name": { "t": "Internet / ISP cloud", "x": 110, "y": 77 }
+      },
+      {
+        "id": "edge-rtr-01",
+        "label": "edge-rtr-01",
+        "role": "WAN edge router",
+        "address": "198.51.100.2/30 · AS 65010",
+        "notes": "eBGP to ISP-A; routed transit to perimeter.",
+        "kind": "router",
+        "icon": "router",
+        "at": [335, 174],
+        "shell": [220, 120],
+        "art": [70, 9, 80, 54],
+        "name": { "t": "edge-rtr-01", "x": 110, "y": 81 },
+        "badge": { "t": "ROUTED" }
+      },
+      {
+        "id": "edge-rtr-02",
+        "label": "edge-rtr-02",
+        "role": "WAN edge router",
+        "address": "203.0.113.2/30 · AS 65010",
+        "notes": "eBGP to ISP-B; routed transit to perimeter.",
+        "kind": "router",
+        "icon": "router",
+        "at": [805, 174],
+        "shell": [220, 120],
+        "art": [70, 9, 80, 54],
+        "name": { "t": "edge-rtr-02", "x": 110, "y": 81 },
+        "badge": { "t": "ROUTED" }
+      },
+      {
+        "id": "edge-fw-01",
+        "label": "edge-fw-01",
+        "role": "Perimeter firewall · active",
+        "address": "Outside 198.18.0.2/29 · Inside 10.255.0.1/31",
+        "notes": "Security policy, NAT, VPN termination, IPS. Physical model: Cisco FPR4215-NGFW-K9 at R113 U39.",
+        "kind": "firewall",
+        "icon": "firewall",
+        "at": [335, 312],
+        "shell": [220, 102],
+        "art": [91, 6, 38, 66],
+        "name": { "t": "edge-fw-01", "x": 110, "y": 84 }
+      },
+      {
+        "id": "edge-fw-02",
+        "label": "edge-fw-02",
+        "role": "Perimeter firewall · standby",
+        "address": "Outside 198.18.0.3/29 · Inside 10.255.0.3/31",
+        "notes": "HA mate to edge-fw-01. Physical model: Cisco FPR4215-NGFW-K9 at R113 U38.",
+        "kind": "firewall",
+        "icon": "firewall",
+        "at": [805, 312],
+        "shell": [220, 102],
+        "art": [91, 6, 38, 66],
+        "name": { "t": "edge-fw-02", "x": 110, "y": 84 }
+      },
+      {
+        "id": "core-sw-01",
+        "label": "core-sw-01",
+        "role": "Collapsed core / distribution",
+        "address": "Loopback 10.255.255.1/32 · OSPF area 0",
+        "notes": "Default gateway redundancy and routed access. Physical model: Cisco Catalyst 9500X-28C8D at R113 U42.",
+        "kind": "layer-3-switch",
+        "icon": "core-switch",
+        "at": [335, 456],
+        "shell": [220, 106],
+        "art": [77, 5, 66, 66],
+        "name": { "t": "core-sw-01", "x": 110, "y": 86 }
+      },
+      {
+        "id": "core-sw-02",
+        "label": "core-sw-02",
+        "role": "Collapsed core / distribution",
+        "address": "Loopback 10.255.255.2/32 · OSPF area 0",
+        "notes": "Default gateway redundancy and routed access. Physical model: Cisco Catalyst 9500X-28C8D at R113 U41.",
+        "kind": "layer-3-switch",
+        "icon": "core-switch",
+        "at": [805, 456],
+        "shell": [220, 106],
+        "art": [77, 5, 66, 66],
+        "name": { "t": "core-sw-02", "x": 110, "y": 86 }
+      },
+      {
+        "id": "access-sw-01",
+        "label": "access-sw-01",
+        "role": "User access switch",
+        "address": "Mgmt 10.10.99.11/24 · VLANs 10, 20, 30",
+        "notes": "Dual-homed Layer-2 access. Physical model: Cisco Catalyst 9300-48P at R113 U35.",
+        "kind": "layer-2-switch",
+        "icon": "access-switch",
+        "at": [140, 640],
+        "shell": [220, 112],
+        "art": [58, 7, 104, 53],
+        "name": { "t": "access-sw-01", "x": 110, "y": 80 },
+        "badge": { "t": "LAYER 2" }
+      },
+      {
+        "id": "access-sw-02",
+        "label": "access-sw-02",
+        "role": "User access switch",
+        "address": "Mgmt 10.10.99.12/24 · VLANs 10, 20, 40",
+        "notes": "Dual-homed Layer-2 access. Physical model: Cisco Catalyst 9300-48P at R113 U34.",
+        "kind": "layer-2-switch",
+        "icon": "access-switch",
+        "at": [440, 640],
+        "shell": [220, 112],
+        "art": [58, 7, 104, 53],
+        "name": { "t": "access-sw-02", "x": 110, "y": 80 },
+        "badge": { "t": "LAYER 2" }
+      },
+      {
+        "id": "services-sw-01",
+        "label": "services-sw-01",
+        "role": "Server access / service leaf",
+        "address": "Mgmt 10.50.99.11/24 · VLANs 50, 51",
+        "notes": "Dual-homed service access; hosts use redundant NICs and bonds.",
+        "kind": "layer-2-switch",
+        "icon": "access-switch",
+        "at": [895, 640],
+        "shell": [220, 112],
+        "art": [58, 7, 104, 53],
+        "name": { "t": "services-sw-01", "x": 110, "y": 80 },
+        "badge": { "t": "LAYER 2" }
+      },
+      {
+        "id": "ap-01",
+        "label": "ap-01",
+        "role": "Lightweight wireless access point",
+        "address": "Mgmt 10.10.99.31/24 · Corp/Guest SSIDs",
+        "notes": "PoE access; Corp users map to VLAN 20 and guests to isolated VLAN 40.",
+        "kind": "wireless-ap",
+        "icon": "access-point",
+        "at": [30, 802],
+        "shell": [180, 96],
+        "art": [46, 5, 88, 49],
+        "name": { "t": "ap-01", "x": 90, "y": 72 }
+      },
+      {
+        "id": "users-a",
+        "label": "User endpoints · A",
+        "role": "Access clients",
+        "address": "VLAN 10 · 10.10.10.0/24",
+        "notes": "Aggregate endpoint symbol; individual clients are normally omitted from an overview topology.",
+        "kind": "endpoint-group",
+        "icon": "workstation",
+        "at": [290, 802],
+        "shell": [180, 96],
+        "art": [56, 3, 68, 61],
+        "name": { "t": "Users · VLAN 10", "x": 90, "y": 77 }
+      },
+      {
+        "id": "ap-02",
+        "label": "ap-02",
+        "role": "Lightweight wireless access point",
+        "address": "Mgmt 10.10.99.32/24 · Corp/Guest SSIDs",
+        "notes": "PoE access; radio details belong in the wireless design, not this topology.",
+        "kind": "wireless-ap",
+        "icon": "access-point",
+        "at": [460, 802],
+        "shell": [180, 96],
+        "art": [46, 5, 88, 49],
+        "name": { "t": "ap-02", "x": 90, "y": 72 }
+      },
+      {
+        "id": "hv-01",
+        "label": "hv-01",
+        "role": "Virtualization host",
+        "address": "Mgmt 10.50.50.21/24 · 2 × 25GbE",
+        "notes": "Physical model: Dell PowerEdge R750 at R113 U30–U31.",
+        "kind": "server",
+        "icon": "server",
+        "at": [790, 802],
+        "shell": [180, 96],
+        "art": [69, 3, 42, 60],
+        "name": { "t": "hv-01", "x": 90, "y": 77 }
+      },
+      {
+        "id": "hv-02",
+        "label": "hv-02",
+        "role": "Virtualization host",
+        "address": "Mgmt 10.50.50.22/24 · 2 × 25GbE",
+        "notes": "Physical model: Dell PowerEdge R750 at R113 U27–U28.",
+        "kind": "server",
+        "icon": "server",
+        "at": [1045, 802],
+        "shell": [180, 96],
+        "art": [69, 3, 42, 60],
+        "name": { "t": "hv-02", "x": 90, "y": 77 }
+      }
+    ],
+    "links": [
+      {
+        "id": "L01",
+        "from": "internet",
+        "to": "edge-rtr-01",
+        "nature": "provider-dia",
+        "kind": "l3",
+        "d": "M680 156 L680 166 L445 166 L445 174",
+        "title": "L01 · Provider DIA A · Internet to edge-rtr-01 · 10 GbE"
+      },
+      {
+        "id": "L02",
+        "from": "internet",
+        "to": "edge-rtr-02",
+        "nature": "provider-dia",
+        "kind": "l3",
+        "d": "M680 156 L680 166 L915 166 L915 174",
+        "title": "L02 · Provider DIA B · Internet to edge-rtr-02 · 10 GbE"
+      },
+      {
+        "id": "L03",
+        "from": "edge-rtr-01",
+        "to": "edge-fw-01",
+        "nature": "routed-transit-primary",
+        "kind": "l3",
+        "d": "M445 294 L445 312",
+        "title": "L03 · edge-rtr-01 to edge-fw-01 routed transit · details TBD"
+      },
+      {
+        "id": "L04",
+        "from": "edge-rtr-02",
+        "to": "edge-fw-02",
+        "nature": "routed-transit-primary",
+        "kind": "l3",
+        "d": "M915 294 L915 312",
+        "title": "L04 · edge-rtr-02 to edge-fw-02 routed transit · details TBD"
+      },
+      {
+        "id": "L05",
+        "from": "edge-rtr-01",
+        "to": "edge-fw-02",
+        "nature": "routed-transit-backup",
+        "kind": "backup",
+        "d": "M425 294V300H895V312",
+        "title": "L05 · edge-rtr-01 to edge-fw-02 backup routed transit · details TBD"
+      },
+      {
+        "id": "L06",
+        "from": "edge-rtr-02",
+        "to": "edge-fw-01",
+        "nature": "routed-transit-backup",
+        "kind": "backup",
+        "d": "M935 294V306H465V312",
+        "title": "L06 · edge-rtr-02 to edge-fw-01 backup routed transit · details TBD"
+      },
+      {
+        "id": "L07",
+        "from": "edge-fw-01",
+        "to": "edge-fw-02",
+        "nature": "ha-state-config",
+        "kind": "ha",
+        "d": "M555 364 L805 364",
+        "title": "L07 · Firewall HA state/config relationship; physical members and interfaces TBD"
+      },
+      {
+        "id": "L08",
+        "from": "edge-fw-01",
+        "to": "core-sw-01",
+        "nature": "routed-inside-transit",
+        "kind": "aggregate",
+        "d": "M445 414 L445 456",
+        "title": "L08 · edge-fw-01 to core-sw-01 · 40 GbE · details TBD"
+      },
+      {
+        "id": "L09",
+        "from": "edge-fw-01",
+        "to": "core-sw-02",
+        "nature": "routed-inside-transit",
+        "kind": "aggregate",
+        "d": "M465 414V430H895V456",
+        "title": "L09 · edge-fw-01 to core-sw-02 · 40 GbE · details TBD"
+      },
+      {
+        "id": "L10",
+        "from": "edge-fw-02",
+        "to": "core-sw-02",
+        "nature": "routed-inside-transit",
+        "kind": "aggregate",
+        "d": "M915 414 L915 456",
+        "title": "L10 · edge-fw-02 to core-sw-02 · 40 GbE · details TBD"
+      },
+      {
+        "id": "L11",
+        "from": "edge-fw-02",
+        "to": "core-sw-01",
+        "nature": "routed-inside-transit",
+        "kind": "aggregate",
+        "d": "M895 414V440H465V456",
+        "title": "L11 · edge-fw-02 to core-sw-01 · 40 GbE · details TBD"
+      },
+      {
+        "id": "L12-A",
+        "from": "core-sw-01",
+        "to": "core-sw-02",
+        "nature": "peer-link-member",
+        "kind": "aggregate",
+        "d": "M555 501 L805 501",
+        "title": "L12-A · Core peer-link member A · 100 GbE · interfaces and media TBD"
+      },
+      {
+        "id": "L12-B",
+        "from": "core-sw-01",
+        "to": "core-sw-02",
+        "nature": "peer-link-member",
+        "kind": "aggregate",
+        "d": "M555 517 L805 517",
+        "title": "L12-B · Core peer-link member B · 100 GbE · interfaces and media TBD"
+      },
+      {
+        "id": "L13-A",
+        "from": "core-sw-01",
+        "to": "access-sw-01",
+        "nature": "aggregate-member",
+        "kind": "aggregate",
+        "d": "M395 562V584H220V640",
+        "title": "L13-A · core-sw-01 to access-sw-01 aggregate member · ports/media TBD"
+      },
+      {
+        "id": "L13-B",
+        "from": "core-sw-02",
+        "to": "access-sw-01",
+        "nature": "aggregate-member",
+        "kind": "aggregate",
+        "d": "M835 562V590H280V640",
+        "title": "L13-B · core-sw-02 to access-sw-01 aggregate member · ports/media TBD"
+      },
+      {
+        "id": "L14-A",
+        "from": "core-sw-01",
+        "to": "access-sw-02",
+        "nature": "aggregate-member",
+        "kind": "aggregate",
+        "d": "M455 562V596H520V640",
+        "title": "L14-A · core-sw-01 to access-sw-02 aggregate member · ports/media TBD"
+      },
+      {
+        "id": "L14-B",
+        "from": "core-sw-02",
+        "to": "access-sw-02",
+        "nature": "aggregate-member",
+        "kind": "aggregate",
+        "d": "M895 562V602H580V640",
+        "title": "L14-B · core-sw-02 to access-sw-02 aggregate member · ports/media TBD"
+      },
+      {
+        "id": "L15-A",
+        "from": "core-sw-01",
+        "to": "services-sw-01",
+        "nature": "aggregate-member",
+        "kind": "aggregate",
+        "d": "M515 562V614H975V640",
+        "title": "L15-A · core-sw-01 to services-sw-01 aggregate member · ports/media TBD"
+      },
+      {
+        "id": "L15-B",
+        "from": "core-sw-02",
+        "to": "services-sw-01",
+        "nature": "aggregate-member",
+        "kind": "aggregate",
+        "d": "M955 562V608H1035V640",
+        "title": "L15-B · core-sw-02 to services-sw-01 aggregate member · ports/media TBD"
+      },
+      {
+        "id": "L16",
+        "from": "access-sw-01",
+        "to": "ap-01",
+        "nature": "access-attachment",
+        "kind": "access",
+        "d": "M250 752 L250 786 L120 786 L120 802",
+        "title": "L16 · access-sw-01 to ap-01 · details TBD"
+      },
+      {
+        "id": "L17",
+        "from": "access-sw-01",
+        "to": "users-a",
+        "nature": "access-attachment",
+        "kind": "access",
+        "d": "M250 752 L250 786 L380 786 L380 802",
+        "title": "L17 · access-sw-01 to user endpoint aggregate · details TBD"
+      },
+      {
+        "id": "L18",
+        "from": "access-sw-02",
+        "to": "ap-02",
+        "nature": "access-attachment",
+        "kind": "access",
+        "d": "M550 752 L550 802",
+        "title": "L18 · access-sw-02 to ap-02 · details TBD"
+      },
+      {
+        "id": "L19",
+        "from": "services-sw-01",
+        "to": "hv-01",
+        "nature": "service-attachment",
+        "kind": "access",
+        "d": "M1005 752 L1005 786 L880 786 L880 802",
+        "title": "L19 · services-sw-01 to hv-01 · details TBD"
+      },
+      {
+        "id": "L20",
+        "from": "services-sw-01",
+        "to": "hv-02",
+        "nature": "service-attachment",
+        "kind": "access",
+        "d": "M1005 752 L1005 786 L1135 786 L1135 802",
+        "title": "L20 · services-sw-01 to hv-02 · details TBD"
+      }
+    ],
+    "halos": [
+      "M425 294V300H895V312",
+      "M935 294V306H465V312",
+      "M465 414V430H895V456",
+      "M895 414V440H465V456",
+      "M395 562V584H220V640",
+      "M835 562V590H280V640",
+      "M455 562V596H520V640",
+      "M895 562V602H580V640",
+      "M515 562V614H975V640",
+      "M955 562V608H1035V640"
+    ],
+    "labels": [
+      {
+        "t": "DIA · 2 × 10 GbE",
+        "at": [618, 158],
+        "w": 124,
+        "h": 21,
+        "rx": 4,
+        "tx": 62,
+        "ty": 14,
+        "a": "middle"
+      },
+      {
+        "t": "HA state + config sync",
+        "at": [598, 353],
+        "w": 164,
+        "h": 21,
+        "rx": 4,
+        "tx": 82,
+        "ty": 14,
+        "a": "middle"
+      },
+      {
+        "t": "4 × 40 GbE routed links",
+        "at": [590, 421],
+        "w": 180,
+        "h": 21,
+        "rx": 4,
+        "tx": 90,
+        "ty": 14,
+        "a": "middle"
+      },
+      {
+        "t": "Peer link · 2 × 100G",
+        "at": [607, 487],
+        "w": 146,
+        "h": 21,
+        "rx": 4,
+        "tx": 73,
+        "ty": 14,
+        "a": "middle"
+      },
+      {
+        "t": "MLAG/LACP · diverse members",
+        "at": [578, 588],
+        "w": 204,
+        "h": 21,
+        "rx": 4,
+        "tx": 102,
+        "ty": 14,
+        "a": "middle"
+      }
+    ]
+  },
+  "rack": {
+    "id": "R113",
+    "location": "MDF-1",
+    "units": 42,
+    "frontAisle": "cold aisle",
+    "rearAisle": "hot aisle",
+    "reserved": [
+      { "position": 36, "height": 1, "label": "reserved patch field - " },
+      { "position": 40, "height": 1, "label": "" },
+      { "position": 37, "height": 1, "label": "" },
+      { "position": 32, "height": 2, "label": "" },
+      { "position": 29, "height": 1, "label": "" },
+      { "position": 4, "height": 23, "label": "" },
+      { "position": 1, "height": 1, "label": "" }
+    ],
+    "devices": [
+      {
+        "id": "core-sw-01",
+        "model": "Cisco Catalyst 9500X-28C8D",
+        "role": "collapsed-core",
+        "position": 42,
+        "height": 1,
+        "asset": "c9500"
+      },
+      {
+        "id": "core-sw-02",
+        "model": "Cisco Catalyst 9500X-28C8D",
+        "role": "collapsed-core",
+        "position": 41,
+        "height": 1,
+        "asset": "c9500"
+      },
+      {
+        "id": "edge-fw-01",
+        "model": "Cisco FPR4215-NGFW-K9",
+        "role": "perimeter-firewall-active",
+        "position": 39,
+        "height": 1,
+        "asset": "generic"
+      },
+      {
+        "id": "edge-fw-02",
+        "model": "Cisco FPR4215-NGFW-K9",
+        "role": "perimeter-firewall-standby",
+        "position": 38,
+        "height": 1,
+        "asset": "generic"
+      },
+      {
+        "id": "access-sw-01",
+        "model": "Cisco Catalyst 9300-48P",
+        "role": "user-access",
+        "position": 35,
+        "height": 1,
+        "asset": "c9300"
+      },
+      {
+        "id": "access-sw-02",
+        "model": "Cisco Catalyst 9300-48P",
+        "role": "user-access",
+        "position": 34,
+        "height": 1,
+        "asset": "c9300"
+      },
+      {
+        "id": "hv-01",
+        "model": "Dell PowerEdge R750",
+        "role": "virtualization-host",
+        "position": 30,
+        "height": 2,
+        "asset": "generic"
+      },
+      {
+        "id": "hv-02",
+        "model": "Dell PowerEdge R750",
+        "role": "virtualization-host",
+        "position": 27,
+        "height": 2,
+        "asset": "generic"
+      },
+      {
+        "id": "ups-01",
+        "model": "APC SMT3000RMI2UC",
+        "role": "rack-ups",
+        "position": 2,
+        "height": 2,
+        "asset": "ups"
+      }
+    ]
+  },
+  "sections": {
+    "findings": {
+      "id": "open-items",
+      "label": "Open items",
+      "noun": "open items and risks",
+      "heading": "Open items, assumptions & risk register",
+      "flavour": "gaps",
+      "items": [
+        {
+          "id": "R1",
+          "severity": "HIGH",
+          "title": "Carrier and edge-router physical placement is undocumented",
+          "detail": "The edge routers appear in the logical view with no rack, position or facility record behind them.",
+          "action": "Record the carrier demarcation and the edge routers' physical home before the elevation is used to plan work.",
+          "at": ["edge-rtr-01", "edge-rtr-02"]
+        },
+        {
+          "id": "R2",
+          "severity": "HIGH",
+          "title": "services-sw-01 has no device type or rack position",
+          "detail": "The services switch is drawn and addressed but has no model, no height and no place in the rack, so it cannot be ordered or installed.",
+          "action": "Select a platform and assign a rack position.",
+          "at": ["services-sw-01"]
+        },
+        {
+          "id": "R3",
+          "severity": "HIGH",
+          "title": "Link ports, media, and LAG IDs are TBD",
+          "detail": "No drawn link records the interfaces it lands on, the media it runs over, or the port-channel it belongs to.",
+          "action": "Complete the interface and LAG schedule, then reconcile it against the drawing.",
+          "atZone": "campus"
+        },
+        {
+          "id": "R4",
+          "severity": "HIGH",
+          "title": "Power resiliency and failed-feed capacity are unvalidated",
+          "detail": "The rack declares no power feeds at all, so neither normal load nor a single-feed failure can be evaluated.",
+          "action": "Produce the circuit, PDU and load schedule and calculate the failed-source case."
+        },
+        {
+          "id": "R5",
+          "severity": "MEDIUM",
+          "title": "29U are shown open with no blanking record",
+          "detail": "Twenty-nine of forty-two units are unaccounted for rather than deliberately free, and no blanking is scheduled.",
+          "action": "Blank or reserve the open units explicitly."
+        },
+        {
+          "id": "R6",
+          "severity": "HIGH",
+          "title": "Example addressing is not synchronized with IPAM",
+          "detail": "Every prefix and host address shown is illustrative and has not been reconciled against an authoritative source.",
+          "action": "Replace all addressing from approved IPAM records.",
+          "atZone": "campus"
+        },
+        {
+          "id": "R7",
+          "severity": "HIGH",
+          "title": "Firewall policy, guest isolation, and management controls are not specified",
+          "detail": "The perimeter pair is drawn and addressed, but no policy, segmentation or management rule is stated for it.",
+          "action": "Document the policy set, guest isolation and management access before the design drives configuration.",
+          "at": ["edge-fw-01", "edge-fw-02"]
+        },
+        {
+          "id": "R8",
+          "severity": "MEDIUM",
+          "title": "Airflow SKUs and cabinet dimensions/ratings are unknown",
+          "detail": "The cabinet records no width, depth or weight rating, and no device declares an airflow direction.",
+          "action": "Capture cabinet ratings and per-device airflow SKUs."
+        }
+      ]
+    }
+  },
+  "validation": {
+    "named_objects": 15,
+    "zones": 3,
+    "links": 24,
+    "rack_units": 42,
+    "rack_devices": 9,
+    "print_review": "not run",
+    "grayscale_review": "not run"
+  }
+}
+</script>
+<!-- PROOF-DATA:END -->
+
+<!-- NETWORK-PACKAGER-CONTRACT:BEGIN -->
+<script id="network-packager-contract" type="application/json">
+{
+  "schema": "network-design-package/v2",
+  "assetReferences": "asset-uri/v1",
+  "assetUriSchemes": {
+    "cisco": "icons/cisco-pms3015/",
+    "rack": "rack-assets/"
+  }
+}
+</script>
+<!-- NETWORK-PACKAGER-CONTRACT:END -->
+
+<!-- NETWORK-ASSET-VAULT:BEGIN -->
+<script id="network-asset-vault" type="application/json">
+{}
+</script>
+<!-- NETWORK-ASSET-VAULT:END -->
+
+<!-- EDITABLE-SOURCE-CAPSULE:BEGIN -->
+<script id="editable-source-capsule" type="application/octet-stream">
+
+</script>
+<!-- EDITABLE-SOURCE-CAPSULE:END -->
+<script>
+/* Pins the register to the drawing. A finding that names a drawn object gets a
+   numbered marker on it, and the number IS its position in the register, so the
+   two cannot fall out of step. The layer carries .gap-layer, which this
+   document's existing show-gaps control already governs and print already
+   force-reveals. */
+(function () {
+  "use strict";
+  var NS = "http://www.w3.org/2000/svg";
+  var data;
+  try { data = JSON.parse(document.getElementById("proof-data").textContent); }
+  catch (e) { console.error("proof-data did not parse", e); return; }
+  var svg = document.getElementById("logical-svg");
+  if (!svg) { return; }
+
+  var at = {};
+  Array.prototype.forEach.call(svg.querySelectorAll(".logical-node"), function (g) {
+    var m = /translate\(([\d.-]+) ([\d.-]+)\)/.exec(g.getAttribute("transform") || "");
+    var shell = g.querySelector(".node-shell");
+    if (!m || !shell) { return; }
+    at[g.getAttribute("data-device")] = [parseFloat(m[1]), parseFloat(m[2]),
+      parseFloat(shell.getAttribute("width")) || 0, parseFloat(shell.getAttribute("height")) || 0];
+  });
+  var zones = {};
+  (((data.topology || {}).zones) || []).forEach(function (z) { zones[z.id] = z; });
+
+  var items = (((data.sections || {}).findings) || {}).items || [];
+  var layer = document.createElementNS(NS, "g");
+  layer.setAttribute("class", "gap-layer");
+  layer.setAttribute("aria-label", "Open items pinned to the drawing");
+  var missing = [];
+  function mark(cx, cy, n, label) {
+    var g = document.createElementNS(NS, "g");
+    g.setAttribute("class", "gap-mark");
+    g.setAttribute("role", "img");
+    g.setAttribute("aria-label", label);
+    var t = document.createElementNS(NS, "title"); t.textContent = label; g.appendChild(t);
+    var c = document.createElementNS(NS, "circle");
+    c.setAttribute("class", "gap-dot"); c.setAttribute("cx", cx); c.setAttribute("cy", cy); c.setAttribute("r", 12);
+    var x = document.createElementNS(NS, "text");
+    x.setAttribute("class", "gap-num"); x.setAttribute("x", cx); x.setAttribute("y", cy + 4.5);
+    x.textContent = String(n);
+    g.appendChild(c); g.appendChild(x);
+    layer.appendChild(g);
+  }
+  items.forEach(function (item, i) {
+    var label = (item.id ? item.id + " " : "") + item.title;
+    var pins = item.at == null ? [] : (Array.isArray(item.at) ? item.at : [item.at]);
+    pins.forEach(function (id) {
+      var b = at[id];
+      if (!b) { missing.push(id); return; }
+      mark(b[0] + b[2], b[1], i + 1, label);
+    });
+    if (item.atZone) {
+      var z = zones[item.atZone];
+      if (!z) { missing.push("zone:" + item.atZone); return; }
+      var r = document.createElementNS(NS, "rect");
+      r.setAttribute("class", "gap-zone");
+      r.setAttribute("x", z.x); r.setAttribute("y", z.y);
+      r.setAttribute("width", z.width); r.setAttribute("height", z.height);
+      r.setAttribute("rx", z.rx || 0);
+      layer.appendChild(r);
+      mark(z.x + z.width - 18, z.y + 18, i + 1, label);
+    }
+  });
+  svg.appendChild(layer);
+  window.networkDesignGapErrors = missing;
+})();
+</script>
+</body>
+</html>
