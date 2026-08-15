@@ -539,6 +539,15 @@ footer{margin-top:22px;padding:12px 2px;color:var(--muted);font-size:12px;border
 </head>
 <a class="skip-link" href="#document-content">Skip to content</a>
 <body class="show-gaps">
+<style>
+  #network-vector-symbols{position:absolute;width:0;height:0;overflow:hidden;pointer-events:none}
+  .sym-primary{fill:var(--symbol-main,#007fa8)}
+  .sym-dark{fill:var(--symbol-dark,#006687)}
+  .sym-light{fill:var(--symbol-light,#51bde6)}
+  .sym-detail{fill:var(--symbol-detail,#fff)}
+  .sym-outline{fill:#fff;stroke:var(--symbol-main,#007fa8);stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+  .sym-detail-stroke{fill:none;stroke:var(--symbol-detail,#fff);stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+</style>
 <svg id="network-vector-symbols" width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute">
 <defs id="vector-symbol-library">
             <filter id="card-shadow" x="-25%" y="-25%" width="150%" height="165%">
