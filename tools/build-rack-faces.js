@@ -9,7 +9,7 @@
 //
 // The drawing itself lives in rack-faces/rack-face-core.js. Edit that, then run:
 //
-//   node scripts/build-rack-faces.js
+//   node tools/build-rack-faces.js
 //
 // Documents inline the core rather than the sprite because the expanded sprite
 // is over 400 KB and every document has to carry the whole catalogue — the data

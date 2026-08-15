@@ -304,8 +304,8 @@ symbols/                 canonical SVG sprite + semantic map
 assets/                  official Cisco icons and rack faces
 tools/edit-with-ai.html  offline AI editing helper
 tools/packager/          the packager, plus its maintainer scripts
+tools/*.js               repository validation and the rack-face build
 docs/                    prompt, layout standard, architecture
-scripts/                 repository validation
 examples/  tests/        showcase and contract fixture
 dist/                    build output, untracked
 ```

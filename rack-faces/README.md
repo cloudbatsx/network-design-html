@@ -16,7 +16,7 @@ same job, no download, and it works in editable mode where the PNGs do not.
 After editing the core, rebuild everything:
 
 ```bash
-node scripts/build-rack-faces.js
+node tools/build-rack-faces.js
 ```
 
 That regenerates the sprite and the map, rewrites

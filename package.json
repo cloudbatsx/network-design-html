@@ -4,8 +4,8 @@
   "private": true,
   "description": "Self-contained HTML network diagrams with editable SVG symbols and one-click packaging into official Cisco artwork.",
   "scripts": {
-    "validate": "node scripts/validate-repository.js",
-    "build:rack-faces": "node scripts/build-rack-faces.js",
+    "validate": "node tools/validate-repository.js",
+    "build:rack-faces": "node tools/build-rack-faces.js",
     "build:packager": "node tools/packager/build-packager.js",
     "verify:packager": "node tools/packager/verify-packager.js",
     "test": "npm run validate && node tests/edit-with-ai.test.js"
