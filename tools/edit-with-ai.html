@@ -115,7 +115,7 @@
         <button class="button primary" id="copy-prompt" type="button">Copy prompt</button>
         <span class="file-name" id="copy-state"></span>
       </div>
-      <details style="margin-top:14px">
+      <details id="payload-details" style="margin-top:14px">
         <summary style="cursor:pointer;color:var(--blue2);font-weight:700">Show the diagram data being sent</summary>
         <p class="counts" id="payload-size"></p>
         <textarea id="payload" rows="12" readonly></textarea>
@@ -436,6 +436,21 @@ async function loadFile(file) {
     const at = locatePayload(text);
     const raw = text.slice(at.start, at.end).trim();
     const parsed = JSON.parse(raw);      // proves the starting point is sound
+    // The engineering-sheet kits (NET-ENT-002, NET-HQ-002, NET-LAB-003,
+    // NET-RH-001) draw in their own grammar: a viewBox canvas and hand-tuned
+    // SVG geometry instead of the shared x,y coordinate data. An edit made
+    // through this tool would corrupt that drawing in ways no check below can
+    // catch, so they are refused here rather than half-supported. The canvas
+    // tells the two families apart - the same test checkMeaning() uses to
+    // decide whether the geometry rules apply.
+    const canvas = parsed.topology?.canvas || {};
+    if (!Number.isFinite(Number(canvas.width)) || !Number.isFinite(Number(canvas.height))) {
+      source = ""; accepted = null; currentData = null;
+      $("step-2").hidden = true; $("step-3").hidden = true; $("step-4").hidden = true;
+      note("load-message", "warning", "AI editing is not supported for this file yet.",
+        " This design is drawn with hand-tuned SVG geometry instead of the shared coordinate data - the grammar of the four engineering-sheet kits (NET-ENT-002, NET-HQ-002, NET-LAB-003, NET-RH-001). An AI edit would corrupt the drawing without any check here catching it, so this tool refuses rather than guesses. Start from the template or one of the six standard starters instead: NET-BR-001, NET-ENT-001, NET-FAB-001, NET-HQ-001, NET-LAB-002, NET-OT-001.");
+      return;
+    }
     source = text; payloadStart = at.start; payloadEnd = at.end;
     currentData = parsed;
     $("payload").value = JSON.stringify(parsed, null, 2);
@@ -1290,7 +1305,8 @@ function outputName() {
 
 function save() {
   try {
-    const out = source.slice(0, payloadStart) + "\n" + safeJson(accepted) + "\n" + source.slice(payloadEnd);
+    const injected = "\n" + safeJson(accepted) + "\n";
+    const out = source.slice(0, payloadStart) + injected + source.slice(payloadEnd);
 
     // Refuse rather than hand over a damaged file.
     for (const marker of FORBIDDEN_IN_DATA) {
@@ -1311,7 +1327,25 @@ function save() {
     document.body.appendChild(link); link.click(); link.remove();
     setTimeout(() => URL.revokeObjectURL(url), 1200);
     $("save-state").textContent = `Saved as ${name}`;
-    note("save-message", "ok", "Saved.", ` Everything outside the diagram data is identical to ${sourceName}. Double-click the new file to see your change.`);
+    note("save-message", "ok", "Saved.", ` Everything outside the diagram data is identical to ${sourceName}. Double-click the new file to see your change. This tool is now editing from the design you just saved, so your next change builds on this one.`);
+    // Roll the session forward to the file just written. Without this, a
+    // second edit in the same session is built against the pre-save design,
+    // and saving it silently throws the first edit away.
+    source = out;
+    payloadEnd = payloadStart + injected.length;
+    currentData = accepted;
+    accepted = null;
+    sourceName = name;
+    $("save").disabled = true;
+    $("payload").value = JSON.stringify(currentData, null, 2);
+    $("payload-size").textContent = `${injected.trim().length.toLocaleString()} characters of diagram data, out of ${out.length.toLocaleString()} in the whole file.`;
+    describeSlice();
+    $("reply").value = "";
+    $("copy-state").textContent = "";
+    $("problems").replaceChildren();
+    $("changes").replaceChildren();
+    $("copy-problems").disabled = true;
+    note("check-message", null);
   } catch (error) {
     $("save-state").textContent = "";
     note("save-message", "error", "Refused to save.", ` The new file would have been damaged (${error.message}). Nothing was written. Check the AI's reply and try again.`);
@@ -1356,7 +1390,16 @@ $("copy-problems").addEventListener("click", async () => {
     : `Please send ${SLICES[name].paths.map(pathLabel).join(" and ")} again with them fixed, and nothing else`;
   const text = `Your last reply had these problems. ${again}, and reply with JSON only.\n\n${lines.join("\n\n")}`;
   try { await navigator.clipboard.writeText(text); $("copy-problems").textContent = "Copied"; setTimeout(() => { $("copy-problems").textContent = "Copy problems"; }, 1600); }
-  catch { $("reply").value = text; }
+  catch {
+    // Never write into the reply box: it holds the AI's paste, and replacing
+    // that with the problem list destroys the very text the problems are
+    // about. The payload box is the designated clipboard-fallback surface -
+    // the prompt copier above already uses it the same way.
+    $("payload-details").open = true;
+    $("payload").value = text;
+    note("check-message", "warning", "Could not copy automatically.",
+      " The full message to send the AI is in the box under step 2 ('Show the diagram data being sent') - select all and copy it from there. Your pasted reply above is untouched.");
+  }
 });
 $("save").addEventListener("click", save);
 </script>
