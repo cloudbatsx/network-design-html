@@ -13,6 +13,10 @@ in any browser, prints to a clean PDF, and diffs properly in Git.
 You change it by describing what you want. A **free** AI model is enough, because it
 never sees the HTML — only a small block of data.
 
+> **New here, or new to network design?** Read [`start-here.html`](start-here.html) —
+> a self-contained, step-by-step visual guide from nothing to a finished document.
+> Open it from your clone or download it; like everything else here, it works offline.
+
 ---
 
 ## How it works

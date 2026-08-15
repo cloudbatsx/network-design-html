@@ -534,6 +534,7 @@ checkEvery("the shared sheet self-check is byte-identical", (want) => {
 checkEvery("every embedded script parses", (want) => {
   const pages = [
     ...starterNames.map((name) => `starters/${name}`),
+    "start-here.html",
     "tools/edit-with-ai.html",
     "tools/packager/network-design-packager.html",
     "tools/cisco-icon-catalog.html",
