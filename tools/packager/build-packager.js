@@ -183,6 +183,14 @@ function buildFullVault() {
   for (const file of files) {
     const buffer = fs.readFileSync(file.absolutePath);
     const mime = detectMime(buffer, file.canonicalPath);
+    // The same rule the browser packager enforces at its line "has to be a
+    // PNG. Rename it or convert it." — without this, verify:packager passes a
+    // vault the packager a real user opens would refuse to build, which is
+    // exactly how two JPEGs wearing .png shipped undetected.
+    const expected = file.canonicalPath.startsWith(SCHEME_DIRS.rack) ? "image/png" : "image/jpeg";
+    if (mime !== expected) {
+      throw new Error(`${file.canonicalPath} is ${mime} but its location requires ${expected}. Rename it or convert it.`);
+    }
     const hash = sha256(buffer);
     keys[file.canonicalPath] = hash;
     totalBytes += buffer.length;

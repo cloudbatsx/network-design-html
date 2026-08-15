@@ -43,6 +43,13 @@ Exact per-file lineage and any local transformations were never recorded. CC0
 imposes no condition that this gap would breach, but the gap is real and stated
 here rather than papered over.
 
+One recorded transformation: `cisco-fpr4215-ngfw-k9.front.png` and
+`cisco-fpr4215-ngfw-k9.rear.png` arrived as JPEG data carrying a `.png`
+extension, which the packager correctly refuses to embed. On 2026-08-15 both
+were re-encoded to genuine PNG at identical pixel dimensions (1800×186 and
+1800×187) — a lossless container change of the decoded image, with no resize,
+recrop or recolour. CC0 permits this without condition.
+
 ## The vector symbols are not third-party material
 
 The 19 SVG symbols in `symbols/network-symbols.svg`, and their synchronized
