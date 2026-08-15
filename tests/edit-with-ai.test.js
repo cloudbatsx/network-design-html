@@ -50,7 +50,7 @@ const sandbox = {
   Blob, TextDecoder, structuredClone, setTimeout, console
 };
 
-const shim = ";globalThis.__exports = { parseWithRepair, mergeReply, checkStructure, checkMeaning, checkShell, checkAssetStrings, looksTruncated, safeJson, contextFor, summarizeChange, SLICES };";
+const shim = ";globalThis.__exports = { parseWithRepair, mergeReply, checkStructure, checkMeaning, checkShell, checkAssetStrings, looksTruncated, safeJson, contextFor, summarizeChange, editableParts, SLICES };";
 vm.runInNewContext(script[1] + shim, sandbox, { filename: "edit-with-ai.html <script>" });
 const t = sandbox.__exports;
 
@@ -216,6 +216,62 @@ test("geometry: the viewBox grammar is exempt from every geometry rule", () => {
   data.topology.nodes[1].y = data.topology.nodes[0].y;
   const problems = t.checkMeaning(data);
   assert(!has(problems, /overlap|edge|half in/), "geometry rules ran on a viewBox document");
+});
+
+/* ---- which parts a design may edit ---- */
+
+test("parts: the coordinate grammar supports every part", () => {
+  assert.strictEqual(t.editableParts(baseDesign()), null);
+});
+
+test("parts: a sheet without a declaration is not editable", () => {
+  const data = baseDesign();
+  data.topology.canvas = { viewBox: "0 0 100 100" };
+  assert.deepStrictEqual(json(t.editableParts(data)), []);
+});
+
+test("parts: a sheet offers exactly what it declares", () => {
+  const data = baseDesign();
+  data.topology.canvas = { viewBox: "0 0 100 100" };
+  data.editing = { grammar: "sheet", parts: ["rack", "findings"] };
+  assert.deepStrictEqual(json(t.editableParts(data)), ["rack", "findings"]);
+});
+
+test("parts: a declared drawing part is stripped, not honoured", () => {
+  const data = baseDesign();
+  data.topology.canvas = { viewBox: "0 0 100 100" };
+  data.editing = { grammar: "sheet", parts: ["nodes", "topology", "all", "rack"] };
+  assert.deepStrictEqual(json(t.editableParts(data)), ["rack"]);
+});
+
+/* ---- the sheet grammar in the whole-design checks ---- */
+
+test("structure: a design that never had a rack is not required to grow one", () => {
+  const original = baseDesign();
+  delete original.rack;
+  const merged = json(original);
+  const problems = t.checkStructure("{}", merged, "findings", original);
+  assert(!has(problems, /"rack" section is missing/), "a rackless sheet was blocked on its missing rack");
+});
+
+test("structure: a missing topology is still a stop when the original had one", () => {
+  const original = baseDesign();
+  const merged = json(original);
+  delete merged.topology;
+  assert(has(t.checkStructure("{}", merged, "findings", original), /"topology" section is missing/, true));
+});
+
+test("vocab: a sheet's own link kinds are not graded against the template's list", () => {
+  const data = baseDesign();
+  data.topology.canvas = { viewBox: "0 0 100 100" };
+  data.topology.links[0].kind = "physical-10g";
+  assert(!has(t.checkMeaning(data), /invisible line/), "a sheet link kind was graded against the template stylesheet");
+});
+
+test("vocab: an off-list link kind still warns in the coordinate grammar", () => {
+  const data = baseDesign();
+  data.topology.links[0].kind = "physical-10g";
+  assert(has(t.checkMeaning(data), /invisible line/, false));
 });
 
 /* ---- the rack ---- */

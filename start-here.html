@@ -334,9 +334,10 @@
   <div class="note warn">
     <b>Four starters behave differently — avoid them on your first go</b>
     <p><code>NET-ENT-002</code>, <code>NET-HQ-002</code>, <code>NET-LAB-003</code> and
-    <code>NET-RH-001</code> are drawn as <em>engineering sheets</em>. They look superb, but they
-    use a different internal grammar: some of the automatic drawing checks do not apply to them,
-    and per-device custom artwork does not work. Learn the workflow on one of the others first.</p>
+    <code>NET-RH-001</code> are drawn as <em>engineering sheets</em>. They look superb, but their
+    drawings are hand-tuned: the AI helper offers only their rack schedule and gaps list, never
+    the drawing itself, and per-device custom artwork does not work. Learn the workflow on one
+    of the others first.</p>
   </div>
 
   <p><b>Make a copy before you touch it.</b> Copy the starter to your own folder and rename it —
@@ -899,8 +900,9 @@ diagram. The marker will not be drawn.</pre>
       <tr><td><b>Odd characters like <code>Â·</code> everywhere</b></td><td>The file got saved
         in the wrong encoding. Always save as <b>UTF-8</b>, never open these files in Word,
         and go back to your last good save.</td></tr>
-      <tr><td><b>The helper refuses your file</b></td><td>You picked one of the four
-        engineering sheets. Start from one of the other kits instead.</td></tr>
+      <tr><td><b>The helper offers only some parts</b></td><td>You picked one of the four
+        engineering sheets. Their drawings are hand-tuned, so only the rack and the gaps list
+        can be AI-edited. For drawing changes, start from one of the other kits.</td></tr>
       <tr><td><b>Everything looks broken after an edit</b></td><td>Close it. Open your previous
         saved file — every save made a new file, so the old one is still there.</td></tr>
     </tbody>

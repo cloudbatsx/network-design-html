@@ -534,6 +534,43 @@ checkEvery("the shared sheet self-check is byte-identical", (want) => {
   }
 });
 
+/* The AI helper opens an engineering sheet only for the parts the sheet
+   declares, and a declaration is a promise about rendering: a declared part
+   must draw from the data block, or an AI edit changes the record while the
+   page keeps showing the old one. Both directions are asserted - a sheet with
+   a data-driven rack or findings register that fails to declare it is hiding
+   a supported edit, and a declaration without the renderer would let drift
+   ship silently. Coordinate-grammar kits need no declaration and must not
+   carry one. */
+checkEvery("sheet kits declare exactly their data-driven parts", (want) => {
+  for (const name of starterNames) {
+    const source = read(`starters/${name}`);
+    const data = JSON.parse(scriptById(source, "proof-data"));
+    const canvas = data.topology?.canvas || {};
+    const coordinate = Number.isFinite(Number(canvas.width)) && Number.isFinite(Number(canvas.height));
+    if (coordinate) {
+      want(data.editing === undefined, `${name} is coordinate-grammar but carries an editing declaration`);
+      continue;
+    }
+    want(data.editing?.grammar === "sheet", `${name} does not declare editing.grammar "sheet"`);
+    const declared = Array.isArray(data.editing?.parts) ? data.editing.parts : [];
+    want(Array.isArray(data.editing?.parts), `${name} declares no editable parts list`);
+    // Only parts with a verified data->render path may be declared. Widen this
+    // set only after the corresponding renderer exists in every declaring kit.
+    const known = new Set(["rack", "findings"]);
+    for (const part of declared) want(known.has(part), `${name} declares "${part}", which has no verified renderer`);
+    const parts = new Set(declared);
+    const hasRack = (data.rack?.devices || []).length > 0;
+    want(parts.has("rack") === hasRack, hasRack
+      ? `${name} has a data-driven rack but does not declare it editable`
+      : `${name} declares the rack editable but has no rack devices`);
+    const rendersFindings = source.includes("findings.forEach(");
+    want(parts.has("findings") === rendersFindings, rendersFindings
+      ? `${name} renders its findings from data but does not declare them editable`
+      : `${name} declares findings editable but renders them as static rows`);
+  }
+});
+
 // 69 KB of tool logic used to ship with nothing so much as parsing it: a stray
 // character in the helper or the packager went through a green run completely
 // broken. Nothing here executes the tools - the behaviour harness in tests/

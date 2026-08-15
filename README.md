@@ -187,13 +187,14 @@ Don't start from a blank page. Copy the one closest to your network.
 | [**Headquarters**](starters/NET-HQ-001.edit.html) | Collapsed core, out-of-band zone, 22-device 42U rack | 20 nodes — **the next size up** |
 | [HQ campus, as an engineering sheet](starters/NET-HQ-002.edit.html) | Dual providers, StackWise Virtual core, three access floors, and a 42U rack scheduled to the unit with dual power feeds and an airflow record | 21 nodes |
 
-> **The AI editing workflow supports six of these kits.** The four *engineering
-> sheets* — NET-ENT-002, NET-HQ-002, NET-LAB-003 and NET-RH-001 — draw in their
-> own grammar: hand-tuned SVG geometry instead of the shared coordinate data.
-> `edit-with-ai.html` and the prompt in `docs/ai-json-rules.md` work with the
-> template and the other six starters; pointed at a sheet, the helper says so and
-> refuses rather than corrupting the drawing. Treat the sheets as finished
-> reference documents to copy from, not kits to edit by prompt — yet.
+> **Every kit supports AI editing of its written record; six also support AI
+> editing of the drawing.** The four *engineering sheets* — NET-ENT-002,
+> NET-HQ-002, NET-LAB-003 and NET-RH-001 — draw with hand-tuned SVG geometry,
+> so `edit-with-ai.html` offers only the parts each sheet renders from its
+> data — the rack schedule and, where it is data-driven, the gaps list — and
+> never the drawing itself. For AI-editable drawings, start from the template
+> or one of the six standard starters. The sheets remain finished reference
+> documents to copy from.
 
 **NET-ENT-001 and NET-ENT-002 are the same network.** They exist as a pair because
 the drawing is a choice, not a consequence of the data: one spells out every link,
