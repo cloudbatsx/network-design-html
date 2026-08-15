@@ -200,6 +200,27 @@ const SLICES = Object.freeze({
   all:      { paths: [["document"], ["topology"], ["rack"], ["sections"]], noun: "the whole design" }
 });
 
+/* Which parts of a design this tool may edit. The coordinate grammar (a numeric
+   canvas) supports every part. The engineering-sheet grammar keeps its geometry
+   inside the data - raw path strings and hand-placed coordinates - so a sheet
+   supports only the parts it declares in `editing.parts`, and never a drawing
+   part, whatever it declares: a model rewriting hand-tuned geometry produces
+   garbage no check here can grade. */
+const SHEET_EDITABLE = ["rack", "findings", "sections", "document"];
+
+function usesCoordinateGrammar(data) {
+  const canvas = data?.topology?.canvas || {};
+  return Number.isFinite(Number(canvas.width)) && Number.isFinite(Number(canvas.height));
+}
+
+// null = every part. An array = only those parts. Empty = nothing editable,
+// which is what an engineering sheet without a declaration comes out as.
+function editableParts(data) {
+  if (usesCoordinateGrammar(data)) return null;
+  const declared = Array.isArray(data?.editing?.parts) ? data.editing.parts : [];
+  return declared.filter((name) => SHEET_EDITABLE.includes(name) && SLICES[name]);
+}
+
 const pathLabel = (path) => path.join(".");
 const readPath = (data, path) => path.reduce((value, key) => (value == null ? undefined : value[key]), data);
 
@@ -440,24 +461,31 @@ async function loadFile(file) {
     const parsed = JSON.parse(raw);      // proves the starting point is sound
     // The engineering-sheet kits (NET-ENT-002, NET-HQ-002, NET-LAB-003,
     // NET-RH-001) draw in their own grammar: a viewBox canvas and hand-tuned
-    // SVG geometry instead of the shared x,y coordinate data. An edit made
-    // through this tool would corrupt that drawing in ways no check below can
-    // catch, so they are refused here rather than half-supported. The canvas
-    // tells the two families apart - the same test checkMeaning() uses to
-    // decide whether the geometry rules apply.
-    const canvas = parsed.topology?.canvas || {};
-    if (!Number.isFinite(Number(canvas.width)) || !Number.isFinite(Number(canvas.height))) {
+    // SVG geometry carried inside the data. Their drawings cannot be edited by
+    // prompt, but the parts each sheet declares in `editing.parts` - the rack
+    // schedule, the gaps list - render from the data and can. A sheet that
+    // declares nothing (a file from before the declarations existed) is still
+    // refused rather than guessed at.
+    const parts = editableParts(parsed);
+    if (parts && !parts.length) {
       source = ""; accepted = null; currentData = null;
       $("step-2").hidden = true; $("step-3").hidden = true; $("step-4").hidden = true;
-      note("load-message", "warning", "AI editing is not supported for this file yet.",
-        " This design is drawn with hand-tuned SVG geometry instead of the shared coordinate data - the grammar of the four engineering-sheet kits (NET-ENT-002, NET-HQ-002, NET-LAB-003, NET-RH-001). An AI edit would corrupt the drawing without any check here catching it, so this tool refuses rather than guesses. Start from the template or one of the six standard starters instead: NET-BR-001, NET-ENT-001, NET-FAB-001, NET-HQ-001, NET-LAB-002, NET-OT-001.");
+      note("load-message", "warning", "AI editing is not supported for this file.",
+        " This design is drawn with hand-tuned SVG geometry instead of the shared coordinate data - the grammar of the four engineering-sheet kits (NET-ENT-002, NET-HQ-002, NET-LAB-003, NET-RH-001) - and it declares no AI-editable parts, so this tool refuses rather than guesses. A current copy of these kits declares its editable parts; re-download it from the repository, or start from the template or one of the six standard starters: NET-BR-001, NET-ENT-001, NET-FAB-001, NET-HQ-001, NET-LAB-002, NET-OT-001.");
       return;
     }
     source = text; payloadStart = at.start; payloadEnd = at.end;
     currentData = parsed;
     $("payload").value = JSON.stringify(parsed, null, 2);
     $("payload-size").textContent = `${raw.length.toLocaleString()} characters of diagram data, out of ${text.length.toLocaleString()} in the whole file.`;
-    note("load-message", "ok", "File loaded.", " Now describe your change below.");
+    applyPartMenu(parts);
+    if (parts) {
+      const offered = parts.map((name) => SLICES[name].noun).join(" and ");
+      note("load-message", "ok", "File loaded - an engineering sheet.",
+        ` This kit's drawing is hand-tuned, so the AI can edit ${offered} only. The drawing itself is not offered - copy a standard starter if you need AI-editable drawings.`);
+    } else {
+      note("load-message", "ok", "File loaded.", " Now describe your change below.");
+    }
     describeSlice();
     $("step-2").hidden = false; $("step-3").hidden = false;
     $("step-4").hidden = false; $("save").disabled = true;
@@ -481,6 +509,24 @@ async function loadFile(file) {
 
 function currentSliceName() {
   return $("slice")?.value || "all";
+}
+
+/* Restrict the part picker to what the loaded design supports. null restores
+   the full menu. Hiding rather than rebuilding keeps the option order and the
+   optgroup labels stable across files. */
+function applyPartMenu(parts) {
+  const select = $("slice");
+  let first = null;
+  for (const option of select.querySelectorAll("option")) {
+    const allowed = !parts || parts.includes(option.value);
+    option.hidden = !allowed;
+    option.disabled = !allowed;
+    if (allowed && first === null) first = option.value;
+  }
+  for (const group of select.querySelectorAll("optgroup")) {
+    group.hidden = [...group.querySelectorAll("option")].every((option) => option.hidden);
+  }
+  if (parts && !parts.includes(select.value) && first !== null) select.value = first;
 }
 
 function buildPrompt() {
@@ -698,7 +744,7 @@ function mergeReply(parsed, original, name) {
   return { merged, problems: out, applied };
 }
 
-function checkStructure(raw, data, name) {
+function checkStructure(raw, data, name, original) {
   const out = [];
   const trimmed = (raw || "").trim();
   const smaller = name === "all" ? "one part at a time - start with the devices" : `${SLICES[name].noun} only`;
@@ -707,7 +753,10 @@ function checkStructure(raw, data, name) {
       "The reply is cut off. It does not end with a closing brace, so part of it is missing.",
       `Your last reply was cut off before it finished. Send it again, shorter, covering ${smaller}.`));
   }
+  // A section is required only if the design had it to begin with: NET-ENT-002
+  // ships no rack on purpose, and demanding one would block its every edit.
   for (const key of ["document", "topology", "rack"]) {
+    if (original && (typeof original[key] !== "object" || original[key] === null)) continue;
     if (!data || typeof data[key] !== "object" || data[key] === null) {
       out.push(problem(true, `The "${key}" section is missing from the reply.`,
         `Your reply was missing the "${key}" section. Send the complete JSON object with document, topology and rack all present.`));
@@ -854,6 +903,11 @@ function checkMeaning(data) {
   const zones = data.topology?.zones || [];
   const devices = data.rack?.devices || [];
   const units = Number(data.rack?.units) || 42;
+  // LINK_KINDS and ZONE_KINDS mirror the template family's stylesheet. The
+  // engineering sheets style their own vocabulary (physical-10g, lag, mgmt),
+  // so grading them against the template's lists reports working links as
+  // invisible. Id integrity and the rack rules stay on for both grammars.
+  const usesCoordinates = usesCoordinateGrammar(data);
 
   const seen = new Set();
   for (const node of nodes) {
@@ -879,7 +933,7 @@ function checkMeaning(data) {
           `The connection to "${link[end]}" refers to a device that does not exist. Either add that device or remove the connection.`));
       }
     }
-    if (link.kind !== undefined && !LINK_KINDS.includes(link.kind)) {
+    if (usesCoordinates && link.kind !== undefined && !LINK_KINDS.includes(link.kind)) {
       out.push(problem(false, `Connection ${i + 1} uses the type "${link.kind}", which does not exist. It will be drawn as an invisible line.`,
         `"${link.kind}" is not a valid link kind. Use one of: ${LINK_KINDS.join(", ")}.`));
     }
@@ -892,7 +946,7 @@ function checkMeaning(data) {
   }
 
   for (const zone of zones) {
-    if (zone.kind !== undefined && !ZONE_KINDS.includes(zone.kind)) {
+    if (usesCoordinates && zone.kind !== undefined && !ZONE_KINDS.includes(zone.kind)) {
       out.push(problem(false, `The area "${zone.id || zone.label || "?"}" uses the type "${zone.kind}", which does not exist. It will be drawn as a solid black rectangle.`,
         `"${zone.kind}" is not a valid zone kind. Use one of: ${ZONE_KINDS.join(", ")}.`));
     }
@@ -911,7 +965,6 @@ function checkMeaning(data) {
      apart, because that is exactly where the renderers diverge. */
   const canvas = data.topology?.canvas || {};
   const width = Number(canvas.width), height = Number(canvas.height);
-  const usesCoordinates = Number.isFinite(width) && Number.isFinite(height);
   const half = { x: NODE_W / 2, y: NODE_H / 2 };
 
   if (usesCoordinates) for (const node of nodes) {
@@ -1295,7 +1348,7 @@ function check() {
 
   const all = hostile
     .concat(mergeProblems)
-    .concat(checkStructure(cleanedText, merged, name))
+    .concat(checkStructure(cleanedText, merged, name, original))
     .concat(checkAssetStrings(merged))
     .concat(checkShell(merged))
     .concat(checkMeaning(merged));

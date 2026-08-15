@@ -10,8 +10,11 @@ instead if you are a maintainer changing the template itself.
 It applies to the template and the six standard starters — NET-BR-001,
 NET-ENT-001, NET-FAB-001, NET-HQ-001, NET-LAB-002, NET-OT-001. The four
 engineering-sheet kits (NET-ENT-002, NET-HQ-002, NET-LAB-003, NET-RH-001) draw
-in their own grammar of hand-tuned SVG geometry and are **not AI-editable yet**;
-prompting a model to edit one corrupts the drawing.
+in their own grammar of hand-tuned SVG geometry, and **their drawings are not
+AI-editable**; hand-prompting a model to edit one corrupts the drawing. Their
+written record is editable, but through `tools/edit-with-ai.html` only — the
+helper offers exactly the parts each sheet declares (the rack schedule, and the
+gaps list where it renders from data) and refuses the rest.
 
 > Keep the lists below in sync with the template. They are copied from `ICONS`
 > and `RACK_ASSETS` in `starters/network-design-template.edit.html` and from the
