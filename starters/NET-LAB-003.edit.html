@@ -384,6 +384,12 @@
       cursor: pointer;
     }
     .device-face img { display: block; width: 100%; height: 100%; object-fit: fill; }
+    .device-face.is-generic { background: #eef3f7; border-color: #9fb3c2; }
+    .device-face .generic-label {
+      font: 600 10px/1.15 system-ui, sans-serif; color: #465966;
+      text-align: center; padding: 0 4px; letter-spacing: .02em;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%;
+    }
     .device-face:hover,
     .device-face:focus,
     .device-face.selected { z-index: 15; outline: 3px solid #e39b2f; outline-offset: 1px; }
@@ -1862,6 +1868,12 @@
         img.alt = '';
         img.draggable = false;
         face.appendChild(img);
+      } else {
+        face.classList.add('is-generic');
+        const label = document.createElement('span');
+        label.className = 'generic-label';
+        label.textContent = device.id;
+        face.appendChild(label);
       }
 
       const show = () => showRackLabel(wrap, face, device, view);
