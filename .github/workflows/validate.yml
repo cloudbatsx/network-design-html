@@ -8,9 +8,17 @@ jobs:
   repository:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
-      - name: Validate repository contracts
-        run: node scripts/validate-repository.js
+      # npm test, not the script directly, so CI can never drift from what a
+      # contributor runs locally.
+      - name: Validate repository contracts and tool behaviour
+        run: npm test
+      # The packaging round-trip: build both fixtures the way the browser
+      # does, then prove capsule recovery, byte parity and blob hashes.
+      - name: Build packaged fixtures
+        run: npm run build:packager
+      - name: Verify the packaging round-trip
+        run: npm run verify:packager
