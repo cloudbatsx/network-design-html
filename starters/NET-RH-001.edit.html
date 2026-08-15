@@ -3494,15 +3494,27 @@ if (typeof module !== "undefined" && module.exports) module.exports = RACK_FACE_
       var faces = document.createElement('div');
       faces.className = 'equip-faces';
       [['front','Front'],['rear','Rear']].forEach(function(pair){
-        if(!art || !art[pair[0]]) return;
         var fig = document.createElement('figure');
-        var img = document.createElement('img');
-        img.src = art[pair[0]];
-        img.alt = d.model + ', ' + pair[1].toLowerCase() + ' face';
-        img.draggable = false;
         var cap = document.createElement('figcaption');
         cap.textContent = pair[1];
-        fig.appendChild(img); fig.appendChild(cap);
+        if(art && art[pair[0]]){
+          var img = document.createElement('img');
+          img.src = art[pair[0]];
+          img.alt = d.model + ', ' + pair[1].toLowerCase() + ' face';
+          img.draggable = false;
+          fig.appendChild(img);
+        } else {
+          var drawn = rackFaceContent(d, pair[0]);
+          if(!drawn) return;
+          drawn.style.width = '100%';
+          drawn.style.height = 'auto';
+          drawn.style.aspectRatio = RACK_FACE_CORE.W + ' / ' + (RACK_FACE_CORE.U * d.span);
+          drawn.setAttribute('role','img');
+          drawn.setAttribute('aria-label', d.model + ', drawn ' + pair[1].toLowerCase() + ' face');
+          drawn.removeAttribute('aria-hidden');
+          fig.appendChild(drawn);
+        }
+        fig.appendChild(cap);
         faces.appendChild(fig);
       });
       var bodyEl = document.createElement('div');
@@ -3512,7 +3524,9 @@ if (typeof module !== "undefined" && module.exports) module.exports = RACK_FACE_
       u.textContent = d.span + 'U · ×' + e.count;
       var why = document.createElement('div'); why.className = 'why'; why.textContent = d.role + '.';
       var src = document.createElement('div'); src.className = 'source';
-      src.textContent = 'Orthographic face as installed in ' + ((proofData.rack && proofData.rack.id) || 'the rack') + ' · rack position declared, datasheet values not attached';
+      src.textContent = (art.front || art.rear)
+        ? 'Orthographic face as installed in ' + ((proofData.rack && proofData.rack.id) || 'the rack') + ' · rack position declared, datasheet values not attached'
+        : 'Drawn faceplate at true rack proportions · vendor-neutral layout · official photography arrives when the document is packaged';
       bodyEl.appendChild(h3); bodyEl.appendChild(u); bodyEl.appendChild(why); bodyEl.appendChild(src);
       card.appendChild(faces); card.appendChild(bodyEl);
       host.appendChild(card);
