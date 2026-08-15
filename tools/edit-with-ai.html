@@ -46,6 +46,19 @@
     .parts legend{padding:0 6px;font-weight:700;font-size:.9rem}
     .parts .hint{margin:0 0 10px}
     .parts select{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:#fff}
+    .changes{margin:0 0 14px;border:1px solid var(--line);border-radius:7px;background:#fff;overflow:hidden}
+    .changes h3{margin:0;padding:10px 13px;border-bottom:1px solid var(--line);background:#f6fafb;font-size:.92rem}
+    .changes h3 em{color:var(--muted);font-style:normal;font-weight:400}
+    .changes dl{margin:0;padding:11px 13px}
+    .changes dt{margin-top:9px;color:var(--blue2);font-size:.76rem;font-weight:750;letter-spacing:.05em;text-transform:uppercase}
+    .changes dt:first-child{margin-top:0}
+    .changes dd{margin:3px 0 0;font-size:.86rem;font-family:Consolas,"Courier New",monospace}
+    .changes dd .mark{display:inline-block;width:1.1em;font-weight:700}
+    .changes dd.add .mark{color:var(--ok)}
+    .changes dd.remove{color:#762121}
+    .changes dd.remove .mark{color:var(--bad)}
+    .changes dd.more{color:var(--muted);font-style:italic;font-family:inherit}
+    .changes .none{margin:0;padding:11px 13px;color:var(--muted);font-size:.87rem}
     footer{padding:15px 30px 22px;border-top:1px solid var(--line);color:var(--muted);font-size:.78rem}
     @media(max-width:700px){header,main,footer{padding-inline:15px}}
   </style>
@@ -124,6 +137,7 @@
     <section class="step" id="step-4" hidden>
       <h2><span class="n">4</span>Save your new file</h2>
       <p class="hint">Everything outside the diagram data is copied through unchanged. Save it, then double-click it to see your change.</p>
+      <div id="changes"></div>
       <div class="row">
         <button class="button success" id="save" type="button" disabled>Save new design file</button>
         <span class="file-name" id="save-state"></span>
@@ -391,6 +405,7 @@ async function loadFile(file) {
     $("save-state").textContent = ""; note("save-message", null);
     // Anything reported against the previous file is meaningless now.
     $("problems").replaceChildren();
+    $("changes").replaceChildren();
     $("copy-problems").disabled = true;
     note("check-message", null);
   } catch (error) {
@@ -865,6 +880,157 @@ function checkMeaning(data) {
   return out;
 }
 
+/* ---------- What actually changed ----------
+ *
+ * Everything above proves the new data is not broken. None of it proves the AI
+ * only did what was asked. A model told to add one switch can also reword a
+ * caption, drop a rack device or renumber an address, and every check here would
+ * still pass - so the last thing before Save is a plain list of what moved.
+ * The reader decides; this only has to be honest and short.
+ */
+
+const SHOW_PER_GROUP = 8;
+
+function short(value, limit = 44) {
+  if (value === undefined) return "nothing";
+  if (value === null) return "empty";
+  const text = typeof value === "string" ? value : JSON.stringify(value);
+  return text.length > limit ? `${text.slice(0, limit - 1)}…` : text;
+}
+
+// Scalar-level differences between two records, one level deep plus named
+// nested objects. Arrays are reported as a whole: "3 items -> 4 items" is more
+// use to a reader than a per-element diff nobody asked for.
+function fieldDiffs(before, after, prefix = "") {
+  const out = [];
+  const keys = [...new Set([...Object.keys(before || {}), ...Object.keys(after || {})])];
+  for (const key of keys) {
+    const a = before?.[key], b = after?.[key];
+    if (JSON.stringify(a) === JSON.stringify(b)) continue;
+    const path = prefix ? `${prefix}.${key}` : key;
+    if (Array.isArray(a) || Array.isArray(b)) {
+      const from = Array.isArray(a) ? a.length : 0, to = Array.isArray(b) ? b.length : 0;
+      out.push(from === to ? `${path} reworded` : `${path} ${from} → ${to} item${to === 1 ? "" : "s"}`);
+    } else if (a && b && typeof a === "object" && typeof b === "object") {
+      out.push(...fieldDiffs(a, b, path));
+    } else {
+      out.push(`${path} ${short(a)} → ${short(b)}`);
+    }
+  }
+  return out;
+}
+
+function diffCollection(before, after, keyOf, describe) {
+  const lines = [];
+  const beforeMap = new Map((before || []).map((item, i) => [keyOf(item, i), item]));
+  const afterMap = new Map((after || []).map((item, i) => [keyOf(item, i), item]));
+  for (const [key, item] of afterMap) {
+    if (!beforeMap.has(key)) { lines.push({ kind: "add", text: describe(item, key) }); continue; }
+    const changes = fieldDiffs(beforeMap.get(key), item);
+    if (changes.length) lines.push({ kind: "change", text: `${key}: ${changes.join(", ")}` });
+  }
+  for (const [key, item] of beforeMap) {
+    if (!afterMap.has(key)) lines.push({ kind: "remove", text: describe(item, key) });
+  }
+  return lines;
+}
+
+const linkKey = (link, i) => `${link?.from ?? "?"} → ${link?.to ?? "?"}${link?.kind ? ` (${link.kind})` : ""}#${i}`;
+const linkText = (link) => `${link?.from ?? "?"} → ${link?.to ?? "?"}${link?.kind ? `  ${link.kind}` : ""}`;
+
+function summarizeChange(before, after) {
+  const groups = [];
+  const add = (label, lines) => { if (lines.length) groups.push({ label, lines }); };
+
+  add("Devices", diffCollection(before.topology?.nodes, after.topology?.nodes,
+    (node, i) => node?.id ?? `#${i}`, (node, key) => `${key}${node?.icon ? `  ${node.icon}` : ""}${node?.label ? `  “${short(node.label, 28)}”` : ""}`));
+
+  // Links have no id of their own, so identity is the pair they join. Two links
+  // between the same devices are told apart by position, which is why the index
+  // is in the key: without it, reordering would read as a delete plus an add.
+  add("Connections", diffCollection(before.topology?.links, after.topology?.links, linkKey, linkText));
+
+  add("Areas", diffCollection(before.topology?.zones, after.topology?.zones,
+    (zone, i) => zone?.id ?? `#${i}`, (zone, key) => `${key}${zone?.label ? `  “${short(zone.label, 28)}”` : ""}`));
+
+  add("Rack", diffCollection(before.rack?.devices, after.rack?.devices,
+    (device, i) => device?.id ?? `#${i}`,
+    (device, key) => `${key}${device?.position ? `  U${device.position}${device.height > 1 ? `–U${device.position + device.height - 1}` : ""}` : ""}${device?.model ? `  ${device.model}` : ""}`));
+
+  const rackFields = fieldDiffs(
+    { id: before.rack?.id, location: before.rack?.location, units: before.rack?.units },
+    { id: after.rack?.id, location: after.rack?.location, units: after.rack?.units });
+  add("Rack details", rackFields.map((text) => ({ kind: "change", text })));
+
+  add("Gaps & open items", diffCollection(before.sections?.findings?.items, after.sections?.findings?.items,
+    (item, i) => item?.title ?? `#${i}`,
+    (item, key) => `${short(key, 52)}${item?.at ? `  → ${Array.isArray(item.at) ? item.at.join(", ") : item.at}` : ""}`));
+
+  // Every section except findings, which has its own group above.
+  const sectionNames = [...new Set([...Object.keys(before.sections || {}), ...Object.keys(after.sections || {})])].filter((name) => name !== "findings");
+  const sectionLines = [];
+  for (const name of sectionNames) {
+    for (const text of fieldDiffs(before.sections?.[name], after.sections?.[name])) {
+      sectionLines.push({ kind: "change", text: `${name}: ${text}` });
+    }
+  }
+  add("Notes & tables", sectionLines);
+
+  add("Cover details", fieldDiffs(before.document, after.document).map((text) => ({ kind: "change", text })));
+
+  return groups;
+}
+
+function renderChanges(before, after) {
+  const host = $("changes");
+  host.replaceChildren();
+  const groups = summarizeChange(before, after);
+  const box = document.createElement("div");
+  box.className = "changes";
+
+  const total = groups.reduce((sum, group) => sum + group.lines.length, 0);
+  const heading = document.createElement("h3");
+  if (!total) {
+    heading.textContent = "Nothing changed";
+    box.appendChild(heading);
+    const none = document.createElement("p");
+    none.className = "none";
+    none.textContent = "The reply matches the design you already have. Saving it would produce the same file — the AI may have simply agreed with you, or missed what you asked for.";
+    box.append(none);
+    host.appendChild(box);
+    return;
+  }
+  heading.textContent = `About to change ${total} thing${total === 1 ? "" : "s"} `;
+  const em = document.createElement("em");
+  em.textContent = "— check this is only what you asked for";
+  heading.appendChild(em);
+  box.appendChild(heading);
+
+  const list = document.createElement("dl");
+  for (const group of groups) {
+    const dt = document.createElement("dt");
+    dt.textContent = group.label;
+    list.appendChild(dt);
+    for (const line of group.lines.slice(0, SHOW_PER_GROUP)) {
+      const dd = document.createElement("dd");
+      dd.className = line.kind === "add" ? "add" : line.kind === "remove" ? "remove" : "";
+      const mark = document.createElement("span");
+      mark.className = "mark";
+      mark.textContent = line.kind === "add" ? "+" : line.kind === "remove" ? "−" : "~";
+      dd.append(mark, document.createTextNode(line.text));
+      list.appendChild(dd);
+    }
+    if (group.lines.length > SHOW_PER_GROUP) {
+      const dd = document.createElement("dd");
+      dd.className = "more";
+      dd.textContent = `and ${group.lines.length - SHOW_PER_GROUP} more`;
+      list.appendChild(dd);
+    }
+  }
+  box.appendChild(list);
+  host.appendChild(box);
+}
+
 function renderProblems(list) {
   const host = $("problems");
   host.replaceChildren();
@@ -888,6 +1054,7 @@ function check() {
   const name = currentSliceName();
   accepted = null; $("save").disabled = true; $("save-state").textContent = "";
   note("save-message", null);
+  $("changes").replaceChildren();   // covers every early return below
   if (!raw.trim()) {
     renderProblems([]);
     note("check-message", "error", "Nothing to check.", " Paste the AI's reply first.");
@@ -939,12 +1106,14 @@ function check() {
   const cleaned = applied.length ? ` I cleaned up the reply first: ${applied.join(", ")}.` : "";
 
   if (stops) {
+    $("changes").replaceChildren();
     note("check-message", "error", `${stops} problem${stops === 1 ? "" : "s"} must be fixed before saving.`,
       `${warns ? ` There ${warns === 1 ? "is" : "are"} also ${warns} warning${warns === 1 ? "" : "s"}.` : ""} Use Copy problems and paste them back to the AI.${cleaned}`);
     return;
   }
 
   accepted = merged;
+  renderChanges(currentData, merged);
   $("save").disabled = false;
   const kept = name === "all" ? "" : ` Only ${SLICES[name].noun} changed; the rest of your file is untouched.`;
   if (warns) {
@@ -1024,7 +1193,8 @@ $("slice").addEventListener("change", () => {
   // Problems found against a different part are meaningless now.
   if (accepted || $("problems").children.length) {
     accepted = null; $("save").disabled = true;
-    $("problems").replaceChildren(); $("copy-problems").disabled = true;
+    $("problems").replaceChildren(); $("changes").replaceChildren();
+    $("copy-problems").disabled = true;
     note("check-message", null);
   }
 });
