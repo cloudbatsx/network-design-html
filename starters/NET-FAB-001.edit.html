@@ -1020,6 +1020,11 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
           "atZone": "perimeter"
         },
         {
+          "title": "Neither firewall is dual-homed to the border leaves",
+          "detail": "fw-01a reaches the fabric only through leaf-03, and fw-01b only through leaf-04. Losing one border leaf therefore does not degrade a firewall's path, it removes that firewall from the fabric outright and forces an HA failover for what is a switch fault. The pair survives because the border leaves are peer-linked, but a single leaf is a single point of failure for the firewall attached to it. Attaching each firewall to both border leaves would make a leaf failure survivable without a firewall failover.",
+          "at": ["fw-01a", "fw-01b"]
+        },
+        {
           "title": "Out-of-band fan-out is one summarised line",
           "detail": "The management plane is drawn reaching the fabric as a single dotted link. Which devices actually have dedicated management or console connections, and by what media, is unrecorded.",
           "at": "oob-sw-01"
