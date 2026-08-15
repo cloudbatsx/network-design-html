@@ -6,7 +6,7 @@
   <title>cloudbats &mdash; Reference Design: San Jose HQ campus | NET-HQ-002 v2.1</title>
   <meta name="author" content="Sayed Haque &mdash; cloudbats">
   <meta name="document-id" content="CB-ND-SJC-HQ-001">
-  <meta name="revision" content="2.0">
+  <meta name="revision" content="2.1">
   <meta name="date" content="2026-08-13">
   <meta name="classification" content="SAMPLE / REFERENCE">
   <meta name="document-status" content="NOT ASSIGNED">
@@ -476,6 +476,12 @@ body{background:#eef2f5;font-size:14px}
 .document-brand__name{color:var(--document-ink);font-weight:800;letter-spacing:.18em}
 .document-brand__type{color:var(--document-muted);font-weight:600;letter-spacing:.14em}
 .document-header h2{margin:0 0 4px;color:var(--document-ink);font-size:25px;line-height:1.25}
+.integrity { display: flex; align-items: center; gap: 9px; margin-top: 14px; padding: 10px 13px; border: 1px solid #c3ced4; border-radius: 7px; background: #f6f9fa; color: #5d707c; font-size: 12.5px; }
+.integrity::before { content: "CHECK"; padding: 2px 6px; border-radius: 3px; background: var(--status-planned); color: #fff; font-size: 9px; font-weight: 850; letter-spacing: .08em; }
+.integrity.pass { border-color: #8fc79e; background: #f0f9f2; color: #205c31; }
+.integrity.pass::before { content: "PASS"; background: var(--status-up); }
+.integrity.fail { border-color: #e0a0a0; background: #fff4f4; color: #8f1f1f; }
+.integrity.fail::before { content: "FAIL"; background: var(--status-down); }
 .document-subtitle{max-width:none;margin:0;color:var(--document-muted);line-height:1.5}
 .document-meta{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--shell-meta-gap);margin:15px 0 0;font-size:12px}
 .document-field{min-width:0}
@@ -1130,7 +1136,7 @@ window.networkDesignIcons = {
         <li><a href="#overview"><span class="num">0</span>Overview</a></li>
         <li><a href="#logical-topology"><span class="num">1</span>Logical topology</a></li>
         <li><a href="#identity-addressing"><span class="num">2</span>Identity &amp; addressing</a></li>
-        <li><a href="#physical-view"><span class="num">3</span>Physical view &middot; R113</a></li>
+        <li><a href="#physical-view"><span class="num">3</span>Physical view &middot; B1.DC1.A03</a></li>
         <li><a href="#change-management"><span class="num">4</span>Change management</a></li>
         <li><a href="#operations-observability"><span class="num">5</span>Ops &amp; observability</a></li>
 
@@ -1175,7 +1181,7 @@ window.networkDesignIcons = {
   <div class="meta-row">
     <span class="badge navy">Network &amp; Security</span>
     <span class="badge teal">Reference Design &middot; San Jose HQ campus</span>
-    <span class="badge">v2.0 &middot; 2026-08-13</span>
+    <span class="badge">v2.1 &middot; 2026-08-13</span>
     <span class="badge red">Field evidence &middot; pattern level</span>
   </div>
   <h1>NET-HQ-002 &mdash; San Jose HQ campus network &amp; B1.DC1.A03 rack elevation</h1>
@@ -1214,6 +1220,7 @@ window.networkDesignIcons = {
   <div class="document-brand"><span class="document-brand__name">CLOUDBATS</span><span class="document-brand__type">Network Design Document</span></div>
   <h2 id="document-title">San Jose HQ — Campus Network: L3 Logical Topology &amp; Rack Elevation</h2>
   <p id="document-subtitle" class="document-subtitle">San Jose HQ reference design &middot; logical topology, rack elevation and engineering schedules.</p>
+  <div class="integrity" id="integrity-status" role="status" aria-live="polite">Running embedded identity and data checks…</div>
   <dl class="document-meta" aria-label="Document control">
     <div class="document-field"><dt>Document ID</dt><dd class="document-code" data-doc-field="document-id">CB-ND-SJC-HQ-001</dd></div>
     <div class="document-field"><dt>Revision</dt><dd class="document-code" data-doc-field="revision">2.0</dd></div>
@@ -2331,7 +2338,7 @@ the basis rather than take it on trust.</caption>
 </section>
 
 <footer class="doc-footer">
-  Prepared by Sayed Haque &middot; 2026-08-10 &middot; Presentation edition &middot; revision 2.0 &mdash; presented in the CloudBats documentation shell 2026-08-13; the five-view tab structure is replaced by a sidebar index and a numbered spine, while the Layer&nbsp;3 figure, the official Cisco topology symbols, the R113 rack elevation, the document-control block and every engineering schedule are carried over unchanged from revision 1.11 &middot; full method and worked examples live in the archived working versions (v1.11 and earlier) &middot; Every element is a design assumption to validate, not a recorded fact: no configuration, measurement or as-built survey stands behind any value in this file &middot; Fictional training campus; all addressing is RFC&nbsp;1918 / RFC&nbsp;5737 documentation range, and facility, serial and personal identifiers are redacted throughout.
+  Prepared by Sayed Haque &middot; 2026-08-10 &middot; Presentation edition &middot; revision 2.1 &mdash; presented in the CloudBats documentation shell 2026-08-13; the five-view tab structure is replaced by a sidebar index and a numbered spine, while the Layer&nbsp;3 figure, the official Cisco topology symbols, the B1.DC1.A03 rack elevation, the document-control block and every engineering schedule are carried over unchanged from revision 1.11 &middot; full method and worked examples live in the archived working versions (v1.11 and earlier) &middot; Every element is a design assumption to validate, not a recorded fact: no configuration, measurement or as-built survey stands behind any value in this file &middot; Fictional training campus; all addressing is RFC&nbsp;1918 / RFC&nbsp;5737 documentation range, and facility, serial and personal identifiers are redacted throughout.
 </footer>
 
 
@@ -3317,7 +3324,7 @@ the basis rather than take it on trust.</caption>
       u.textContent = d.span + 'U · ×' + e.count;
       var why = document.createElement('div'); why.className = 'why'; why.textContent = d.role + '.';
       var src = document.createElement('div'); src.className = 'source';
-      src.textContent = 'Orthographic face as installed in R113 · rack position declared, datasheet values not attached';
+      src.textContent = 'Orthographic face as installed in B1.DC1.A03 · rack position declared, datasheet values not attached';
       bodyEl.appendChild(h3); bodyEl.appendChild(u); bodyEl.appendChild(why); bodyEl.appendChild(src);
       card.appendChild(faces); card.appendChild(bodyEl);
       host.appendChild(card);
@@ -3390,6 +3397,74 @@ the basis rather than take it on trust.</caption>
 
 })();
 
+</script>
+<script>
+/* SHEET-KIT SELF-CHECK - shared verbatim by the engineering-sheet kits that
+   predate a full figure-reconciling preflight. Everything here derives from
+   the data block and the rendered DOM; nothing is kit-specific, so the same
+   bytes serve every kit that carries it. The reconciliation these kits still
+   owe (figure geometry against data) arrives with the sheet-kit convergence
+   program; until then this proves the data is internally coherent and the
+   document identity tells one story. */
+(function () {
+  "use strict";
+  var status = document.getElementById("integrity-status");
+  if (!status) { return; }
+  var failures = [];
+  var data = null;
+  try { data = JSON.parse(document.getElementById("proof-data").textContent); }
+  catch (error) { failures.push("proof-data JSON: " + error.message); }
+  var doc = (data && data.document) || {};
+  var metaOf = function (name) {
+    var element = document.querySelector('meta[name="' + name + '"]');
+    return element ? element.content : null;
+  };
+  if (doc.revision && metaOf("revision") && metaOf("revision") !== doc.revision) failures.push("revision metadata disagrees with the data block");
+  if (doc.revision && document.title.indexOf("v" + doc.revision) === -1) failures.push("title revision disagrees with the data block");
+  if (doc.drawing && metaOf("document-id") && metaOf("document-id") !== doc.drawing) failures.push("document-id metadata disagrees with the data block");
+  var topology = (data && data.topology) || {};
+  var nodes = topology.nodes || [];
+  var known = {};
+  nodes.forEach(function (node) {
+    if (!node.id) { failures.push("a topology node has no id"); return; }
+    if (known[node.id]) failures.push("duplicate node id: " + node.id);
+    known[node.id] = true;
+  });
+  (topology.links || []).forEach(function (link, index) {
+    ["from", "to"].forEach(function (end) {
+      if (link[end] !== undefined && !known[link[end]]) {
+        failures.push("link " + (link.id || index + 1) + " references missing node " + link[end]);
+      }
+    });
+  });
+  var rack = (data && data.rack) || {};
+  var units = Number(rack.units) || 0;
+  var occupied = {};
+  (rack.devices || []).forEach(function (device) {
+    var position = Number(device.position), height = Number(device.height);
+    if (!isFinite(position) || !isFinite(height)) { failures.push(device.id + " has no usable rack position or height"); return; }
+    if (units && (position < 1 || position + height - 1 > units)) failures.push(device.id + " is outside the rack");
+    for (var unit = position; unit < position + height; unit++) {
+      if (occupied[unit]) failures.push(device.id + " overlaps " + occupied[unit] + " at U" + unit);
+      else occupied[unit] = device.id;
+    }
+  });
+  var findings = ((data && data.sections && data.sections.findings) || {}).items || [];
+  findings.forEach(function (item, index) {
+    var anchors = item && item.at != null ? [].concat(item.at) : [];
+    anchors.forEach(function (id) {
+      if (!known[id]) failures.push("finding " + (index + 1) + " pins to missing device " + id);
+    });
+  });
+  var externals = document.querySelectorAll('script[src], link[rel="stylesheet"], img[src^="http"], image[href^="http"]');
+  if (externals.length) failures.push(externals.length + " external runtime dependencies");
+  window.networkDesignQA = { pass: failures.length === 0, failures: failures };
+  status.classList.add(failures.length ? "fail" : "pass");
+  status.textContent = failures.length
+    ? "Embedded data checks failed · " + failures.join(" · ")
+    : "Embedded data checks passed · " + nodes.length + " nodes · " + (topology.links || []).length +
+      " links · " + (rack.devices || []).length + " rack devices · no external runtime dependencies.";
+})();
 </script>
 </body>
 </html>
