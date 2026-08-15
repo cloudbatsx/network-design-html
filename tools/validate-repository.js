@@ -444,9 +444,15 @@ check("editable vector files contain no raster image payloads", () => {
 const iconDirectory = path.join(root, "assets", "icons", "cisco-pms3015");
 const rackDirectory = path.join(root, "assets", "rack-assets");
 
-check("official artwork ships with the repository", () => {
-  assert(fs.existsSync(iconDirectory), "assets/icons/cisco-pms3015 is missing");
-  assert(fs.existsSync(rackDirectory), "assets/rack-assets is missing");
+// Deleting assets/ is a supported configuration - three documents promise it,
+// and every design still renders on vector symbols alone. So the counts are
+// asserted only when the artwork is present: a partial folder is a mistake,
+// an absent one is a choice.
+const artworkPresent = fs.existsSync(iconDirectory) || fs.existsSync(rackDirectory);
+check("official artwork is complete when present", () => {
+  if (!artworkPresent) { notes.push("assets/ not present - artwork checks skipped (supported configuration)"); return; }
+  assert(fs.existsSync(iconDirectory), "assets/icons/cisco-pms3015 is missing while assets/rack-assets exists");
+  assert(fs.existsSync(rackDirectory), "assets/rack-assets is missing while assets/icons exists");
   const iconFiles = fs.readdirSync(iconDirectory).filter((name) => name.toLowerCase().endsWith(".jpg"));
   const rackFiles = fs.readdirSync(rackDirectory).filter((name) => name.toLowerCase().endsWith(".png"));
   assert(iconFiles.length === 294, `expected 294 Cisco JPGs in assets/, found ${iconFiles.length}`);
@@ -482,6 +488,7 @@ checkEvery("artwork bytes match their extensions", (want) => {
 });
 
 checkEvery("every asset reference resolves to a shipped file", (want) => {
+  if (!artworkPresent) return;
   const sources = [primary, alternate, JSON.stringify(map), ...starters];
   const missing = new Set();
   for (const source of sources) {

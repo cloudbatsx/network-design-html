@@ -15,6 +15,15 @@ never sees the HTML — only a small block of data.
 
 > **New here, or new to network design?** Read [`start-here.html`](start-here.html) —
 > a self-contained, step-by-step visual guide from nothing to a finished document.
+
+## Download
+
+Everything is in one ZIP — the ten starter kits, the blank template, the AI
+editing helper, the packager, the official artwork and the beginner guide, ready
+to use offline with no installs:
+
+**[⬇ Download the latest release](https://github.com/cloudbatsx/network-design-html/releases/latest)** —
+or clone the repository, which is the same thing plus history.
 > Open it from your clone or download it; like everything else here, it works offline.
 
 ---
@@ -24,7 +33,7 @@ never sees the HTML — only a small block of data.
 ```mermaid
 flowchart LR
     A["Say what you want:<br/>add a WLC, wire it<br/>to both cores"] --> B["Free AI model"]
-    B --> C["JSON only<br/>~17% of the file"]
+    B --> C["JSON only<br/>7–20% of the file"]
     C --> D{"Checked"}
     D -- problems --> B
     D -- clean --> E["New .edit.html<br/>byte-exact"]
@@ -84,10 +93,10 @@ is the light path, and for most documents it is the better one:
 
 | | file size | needs |
 |---|---|---|
-| **Vector symbols** — just save it | **~100 KB** | nothing |
-| **Official Cisco artwork** — run the packager | ~3.7 MB | the `assets` folder |
+| **Vector symbols** — just save it | **~150 KB** | nothing |
+| **Official Cisco artwork** — run the packager | ~4 MB | the `assets` folder |
 
-36× smaller, emails cleanly, diffs in Git, prints identically. The symbols live in
+Over 25× smaller, emails cleanly, diffs in Git, prints identically. The symbols live in
 [`symbols/`](symbols/README.md), they are MIT licensed original work, and you are
 free to lift them for anything else you build — see
 [`examples/vector-symbol-showcase.html`](examples/vector-symbol-showcase.html) for
@@ -154,8 +163,9 @@ before the build runs, so nothing fails silently.
 | | |
 |---|---|
 | 🖥️ **Logical topology** | Zones, devices, and links from a JSON block. Click any device to inspect it. |
-| 🗄️ **Rack elevation** | Front and rear from one equipment schedule, so they can't drift apart. |
-| ✅ **It checks itself** | Catches rack overlaps, dangling links, duplicate IDs, devices outside the rack. |
+| 🗄️ **Rack elevation** | Front and rear from one equipment schedule, so they can't drift apart. 26 drawn faceplates ship built in — no artwork needed. |
+| ✂️ **Part-based editing** | The helper sends the AI one part — devices, connections, the rack — so a free model writes 80–90% less and stops getting cut off. |
+| ✅ **It checks itself** | Catches rack overlaps, dangling links, duplicate IDs, unknown icons and kinds, face-height mismatches, broken JSON — loudly, in the file itself. |
 | 🖨️ **Prints properly** | Letter-size PDF with the sidebar dropped and hidden sections revealed. |
 | 🎨 **Your branding** | Swap the logo with one line of JSON. |
 | 📦 **Zero dependencies** | No CDN, no fonts, no build step, no server. Works on a plane. |
@@ -297,7 +307,7 @@ reproducible from the tree in one click anyway.
 
 [`docs/template-authoring-rules.md`](docs/template-authoring-rules.md) is the
 template-authoring and packaging contract — the rules for rewriting the template
-itself, *not* the prompt for editing a diagram. It asks for a complete 97 KB HTML
+itself, *not* the prompt for editing a diagram. It asks for a complete ~145 KB HTML
 file back, so it needs a strong model; it was called `gemini-editing-rules.md`,
 which pointed beginners at the one door a free model cannot open.
 
@@ -319,7 +329,10 @@ dist/                    build output, untracked
 
 ## Status and license
 
-Pre-release, but the workflow above works today.
+Pre-release. The workflow above is complete and machine-checked — 32 repository
+checks and a behaviour test suite run on every commit — but it has not yet been
+validated end to end against a live free model. That validation is the next
+milestone, and its results will be published in this repository.
 
 Code, tooling, documentation **and the 19 vector symbols** are **MIT licensed** —
 see [`LICENSE`](LICENSE). The symbols are original work; reuse them anywhere.
