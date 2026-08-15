@@ -50,7 +50,7 @@ const sandbox = {
   Blob, TextDecoder, structuredClone, setTimeout, console
 };
 
-const shim = ";globalThis.__exports = { parseWithRepair, mergeReply, checkStructure, checkMeaning, checkShell, checkAssetStrings, looksTruncated, safeJson, contextFor, summarizeChange, editableParts, SLICES };";
+const shim = ";globalThis.__exports = { parseWithRepair, mergeReply, checkStructure, checkMeaning, checkShell, checkAssetStrings, looksTruncated, safeJson, contextFor, summarizeChange, editableParts, freshRequestText, freshDrawingId, EXTRACT_PROMPT, SLICES };";
 vm.runInNewContext(script[1] + shim, sandbox, { filename: "edit-with-ai.html <script>" });
 const t = sandbox.__exports;
 
@@ -369,6 +369,34 @@ test("changes: an unnamed field cannot change invisibly", () => {
   const group = t.summarizeChange(before, after).find((g) => g.label === "Everything else");
   assert(group && group.lines.some((line) => /validation changed/.test(line.text)),
     "an unknown top-level field changed invisibly");
+});
+
+/* ---- the fresh-build wizard ---- */
+
+test("wizard: the build request carries the title, id, zones, rack and gaps rules", () => {
+  const text = t.freshRequestText("Our Organization Network", "OUR-NET-001", "small");
+  assert(text.includes('Title "Our Organization Network"'));
+  assert(text.includes("drawing id OUR-NET-001"));
+  assert(/external area/.test(text) && /internal area/.test(text));
+  assert(/Small rack/.test(text));
+  assert(/gaps list/.test(text));
+});
+
+test("wizard: choosing no rack records the absence as a gap", () => {
+  const text = t.freshRequestText("T", "T-NET-001", "none");
+  assert(/No rack/.test(text) && /absence of physical documentation as a gap/.test(text));
+  assert(!/Small rack/.test(text));
+});
+
+test("wizard: drawing ids derive from title initials and never come out empty", () => {
+  assert.strictEqual(t.freshDrawingId("Our Organization Network"), "OON-NET-001");
+  assert.strictEqual(t.freshDrawingId(""), "NET-001");
+});
+
+test("wizard: the diagram-reading prompt asks for lists, ids and areas, and no code", () => {
+  assert(/short id/.test(t.EXTRACT_PROMPT));
+  assert(/three plain-text lists/.test(t.EXTRACT_PROMPT));
+  assert(/Do not write any code yet/.test(t.EXTRACT_PROMPT));
 });
 
 /* ---- runner ---- */

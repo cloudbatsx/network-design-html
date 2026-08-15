@@ -46,6 +46,11 @@
     .parts legend{padding:0 6px;font-weight:700;font-size:.9rem}
     .parts .hint{margin:0 0 10px}
     .parts select{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:#fff}
+    .fresh{margin:0 0 14px;padding:12px 14px;border:1px dashed #9fc0cd;border-radius:7px;background:#fbfdfe}
+    .fresh summary{cursor:pointer;color:var(--blue2);font-weight:700}
+    .fresh-field{display:block;margin:8px 0;font-size:.9rem;font-weight:650}
+    .fresh-field input,.fresh-field select{display:block;width:min(420px,100%);margin-top:4px;padding:7px 10px;border:1px solid var(--line);border-radius:6px;font-weight:400;font-family:inherit}
+    .fresh-hint{color:var(--muted);font-weight:400;font-size:.82rem}
     .changes{margin:0 0 14px;border:1px solid var(--line);border-radius:7px;background:#fff;overflow:hidden}
     .changes h3{margin:0;padding:10px 13px;border-bottom:1px solid var(--line);background:#f6fafb;font-size:.92rem}
     .changes h3 em{color:var(--muted);font-style:normal;font-weight:400}
@@ -86,6 +91,31 @@
     <section class="step" id="step-2" hidden>
       <h2><span class="n">2</span>Say what you want changed</h2>
       <p class="hint">Describe the change in plain English, then copy the prompt and paste it into your AI chat. The prompt already contains your current diagram, so you do not need to attach anything.</p>
+      <details class="fresh" id="fresh-start">
+        <summary>Starting fresh — from a diagram, or a blank page?</summary>
+        <p class="hint">Two prompts, both built for you. Works with the blank template loaded above.</p>
+        <p><b>A — Have your AI read your diagram first.</b> Copy this into a new AI chat, attach
+        your picture, send it, then correct anything it got wrong. Keep that chat open.</p>
+        <div class="row">
+          <button class="button" id="copy-extract" type="button">Copy the diagram-reading prompt</button>
+          <span class="file-name" id="extract-state"></span>
+        </div>
+        <p style="margin-top:14px"><b>B — Answer three questions.</b> This fills in the request
+        below; then press <b>Copy prompt</b> and paste it into that same chat.</p>
+        <label class="fresh-field">Document title
+          <input id="fresh-title" type="text" placeholder="Our Organization Network"></label>
+        <label class="fresh-field">Drawing id <span class="fresh-hint">(also becomes the saved filename)</span>
+          <input id="fresh-drawing" type="text" placeholder="OUR-NET-001"></label>
+        <label class="fresh-field">Physical rack
+          <select id="fresh-rack">
+            <option value="small">Small rack with the network devices</option>
+            <option value="none">No rack — record its absence as a gap</option>
+          </select></label>
+        <div class="row gap">
+          <button class="button primary" id="fresh-fill" type="button">Fill in the request</button>
+          <span class="file-name" id="fresh-state"></span>
+        </div>
+      </details>
       <fieldset class="parts">
         <legend>Which part is changing?</legend>
         <p class="hint">A free AI model has a limit on how much it can write in one reply. Pick the smallest part that covers your change: it only has to send that part back, so there is less to run out of room on and less it can break by accident.</p>
@@ -281,6 +311,26 @@ function contextFor(data, name) {
 }
 
 /* The prompt. Keep in sync with docs/ai-json-rules.md. */
+/* The fresh-build wizard. Someone handed a diagram should never have to
+   compose prose: prompt A has the AI read the picture, and three answers
+   build the whole-design request. It lives here rather than in the guide so
+   this page is the only one that has to be open. */
+const EXTRACT_PROMPT = "Describe this network diagram in detail: every device with a suggested short id (like fw-01, core-sw-01), every connection between devices, and the trust areas (what is inside the organization, what is outside). Give me three plain-text lists. Do not write any code yet - I will paste build instructions next.";
+
+function freshDrawingId(title) {
+  const initials = (title || "").trim().split(/\s+/).map((word) => word[0] || "").join("").toUpperCase().replace(/[^A-Z0-9]/g, "");
+  return (initials ? initials + "-" : "") + "NET-001";
+}
+
+function freshRequestText(title, drawing, rack) {
+  const rackLine = rack === "none"
+    ? "No rack: record the absence of physical documentation as a gap."
+    : "Small rack with the rack-mountable devices - firewall, switches, servers.";
+  return `Build this whole design from the inventory above. Title "${title}", drawing id ${drawing}. ` +
+    "Put the internet and anything outside the organization in an external area, and the organization in an internal area. " +
+    rackLine + " Anything you could not read from the diagram goes in the gaps list.";
+}
+
 const PROMPT = `Reply with ONE JSON object and nothing else. The first character of your reply
 must be { and the last character must be }. No code fences. No explanation
 before or after. No comments inside the JSON.
@@ -1464,6 +1514,32 @@ $("choose-file").addEventListener("click", () => $("file-input").click());
 $("file-input").addEventListener("change", () => {
   const file = $("file-input").files[0];
   if (file) loadFile(file);
+});
+$("copy-extract").addEventListener("click", async () => {
+  try {
+    await navigator.clipboard.writeText(EXTRACT_PROMPT);
+    $("extract-state").textContent = "Copied. New AI chat, attach your diagram, paste, send.";
+  } catch {
+    $("payload-details").open = true;
+    $("payload").value = EXTRACT_PROMPT;
+    $("extract-state").textContent = "Could not copy - it is in the box under 'Show the diagram data being sent'.";
+  }
+});
+$("fresh-title").addEventListener("input", () => {
+  if (!$("fresh-drawing").value) $("fresh-drawing").placeholder = freshDrawingId($("fresh-title").value);
+});
+$("fresh-fill").addEventListener("click", () => {
+  const slice = $("slice");
+  if (![...slice.options].some((option) => option.value === "all")) {
+    $("fresh-state").textContent = "Fresh builds start from the template - load starters/network-design-template.edit.html in step 1.";
+    return;
+  }
+  const title = $("fresh-title").value.trim() || "Our Organization Network";
+  const drawing = $("fresh-drawing").value.trim() || freshDrawingId(title);
+  slice.value = "all";
+  slice.dispatchEvent(new Event("change"));
+  $("request").value = freshRequestText(title, drawing, $("fresh-rack").value);
+  $("fresh-state").textContent = "Request filled - now press Copy prompt and paste it into that same chat.";
 });
 $("slice").addEventListener("change", () => {
   describeSlice();
