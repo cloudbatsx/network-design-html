@@ -2265,6 +2265,17 @@ if (typeof module !== "undefined" && module.exports) module.exports = RACK_FACE_
 
 <script>
   "use strict";
+  /* Registered before anything that can throw. If the file is structurally
+     damaged - a truncation that severed a script tag, a block overwritten by
+     hand - the constants below fail before the render pipeline's own guard
+     exists, and without this the page sits blank behind a pill stuck on
+     "Running data checks". The guards keep it from repainting the better
+     message the pipeline's catch writes for data-level failures. */
+  window.addEventListener("error",()=>{
+    const status=document.getElementById("proof-status");
+    if(status&&!status.classList.contains("fail")){status.textContent="FAIL · this file is damaged and could not render";status.classList.add("fail")}
+    document.querySelectorAll(".errors").forEach(box=>{if(!box.classList.contains("visible")){box.textContent="Rendering stopped because this file is damaged - part of it is missing or was overwritten. Restore your last saved copy, or start again from the kit you copied.";box.classList.add("visible")}})
+  });
   const ASSET_CONTRACT=JSON.parse(document.getElementById("network-packager-contract").textContent);
   const PORTABLE_VAULT=JSON.parse(document.getElementById("network-asset-vault").textContent);
   const PORTABLE_MODE=PORTABLE_VAULT?.schema==="network-asset-vault/v2";
@@ -2302,6 +2313,12 @@ if (typeof module !== "undefined" && module.exports) module.exports = RACK_FACE_
     "ups":{"front":"asset:rack/apc-smt3000rmi2uc.front.png","rear":"asset:rack/apc-smt3000rmi2uc.rear.png",vector:"generic-ups-2u"}
   });
   const SVG_NS="http://www.w3.org/2000/svg",NODE_W=176,NODE_H=104;
+  // The same closed lists the stylesheet draws from (.link.* / .zone.* rules)
+  // and docs/ai-json-rules.md documents. An unlisted value still renders the
+  // documented way - invisible line, black rectangle - but now says so in the
+  // error box instead of failing silently.
+  const LINK_KINDS=Object.freeze(["l3","aggregate","ha","access","backup"]);
+  const ZONE_KINDS=Object.freeze(["external","perimeter","internal","other"]);
   const DEFAULT_BRAND_PATH="M112 72 H400 V352 Q400 400 376 424 Q356 440 336 424 Q316 400 296 400 H216 Q196 400 176 424 Q156 440 136 424 Q112 400 112 352 Z M312 136 A40 40 0 0 1 352 176 V304 A40 40 0 0 1 312 344 A40 40 0 0 1 272 304 V176 A40 40 0 0 1 312 136 Z";
   const FINDING_FLAVOURS=Object.freeze({gaps:["gaps","gapnum"],patterns:["patterns","patnum"],gains:["gains","gainnum"]});
   let data,topologyErrors=[],rackErrors=[],slotAId="gaps";
@@ -2399,12 +2416,13 @@ if (typeof module !== "undefined" && module.exports) module.exports = RACK_FACE_
     svg.replaceChildren();svg.setAttribute("viewBox",`0 0 ${width} ${height}`);
     const title=svgEl("title",{id:"svg-title"},data.document?.title||"Logical topology"),desc=svgEl("desc",{id:"svg-desc"},data.document?.subtitle||""),defs=svgEl("defs"),filter=svgEl("filter",{id:"node-shadow",x:"-20%",y:"-20%",width:"140%",height:"150%"});
     filter.appendChild(svgEl("feDropShadow",{dx:0,dy:3,stdDeviation:3,"flood-color":"#152d39","flood-opacity":.2}));defs.appendChild(filter);svg.append(title,desc,defs);
-    (topo.zones||[]).forEach(zone=>{svg.appendChild(svgEl("rect",{class:`zone ${zone.kind||"other"}`,x:zone.x,y:zone.y,width:zone.width,height:zone.height,rx:12}));svg.appendChild(svgEl("text",{class:"zone-label",x:Number(zone.x)+18,y:Number(zone.y)+27},zone.label||zone.id))});
+    (topo.zones||[]).forEach(zone=>{const zx=Number(zone.x),zy=Number(zone.y),zw=Number(zone.width),zh=Number(zone.height);if(![zx,zy,zw,zh].every(Number.isFinite)){topologyErrors.push(`Zone ${zone.id||zone.label||"?"} has no usable position or size, so it was not drawn.`);return}if(zone.kind!==undefined&&!ZONE_KINDS.includes(zone.kind))topologyErrors.push(`Zone ${zone.id||zone.label||"?"} has the unknown kind "${zone.kind}", which draws as a solid black rectangle.`);svg.appendChild(svgEl("rect",{class:`zone ${zone.kind||"other"}`,x:zx,y:zy,width:zw,height:zh,rx:12}));svg.appendChild(svgEl("text",{class:"zone-label",x:zx+18,y:zy+27},zone.label||zone.id))});
     const nodes=new Map();(topo.nodes||[]).forEach(node=>{if(!node.id)topologyErrors.push("A topology node is missing an id.");else if(nodes.has(node.id))topologyErrors.push(`Duplicate topology node id: ${node.id}.`);else nodes.set(node.id,node)});
     const links=svgEl("g",{"aria-label":"Network links"}),labels=svgEl("g",{"aria-label":"Link labels"});
-    (topo.links||[]).forEach((link,index)=>{const source=nodes.get(link.from),target=nodes.get(link.to);if(!source||!target){topologyErrors.push(`Link ${index+1} references a missing node.`);return}const points=[[source.x,source.y],...(link.via||[]),[target.x,target.y]];links.appendChild(svgEl("polyline",{class:`link ${link.kind||"l3"}`,points:points.map(point=>point.join(",")).join(" ")}));if(link.label){const auto=midpoint(points),x=Number.isFinite(Number(link.labelX))?Number(link.labelX):auto[0],y=Number.isFinite(Number(link.labelY))?Number(link.labelY):auto[1],w=Math.max(54,link.label.length*6.7+16);labels.appendChild(svgEl("rect",{class:"link-label-bg",x:x-w/2,y:y-12,width:w,height:22,rx:4}));labels.appendChild(svgEl("text",{class:"link-label",x,y:y+4},link.label))}});svg.append(links,labels);
+    (topo.links||[]).forEach((link,index)=>{const source=nodes.get(link.from),target=nodes.get(link.to);if(!source||!target){topologyErrors.push(`Link ${index+1} references a missing node.`);return}if(link.kind!==undefined&&!LINK_KINDS.includes(link.kind))topologyErrors.push(`Link ${index+1} (${link.from} to ${link.to}) has the unknown kind "${link.kind}", which draws an invisible line.`);const points=[[source.x,source.y],...(link.via||[]),[target.x,target.y]];links.appendChild(svgEl("polyline",{class:`link ${link.kind||"l3"}`,points:points.map(point=>point.join(",")).join(" ")}));if(link.label){const auto=midpoint(points),x=Number.isFinite(Number(link.labelX))?Number(link.labelX):auto[0],y=Number.isFinite(Number(link.labelY))?Number(link.labelY):auto[1],w=Math.max(54,link.label.length*6.7+16);labels.appendChild(svgEl("rect",{class:"link-label-bg",x:x-w/2,y:y-12,width:w,height:22,rx:4}));labels.appendChild(svgEl("text",{class:"link-label",x,y:y+4},link.label))}});svg.append(links,labels);
     const nodeLayer=svgEl("g",{"aria-label":"Network devices"});
     nodes.forEach(node=>{
+      if(!Number.isFinite(Number(node.x))||!Number.isFinite(Number(node.y))){topologyErrors.push(`${node.id} has no usable x,y position, so it was not drawn.`);return}
       const group=svgEl("g",{class:"node",tabindex:0,role:"button","aria-label":`${node.label||node.id}, ${node.role||"network device"}`,transform:`translate(${Number(node.x)-NODE_W/2} ${Number(node.y)-NODE_H/2})`});
       group.appendChild(svgEl("rect",{class:"node-shell",width:NODE_W,height:NODE_H,rx:9}));
       const iconRef=appendNodeIcon(group,node);
@@ -2453,8 +2471,8 @@ if (typeof module !== "undefined" && module.exports) module.exports = RACK_FACE_
     if(PORTABLE_MODE&&assetId){const image=document.createElement("img");image.src=assetUrl(assetId);image.alt="";image.draggable=false;if(!image.src)rackErrors.push(`Official rack asset is unavailable on ${device.id} (${view}).`);return image}
     return vectorFace(device,view)||placeholderFace(`${device.id} / ${view}`,view)
   }
-  function renderRackView(view,rack){const bay=el(`rack-${view}`),wrap=el(`rack-${view}-wrap`);bay.replaceChildren();wrap.querySelectorAll(".rack-tooltip").forEach(item=>item.remove());bay.style.height=`calc(${rack.units} * var(--u))`;wrap.querySelectorAll(".ruler").forEach(ruler=>ruler.style.height=`calc(${rack.units} * var(--u))`);buildRuler(wrap,rack.units);const tooltip=document.createElement("div");tooltip.className="rack-tooltip";tooltip.setAttribute("role","tooltip");wrap.appendChild(tooltip);(rack.reserved||[]).forEach(slot=>{const item=document.createElement("div");item.className="reserved-slot";item.style.bottom=`calc((${slot.position} - 1) * var(--u))`;item.style.height=`calc(${slot.height} * var(--u))`;item.textContent=slot.label;bay.appendChild(item)});(rack.devices||[]).forEach(device=>{const wanted=device.asset&&device.asset!=="generic",asset=wanted?RACK_ASSETS[device.asset]:null,vector=wanted?vectorInfo(device.asset,device.height):null;if(wanted&&!asset&&!vector&&view==="front")rackErrors.push(`Unknown rack asset ${device.asset} on ${device.id}; drawn as a generic face.`);if(vector&&vector.key===device.asset&&vector.units!==device.height&&view==="front")rackErrors.push(`${device.id} is scheduled as ${device.height}U but ${device.asset} draws a ${vector.units}U face.`);const face=document.createElement("button");face.type="button";face.className="device-face";face.dataset.device=device.id;face.style.bottom=`calc((${device.position} - 1) * var(--u))`;face.style.height=`calc(${device.height} * var(--u))`;face.setAttribute("aria-label",`${device.id}, ${device.model}, ${range(device)}, ${view} view`);face.appendChild(rackFaceContent(device,view,asset?asset[view]:null));const show=()=>showRackTooltip(wrap,bay,face,device,view);face.addEventListener("mouseenter",show);face.addEventListener("focus",show);face.addEventListener("mouseleave",()=>{if(!face.classList.contains("selected"))tooltip.classList.remove("visible")});face.addEventListener("blur",()=>{if(!face.classList.contains("selected"))tooltip.classList.remove("visible")});face.addEventListener("click",()=>{selectRackDevice(device);show()});bay.appendChild(face)})}
-  function renderRack(){const rack=data.rack||{};rack.units=Number(rack.units)||42;setText("rack-heading",data.sections?.physical?.heading||`Physical view · ${rack.id||"rack"} · ${rack.units}U`);const occupied=new Map();(rack.devices||[]).forEach(device=>{if(device.position<1||device.position+device.height-1>rack.units)rackErrors.push(`${device.id} is outside the rack.`);for(let u=device.position;u<device.position+device.height;u++){if(occupied.has(u))rackErrors.push(`${device.id} overlaps ${occupied.get(u)} at U${u}.`);else occupied.set(u,device.id)}});setText("rack-front-caption",`Front elevation · ${rack.frontAisle||"cold aisle"}`);setText("rack-rear-caption",`Rear elevation · ${rack.rearAisle||"hot aisle"}`);renderRackView("front",rack);renderRackView("rear",rack);const tbody=el("inventory-body");tbody.replaceChildren();(rack.devices||[]).forEach(device=>{const row=document.createElement("tr");row.dataset.device=device.id;[range(device),device.id,device.model,device.role,faceKind(device)].forEach((value,index)=>{const cell=document.createElement("td");if(index===1){const code=document.createElement("code");code.textContent=value;cell.appendChild(code)}else cell.textContent=value;row.appendChild(cell)});row.addEventListener("click",()=>selectRackDevice(device));tbody.appendChild(row)});showErrors("rack-errors",rackErrors)}
+  function renderRackView(view,rack){const bay=el(`rack-${view}`),wrap=el(`rack-${view}-wrap`);bay.replaceChildren();wrap.querySelectorAll(".rack-tooltip").forEach(item=>item.remove());bay.style.height=`calc(${rack.units} * var(--u))`;wrap.querySelectorAll(".ruler").forEach(ruler=>ruler.style.height=`calc(${rack.units} * var(--u))`);buildRuler(wrap,rack.units);const tooltip=document.createElement("div");tooltip.className="rack-tooltip";tooltip.setAttribute("role","tooltip");wrap.appendChild(tooltip);(rack.reserved||[]).forEach(slot=>{const item=document.createElement("div");item.className="reserved-slot";item.style.bottom=`calc((${slot.position} - 1) * var(--u))`;item.style.height=`calc(${slot.height} * var(--u))`;item.textContent=slot.label;bay.appendChild(item)});(rack.devices||[]).forEach(device=>{if(!Number.isFinite(Number(device.position))||!Number.isFinite(Number(device.height)))return;const wanted=device.asset&&device.asset!=="generic",asset=wanted?RACK_ASSETS[device.asset]:null,vector=wanted?vectorInfo(device.asset,device.height):null;if(wanted&&!asset&&!vector&&view==="front")rackErrors.push(`Unknown rack asset ${device.asset} on ${device.id}; drawn as a generic face.`);if(vector&&vector.units!==device.height&&view==="front")rackErrors.push(`${device.id} is scheduled as ${device.height}U but ${device.asset} draws a ${vector.units}U face.`);if(wanted&&asset&&!vector&&view==="front")rackErrors.push(`${device.id} is scheduled as ${device.height}U but ${device.asset} has no ${device.height}U face.`);const face=document.createElement("button");face.type="button";face.className="device-face";face.dataset.device=device.id;face.style.bottom=`calc((${device.position} - 1) * var(--u))`;face.style.height=`calc(${device.height} * var(--u))`;face.setAttribute("aria-label",`${device.id}, ${device.model}, ${range(device)}, ${view} view`);face.appendChild(rackFaceContent(device,view,asset?asset[view]:null));const show=()=>showRackTooltip(wrap,bay,face,device,view);face.addEventListener("mouseenter",show);face.addEventListener("focus",show);face.addEventListener("mouseleave",()=>{if(!face.classList.contains("selected"))tooltip.classList.remove("visible")});face.addEventListener("blur",()=>{if(!face.classList.contains("selected"))tooltip.classList.remove("visible")});face.addEventListener("click",()=>{selectRackDevice(device);show()});bay.appendChild(face)})}
+  function renderRack(){const rack=data.rack||{};rack.units=Number(rack.units)||42;setText("rack-heading",data.sections?.physical?.heading||`Physical view · ${rack.id||"rack"} · ${rack.units}U`);const occupied=new Map(),rackIds=new Set();(rack.devices||[]).forEach(device=>{if(device.id){if(rackIds.has(device.id))rackErrors.push(`Duplicate rack device id: ${device.id}.`);rackIds.add(device.id)}else rackErrors.push("A rack device is missing an id.");if(typeof device.position==="string"||typeof device.height==="string")rackErrors.push(`${device.id||"A rack device"} has its position or height written as text instead of a number.`);const p=Number(device.position),h=Number(device.height);if(!Number.isFinite(p)||!Number.isFinite(h)||h<1){rackErrors.push(`${device.id||"A rack device"} has no usable position or height, so it was not drawn.`);return}device.position=p;device.height=h;if(p<1||p+h-1>rack.units)rackErrors.push(`${device.id} is outside the rack.`);for(let u=p;u<p+h;u++){if(occupied.has(u))rackErrors.push(`${device.id} overlaps ${occupied.get(u)} at U${u}.`);else occupied.set(u,device.id)}});setText("rack-front-caption",`Front elevation · ${rack.frontAisle||"cold aisle"}`);setText("rack-rear-caption",`Rear elevation · ${rack.rearAisle||"hot aisle"}`);renderRackView("front",rack);renderRackView("rear",rack);const tbody=el("inventory-body");tbody.replaceChildren();(rack.devices||[]).forEach(device=>{const row=document.createElement("tr");row.dataset.device=device.id;[range(device),device.id,device.model,device.role,faceKind(device)].forEach((value,index)=>{const cell=document.createElement("td");if(index===1){const code=document.createElement("code");code.textContent=value;cell.appendChild(code)}else cell.textContent=value;row.appendChild(cell)});row.addEventListener("click",()=>selectRackDevice(device));tbody.appendChild(row)});showErrors("rack-errors",rackErrors)}
 
   /* ---- spine sections 0, 2, 4, 5 ---- */
   function renderSections(){
@@ -2615,7 +2633,32 @@ if (typeof module !== "undefined" && module.exports) module.exports = RACK_FACE_
     revealHashTarget()
   }
 
-  data=parseData();renderBrand();renderHeader();renderSections();renderTopology();renderRack();renderFindings();renderEquipment();updateProofStatus();setupControls();updatePackagingCopy();setupEditableExport();renderFooter();setupLayers();
+  /* The renderers are forgiving on purpose: a half-usable document should
+     still draw everything it can. This is the unforgiving part. A reply that
+     is valid JSON but the wrong shape must say so loudly - never render an
+     empty page under a PASS badge. Each unusable branch is reported, then
+     replaced with an empty one so the rest of the document still renders
+     under the FAIL. */
+  function checkShape(){
+    if(!data||typeof data!=="object"||Array.isArray(data)){data={};topologyErrors.push("The data block is not a JSON object, so nothing could be drawn.")}
+    if(!data.topology||typeof data.topology!=="object"||Array.isArray(data.topology)){data.topology={};topologyErrors.push("The topology section is missing from the data block.")}
+    ["nodes","links"].forEach(key=>{if(!Array.isArray(data.topology[key])){data.topology[key]=[];topologyErrors.push(`topology.${key} is missing or is not a list.`)}});
+    if(data.topology.zones!==undefined&&!Array.isArray(data.topology.zones)){data.topology.zones=[];topologyErrors.push("topology.zones is not a list, so it was ignored.")}
+    if(!data.rack||typeof data.rack!=="object"||Array.isArray(data.rack)){data.rack={};rackErrors.push("The rack section is missing from the data block.")}
+    if(!Array.isArray(data.rack.devices)){data.rack.devices=[];rackErrors.push("rack.devices is missing or is not a list.")}
+  }
+
+  try{
+    data=parseData();checkShape();renderBrand();renderHeader();renderSections();renderTopology();renderRack();renderFindings();renderEquipment();updateProofStatus();setupControls();updatePackagingCopy();setupEditableExport();renderFooter();setupLayers()
+  }catch(error){
+    /* Nothing below this line may fail silently. A truncated AI reply pasted
+       over the data block used to leave a blank page and a pill stuck on
+       "Running data checks" - the failure the whole workflow exists to catch. */
+    const status=el("proof-status");
+    if(status){status.textContent="FAIL · the data block is broken and the document could not finish rendering";status.classList.add("fail")}
+    document.querySelectorAll(".errors").forEach(box=>{if(!box.classList.contains("visible")){box.textContent=`Rendering stopped: ${error.message}. The data block is likely damaged - restore your last saved copy, or ask the AI for the complete part again.`;box.classList.add("visible")}});
+    throw error
+  }
 </script>
 </body>
 </html>

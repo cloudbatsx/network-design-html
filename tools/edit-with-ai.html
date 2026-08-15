@@ -996,8 +996,15 @@ function checkMeaning(data) {
     }
   }
 
-  const occupied = new Map();
+  const occupied = new Map(), rackIds = new Set();
   for (const device of devices) {
+    if (device.id) {
+      if (rackIds.has(device.id)) {
+        out.push(problem(true, `Two rack devices share the id "${device.id}". The schedule and both elevations can only show one of them.`,
+          `Two rack devices both use the id "${device.id}". Give each device its own unique id.`));
+      }
+      rackIds.add(device.id);
+    }
     // Not a hard failure: an unknown code now falls back to a generic face
     // rather than deleting the device, so nothing disappears from the drawing.
     if (device.asset !== undefined && !RACK_CODES.includes(device.asset)) {
@@ -1019,6 +1026,13 @@ function checkMeaning(data) {
       out.push(problem(true, `Rack device "${device.id}" does not fit. It would sit at U${p}${h > 1 ? `-U${p + h - 1}` : ""} in a ${units}U rack.`,
         `"${device.id}" does not fit in the ${units}U rack. Rack units count from the bottom and position is the lowest unit used.`));
       continue;
+    }
+    // Every drawn faceplate encodes its unit height in its own name, so this
+    // rule needs no second copy of the library to stay in sync with.
+    const face = /-([0-9]+)u$/.exec(device.asset || "");
+    if (face && Number(face[1]) !== h) {
+      out.push(problem(true, `Rack device "${device.id}" is ${h}U tall but its face "${device.asset}" draws ${face[1]}U.`,
+        `"${device.asset}" draws a ${face[1]}U face and "${device.id}" is ${h}U tall. Pick a face whose U matches the device's height, or fix the height.`));
     }
     for (let u = p; u < p + h; u++) {
       if (occupied.has(u)) {
@@ -1314,7 +1328,13 @@ function save() {
       if (want !== got) throw new Error(`internal marker count changed for ${marker}`);
     }
     if (countOf(out, "<" + "script") !== countOf(source, "<" + "script")) throw new Error("script tag count changed");
-    if (countOf(out, "asset:") !== countOf(source, "asset:")) throw new Error("artwork reference count changed");
+    // Counted outside the data block only. Inside it, adding or removing an
+    // iconAsset is a legitimate edit - checkAssetStrings() has already proved
+    // every reference in the accepted data is well-formed - but the icon map
+    // and packaging blocks outside must keep exactly the references they had.
+    const suffixStart = out.length - (source.length - payloadEnd);
+    if (countOf(out.slice(0, payloadStart), "asset:") !== countOf(source.slice(0, payloadStart), "asset:")
+      || countOf(out.slice(suffixStart), "asset:") !== countOf(source.slice(payloadEnd), "asset:")) throw new Error("artwork references outside the data block changed");
     if (out.includes("data:image/")) throw new Error("an embedded image appeared");
     if (!out.trimEnd().endsWith("</" + "html>")) throw new Error("the file no longer ends correctly");
     if (out.slice(0, payloadStart) !== source.slice(0, payloadStart)) throw new Error("bytes before the diagram data changed");
