@@ -332,7 +332,8 @@ dist/                    build output, untracked
 Pre-release. The workflow above is complete and machine-checked — 32 repository
 checks and a behaviour test suite run on every commit — but it has not yet been
 validated end to end against a live free model. That validation is the next
-milestone, and its results will be published in this repository.
+milestone; the protocol and its results live in
+[`docs/free-model-results.md`](docs/free-model-results.md).
 
 Code, tooling, documentation **and the 19 vector symbols** are **MIT licensed** —
 see [`LICENSE`](LICENSE). The symbols are original work; reuse them anywhere.
