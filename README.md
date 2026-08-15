@@ -49,11 +49,11 @@ outside the data block is copied through **byte for byte**.
 
 No Node. No npm. No command line. Just a browser and an AI chat window.
 
-1. **Download two files** — a [starter kit](#starter-kits) (or the [blank template](starters/network-design-template.edit.html), in the same folder) and [`edit-with-ai.html`](tools/edit-with-ai.html)
-2. **Open `edit-with-ai.html`** and pick your design file
-3. **Pick the part you're changing** — devices, connections, the rack, the gaps list — then **type your change** in plain English → **Copy prompt** → paste into your AI chat
+1. **Download** the [release ZIP](https://github.com/cloudbatsx/network-design-html/releases/latest) — or just two files: the [blank template](starters/network-design-template.edit.html) and [`edit-with-ai.html`](tools/edit-with-ai.html)
+2. **Open `edit-with-ai.html`** and pick your design file — the blank template for a fresh build, or any design you already made
+3. **Starting from a diagram?** Open the **Starting fresh** panel: one button has your AI read the picture, one click builds the whole-design request — you type nothing. **Editing?** Pick the part — devices, connections, the rack — and say the change in plain English. Either way: **Copy prompt** → paste into your AI chat
 4. **Paste the reply back** → click **Check it**
-5. **Save new design file** → double-click it. Done.
+5. **Save new design file** → double-click it. Done. (Your logo and colours have their own **Branding** panel — no AI involved — and after every save the helper offers the official-artwork version.)
 
 > **Step 3 is why a free model can drive this.** Ask for the devices and the AI
 > writes back ~3 KB instead of the whole 39 KB design — 80–90% less to produce, so
