@@ -408,10 +408,22 @@ test("wizard: drawing ids derive from title initials and never come out empty", 
   assert.strictEqual(t.freshDrawingId(""), "NET-001");
 });
 
-test("wizard: the diagram-reading prompt asks for lists, ids and areas, and no code", () => {
+test("wizard: the diagram-reading prompt captures all five lists and no code", () => {
+  assert(/five plain-text lists/.test(t.EXTRACT_PROMPT));
   assert(/short id/.test(t.EXTRACT_PROMPT));
-  assert(/three plain-text lists/.test(t.EXTRACT_PROMPT));
+  assert(/interface or port names/.test(t.EXTRACT_PROMPT));
+  assert(/licenses and their dates/.test(t.EXTRACT_PROMPT));
+  assert(/SSIDs/.test(t.EXTRACT_PROMPT));
+  assert(/expired, or end-of-life/.test(t.EXTRACT_PROMPT));
   assert(/Do not write any code yet/.test(t.EXTRACT_PROMPT));
+});
+
+test("wizard: the build request pushes the captured detail into the document", () => {
+  const text = t.freshRequestText("T", "T-NET-001", "auto");
+  assert(/interface or port names as connection labels/.test(text));
+  assert(/identity table rows/.test(text));
+  assert(/end-of-life becomes a finding/.test(text));
+  assert(/caption and legend/.test(text));
 });
 
 /* ---- the branding panel ---- */

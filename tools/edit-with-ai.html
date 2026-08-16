@@ -344,7 +344,7 @@ function contextFor(data, name) {
    compose prose: prompt A has the AI read the picture, and three answers
    build the whole-design request. It lives here rather than in the guide so
    this page is the only one that has to be open. */
-const EXTRACT_PROMPT = "Describe this network diagram in detail: every device with a suggested short id (like fw-01, core-sw-01), every connection between devices, and the trust areas (what is inside the organization, what is outside). Give me three plain-text lists. Do not write any code yet - I will paste build instructions next.";
+const EXTRACT_PROMPT = "Describe this network diagram as five plain-text lists, capturing everything written on it:\n1. Every device, with a suggested short id (like fw-01, core-sw-01).\n2. Every connection between devices, including any interface or port names written on the line (like FA0/0, GE0/7, Port 4).\n3. The trust areas: what is inside the organization, what is outside.\n4. Per-device details, exactly as written: model, addresses, software versions, licenses and their dates, SSIDs, port counts used and available, DHCP or static.\n5. Anything dated, expired, or end-of-life - old licenses, unsupported operating systems, aged hardware.\nDo not write any code yet - I will paste build instructions next.";
 
 function freshDrawingId(title) {
   const initials = (title || "").trim().split(/\s+/).map((word) => word[0] || "").join("").toUpperCase().replace(/[^A-Z0-9]/g, "");
@@ -369,7 +369,10 @@ function freshRequestText(title, drawing, rack) {
       : "If the diagram shows rack-mountable devices, put them in a small rack; if it shows none, record the absence of physical documentation as a gap.";
   return "Build this whole design from the inventory above. " + identity +
     "Put the internet and anything outside the organization in an external area, and the organization in an internal area. " +
-    rackLine + " Anything you could not read from the diagram goes in the gaps list.";
+    rackLine +
+    " Carry every detail from the inventory into the document: models, versions and specs in each device's notes, its address in the address field, interface or port names as connection labels, and addressing, VLANs and SSIDs as identity table rows." +
+    " Anything dated, expired or end-of-life becomes a finding, and anything you could not read from the diagram goes in the gaps list." +
+    " Write the figure caption and legend to describe what is actually drawn.";
 }
 
 /* Branding is deliberately a local, deterministic edit. The AI is forbidden
