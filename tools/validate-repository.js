@@ -571,6 +571,19 @@ checkEvery("sheet kits declare exactly their data-driven parts", (want) => {
   }
 });
 
+// "Start a new design" only works because the blank template travels inside
+// the helper - a double-clicked page cannot read the disk. An embedded copy
+// that drifts from the real template would hand new users a different product
+// than the repository ships.
+check("the helper carries the blank template, byte for byte", () => {
+  const helper = read("edit-with-ai.html");
+  const match = helper.match(/<script id="embedded-template"[^>]*>\n([\s\S]*?)\n<\/script>/);
+  assert(match, "edit-with-ai.html has no embedded-template capsule - run npm run build:helper");
+  const embedded = Buffer.from(match[1].trim(), "base64");
+  const template = fs.readFileSync(path.join(root, "starters", "network-design-template.edit.html"));
+  assert(embedded.equals(template), "embedded template drifted from the real template - run npm run build:helper");
+});
+
 // 69 KB of tool logic used to ship with nothing so much as parsing it: a stray
 // character in the helper or the packager went through a green run completely
 // broken. Nothing here executes the tools - the behaviour harness in tests/
@@ -592,7 +605,7 @@ checkEvery("every embedded script parses", (want) => {
     let index = 0;
     for (const match of source.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)) {
       index += 1;
-      if (/type\s*=\s*["']application\/json["']/i.test(match[1])) continue;
+      if (/type\s*=\s*["']application\/(json|octet-stream)["']/i.test(match[1])) continue;
       try { new Function(match[2]); } catch (error) { want(false, `${label} script #${index} does not parse: ${error.message}`); }
     }
   }
