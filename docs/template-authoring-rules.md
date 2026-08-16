@@ -6,7 +6,7 @@
 >
 > **Changing a diagram is the other document.** Use
 > [`ai-json-rules.md`](ai-json-rules.md), or
-> [`../tools/edit-with-ai.html`](../tools/edit-with-ai.html), which ask for a
+> [`../edit-with-ai.html`](../edit-with-ai.html), which ask for a
 > small block of data instead. That is the path a free model can drive.
 
 Use the attached `.edit.html` as my network-design template. Redesign or revise it according to my requirements while preserving the Network Design Packager v2 contract.

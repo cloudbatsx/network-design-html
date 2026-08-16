@@ -1,6 +1,6 @@
 "use strict";
 
-/* Behaviour tests for tools/edit-with-ai.html.
+/* Behaviour tests for edit-with-ai.html.
  *
  * The helper is a single self-contained HTML file, so its logic cannot be
  * imported. The one script block is extracted as text and evaluated in a
@@ -18,9 +18,9 @@ const vm = require("vm");
 const assert = require("assert");
 
 const root = path.resolve(__dirname, "..");
-const helper = fs.readFileSync(path.join(root, "tools", "edit-with-ai.html"), "utf8");
+const helper = fs.readFileSync(path.join(root, "edit-with-ai.html"), "utf8");
 const script = helper.match(/<script>([\s\S]*)<\/script>/);
-assert(script, "tools/edit-with-ai.html no longer contains a script block");
+assert(script, "edit-with-ai.html no longer contains a script block");
 
 function stubElement() {
   const element = {

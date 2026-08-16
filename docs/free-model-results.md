@@ -11,7 +11,7 @@ it against any model and add a row.
 
 - **Design file:** `starters/NET-HQ-001.edit.html` — the largest supported
   starter (~39,000 characters of helper-formatted data). Hard mode on purpose.
-- **Helper:** `tools/edit-with-ai.html`, opened locally. Load the starter once
+- **Helper:** `edit-with-ai.html`, opened locally. Load the starter once
   and keep the tab open for the whole session — after every save, the helper
   continues from the file it just wrote, so the runs build on each other.
 - **Model:** a genuinely free model, in a fresh chat per run so no run is

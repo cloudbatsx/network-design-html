@@ -144,7 +144,7 @@ function setMessage(kind, title, body) {
   $("message-body").textContent = body;
 }
 
-/* ---------- text helpers, shared with tools/packager/build-packager.js ---------- */
+/* ---------- text helpers, shared with tools/build-packager.js ---------- */
 
 function decodeUtf8Base64(value) {
   const bytes = Uint8Array.from(atob(value), (character) => character.charCodeAt(0));
@@ -572,7 +572,7 @@ $("download-source").addEventListener("click", () => analysis && download(analys
 $("build-portable").addEventListener("click", buildPortable);
 $("download-portable").addEventListener("click", () => portableSource && download(portableSource, portableName(sourceName)));
 
-/* Exposed for tools/packager/verify-packager.js and browser-driven checks: the
+/* Exposed for tools/verify-packager.js and browser-driven checks: the
    pure functions above have no DOM dependency, and testing them through the UI
    would mean synthesising OS file dialogs. */
 globalThis.PACKAGER = { canonicalPathOf, indexFiles, resolveEntries, assetIdToPath, scanAssetIds, cleanEditable, normalizeInput, validateContract, maskProtected, artwork };

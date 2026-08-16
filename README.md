@@ -49,7 +49,7 @@ outside the data block is copied through **byte for byte**.
 
 No Node. No npm. No command line. Just a browser and an AI chat window.
 
-1. **Download** the [release ZIP](https://github.com/cloudbatsx/network-design-html/releases/latest) — or just two files: the [blank template](starters/network-design-template.edit.html) and [`edit-with-ai.html`](tools/edit-with-ai.html)
+1. **Download** the [release ZIP](https://github.com/cloudbatsx/network-design-html/releases/latest) — or just two files: the [blank template](starters/network-design-template.edit.html) and [`edit-with-ai.html`](edit-with-ai.html)
 2. **Open `edit-with-ai.html`** and pick your design file — the blank template for a fresh build, or any design you already made
 3. **Starting from a diagram?** Open the **Starting fresh** panel: one button has your AI read the picture, one click builds the whole-design request — you type nothing. **Editing?** Pick the part — devices, connections, the rack — and say the change in plain English. Either way: **Copy prompt** → paste into your AI chat
 4. **Paste the reply back** → click **Check it**
@@ -125,7 +125,7 @@ so **Download editable source** hands the light version straight back.
 When a document does need the **official Cisco icons and rack faces** — a customer
 deliverable, a house standard — swap them in at the end:
 
-1. Open [`tools/packager/network-design-packager.html`](tools/packager/network-design-packager.html)
+1. Open [`packager.html`](packager.html)
 2. Point it at the **`assets`** folder from this repository
 3. Choose your design file → **Build portable HTML**
 
@@ -316,8 +316,8 @@ which pointed beginners at the one door a free model cannot open.
 starters/                ten ready-made designs to copy, plus the blank template
 symbols/                 canonical SVG sprite + semantic map
 assets/                  official Cisco icons and rack faces
-tools/edit-with-ai.html  offline AI editing helper
-tools/packager/          the packager, plus its maintainer scripts
+edit-with-ai.html  offline AI editing helper
+packager.html            swaps in the official artwork — at the root, beside the helper
 tools/*.js               repository validation and the rack-face build
 docs/                    prompt, layout standard, architecture
 examples/  tests/        showcase and contract fixture

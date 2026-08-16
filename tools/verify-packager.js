@@ -4,7 +4,7 @@ const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
 
-const repoRoot = path.resolve(__dirname, "../..");
+const repoRoot = path.resolve(__dirname, "..");
 const BLOCKS = Object.freeze({
   vault: { begin: "<!-- NETWORK-ASSET-VAULT:BEGIN -->", end: "<!-- NETWORK-ASSET-VAULT:END -->", id: "network-asset-vault" },
   capsule: { begin: "<!-- EDITABLE-SOURCE-CAPSULE:BEGIN -->", end: "<!-- EDITABLE-SOURCE-CAPSULE:END -->", id: "editable-source-capsule" }
@@ -101,7 +101,7 @@ function verifyPair(editableName, portableName, expectedAssets) {
 // The packager is shipped as source and reads assets/ at runtime. Everything
 // checked here is a way of failing if it ever drifts back into a built artifact
 // that a person cannot simply open from a clone.
-const PACKAGER_PATH = "tools/packager/network-design-packager.html";
+const PACKAGER_PATH = "packager.html";
 const PACKAGER_BYTE_CEILING = 200 * 1024;
 
 function verifyPackager() {

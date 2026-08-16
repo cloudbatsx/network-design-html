@@ -10,7 +10,7 @@ assets/
 
 Nothing here is needed to *design*. Every template and starter renders completely
 on its own vector symbols, offline, with no images at all. This artwork exists for
-one step: [`../tools/packager/network-design-packager.html`](../tools/packager/network-design-packager.html)
+one step: [`../packager.html`](../packager.html)
 embeds it into a `.portable.html` so the finished document carries official
 pictures instead of vector stand-ins.
 

@@ -23,7 +23,7 @@ vault; it renders the corresponding embedded raster bytes instead.
 - `starters/network-design-template.edit.html` is the canonical user template
   and carries synchronized runtime copies of both.
 - `examples/vector-symbol-showcase.html` is a synchronized visual QA surface.
-- `tools/packager/network-design-packager.html` is the packager itself: source in
+- `packager.html` is the packager itself: source in
   the tree, opened directly, with no build step and no artwork inside it.
 - `assets/` is the shipped official artwork the packager reads at runtime.
 

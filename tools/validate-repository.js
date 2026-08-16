@@ -365,7 +365,7 @@ checkEvery("rack asset vector aliases resolve", (want) => {
    stated. These make drift a build failure instead of a support question. */
 function listFrom(source, name) {
   const match = source.match(new RegExp(`const ${name}\\s*=\\s*\\[([^\\]]*)\\]`));
-  assert(match, `${name} not found in tools/edit-with-ai.html`);
+  assert(match, `${name} not found in edit-with-ai.html`);
   return [...match[1].matchAll(/"([^"]+)"/g)].map((entry) => entry[1]);
 }
 
@@ -376,7 +376,7 @@ function cssKinds(source, prefix) {
 }
 
 checkEvery("the helper tool's closed lists match the template", (want) => {
-  const helper = read("tools/edit-with-ai.html");
+  const helper = read("edit-with-ai.html");
   const iconKeys = listFrom(helper, "ICON_KEYS");
   const templateIcons = Object.keys(embeddedIconMap(primary));
   want(JSON.stringify(iconKeys.slice().sort()) === JSON.stringify(templateIcons.slice().sort()),
@@ -405,9 +405,9 @@ checkEvery("the helper tool's closed lists match the template", (want) => {
 // Rules the tool enforces but never states are rules the model is failed on
 // without being told. Each of these is checked by checkShell() in the helper.
 checkEvery("the helper tool's prompt states the rules it grades on", (want) => {
-  const helper = read("tools/edit-with-ai.html");
+  const helper = read("edit-with-ai.html");
   const prompt = helper.match(/const PROMPT = `([\s\S]*?)`;/);
-  assert(prompt, "PROMPT not found in tools/edit-with-ai.html");
+  assert(prompt, "PROMPT not found in edit-with-ai.html");
   const text = prompt[1];
   for (const [label, needle] of [
     ["the brand must not be touched", /brand object through exactly as you found it/i],
@@ -500,8 +500,8 @@ checkEvery("every asset reference resolves to a shipped file", (want) => {
 // anything. These guard the two ways that quietly stops being true: it grows a
 // build step, or it swallows the artwork it is supposed to read from disk.
 checkEvery("the packager is usable straight from a clone", (want) => {
-  const packagerPath = path.join(root, "tools", "packager", "network-design-packager.html");
-  want(fs.existsSync(packagerPath), "tools/packager/network-design-packager.html is missing");
+  const packagerPath = path.join(root, "packager.html");
+  want(fs.existsSync(packagerPath), "packager.html is missing");
   if (!fs.existsSync(packagerPath)) return;
   const packager = fs.readFileSync(packagerPath, "utf8");
   want(!/@@[A-Z_]+@@/.test(packager), "packager still contains build tokens");
@@ -579,8 +579,8 @@ checkEvery("every embedded script parses", (want) => {
   const pages = [
     ...starterNames.map((name) => `starters/${name}`),
     "start-here.html",
-    "tools/edit-with-ai.html",
-    "tools/packager/network-design-packager.html",
+    "edit-with-ai.html",
+    "packager.html",
     "tools/cisco-icon-catalog.html",
     "examples/vector-symbol-showcase.html",
     "examples/rack-face-preview.html",

@@ -2,22 +2,22 @@
 
 /*
  * Maintainer-only. The packager itself is no longer built: it is a tracked,
- * dependency-free page at tools/packager/network-design-packager.html that
+ * dependency-free page at packager.html that
  * reads assets/ from the checkout at runtime. What is still worth generating
  * is proof that the same contract survives a real end-to-end packaging run, so
  * this script packages two fixtures the way the browser does and writes them,
  * with a QA report, into the untracked dist/ directory.
  *
- *   node tools/packager/build-packager.js
+ *   node tools/build-packager.js
  */
 
 const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
 
-const repoRoot = path.resolve(__dirname, "../..");
+const repoRoot = path.resolve(__dirname, "..");
 const assetRoot = path.join(repoRoot, "assets");
-const packagerPath = path.join(repoRoot, "tools", "packager", "network-design-packager.html");
+const packagerPath = path.join(repoRoot, "packager.html");
 
 const outputs = [
   {
@@ -256,7 +256,7 @@ function main() {
   // it has stopped being the file people can open straight from a clone.
   const packager = readUtf8(packagerPath);
   if (/@@[A-Z_]+@@/.test(packager)) {
-    throw new Error("tools/packager/network-design-packager.html still contains build tokens; it must be usable as-is.");
+    throw new Error("packager.html still contains build tokens; it must be usable as-is.");
   }
 
   fs.mkdirSync(path.join(repoRoot, "dist", "examples"), { recursive: true });

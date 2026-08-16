@@ -198,7 +198,7 @@
       </div>
       <div id="save-message"></div>
       <p class="hint" id="next-step" hidden>Next — want the <b>official Cisco artwork</b> version
-        of this file? Open <a href="packager/network-design-packager.html" target="_blank"
+        of this file? Open <a href="packager.html" target="_blank"
         rel="noopener">the packager</a>, point it at the repository's <code>assets</code>
         folder, and choose the file you just saved. Your editable file stays as it is; the
         packaged copy is a second, portable deliverable.</p>
@@ -914,7 +914,7 @@ function checkHostileText(raw) {
   return out;
 }
 
-// Mirrors assetIdToPath() in tools/packager/build-packager.js: one path segment,
+// Mirrors assetIdToPath() in tools/build-packager.js: one path segment,
 // no backslash, no percent, no control characters. Spaces ARE legal here - some
 // official artwork names contain them, such as "layer 3 switch.jpg".
 // The control-character class is built from a string so this source file never
@@ -1501,7 +1501,7 @@ function check() {
 
 /* ---------- 4. Splice and save ---------- */
 
-// Exactly the escapes used by tools/packager/build-packager.js.
+// Exactly the escapes used by tools/build-packager.js.
 //
 // DO NOT ESCAPE THE FORWARD SLASH here, however tempting it looks as a defence
 // against a closing script tag inside a value. The packager's asset scanner

@@ -12,7 +12,7 @@ NET-ENT-001, NET-FAB-001, NET-HQ-001, NET-LAB-002, NET-OT-001. The four
 engineering-sheet kits (NET-ENT-002, NET-HQ-002, NET-LAB-003, NET-RH-001) draw
 in their own grammar of hand-tuned SVG geometry, and **their drawings are not
 AI-editable**; hand-prompting a model to edit one corrupts the drawing. Their
-written record is editable, but through `tools/edit-with-ai.html` only — the
+written record is editable, but through `edit-with-ai.html` only — the
 helper offers exactly the parts each sheet declares (the rack schedule, and the
 gaps list where it renders from data) and refuses the rest.
 

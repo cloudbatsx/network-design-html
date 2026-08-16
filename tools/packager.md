@@ -1,6 +1,6 @@
 # The packager
 
-`network-design-packager.html` **is** the packager. Open it in a browser — no
+`packager.html` **is** the packager. Open it in a browser — no
 build, no server, no install. It reads `assets/` from the checkout when you point
 it at the folder, and embeds only the images the chosen design actually asks for.
 
