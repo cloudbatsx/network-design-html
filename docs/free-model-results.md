@@ -139,9 +139,47 @@ checker caught and reported exactly as designed. Cosmetic, not structural, and
 below the stop threshold; noted here so the record never looks cleaner than
 the run was.
 
-**Failures worth fixing:** none fired. The 9% overlap in run 4 is the only
-candidate — if it recurs across future runs, the build prompt's spacing
-guidance is the place to absorb it.
+**Failures worth fixing:** the machine checks fired nothing, but the fidelity
+audit below found what they cannot see.
+
+#### Fidelity audit — source diagram vs. generated document · 2026-08-15
+
+The checkers grade internal consistency; they cannot grade whether the
+document matches the diagram it came from. So every source image was compared
+by eye against its generated topology, device by device. The verdicts:
+
+| Test | Fidelity | What the comparison found |
+|---|---|---|
+| 3 | **POOR — silent omission** | The source shows ~34 devices; the document has 18. All ~14 IDF switches (BM IDF 01–03, WHS IDF 01–03, PH IDF 01–04, one each for Gudith/Wegienka/Yake/Bates) and every MM-fiber uplink were dropped, and the legend's 2× Novell eDirectory/File Servers became one node. The prose *mentions* "MM Fiber used for local IDF uplinks" and the node ids skip srv-04 — evidence the extraction saw more than the build kept — yet no finding records the omission. |
+| 4 | **HIGH** | All 19 devices, every IP (.1–.19), both phones-behind-PCs, scanner/printer placement all correct. Smartphone and scanner drawn with substitute icons (closed icon list has neither). |
+| 5 | **GOOD** | Faithful for a conceptual marketing diagram; the remote DC's server stack was condensed to one node, defensibly. |
+| 6 | **HIGH** | Port labels (Fa0/3–Fa0/12, Gi0/1↔Gi0/0, S0/0↔S0/1, 192.168.1.0/24) all preserved. The firewall was verified against the source under magnification: it is genuinely in the topology, not imported from the slide's icon legend — and the legend's other icons were correctly *not* imported. |
+| 7 | **GOOD** | Every labelled component of an off-domain electrical schematic captured; the four battery cells were condensed to one bank node. Fuse/bus-bars forced into network icons by the closed vocabulary — labels carry the truth. |
+| 8 | **HIGH** | Optical/COAX/HDMI paths, the MoCA 100 Mbps note (which became a finding), and the wall pass-through all captured. The TV's own Wi-Fi link is represented indirectly. |
+| 9 | **HIGH** | All 9 devices, VLAN colour semantics preserved in link labels. One invented spec: "8-Port" on the HP ProCurve, which the source never states. |
+
+**Named fix-list items from the audit:**
+
+1. **Silent-omission blind spot (from run 3, the big one).** A document can be
+   self-consistent, validated and PASS-badged while missing 40 % of the source
+   topology. The model compresses visual repetition (14 IDFs → 0, 4 battery
+   cells → 1, 2 Novell servers → 1). Candidate absorptions: the extraction
+   prompt should demand a device *count* first and every repeated device
+   listed; the build request should require any condensation to be recorded
+   as a finding — silent omission becomes recorded honesty, which is the
+   product's ethos applied to itself.
+2. **The runner must keep the transcripts.** run-log.json records sizes and
+   verdicts but not the extract/build reply text, so run 3's loss cannot be
+   pinned to the extract step or the build step after the fact.
+3. **Invented specs (from run 9).** "8-Port" was asserted, not read. The build
+   request's existing honesty rules should extend to hardware port counts.
+4. **Icon vocabulary gaps (from run 4).** No smartphone, no scanner symbol;
+   both were substituted plausibly but visibly.
+
+One caveat the matrix should carry: the automated runs skip the
+human-corrects-the-inventory step that live result 1 included, so they test a
+*stricter* path than the documented workflow — impressive that 7/7 passed it,
+but run 3 shows what the human review step is for.
 
 ### The nine-run editing matrix
 
