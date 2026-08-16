@@ -50,10 +50,10 @@ outside the data block is copied through **byte for byte**.
 No Node. No npm. No command line. Just a browser and an AI chat window.
 
 1. **Download** the [release ZIP](https://github.com/cloudbatsx/network-design-html/releases/latest) — or just two files: the [blank template](starters/network-design-template.edit.html) and [`edit-with-ai.html`](edit-with-ai.html)
-2. **Open `edit-with-ai.html`** and pick your design file — the blank template for a fresh build, or any design you already made
-3. **Starting from a diagram?** Open the **Starting fresh** panel: one button has your AI read the picture, one click builds the whole-design request — you type nothing. **Editing?** Pick the part — devices, connections, the rack — and say the change in plain English. Either way: **Copy prompt** → paste into your AI chat
-4. **Paste the reply back** → click **Check it**
-5. **Save new design file** → double-click it. Done. (Your logo and colours have their own **Branding** panel — no AI involved — and after every save the helper offers the official-artwork version.)
+2. **Open `edit-with-ai.html`** — it sits at the top of the download — and press **Start a new design** (the blank template is built in), or open any design you already made. A progress rail walks you through the rest
+3. **Starting from a diagram?** The **Starting fresh** panel: one button has your AI read the picture, one click builds the whole-design request — you type nothing. **Editing?** Pick the part — devices, connections, the rack — and say the change in plain English. Either way: **Copy prompt** → paste into your AI chat
+4. **Paste the reply back** → click **Check it** → set your **branding** (name, colours, a PNG logo — no AI involved)
+5. **Save new design file** → double-click it. Done. The **Package** step appears under Save: one click on the `assets` folder and your file gets the official Cisco artwork — anything missing keeps its drawn artwork
 
 > **Step 3 is why a free model can drive this.** Ask for the devices and the AI
 > writes back ~3 KB instead of the whole 39 KB design — 80–90% less to produce, so
@@ -125,9 +125,10 @@ so **Download editable source** hands the light version straight back.
 When a document does need the **official Cisco icons and rack faces** — a customer
 deliverable, a house standard — swap them in at the end:
 
-1. Open [`packager.html`](packager.html)
-2. Point it at the **`assets`** folder from this repository
-3. Choose your design file → **Build portable HTML**
+- **In the helper:** the **Package** step appears after every save, with your design
+  already loaded — choose the `assets` folder once per session, press build.
+- **Standalone**, for a file someone sent you: open [`packager.html`](packager.html),
+  point it at the **`assets`** folder, choose the design file → **Build portable HTML**.
 
 Out comes one file with the real images inside it. Still offline, still no install,
 still openable anywhere — and it can hand your editable source back at any time.
@@ -148,8 +149,9 @@ the `assets` folders, and reference them by exact filename:
 
 `iconAsset` overrides one device's picture without touching anything else. Filenames
 are case-sensitive, and a `.jpg` is expected for topology icons, a `.png` for rack
-faces. Anything the design asks for and you have not supplied is listed by name
-before the build runs, so nothing fails silently.
+faces. Anything the design asks for and you have not supplied is listed by name —
+and **kept as its built-in drawn artwork** in the result, because a partial package
+is a valid package. Nothing fails silently, and nothing missing vetoes a build.
 
 > The four engineering-sheet kits — NET-ENT-002, NET-HQ-002, NET-LAB-003 and
 > NET-RH-001 — draw in their own grammar and ignore `iconAsset`. Their twenty
