@@ -1,6 +1,6 @@
 # Free-model validation — protocol and results
 
-**Status: fresh-build path validated live · nine-run editing matrix still pending.**
+**Status: fresh-build path validated live and across seven automated runs · nine-run editing matrix still pending.**
 
 Everything else in this repository is machine-checked. This is the one claim
 only a live session can test: *"a free AI model is enough."* This document is
@@ -88,6 +88,60 @@ Two workflow frictions surfaced and became fixes the same day: choosing a
 starter felt like homework (now: the blank-template door), and composing the
 two prompts by hand was error-prone (now: the helper's "Starting fresh" panel
 builds both).
+
+### Live results 2–8 — the automated fresh-build matrix · 2026-08-15
+
+**Model:** `gemini-3.6-flash` (the id the API reported back for every call) ·
+**Surface:** Google AI free-tier API, driven by `tools/run-free-model-tests.js` ·
+**Operator:** automated harness, Sayed Haque supervising.
+
+Seven fresh-build runs, each from a different organisation-supplied topology
+image and logo, each in its own conversation. The harness reuses the helper's
+real logic — the same prompts, the same repair chain, the same checkers, the
+same byte-guarded save, the same packaging engine — so these runs test the
+product, not a reimplementation. Per-test detail (every round trip, every
+problem, token counts) is in each test folder's `run-log.json`. Rerun with:
+
+    node tools/run-free-model-tests.js --tests-dir <folder> --tests 3-9
+
+**A note on which models this covers, plainly.** The free gemini.google.com
+picker offers "3.6 Thinking" and "3.1 Pro". Google's documentation identifies
+the app's 3.6 Thinking with the API model `gemini-3.6-flash`, which is what
+these runs used — same model, different surface, and that difference is
+recorded rather than papered over. "3.1 Pro" (`gemini-3.1-pro-preview`) is
+**paid-tier only on the API** — attempted live on a billing-free key on
+2026-08-15, refused with a 429 quota error — so it has no free programmatic
+surface at all. It remains testable only by hand in the web app, and no 3.1
+Pro rows appear here for that reason.
+
+| Test | Drawing | Input diagram | Round trips | Repaired? | Cut off? | Stops fired | Warnings | Logo route | Packaging | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 3 | BSN-NET-001 | school district WAN (webp) | 1 | no | no | none | 0 | PNG raster | 29 embedded, 0 skipped | PASS |
+| 4 | NON-NET-001 | office LAN (png) | 1 | no | no | none | 1 | JPG raster | 29 embedded, 0 skipped | PASS |
+| 5 | MDN-NET-001 | Brocade VCS data center (jpg) | 1 | no | no | none | 0 | SVG path+viewBox | 29 embedded, 0 skipped | PASS |
+| 6 | SAN-NET-001 | school campus LAN (jpg) | 1 | no | no | none | 0 | PNG raster | 29 embedded, 0 skipped | PASS |
+| 7 | EN-NET-001 | energy grid network (png) | 1 | no | no | none | 0 | SVG path+viewBox | 29 embedded, 0 skipped | PASS |
+| 8 | BFN-NET-001 | home FIOS network (drawio png) | 1 | no | no | none | 0 | JPG raster | 29 embedded, 0 skipped | PASS |
+| 9 | PHN-NET-001 | homelab traffic diagram (png) | 1 | no | no | none | 0 | PNG raster | 29 embedded, 0 skipped | PASS |
+
+Every run reached a clean save in **one round trip** with **zero repairs** —
+no fences stripped, no trailing commas, no truncation across seven complete
+designs of 10,000–17,500 characters each. Both logo routes were exercised:
+five raster logos staged as the one allowed data URI, two SVG logos landed as
+path + viewBox. Two designs (7, 8) correctly chose no rack for topologies with
+nothing rack-mountable. Saved documents render with a PASS badge and sane
+drawings (3 and 5 opened and inspected; the rest carry the same machine
+checks).
+
+**The one imperfection, faithfully:** run 4 saved with a single geometry
+warning — *"pc-04" and "scan-01" overlap by 9% of a device box* — which the
+checker caught and reported exactly as designed. Cosmetic, not structural, and
+below the stop threshold; noted here so the record never looks cleaner than
+the run was.
+
+**Failures worth fixing:** none fired. The 9% overlap in run 4 is the only
+candidate — if it recurs across future runs, the build prompt's spacing
+guidance is the place to absorb it.
 
 ### The nine-run editing matrix
 
