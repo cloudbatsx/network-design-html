@@ -2384,11 +2384,29 @@ if (typeof module !== "undefined" && module.exports) module.exports = RACK_FACE_
   function renderEquipment(){
     const e=data.sections?.equipment||{},grid=el("equipment-grid"),table=el("cost-table"),body=el("cost-body");
     grid.replaceChildren();body.replaceChildren();
-    (Array.isArray(e.cards)?e.cards:[]).forEach(card=>{
+    /* An empty exhibit beside a populated rack is a model omission, not a fact
+       about the hardware. Derive the cards from the schedule - one source of
+       truth, the same rule the two elevations already live by. Authored cards
+       always win. */
+    let cards=Array.isArray(e.cards)?e.cards:[];
+    if(!cards.length){
+      const seen=new Map();
+      (data.rack?.devices||[]).forEach(device=>{
+        if(!device.model&&!device.asset)return;
+        const key=(device.asset&&device.asset!=="generic")?device.asset:(device.model||device.id);
+        if(seen.has(key)){seen.get(key).count++;return}
+        seen.set(key,{device,count:1});
+      });
+      cards=[...seen.values()].map(({device,count})=>({model:device.model||device.id,u:`${device.height}U${count>1?` · ×${count}`:""}`,why:device.role||"",asset:device.asset}));
+    }
+    cards.forEach(card=>{
       const wrap=document.createElement("div");wrap.className="equip-card";
       const face=document.createElement("div");face.className="equip-face";
       const assetId=RACK_ASSETS[card.asset]?.front;
+      const drawnUnits=Number.parseInt(card.u,10);
+      const drawn=PORTABLE_MODE?null:vectorFace({asset:card.asset,height:Number.isFinite(drawnUnits)?drawnUnits:1},"front");
       if(PORTABLE_MODE&&assetId){const image=document.createElement("img");image.src=assetUrl(assetId);image.alt="";image.style.width="100%";image.style.height="100%";image.style.objectFit="contain";face.appendChild(image)}
+      else if(drawn){drawn.style.width="100%";drawn.style.height="100%";face.appendChild(drawn)}
       else face.appendChild(placeholderFace(card.model||"equipment","front"));
       const bodyBox=document.createElement("div");bodyBox.className="equip-body";
       const h3=document.createElement("h3");h3.textContent=card.model||"Equipment";
@@ -2417,7 +2435,13 @@ if (typeof module !== "undefined" && module.exports) module.exports = RACK_FACE_
     const s=data.sections||{};
     const captionFallback=PORTABLE_MODE?"Rendered with official artwork embedded in this file.":"Rendered from inline vector symbols; package to swap in official artwork.";
     setText("topology-caption",s.logical?.caption||`Fig. 1 — ${data.document?.title||"Logical topology"}. Drawn from the diagram data block. ${captionFallback}`);
-    setText("topology-legend",s.logical?.legend||"Legend — solid = routed / Layer 3 · heavy = port-channel or aggregate · dashed magenta = HA or peer link · thin = access link · dotted grey = backup path.");
+    /* The fallback legend describes only the link kinds this drawing actually
+       uses. A legend that lists strokes the figure never draws reads as
+       furniture, and furniture teaches readers to skip legends. */
+    const KIND_LEGEND={l3:"solid = routed / Layer 3",aggregate:"heavy = port-channel or aggregate",ha:"dashed magenta = HA or peer link",access:"thin = access link",backup:"dotted grey = backup path"};
+    const kindsUsed=new Set((data.topology?.links||[]).map(link=>link.kind||"l3"));
+    const legendParts=Object.keys(KIND_LEGEND).filter(kind=>kindsUsed.has(kind)).map(kind=>KIND_LEGEND[kind]);
+    setText("topology-legend",s.logical?.legend||(legendParts.length?`Legend — ${legendParts.join(" · ")}.`:""));
     setText("rack-caption",s.physical?.caption||`Fig. 2 — Rack elevation. Front and rear are generated from one equipment schedule; rack units are numbered from the bottom. ${captionFallback}`);
     setText("rack-legend",s.physical?.legend||"Legend — shaded slots are occupied · hatched slots are reserved · a plain labelled face means no official artwork exists for that model.");
     if(PORTABLE_MODE)setText("brand-doclabel",`${data.document?.brand?.label||"Systems · Network Design"} · portable copy`)
