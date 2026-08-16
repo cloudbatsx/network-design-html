@@ -181,6 +181,34 @@ human-corrects-the-inventory step that live result 1 included, so they test a
 *stricter* path than the documented workflow — impressive that 7/7 passed it,
 but run 3 shows what the human review step is for.
 
+#### The fix, and the re-run that proves it · 2026-08-15
+
+Items 1 and 2 shipped the same day. The extraction prompt now demands a
+device count first and every repeated device on its own line; the build
+request requires every inventory device in the document, with any
+condensation or omission recorded as a finding; the runner keeps the full
+transcript per run (`run-transcript.json`); a behaviour test pins all three
+rules.
+
+Test 3 was then re-run from scratch, same model, same image
+(first run's log preserved as `run-log.run1.json`):
+
+| | First run | Re-run with the fix |
+|---|---|---|
+| Extract | no count, IDFs lost downstream | opens with "**Total Device Count: 33 Devices**" |
+| Nodes | 18 of 33 | **33 of 33** — all 14 IDFs, both Novell servers |
+| MM-fiber uplinks | 0 | **14**, matching the diagram |
+| Round trips / repairs | 1 / none | 1 / none |
+| Warnings | 0 | 6 — a denser canvas left six devices 86 %-inside their zone edge, each caught and named by the checker |
+| Badge | PASS · 18 nodes (silently incomplete) | **PASS · 33 nodes · 32 links · 11 rack devices** |
+
+The device count in the extract matches a by-hand count of the source image
+exactly. The fidelity failure mode of run 3 is closed at its cause: the model
+still compresses repetition when allowed, and the prompts no longer allow it
+silently. The six boundary warnings are the honest cost of a fuller canvas —
+cosmetic, correctly reported, and the next candidate for spacing guidance if
+they recur. Items 3 (invented specs) and 4 (icon vocabulary) remain open.
+
 ### The nine-run editing matrix
 
 > Not yet run.
