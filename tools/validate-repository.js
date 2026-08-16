@@ -571,6 +571,20 @@ checkEvery("sheet kits declare exactly their data-driven parts", (want) => {
   }
 });
 
+// One packaging engine, two surfaces. The core is injected byte-identically
+// into both apps by build:helper; an edited copy in either is a build failure,
+// which is what lets the helper's final step and the standalone packager
+// never disagree about how a portable file is made.
+check("the packaging engine is one source, byte for byte", () => {
+  const core = read("tools/packager-core.js").trimEnd();
+  for (const label of ["edit-with-ai.html", "packager.html"]) {
+    const source = read(label);
+    const match = source.match(/<script id="packager-core">\n([\s\S]*?)\n<\/script>/);
+    assert(match, `${label} has no packager-core block - run npm run build:helper`);
+    assert(match[1] === core, `${label} packager-core drifted from tools/packager-core.js - run npm run build:helper`);
+  }
+});
+
 // "Start a new design" only works because the blank template travels inside
 // the helper - a double-clicked page cannot read the disk. An embedded copy
 // that drifts from the real template would hand new users a different product

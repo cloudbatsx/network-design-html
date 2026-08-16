@@ -47,7 +47,10 @@ const sandbox = {
   },
   navigator: {},
   URL: { createObjectURL: () => "blob:test", revokeObjectURL() {} },
-  Blob, TextDecoder, structuredClone, setTimeout, console
+  Blob, TextDecoder, structuredClone, setTimeout, console,
+  // The helper's final step drives the real packaging engine; the sandbox
+  // gets the same one the build injects, straight from its source of truth.
+  PACKAGER_CORE: require(path.join(root, "tools", "packager-core.js"))
 };
 
 const shim = ";globalThis.__exports = { parseWithRepair, mergeReply, checkStructure, checkMeaning, checkShell, checkAssetStrings, looksTruncated, safeJson, contextFor, summarizeChange, editableParts, freshRequestText, freshDrawingId, brandedData, EXTRACT_PROMPT, SLICES };";
@@ -473,17 +476,87 @@ test("branding: a real path and viewBox land together", () => {
   assert.strictEqual(next.document.brand.logoFill, "#123abc");
 });
 
+/* ---- the packaging core: partial builds ---- */
+
+const CORE = require(path.join(root, "tools", "packager-core.js"));
+
+function miniEditable() {
+  const contract = JSON.stringify({
+    schema: "network-design-package/v2", assetReferences: "asset-uri/v1",
+    assetUriSchemes: { cisco: "icons/cisco-pms3015/", rack: "rack-assets/" }
+  });
+  return [
+    "<!doctype html><html><body>",
+    "<!-- NETWORK-PACKAGER-CONTRACT:BEGIN -->",
+    '<script id="network-packager-contract" type="application/json">',
+    contract,
+    "</scr" + "ipt>",
+    "<!-- NETWORK-PACKAGER-CONTRACT:END -->",
+    "<!-- NETWORK-ASSET-VAULT:BEGIN -->",
+    '<script id="network-asset-vault" type="application/json">',
+    "{}",
+    "</scr" + "ipt>",
+    "<!-- NETWORK-ASSET-VAULT:END -->",
+    "<!-- EDITABLE-SOURCE-CAPSULE:BEGIN -->",
+    '<script id="editable-source-capsule" type="application/octet-stream">',
+    "",
+    "</scr" + "ipt>",
+    "<!-- EDITABLE-SOURCE-CAPSULE:END -->",
+    '<p data-a="asset:rack/tiny.png" data-b="asset:cisco/tiny.jpg"></p>',
+    "</body></html>"
+  ].join("\n");
+}
+
+const TINY_PNG = Uint8Array.from(atob("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="), (c) => c.charCodeAt(0));
+const fakeFile = (name, relativePath, bytes) => ({
+  name, relativePath, size: bytes.length, lastModified: 1,
+  arrayBuffer: async () => bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength)
+});
+
+test("packaging: a partial build embeds what it has and reports the rest", async () => {
+  const clean = CORE.cleanEditable(miniEditable());
+  CORE.validateContract(clean);
+  const ids = CORE.scanAssetIds(clean);
+  assert.deepStrictEqual(ids, ["asset:cisco/tiny.jpg", "asset:rack/tiny.png"]);
+  const artwork = CORE.emptyArtwork();
+  CORE.indexInto(artwork, [fakeFile("tiny.png", "assets/rack-assets/tiny.png", TINY_PNG)]);
+  const entries = CORE.resolveEntries(ids, artwork);
+  const { portable, report } = await CORE.buildPortable(clean, entries);
+  assert.strictEqual(report.embedded, 1);
+  assert.strictEqual(report.skipped.length, 1);
+  assert.strictEqual(report.skipped[0].id, "asset:cisco/tiny.jpg");
+  assert.strictEqual(report.skipped[0].reason, "not found");
+  assert.strictEqual(CORE.decodeUtf8Base64(CORE.readRegionScript(portable, CORE.BLOCKS.capsule)), clean,
+    "the capsule did not round-trip");
+  assert.strictEqual(CORE.maskProtected(portable), CORE.maskProtected(clean),
+    "bytes outside the protected blocks changed");
+});
+
+test("packaging: wrong-format artwork is excluded, not embedded", async () => {
+  const clean = CORE.cleanEditable(miniEditable());
+  const artwork = CORE.emptyArtwork();
+  // PNG bytes offered where a JPEG is required
+  CORE.indexInto(artwork, [fakeFile("tiny.jpg", "assets/icons/cisco-pms3015/tiny.jpg", TINY_PNG)]);
+  const entries = CORE.resolveEntries(CORE.scanAssetIds(clean), artwork);
+  const { report } = await CORE.buildPortable(clean, entries);
+  const wrong = report.skipped.find((item) => item.id === "asset:cisco/tiny.jpg");
+  assert(wrong && /JPEG is required/.test(wrong.reason), "the mime mismatch was not reported");
+  assert.strictEqual(report.embedded, 0);
+});
+
 /* ---- runner ---- */
 
-let failed = 0;
-for (const { name, run } of tests) {
-  try {
-    run();
-    process.stdout.write(`PASS  ${name}\n`);
-  } catch (error) {
-    failed += 1;
-    process.stderr.write(`FAIL  ${name}: ${error.message}\n`);
+(async () => {
+  let failed = 0;
+  for (const { name, run } of tests) {
+    try {
+      await run();
+      process.stdout.write(`PASS  ${name}\n`);
+    } catch (error) {
+      failed += 1;
+      process.stderr.write(`FAIL  ${name}: ${error.message}\n`);
+    }
   }
-}
-process.stdout.write(`\n${failed ? "Behaviour tests failed" : "Behaviour tests passed"}: ${tests.length - failed}/${tests.length}.\n`);
-if (failed) process.exitCode = 1;
+  process.stdout.write(`\n${failed ? "Behaviour tests failed" : "Behaviour tests passed"}: ${tests.length - failed}/${tests.length}.\n`);
+  if (failed) process.exitCode = 1;
+})();

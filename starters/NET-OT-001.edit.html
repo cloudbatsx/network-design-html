@@ -2061,7 +2061,11 @@ if (typeof module !== "undefined" && module.exports) module.exports = RACK_FACE_
   function appendNodeIcon(group,node){
     const profile=ICONS[node.icon],custom=node.iconAsset;
     if(custom&&!/^asset:cisco\/[^/]+\.jpg$/.test(custom)){group.appendChild(svgEl("text",{class:"node-warning",x:NODE_W/2,y:34},"INVALID ASSET"));topologyErrors.push(`Invalid iconAsset on ${node.id}; use a literal asset:cisco/<filename>.jpg identifier.`);return custom}
-    if(PORTABLE_MODE){const assetId=custom||profile?.official;if(assetId){const href=assetUrl(assetId);if(href){group.appendChild(svgEl("image",{href,x:48,y:5,width:80,height:55,preserveAspectRatio:"xMidYMid meet"}));return assetId}group.appendChild(svgEl("text",{class:"node-warning",x:NODE_W/2,y:34},"MISSING ASSET"));topologyErrors.push(`Official asset is unavailable on ${node.id}.`);return assetId}}
+    if(PORTABLE_MODE){const assetId=custom||profile?.official;if(assetId){const href=assetUrl(assetId);if(href){group.appendChild(svgEl("image",{href,x:48,y:5,width:80,height:55,preserveAspectRatio:"xMidYMid meet"}));return assetId}
+      /* a partial package: this face is not in the vault, so the built-in
+         vector stays - a declared partial is not a document defect */
+      if(profile?.vector){group.appendChild(svgEl("use",{class:"topology-vector-icon",href:`#${profile.vector}`,x:48,y:4,width:80,height:56}));return `#${profile.vector} (drawn - not packaged)`}
+      group.appendChild(svgEl("text",{class:"node-warning",x:NODE_W/2,y:34},"MISSING ASSET"));topologyErrors.push(`Official asset is unavailable on ${node.id}.`);return assetId}}
     else if(profile?.vector){group.appendChild(svgEl("use",{class:"topology-vector-icon",href:`#${profile.vector}`,x:48,y:4,width:80,height:56}));return `#${profile.vector}`}
     else if(custom){group.appendChild(svgEl("rect",{class:"node-generic",x:56,y:9,width:64,height:48,rx:7}));group.appendChild(svgEl("text",{class:"node-generic-label",x:NODE_W/2,y:29},"OFFICIAL"));group.appendChild(svgEl("text",{class:"node-generic-label",x:NODE_W/2,y:41},"AFTER PACKAGE"));return `${custom} (official-only)`}
     group.appendChild(svgEl("text",{class:"node-warning",x:NODE_W/2,y:34},"UNKNOWN ICON"));topologyErrors.push(`Unknown icon on ${node.id}.`);return node.icon||"unknown"
@@ -2124,7 +2128,9 @@ if (typeof module !== "undefined" && module.exports) module.exports = RACK_FACE_
   // photography once the document has been packaged, the built-in vector
   // faceplate, and a labelled placeholder when the model has neither.
   function rackFaceContent(device,view,assetId){
-    if(PORTABLE_MODE&&assetId){const image=document.createElement("img");image.src=assetUrl(assetId);image.alt="";image.draggable=false;if(!image.src)rackErrors.push(`Official rack asset is unavailable on ${device.id} (${view}).`);return image}
+    if(PORTABLE_MODE&&assetId){const href=assetUrl(assetId);if(href){const image=document.createElement("img");image.src=href;image.alt="";image.draggable=false;return image}}
+    /* editable mode, or a partial package whose vault lacks this face:
+       the drawn faceplate is first-class rendering, not a failure */
     return vectorFace(device,view)||placeholderFace(`${device.id} / ${view}`,view)
   }
   function renderRackView(view,rack){const bay=el(`rack-${view}`),wrap=el(`rack-${view}-wrap`);bay.replaceChildren();wrap.querySelectorAll(".rack-tooltip").forEach(item=>item.remove());bay.style.height=`calc(${rack.units} * var(--u))`;wrap.querySelectorAll(".ruler").forEach(ruler=>ruler.style.height=`calc(${rack.units} * var(--u))`);buildRuler(wrap,rack.units);const tooltip=document.createElement("div");tooltip.className="rack-tooltip";tooltip.setAttribute("role","tooltip");wrap.appendChild(tooltip);(rack.reserved||[]).forEach(slot=>{const item=document.createElement("div");item.className="reserved-slot";item.style.bottom=`calc((${slot.position} - 1) * var(--u))`;item.style.height=`calc(${slot.height} * var(--u))`;item.textContent=slot.label;bay.appendChild(item)});(rack.devices||[]).forEach(device=>{if(!Number.isFinite(Number(device.position))||!Number.isFinite(Number(device.height)))return;const wanted=device.asset&&device.asset!=="generic",asset=wanted?RACK_ASSETS[device.asset]:null,vector=wanted?vectorInfo(device.asset,device.height):null;if(wanted&&!asset&&!vector&&view==="front")rackErrors.push(`Unknown rack asset ${device.asset} on ${device.id}; drawn as a generic face.`);if(vector&&vector.units!==device.height&&view==="front")rackErrors.push(`${device.id} is scheduled as ${device.height}U but ${device.asset} draws a ${vector.units}U face.`);if(wanted&&asset&&!vector&&view==="front")rackErrors.push(`${device.id} is scheduled as ${device.height}U but ${device.asset} has no ${device.height}U face.`);const face=document.createElement("button");face.type="button";face.className="device-face";face.dataset.device=device.id;face.style.bottom=`calc((${device.position} - 1) * var(--u))`;face.style.height=`calc(${device.height} * var(--u))`;face.setAttribute("aria-label",`${device.id}, ${device.model}, ${range(device)}, ${view} view`);face.appendChild(rackFaceContent(device,view,asset?asset[view]:null));const show=()=>showRackTooltip(wrap,bay,face,device,view);face.addEventListener("mouseenter",show);face.addEventListener("focus",show);face.addEventListener("mouseleave",()=>{if(!face.classList.contains("selected"))tooltip.classList.remove("visible")});face.addEventListener("blur",()=>{if(!face.classList.contains("selected"))tooltip.classList.remove("visible")});face.addEventListener("click",()=>{selectRackDevice(device);show()});bay.appendChild(face)})}
@@ -2245,9 +2251,10 @@ if (typeof module !== "undefined" && module.exports) module.exports = RACK_FACE_
       const wrap=document.createElement("div");wrap.className="equip-card";
       const face=document.createElement("div");face.className="equip-face";
       const assetId=RACK_ASSETS[card.asset]?.front;
+      const href=PORTABLE_MODE&&assetId?assetUrl(assetId):"";
       const drawnUnits=Number.parseInt(card.u,10);
-      const drawn=PORTABLE_MODE?null:vectorFace({asset:card.asset,height:Number.isFinite(drawnUnits)?drawnUnits:1},"front");
-      if(PORTABLE_MODE&&assetId){const image=document.createElement("img");image.src=assetUrl(assetId);image.alt="";image.style.width="100%";image.style.height="100%";image.style.objectFit="contain";face.appendChild(image)}
+      const drawn=href?null:vectorFace({asset:card.asset,height:Number.isFinite(drawnUnits)?drawnUnits:1},"front");
+      if(href){const image=document.createElement("img");image.src=href;image.alt="";image.style.width="100%";image.style.height="100%";image.style.objectFit="contain";face.appendChild(image)}
       else if(drawn){drawn.style.width="100%";drawn.style.height="100%";face.appendChild(drawn)}
       else face.appendChild(placeholderFace(card.model||"equipment","front"));
       const bodyBox=document.createElement("div");bodyBox.className="equip-body";
