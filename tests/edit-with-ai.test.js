@@ -421,6 +421,15 @@ test("wizard: the diagram-reading prompt captures all five lists and no code", (
   assert(/Do not write any code yet/.test(t.EXTRACT_PROMPT));
 });
 
+test("wizard: repetition is counted and condensation must be confessed", () => {
+  assert(/count every device/.test(t.EXTRACT_PROMPT), "the extraction no longer demands a device count");
+  assert(/state the total/.test(t.EXTRACT_PROMPT), "the count is not required to be stated");
+  assert(/one per line/.test(t.EXTRACT_PROMPT), "repeated devices are no longer forced onto their own lines");
+  const text = t.freshRequestText("T", "T-NET-001", "auto");
+  assert(/every device in the inventory/.test(text), "the build request dropped the completeness rule");
+  assert(/condensed or omitted as a finding/.test(text), "condensation no longer has to be confessed");
+});
+
 test("wizard: the build request pushes the captured detail into the document", () => {
   const text = t.freshRequestText("T", "T-NET-001", "auto");
   assert(/interface or port names as connection labels/.test(text));

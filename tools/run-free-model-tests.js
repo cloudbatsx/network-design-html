@@ -322,6 +322,13 @@ async function runTest(t, test, options, log) {
   log(`  extract reply: ${extract.text.length} chars, ${extract.finishReason}`);
   contents.push({ role: "model", parts: [{ text: extract.text }] });
 
+  // The full word-for-word exchange, so a fidelity loss can later be pinned
+  // to the extract step or the build step instead of guessed at.
+  const transcript = {
+    extractPrompt: t.EXTRACT_PROMPT, extractReply: extract.text,
+    buildPrompt: buildRequest, rounds: []
+  };
+
   // BUILD + CHECK round trips, same conversation, the helper's own messages.
   contents.push({ role: "user", parts: [{ text: buildRequest }] });
   let accepted = null;
@@ -340,9 +347,17 @@ async function runTest(t, test, options, log) {
     });
     log(`  round ${round}: ${reply.text.length} chars, ${stops.length} stop(s), ${warnings} warning(s)` +
       (checked.applied.length ? `, repaired: ${checked.applied.join(", ")}` : ""));
-    if (checked.merged && !stops.length) { accepted = checked.merged; record.roundTrips = round; break; }
+    if (checked.merged && !stops.length) {
+      transcript.rounds.push({ reply: reply.text });
+      accepted = checked.merged; record.roundTrips = round; break;
+    }
+    const retryMessage = problemsMessage(checked.problems);
+    transcript.rounds.push({ reply: reply.text, problemsMessage: retryMessage });
     contents.push({ role: "model", parts: [{ text: reply.text }] });
-    contents.push({ role: "user", parts: [{ text: problemsMessage(checked.problems) }] });
+    contents.push({ role: "user", parts: [{ text: retryMessage }] });
+  }
+  if (!options.smoke) {
+    fs.writeFileSync(path.join(test.dir, "run-transcript.json"), JSON.stringify(transcript, null, 2) + "\n", "utf8");
   }
   if (!accepted) {
     record.verdict = `FAIL - no clean reply within ${MAX_ROUND_TRIPS} round trips`;
