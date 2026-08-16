@@ -2179,8 +2179,19 @@ if (typeof module !== "undefined" && module.exports) module.exports = RACK_FACE_
     const brand=data.document?.brand||{};
     const mark=el("brand-mark"),path=el("brand-path");
     mark.setAttribute("viewBox",brand.logoViewBox||"0 0 512 512");
-    path.setAttribute("d",brand.logoPath||DEFAULT_BRAND_PATH);
-    path.setAttribute("fill",brand.logoFill||"#0F172A");
+    mark.querySelectorAll("image").forEach(old=>old.remove());
+    /* brand.logoImage is the one raster an editable file may carry: a small
+       PNG or JPG logo staged by the helper's branding step, size-capped and
+       format-checked there. Everything else in these files stays vector. */
+    if(brand.logoImage&&/^data:image\/(png|jpeg);base64,/.test(brand.logoImage)){
+      path.setAttribute("d","");
+      const box=(brand.logoViewBox||"0 0 512 512").split(/\s+/).map(Number);
+      const image=svgEl("image",{href:brand.logoImage,x:box[0]||0,y:box[1]||0,width:box[2]||512,height:box[3]||512,preserveAspectRatio:"xMidYMid meet"});
+      mark.appendChild(image);
+    }else{
+      path.setAttribute("d",brand.logoPath||DEFAULT_BRAND_PATH);
+      path.setAttribute("fill",brand.logoFill||"#0F172A");
+    }
     setText("brand-name",brand.name||"cloudbats");
     setText("brand-doclabel",brand.label||"Systems · Network Design");
   }

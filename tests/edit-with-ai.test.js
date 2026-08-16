@@ -452,6 +452,19 @@ test("branding: a broken logo path or colour is refused with a plain reason", ()
   assert(/hex value/.test(t.brandedData(baseDesign(), { fill: "blue" }).problem));
 });
 
+test("branding: a small PNG data URI stages as the one allowed raster", () => {
+  const uri = "data:image/png;base64," + "iVBORw0KGgoAAAANSUhEUg".repeat(3);
+  const { next, problem } = t.brandedData(baseDesign(), { image: uri });
+  assert(!problem, problem);
+  assert.strictEqual(next.document.brand.logoImage, uri);
+});
+
+test("branding: a non-image or oversized data URI is refused plainly", () => {
+  assert(/not a valid PNG or JPG/.test(t.brandedData(baseDesign(), { image: "data:text/html;base64,PGh0bWw+" }).problem));
+  const huge = "data:image/png;base64," + "A".repeat(95000);
+  assert(/too large/.test(t.brandedData(baseDesign(), { image: huge }).problem));
+});
+
 test("branding: a real path and viewBox land together", () => {
   const { next, problem } = t.brandedData(baseDesign(), { path: "M10 10 H 90 V 90 H 10 Z", viewBox: "0 0 100 100", fill: "#123abc" });
   assert(!problem);
