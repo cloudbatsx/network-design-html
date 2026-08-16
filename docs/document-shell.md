@@ -94,7 +94,7 @@ that the file works with no network at all — and because
 | Original | Here | Why |
 |---|---|---|
 | Google Fonts `<link>` + `preconnect` for Sora / Inter / JetBrains Mono | The same font **stack**, no network link | A font service is a runtime dependency. The document is typographically identical wherever those fonts are installed and degrades to `system-ui` elsewhere. |
-| Diagrams hand-authored inline SVG, never JS-rendered, from an `ic-*` symbol library | Diagrams rendered from the data block into the same `.figwrap → svg → .caption → .legend` triple, using the repository's 19 `nd-*` symbols | Data-driven diagrams are the point of this repository: a topology change is a reviewable data diff, not hand-edited geometry. The output is the same shape, and the `<defs>` symbol library is the same architecture. Adding `ic-*` symbols would also break the validator, which pins exactly 19. |
+| Diagrams hand-authored inline SVG, never JS-rendered, from an `ic-*` symbol library | Diagrams rendered from the data block into the same `.figwrap → svg → .caption → .figure-legend` run, using the repository's 19 `nd-*` symbols; the Figure 1 legend is the sheet kits' shared three-column contract, filled from the data with only what the drawing uses | Data-driven diagrams are the point of this repository: a topology change is a reviewable data diff, not hand-edited geometry. The output is the same shape, and the `<defs>` symbol library is the same architecture. Adding `ic-*` symbols would also break the validator, which pins exactly 19. |
 
 ## The rule underneath the rules
 

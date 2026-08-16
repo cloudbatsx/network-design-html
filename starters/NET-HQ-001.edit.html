@@ -46,6 +46,23 @@
   .legend { font-size:8.2pt; color:#475569; margin:4px 0 14px; }
   .legend b { color:#14324e; }
 
+  /* -- the shared Figure 1 legend contract: the engineering-sheet kits'
+        three-column aside, adapted to this shell's palette. The renderer
+        fills it with only what the drawing actually uses. -- */
+  .figure-legend { display:grid; grid-template-columns:1.25fr 1.15fr .8fr; gap:14px 26px; margin:4px 0 14px; padding:14px; border:1px solid var(--border); border-radius:8px; background:#fff; color:#475569; font-size:12px; line-height:1.45; }
+  .figure-legend > h3 { grid-column:1/-1; margin:0; color:#14324e; font-size:13px; }
+  .figure-legend h4 { margin:0 0 7px; color:#14324e; font-size:12.5px; }
+  .figure-legend ul { list-style:none; margin:0; padding:0; }
+  .figure-legend li { display:flex; align-items:center; gap:8px; margin:0; padding:2px 0; min-width:0; }
+  .figure-legend svg { display:block; flex:0 0 auto; }
+  .figure-legend .legend-device-icon { width:30px; height:21px; }
+  .figure-legend .device-list { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:0 14px; }
+  .figure-legend .line-key,.figure-legend .zone-key { width:34px; height:14px; }
+  .figure-legend .legend-note { grid-column:1/-1; margin:0; padding-top:8px; border-top:1px solid var(--border); font-size:11.5px; }
+  @media (max-width:900px) { .figure-legend { grid-template-columns:1fr; } }
+  @media (max-width:520px) { .figure-legend .device-list { grid-template-columns:1fr; } }
+  @media print { .figure-legend { break-inside:avoid; gap:8px 14px; padding:10px; font-size:8pt; } .figure-legend > h3 { font-size:9pt; } .figure-legend h4 { font-size:8.5pt; } .figure-legend .legend-device-icon { width:20px; height:14px; } .figure-legend .legend-note { padding-top:5px; font-size:7.5pt; } }
+
   /* -- callout boxes: semantic, NOT decorative -- */
   .note { background:#f0f9ff; border:1px solid #bae6fd; border-left:4px solid #0e7490; padding:8px 12px; font-size:9.4pt; margin:8px 0 16px; border-radius:4px; }
   .warn { background:#fffbeb; border:1px solid #fde68a; border-left:4px solid #b45309; padding:8px 12px; font-size:9.4pt; margin:8px 0 16px; border-radius:4px; }
@@ -515,7 +532,7 @@
           <div class="diagram-scroll"><svg id="topology" role="img" aria-labelledby="svg-title svg-desc"></svg></div>
         </div>
         <p class="caption" id="topology-caption"></p>
-        <p class="legend" id="topology-legend"></p>
+        <aside class="figure-legend" id="topology-legend" aria-labelledby="logical-legend-title" hidden></aside>
         <div class="errors" id="topology-errors" role="alert"></div>
         <section class="inspector" id="topology-inspector" aria-live="polite">
           <h3>Select a topology device</h3>
@@ -1011,7 +1028,7 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
         { "lead": "What this layer deliberately omits", "text": "cable routes, patch positions and rack units live in section 4. The per-device console fan-out is drawn once as a summarized dotted path rather than as a dozen misleading adjacencies." }
       ],
       "caption": "Fig. 1 — Headquarters logical topology. Two carriers, an active/standby perimeter pair, and a two-member collapsed core with every downstream device dual-homed. Drawn from the diagram data block; device IDs are the join key to the rack schedule in section 4. Every address, port and model shown is assumed.",
-      "legend": "Legend — solid = routed / Layer 3 · heavy = port-channel or aggregate · dashed magenta = HA or peer link · thin = access link · dotted grey = summarized or backup path. Zones are trust boundaries, not broadcast domains."
+      "legend": "Zones are trust boundaries, not broadcast domains."
     },
     "identity": {
       "heading": "Identity \u0026 addressing — one summarizable block per function",
@@ -2532,13 +2549,31 @@ if (typeof module !== "undefined" && module.exports) module.exports = RACK_FACE_
     const s=data.sections||{};
     const captionFallback=PORTABLE_MODE?"Rendered with official artwork embedded in this file.":"Rendered from inline vector symbols; package to swap in official artwork.";
     setText("topology-caption",s.logical?.caption||`Fig. 1 — ${data.document?.title||"Logical topology"}. Drawn from the diagram data block. ${captionFallback}`);
-    /* The fallback legend describes only the link kinds this drawing actually
-       uses. A legend that lists strokes the figure never draws reads as
-       furniture, and furniture teaches readers to skip legends. */
-    const KIND_LEGEND={l3:"solid = routed / Layer 3",aggregate:"heavy = port-channel or aggregate",ha:"dashed magenta = HA or peer link",access:"thin = access link",backup:"dotted grey = backup path"};
-    const kindsUsed=new Set((data.topology?.links||[]).map(link=>link.kind||"l3"));
-    const legendParts=Object.keys(KIND_LEGEND).filter(kind=>kindsUsed.has(kind)).map(kind=>KIND_LEGEND[kind]);
-    setText("topology-legend",s.logical?.legend||(legendParts.length?`Legend — ${legendParts.join(" · ")}.`:""));
+    /* The shared Figure 1 legend contract - the engineering-sheet kits'
+       three-column aside - rendered from the data: only the symbols, strokes
+       and zones this drawing actually uses. A legend that lists what the
+       figure never draws reads as furniture, and furniture teaches readers
+       to skip legends. An authored sections.logical.legend becomes the note
+       row, where per-design conventions belong. */
+    const LEGEND_KINDS={l3:"Routed / Layer 3",aggregate:"Port-channel or aggregate",ha:"HA or peer link",access:"Access link",backup:"Backup or summarized path"};
+    const LEGEND_ICONS={"cloud":"Cloud / external network","router":"Router","firewall":"Firewall","core-switch":"Core / L3 switch","access-switch":"Access switch","access-point":"Wireless access point","server":"Server","pc":"PC endpoint","workstation":"Workstation","wlan-controller":"Wireless LAN controller","vpn-headend":"VPN headend","dc-switch":"Data-center switch","ip-phone":"IP phone","laptop":"Laptop","printer":"Printer / peripheral","database":"Database","storage-array":"Storage array","network-management":"Management appliance","branch-office":"Branch / remote site","wireless-router":"Wireless router"};
+    const legendHost=el("topology-legend");
+    if(legendHost){
+      legendHost.replaceChildren();
+      const iconsUsed=[...new Set((data.topology?.nodes||[]).map(node=>node.icon).filter(icon=>ICONS[icon]))];
+      const kindsUsed=Object.keys(LEGEND_KINDS).filter(kind=>(data.topology?.links||[]).some(link=>(link.kind||"l3")===kind));
+      const zonesDrawn=(data.topology?.zones||[]).filter(zone=>zone.label||zone.id);
+      if(iconsUsed.length||kindsUsed.length||zonesDrawn.length){
+        legendHost.hidden=false;
+        const title=document.createElement("h3");title.id="logical-legend-title";title.textContent="Figure 1 legend";legendHost.appendChild(title);
+        const column=(heading,listClass)=>{const box=document.createElement("div"),h4=document.createElement("h4"),list=document.createElement("ul");h4.textContent=heading;if(listClass)list.className=listClass;box.appendChild(h4);box.appendChild(list);legendHost.appendChild(box);return list};
+        const entry=(list,svgAttrs,shape,label)=>{const item=document.createElement("li"),key=svgEl("svg",svgAttrs);key.appendChild(shape);item.appendChild(key);item.appendChild(document.createTextNode(label));list.appendChild(item)};
+        if(iconsUsed.length){const list=column("Devices and symbols","device-list");iconsUsed.forEach(icon=>entry(list,{class:"legend-device-icon",viewBox:"0 0 80 56","aria-hidden":"true"},svgEl("use",{href:`#${ICONS[icon].vector}`,x:0,y:0,width:80,height:56}),LEGEND_ICONS[icon]||icon))}
+        if(kindsUsed.length){const list=column("Links and media");kindsUsed.forEach(kind=>entry(list,{class:"line-key",viewBox:"0 0 34 14","aria-hidden":"true"},svgEl("line",{class:`link ${kind}`,x1:2,y1:7,x2:32,y2:7}),LEGEND_KINDS[kind]))}
+        if(zonesDrawn.length){const list=column("Trust and service zones");zonesDrawn.forEach(zone=>entry(list,{class:"zone-key",viewBox:"0 0 34 14","aria-hidden":"true"},svgEl("rect",{class:`zone ${ZONE_KINDS.includes(zone.kind)?zone.kind:"other"}`,x:1,y:1,width:32,height:12,rx:3}),zone.label||zone.id))}
+        if(s.logical?.legend){const note=document.createElement("p");note.className="legend-note";note.textContent=s.logical.legend;legendHost.appendChild(note)}
+      } else legendHost.hidden=true;
+    }
     setText("rack-caption",s.physical?.caption||`Fig. 2 — Rack elevation. Front and rear are generated from one equipment schedule; rack units are numbered from the bottom. ${captionFallback}`);
     setText("rack-legend",s.physical?.legend||"Legend — shaded slots are occupied · hatched slots are reserved · a plain labelled face means no official artwork exists for that model.");
     if(PORTABLE_MODE)setText("brand-doclabel",`${data.document?.brand?.label||"Systems · Network Design"} · portable copy`)
