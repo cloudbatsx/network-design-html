@@ -63,6 +63,26 @@
   @media (max-width:520px) { .figure-legend .device-list { grid-template-columns:1fr; } }
   @media print { .figure-legend { break-inside:avoid; gap:8px 14px; padding:10px; font-size:8pt; } .figure-legend > h3 { font-size:9pt; } .figure-legend h4 { font-size:8.5pt; } .figure-legend .legend-device-icon { width:20px; height:14px; } .figure-legend .legend-note { padding-top:5px; font-size:7.5pt; } }
 
+  /* -- the shared hover-detail contract, from NET-RH-001: a black glance
+        box on every device, and connections that swell under the pointer
+        so one cable can be followed through the mess. The invisible
+        .link-hit stroke makes thin lines easy to catch. -- */
+  .figwrap { position:relative; }
+  .hover-label { position:absolute; z-index:20; display:none; width:225px; padding:9px 11px; border-radius:7px; color:#fff; background:rgba(17,31,39,.97); box-shadow:0 5px 16px rgba(0,0,0,.24); font-size:12px; line-height:1.4; pointer-events:none; }
+  .hover-label.visible { display:block; }
+  .hover-label strong { display:block; font-size:13px; margin-bottom:2px; color:#fff; }
+  .hover-label .detail { color:#c3d0d7; }
+  .link-group { outline:none; }
+  .link-group .link { transition:stroke-width .14s ease, filter .14s ease; }
+  .link-hit { fill:none; stroke:#fff; stroke-opacity:0; stroke-width:14; pointer-events:stroke; }
+  .link-group:hover .link, .link-group:focus .link { filter:drop-shadow(0 0 2px rgba(0,102,135,.75)); }
+  .link-group:hover .link.l3, .link-group:focus .link.l3 { stroke-width:4.5; }
+  .link-group:hover .link.aggregate, .link-group:focus .link.aggregate { stroke-width:7; }
+  .link-group:hover .link.ha, .link-group:focus .link.ha { stroke-width:4.5; }
+  .link-group:hover .link.access, .link-group:focus .link.access { stroke-width:4; }
+  .link-group:hover .link.backup, .link-group:focus .link.backup { stroke-width:3.5; }
+  @media print { .hover-label { display:none !important; } }
+
   /* -- callout boxes: semantic, NOT decorative -- */
   .note { background:#f0f9ff; border:1px solid #bae6fd; border-left:4px solid #0e7490; padding:8px 12px; font-size:9.4pt; margin:8px 0 16px; border-radius:4px; }
   .warn { background:#fffbeb; border:1px solid #fde68a; border-left:4px solid #b45309; padding:8px 12px; font-size:9.4pt; margin:8px 0 16px; border-radius:4px; }
@@ -530,6 +550,7 @@
         </div>
         <div class="figwrap">
           <div class="diagram-scroll"><svg id="topology" role="img" aria-labelledby="svg-title svg-desc"></svg></div>
+          <div class="hover-label" id="topology-hover" role="status" aria-live="polite"></div>
         </div>
         <p class="caption" id="topology-caption"></p>
         <aside class="figure-legend" id="topology-legend" aria-labelledby="logical-legend-title" hidden></aside>
@@ -2150,6 +2171,9 @@ if (typeof module !== "undefined" && module.exports) module.exports = RACK_FACE_
   // error box instead of failing silently.
   const LINK_KINDS=Object.freeze(["l3","aggregate","ha","access","backup"]);
   const ZONE_KINDS=Object.freeze(["external","perimeter","internal","other"]);
+  // One human name per closed link kind, shared by the Figure 1 legend and
+  // the hover glance box so the two can never disagree.
+  const KIND_LABELS=Object.freeze({l3:"Routed / Layer 3",aggregate:"Port-channel or aggregate",ha:"HA or peer link",access:"Access link",backup:"Backup or summarized path"});
   const DEFAULT_BRAND_PATH="M112 72 H400 V352 Q400 400 376 424 Q356 440 336 424 Q316 400 296 400 H216 Q196 400 176 424 Q156 440 136 424 Q112 400 112 352 Z M312 136 A40 40 0 0 1 352 176 V304 A40 40 0 0 1 312 344 A40 40 0 0 1 272 304 V176 A40 40 0 0 1 312 136 Z";
   const FINDING_FLAVOURS=Object.freeze({gaps:["gaps","gapnum"],patterns:["patterns","patnum"],gains:["gains","gainnum"]});
   let data,topologyErrors=[],rackErrors=[],slotAId="gaps";
@@ -2257,6 +2281,19 @@ if (typeof module !== "undefined" && module.exports) module.exports = RACK_FACE_
     group.appendChild(svgEl("text",{class:"node-warning",x:NODE_W/2,y:34},"UNKNOWN ICON"));topologyErrors.push(`Unknown icon on ${node.id}.`);return node.icon||"unknown"
   }
 
+  /* The hover-detail contract from NET-RH-001: one black glance box per
+     figure, filled on enter, hidden on leave, reachable by keyboard through
+     the same focus path as the click inspector. The box anchors to the
+     pointer, because a long backbone's bounding box is nowhere near it. */
+  function hoverParts(){const svg=el("topology"),wrap=svg&&svg.closest(".figwrap"),label=wrap&&wrap.querySelector(".hover-label");return label?{wrap,label}:null}
+  function fillHoverLabel(label,title,lines){label.replaceChildren();const heading=document.createElement("strong");heading.textContent=title;label.appendChild(heading);lines.forEach(line=>{if(!line||!line.text)return;const row=document.createElement("div");if(line.detail)row.className="detail";row.textContent=line.text;label.appendChild(row)})}
+  function placeHoverLabel(parts,clientX,clientY){const{wrap,label}=parts,m=wrap.getBoundingClientRect();let left=clientX-m.left+wrap.scrollLeft+14,top=clientY-m.top+wrap.scrollTop-label.offsetHeight/2;if(left+label.offsetWidth>wrap.scrollLeft+m.width-8)left=clientX-m.left+wrap.scrollLeft-label.offsetWidth-14;left=Math.max(wrap.scrollLeft+8,Math.min(left,wrap.scrollLeft+m.width-label.offsetWidth-8));top=Math.max(8,Math.min(top,wrap.scrollTop+m.height-label.offsetHeight-8));label.style.left=`${left}px`;label.style.top=`${top}px`}
+  function attachHover(target,content){
+    const show=event=>{const parts=hoverParts();if(!parts)return;const detail=content();fillHoverLabel(parts.label,detail.title,detail.lines);parts.label.classList.add("visible");const box=target.getBoundingClientRect();placeHoverLabel(parts,event&&Number.isFinite(event.clientX)?event.clientX:box.left+box.width/2,event&&Number.isFinite(event.clientY)?event.clientY:box.top+box.height/2)};
+    const hide=()=>{const parts=hoverParts();if(parts)parts.label.classList.remove("visible")};
+    target.addEventListener("mouseenter",show);target.addEventListener("mouseleave",hide);target.addEventListener("focus",()=>show(null));target.addEventListener("blur",hide)
+  }
+
   function renderTopology(){
     const topo=data.topology||{},width=Number(topo.canvas?.width)||1280,height=Number(topo.canvas?.height)||800,svg=el("topology");
     svg.replaceChildren();svg.setAttribute("viewBox",`0 0 ${width} ${height}`);
@@ -2265,7 +2302,7 @@ if (typeof module !== "undefined" && module.exports) module.exports = RACK_FACE_
     (topo.zones||[]).forEach(zone=>{const zx=Number(zone.x),zy=Number(zone.y),zw=Number(zone.width),zh=Number(zone.height);if(![zx,zy,zw,zh].every(Number.isFinite)){topologyErrors.push(`Zone ${zone.id||zone.label||"?"} has no usable position or size, so it was not drawn.`);return}if(zone.kind!==undefined&&!ZONE_KINDS.includes(zone.kind))topologyErrors.push(`Zone ${zone.id||zone.label||"?"} has the unknown kind "${zone.kind}", which draws as a solid black rectangle.`);svg.appendChild(svgEl("rect",{class:`zone ${zone.kind||"other"}`,x:zx,y:zy,width:zw,height:zh,rx:12}));svg.appendChild(svgEl("text",{class:"zone-label",x:zx+18,y:zy+27},zone.label||zone.id))});
     const nodes=new Map();(topo.nodes||[]).forEach(node=>{if(!node.id)topologyErrors.push("A topology node is missing an id.");else if(nodes.has(node.id))topologyErrors.push(`Duplicate topology node id: ${node.id}.`);else nodes.set(node.id,node)});
     const links=svgEl("g",{"aria-label":"Network links"}),labels=svgEl("g",{"aria-label":"Link labels"});
-    (topo.links||[]).forEach((link,index)=>{const source=nodes.get(link.from),target=nodes.get(link.to);if(!source||!target){topologyErrors.push(`Link ${index+1} references a missing node.`);return}if(link.kind!==undefined&&!LINK_KINDS.includes(link.kind))topologyErrors.push(`Link ${index+1} (${link.from} to ${link.to}) has the unknown kind "${link.kind}", which draws an invisible line.`);const points=[[source.x,source.y],...(link.via||[]),[target.x,target.y]];links.appendChild(svgEl("polyline",{class:`link ${link.kind||"l3"}`,points:points.map(point=>point.join(",")).join(" ")}));if(link.label){const auto=midpoint(points),x=Number.isFinite(Number(link.labelX))?Number(link.labelX):auto[0],y=Number.isFinite(Number(link.labelY))?Number(link.labelY):auto[1],w=Math.max(54,link.label.length*6.7+16);labels.appendChild(svgEl("rect",{class:"link-label-bg",x:x-w/2,y:y-12,width:w,height:22,rx:4}));labels.appendChild(svgEl("text",{class:"link-label",x,y:y+4},link.label))}});svg.append(links,labels);
+    (topo.links||[]).forEach((link,index)=>{const source=nodes.get(link.from),target=nodes.get(link.to);if(!source||!target){topologyErrors.push(`Link ${index+1} references a missing node.`);return}if(link.kind!==undefined&&!LINK_KINDS.includes(link.kind))topologyErrors.push(`Link ${index+1} (${link.from} to ${link.to}) has the unknown kind "${link.kind}", which draws an invisible line.`);const points=[[source.x,source.y],...(link.via||[]),[target.x,target.y]],traced=points.map(point=>point.join(",")).join(" "),kind=link.kind||"l3";const linkGroup=svgEl("g",{class:"link-group",tabindex:0,"aria-label":`${link.label?`${link.label}, `:""}${KIND_LABELS[kind]||kind} from ${source.label||source.id} to ${target.label||target.id}`});linkGroup.appendChild(svgEl("polyline",{class:`link ${kind}`,points:traced}));linkGroup.appendChild(svgEl("polyline",{class:"link-hit",points:traced}));attachHover(linkGroup,()=>({title:`${source.label||source.id} → ${target.label||target.id}`,lines:[{text:link.label||""},{text:KIND_LABELS[kind]||kind,detail:true}]}));links.appendChild(linkGroup);if(link.label){const auto=midpoint(points),x=Number.isFinite(Number(link.labelX))?Number(link.labelX):auto[0],y=Number.isFinite(Number(link.labelY))?Number(link.labelY):auto[1],w=Math.max(54,link.label.length*6.7+16);labels.appendChild(svgEl("rect",{class:"link-label-bg",x:x-w/2,y:y-12,width:w,height:22,rx:4}));labels.appendChild(svgEl("text",{class:"link-label",x,y:y+4},link.label))}});svg.append(links,labels);
     const nodeLayer=svgEl("g",{"aria-label":"Network devices"});
     nodes.forEach(node=>{
       if(!Number.isFinite(Number(node.x))||!Number.isFinite(Number(node.y))){topologyErrors.push(`${node.id} has no usable x,y position, so it was not drawn.`);return}
@@ -2277,6 +2314,7 @@ if (typeof module !== "undefined" && module.exports) module.exports = RACK_FACE_
       const select=()=>{svg.querySelectorAll(".node.selected").forEach(item=>item.classList.remove("selected"));group.classList.add("selected");makeInspector("topology-inspector",node.label||node.id,[["Role",node.role],["Address / context",node.address],["Documentation note",node.notes],["Rendered icon",iconRef]])};
       group.addEventListener("click",select);
       group.addEventListener("keydown",event=>{if(event.key==="Enter"||event.key===" "){event.preventDefault();select()}});
+      attachHover(group,()=>({title:node.label||node.id,lines:[{text:node.role||""},{text:node.address||""},{text:node.notes||"",detail:true}]}));
       nodeLayer.appendChild(group)
     });
     svg.appendChild(nodeLayer);showErrors("topology-errors",topologyErrors)
@@ -2476,13 +2514,12 @@ if (typeof module !== "undefined" && module.exports) module.exports = RACK_FACE_
        figure never draws reads as furniture, and furniture teaches readers
        to skip legends. An authored sections.logical.legend becomes the note
        row, where per-design conventions belong. */
-    const LEGEND_KINDS={l3:"Routed / Layer 3",aggregate:"Port-channel or aggregate",ha:"HA or peer link",access:"Access link",backup:"Backup or summarized path"};
     const LEGEND_ICONS={"cloud":"Cloud / external network","router":"Router","firewall":"Firewall","core-switch":"Core / L3 switch","access-switch":"Access switch","access-point":"Wireless access point","server":"Server","pc":"PC endpoint","workstation":"Workstation","wlan-controller":"Wireless LAN controller","vpn-headend":"VPN headend","dc-switch":"Data-center switch","ip-phone":"IP phone","laptop":"Laptop","printer":"Printer / peripheral","database":"Database","storage-array":"Storage array","network-management":"Management appliance","branch-office":"Branch / remote site","wireless-router":"Wireless router"};
     const legendHost=el("topology-legend");
     if(legendHost){
       legendHost.replaceChildren();
       const iconsUsed=[...new Set((data.topology?.nodes||[]).map(node=>node.icon).filter(icon=>ICONS[icon]))];
-      const kindsUsed=Object.keys(LEGEND_KINDS).filter(kind=>(data.topology?.links||[]).some(link=>(link.kind||"l3")===kind));
+      const kindsUsed=Object.keys(KIND_LABELS).filter(kind=>(data.topology?.links||[]).some(link=>(link.kind||"l3")===kind));
       const zonesDrawn=(data.topology?.zones||[]).filter(zone=>zone.label||zone.id);
       if(iconsUsed.length||kindsUsed.length||zonesDrawn.length){
         legendHost.hidden=false;
@@ -2490,7 +2527,7 @@ if (typeof module !== "undefined" && module.exports) module.exports = RACK_FACE_
         const column=(heading,listClass)=>{const box=document.createElement("div"),h4=document.createElement("h4"),list=document.createElement("ul");h4.textContent=heading;if(listClass)list.className=listClass;box.appendChild(h4);box.appendChild(list);legendHost.appendChild(box);return list};
         const entry=(list,svgAttrs,shape,label)=>{const item=document.createElement("li"),key=svgEl("svg",svgAttrs);key.appendChild(shape);item.appendChild(key);item.appendChild(document.createTextNode(label));list.appendChild(item)};
         if(iconsUsed.length){const list=column("Devices and symbols","device-list");iconsUsed.forEach(icon=>entry(list,{class:"legend-device-icon",viewBox:"0 0 80 56","aria-hidden":"true"},svgEl("use",{href:`#${ICONS[icon].vector}`,x:0,y:0,width:80,height:56}),LEGEND_ICONS[icon]||icon))}
-        if(kindsUsed.length){const list=column("Links and media");kindsUsed.forEach(kind=>entry(list,{class:"line-key",viewBox:"0 0 34 14","aria-hidden":"true"},svgEl("line",{class:`link ${kind}`,x1:2,y1:7,x2:32,y2:7}),LEGEND_KINDS[kind]))}
+        if(kindsUsed.length){const list=column("Links and media");kindsUsed.forEach(kind=>entry(list,{class:"line-key",viewBox:"0 0 34 14","aria-hidden":"true"},svgEl("line",{class:`link ${kind}`,x1:2,y1:7,x2:32,y2:7}),KIND_LABELS[kind]))}
         if(zonesDrawn.length){const list=column("Trust and service zones");zonesDrawn.forEach(zone=>entry(list,{class:"zone-key",viewBox:"0 0 34 14","aria-hidden":"true"},svgEl("rect",{class:`zone ${ZONE_KINDS.includes(zone.kind)?zone.kind:"other"}`,x:1,y:1,width:32,height:12,rx:3}),zone.label||zone.id))}
         if(s.logical?.legend){const note=document.createElement("p");note.className="legend-note";note.textContent=s.logical.legend;legendHost.appendChild(note)}
       } else legendHost.hidden=true;
