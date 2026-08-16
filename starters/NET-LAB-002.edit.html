@@ -67,7 +67,7 @@
   .series-strip .ss-arrow { color:#94a3b8; padding:0 5px; }
 
   /* ==== TOGGLEABLE LAYERS — exactly two, no more, no fewer ================
-     Slot A = the candour layer (section 6). Slot B = the equipment exhibit.
+     Slot A = the candour layer (section 2). Slot B = the equipment exhibit.
      @media print force-reveals both so the PDF is always complete. ======== */
   body:not(.show-gaps) .gap-layer { display:none !important; }
   body:not(.show-equip) .equip-layer { display:none !important; }
@@ -425,15 +425,10 @@
         <!-- SECTIONS 0-5 ARE THE FIXED SPINE. Same ids, same order, every document. -->
         <li><a href="#overview"><span class="num">0</span>Overview</a></li>
         <li><a href="#logical-topology"><span class="num">1</span>Logical topology</a></li>
-        <li><a href="#identity-addressing"><span class="num">2</span>Identity &amp; addressing</a></li>
-        <li><a href="#physical-view"><span class="num">3</span>Physical view</a></li>
-        <li><a href="#change-management"><span class="num">4</span>Change management</a></li>
-        <li><a href="#operations-observability"><span class="num">5</span>Operations &amp; observability</a></li>
-
-        <!-- Section 6 is ALWAYS the Slot-A candour layer, always a toc-control. -->
+        <!-- Section 2 is ALWAYS the Slot-A candour layer, always a toc-control. -->
         <li class="toc-control">
           <div class="sidebar-control">
-            <a id="gapLink" href="#gaps"><span class="num">6</span><span id="gap-label">Gaps &amp; open items</span></a>
+            <a id="gapLink" href="#gaps"><span class="num">2</span><span id="gap-label">Gaps &amp; open items</span></a>
             <button class="visibility-toggle" id="gapToggle" type="button" aria-labelledby="gapLink" aria-controls="gaps" aria-pressed="true" title="Hide gaps and open items">
               <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                 <path d="M2.3 12s3.4-5.5 9.7-5.5 9.7 5.5 9.7 5.5-3.4 5.5-9.7 5.5S2.3 12 2.3 12Z"/>
@@ -443,6 +438,11 @@
             </button>
           </div>
         </li>
+        <li><a href="#identity-addressing"><span class="num">3</span>Identity &amp; addressing</a></li>
+        <li><a href="#physical-view"><span class="num">4</span>Physical view</a></li>
+        <li><a href="#change-management"><span class="num">5</span>Change management</a></li>
+        <li><a href="#operations-observability"><span class="num">6</span>Operations &amp; observability</a></li>
+
 
         <!-- Slot B is ALWAYS last and ALWAYS lettered A (appendix), never numbered. -->
         <li class="toc-control">
@@ -527,8 +527,14 @@
       <hr class="rule">
 
       <!-- ============ SECTION 2 — identity &amp; addressing ============ -->
-      <section id="identity-addressing">
+      <section id="gaps" class="gap-layer">
         <p class="kicker">Section 2</p>
+        <h2 id="findings-heading">Gaps and open items</h2>
+        <ul class="gaps" id="findings-list"></ul>
+      </section>
+
+      <section id="identity-addressing">
+        <p class="kicker">Section 3</p>
         <h2 id="identity-heading">Identity &amp; addressing</h2>
         <div class="note"><ul class="notes" id="identity-notes"></ul></div>
         <table class="data-table" id="identity-table">
@@ -541,7 +547,7 @@
 
       <!-- ============ SECTION 3 — physical view ============ -->
       <section id="physical-view">
-        <p class="kicker">Section 3</p>
+        <p class="kicker">Section 4</p>
         <h2 id="rack-heading">Physical view</h2>
         <div class="note"><ul class="notes" id="physical-notes"></ul></div>
         <div class="section-tools">
@@ -573,7 +579,7 @@
 
       <!-- ============ SECTION 4 — change management ============ -->
       <section id="change-management">
-        <p class="kicker">Section 4</p>
+        <p class="kicker">Section 5</p>
         <h2 id="change-heading">Change management</h2>
         <div class="note"><ul class="notes" id="change-notes"></ul></div>
       </section>
@@ -582,7 +588,7 @@
 
       <!-- ============ SECTION 5 — operations &amp; observability ============ -->
       <section id="operations-observability">
-        <p class="kicker">Section 5</p>
+        <p class="kicker">Section 6</p>
         <h2 id="operations-heading">Operations &amp; observability</h2>
         <div class="note"><ul class="notes" id="operations-notes"></ul></div>
       </section>
@@ -592,11 +598,6 @@
       <!-- ============ SECTION 6 — SLOT A: the toggleable candour layer ============
            The whole point is that the document can be shown with its own
            weaknesses visible or hidden. Print force-reveals it regardless. -->
-      <section id="gaps" class="gap-layer">
-        <p class="kicker">Section 6</p>
-        <h2 id="findings-heading">Gaps and open items</h2>
-        <ul class="gaps" id="findings-list"></ul>
-      </section>
 
       <hr class="rule">
 
@@ -1041,12 +1042,12 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
       "heading": "Logical topology — a campus hierarchy that maps one-to-one onto the rack",
       "notes": [
         { "lead": "Design point", "text": "two provider circuits terminate on separate edge routers, cross-connect to an active/standby firewall pair, then port-channel into a two-member collapsed core that fans out to user access, service access and wireless control." },
-        { "lead": "Read this figure against section 3", "text": "twelve of the seventeen symbols below carry a device id that also appears in the rack schedule. That shared id is the only thing keeping a logical drawing and a physical drawing honest with each other." },
+        { "lead": "Read this figure against section 4", "text": "twelve of the seventeen symbols below carry a device id that also appears in the rack schedule. That shared id is the only thing keeping a logical drawing and a physical drawing honest with each other." },
         { "lead": "Two independent gateways, not one logical switch", "text": "the core members here are separate control planes joined by a peer link, which is why downstream bundles are drawn as MLAG with diverse members. That is a different design from a single logical switch, and the distinction changes what a member loss costs." },
         { "lead": "Layer boundary", "text": "this is a Layer 3 hierarchy view. Aggregate members are drawn only where they explain redundancy; their ports, optics and bundle identifiers stay in the engineering schedule." },
         { "lead": "Provenance", "text": "the shape is a documented pattern. Every address shown is an assumption to replace from an approved IPAM record." }
       ],
-      "caption": "Fig. 1 — Campus topology drawn at Layer 3, with the endpoint band separated so the access edge reads at a glance. Generated from the diagram data block; twelve of the seventeen node ids are the join key to the rack schedule in section 3. Every address, platform choice and link speed shown is assumed.",
+      "caption": "Fig. 1 — Campus topology drawn at Layer 3, with the endpoint band separated so the access edge reads at a glance. Generated from the diagram data block; twelve of the seventeen node ids are the join key to the rack schedule in section 4. Every address, platform choice and link speed shown is assumed.",
       "legend": "Legend — solid = routed / Layer 3 · heavy = port-channel or aggregate member · dashed magenta = HA or peer relationship, which is a state relationship and not a cable · thin = access attachment · dotted grey = backup routed path. The three coloured bands are trust zones; the fourth band is a drawing convenience for endpoints, not a security boundary."
     },
     "identity": {

@@ -36,11 +36,11 @@ for screen. Layer 2's `@media print` hands control back to Layer 1. One file is
 therefore both a screen document and a Letter PDF. **Merging the layers destroys
 this.**
 
-**Section spine — ids 0–5, same ids, same order, in every document:**
+**Section spine — same ids, same order, in every document:**
 
 ```text
-overview · logical-topology · identity-addressing · physical-view
-        · change-management · operations-observability
+overview · logical-topology · [Slot A] · identity-addressing
+        · physical-view · change-management · operations-observability
 ```
 
 Labels may be abbreviated in the sidebar; the `id` may not change.
@@ -48,8 +48,11 @@ Labels may be abbreviated in the sidebar; the `id` may not change.
 **Exactly two toggleable layers.** Not one, not three.
 
 - **Slot A** is the *candour layer* — the document's own weak evidence, made
-  hideable. Always section 6. Its id, label and wording come from
-  `sections.findings`.
+  hideable. Always **section 2, directly after the logical topology**, so the
+  numbered markers on the figure and the list they point to sit side by side —
+  a reader should never scroll four sections to resolve a marker. Its id,
+  label and wording come from `sections.findings`. (Until 2026-08-15 it sat
+  last, as section 6; the overlay made adjacency worth more than convention.)
 - **Slot B** is the equipment exhibit. Always `id="equipment-exhibit"`, always
   last, always lettered **A** (appendix), never numbered.
 
