@@ -462,6 +462,11 @@
     .logical-label .logical-notes { color: #c9d4da; }
     .rack-label.visible { display: block; }
     .logical-label.visible { display: block; }
+    /* Link hover, the NET-RH-001 convention: an invisible hit stroke makes
+       thin wires catchable, and the wire itself heats up under the pointer. */
+    #logical-svg path.link { transition: stroke-width .14s ease, filter .14s ease; }
+    .link-hit { fill: none; stroke: #fff; stroke-opacity: 0; stroke-width: 14; pointer-events: stroke; }
+    #logical-svg path.link.hot { filter: drop-shadow(0 0 2px rgba(0, 105, 145, .8)); }
 
     .inventory {
       width: 100%;
@@ -4084,6 +4089,59 @@ if (typeof module !== "undefined" && module.exports) module.exports = RACK_FACE_
   function refreshLogicalLabel() {
     if (activeLogicalNode) positionLogicalLabel(activeLogicalNode);
   }
+
+  /* Link hover, the NET-RH-001 convention. An id-free hit stroke rides over
+     each connection - the self-check counts only path[id], so the overlay is
+     invisible to it - the wire heats up, and the glance box repeats the
+     connection's own title. Hit strokes sit after the label layer and before
+     the device layer, so devices keep winning their own hovers. */
+  (function () {
+    var svgRoot = document.getElementById('logical-svg');
+    if (!svgRoot || !logicalLabel) return;
+    var wires = Array.prototype.slice.call(svgRoot.querySelectorAll('path.link[id]'));
+    if (!wires.length) return;
+    function showLinkLabel(line, event) {
+      var titleNode = line.querySelector('title');
+      var name = document.createElement('strong');
+      name.textContent = (titleNode && titleNode.textContent) || line.id;
+      var meta = document.createElement('span');
+      meta.textContent = (line.getAttribute('class') || '').replace(/\blink\b|\bhot\b/g, ' ').trim();
+      logicalLabel.replaceChildren(name, meta);
+      logicalLabel.classList.add('visible');
+      logicalLabel.setAttribute('aria-hidden', 'false');
+      var rect = logicalLabel.getBoundingClientRect();
+      var edge = 12;
+      var left = event.clientX + 14;
+      if (left + rect.width > window.innerWidth - edge) left = event.clientX - rect.width - 14;
+      left = Math.max(edge, Math.min(left, window.innerWidth - rect.width - edge));
+      var top = event.clientY - rect.height / 2;
+      top = Math.max(edge, Math.min(top, window.innerHeight - rect.height - edge));
+      logicalLabel.style.left = Math.round(left) + 'px';
+      logicalLabel.style.top = Math.round(top) + 'px';
+    }
+    var layer = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    layer.setAttribute('class', 'link-hit-layer');
+    layer.setAttribute('aria-hidden', 'true');
+    wires.forEach(function (line) {
+      var hit = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      hit.setAttribute('class', 'link-hit');
+      hit.setAttribute('d', line.getAttribute('d'));
+      hit.addEventListener('mouseenter', function (event) {
+        line.classList.add('hot');
+        line.style.strokeWidth = (parseFloat(getComputedStyle(line).strokeWidth) * 1.8) + 'px';
+        showLinkLabel(line, event);
+      });
+      hit.addEventListener('mouseleave', function () {
+        line.classList.remove('hot');
+        line.style.strokeWidth = '';
+        hideLogicalLabel();
+      });
+      layer.appendChild(hit);
+    });
+    var labelLayer = svgRoot.querySelector('g[aria-label="Link labels"]');
+    if (labelLayer && labelLayer.nextSibling) svgRoot.insertBefore(layer, labelLayer.nextSibling);
+    else svgRoot.appendChild(layer);
+  })();
 
   
 

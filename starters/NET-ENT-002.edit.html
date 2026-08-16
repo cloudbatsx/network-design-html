@@ -301,6 +301,17 @@
     #topology .node:focus .focus-ring,
     #topology .node.selected .focus-ring { stroke: var(--selected); }
     #topology .node:focus { outline: none; }
+    /* The hover-detail contract from NET-RH-001: a black glance box on every
+       device and connection, and wires that heat up under the pointer. */
+    .logical-hover-label { position: fixed; top: 0; left: 0; z-index: 60; display: none; width: max-content; max-width: min(320px, calc(100vw - 24px)); padding: 8px 10px; border-radius: 6px; color: #fff; background: rgba(17, 31, 39, .96); box-shadow: 0 4px 15px rgba(0,0,0,.22); font-size: 11px; line-height: 1.45; pointer-events: none; }
+    .logical-hover-label.visible { display: block; }
+    .logical-hover-label strong { display: block; font-size: 12px; }
+    .logical-hover-label span { display: block; margin-top: 3px; }
+    .logical-hover-label .hover-notes { color: #c9d4da; }
+    #topology .line { transition: stroke-width .14s ease, filter .14s ease; }
+    .link-hit { fill: none; stroke: #fff; stroke-opacity: 0; stroke-width: 14; pointer-events: stroke; }
+    #topology .line.hot { filter: drop-shadow(0 0 2px rgba(0, 105, 145, .8)); }
+    @media print { .logical-hover-label { display: none !important; } }
 
     .sheet-foot {
       display: grid;
@@ -2757,6 +2768,85 @@
     });
     const firstNode = document.querySelector('#topology .node');
     if (firstNode) selectNode(firstNode);
+
+    /* The hover-detail contract from NET-RH-001: a black glance box, created
+       here so the markup stays untouched. Devices show their own data
+       attributes; connections heat up and repeat their record's title and
+       detail, with an id-free hit stroke so thin wires are catchable (the
+       overlay carries no ids, so id-based checks never see it). */
+    const hoverLabel = document.createElement('div');
+    hoverLabel.className = 'logical-hover-label';
+    hoverLabel.setAttribute('role', 'status');
+    hoverLabel.setAttribute('aria-live', 'polite');
+    document.body.appendChild(hoverLabel);
+    function placeHoverLabel(clientX, clientY) {
+      const rect = hoverLabel.getBoundingClientRect();
+      const edge = 12;
+      let left = clientX + 14;
+      if (left + rect.width > window.innerWidth - edge) left = clientX - rect.width - 14;
+      left = Math.max(edge, Math.min(left, window.innerWidth - rect.width - edge));
+      let top = clientY - rect.height / 2;
+      top = Math.max(edge, Math.min(top, window.innerHeight - rect.height - edge));
+      hoverLabel.style.left = `${Math.round(left)}px`;
+      hoverLabel.style.top = `${Math.round(top)}px`;
+    }
+    function showHoverLabel(parts, clientX, clientY) {
+      hoverLabel.replaceChildren(...parts.filter(Boolean));
+      hoverLabel.classList.add('visible');
+      placeHoverLabel(clientX, clientY);
+    }
+    function hideHoverLabel() { hoverLabel.classList.remove('visible'); }
+    function textPart(tag, text, className) {
+      if (!text) return null;
+      const part = document.createElement(tag);
+      part.textContent = text;
+      if (className) part.className = className;
+      return part;
+    }
+    document.querySelectorAll('#topology .node').forEach(node => {
+      node.addEventListener('mouseenter', event => showHoverLabel([
+        textPart('strong', node.dataset.name),
+        textPart('span', node.dataset.role),
+        textPart('span', node.dataset.address),
+        textPart('span', node.dataset.notes, 'hover-notes')
+      ], event.clientX, event.clientY));
+      node.addEventListener('mouseleave', hideHoverLabel);
+    });
+    (function () {
+      const wireLines = Array.from(document.querySelectorAll('#topology g[aria-label="Connections"] > path.line[id]'));
+      if (!wireLines.length) return;
+      const linkDetails = {};
+      try {
+        (JSON.parse(document.getElementById('proof-data').textContent).topology.links || [])
+          .forEach(record => { if (record.id) linkDetails[record.id] = record.detail; });
+      } catch (error) { /* the box simply shows the title alone */ }
+      const layer = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      layer.setAttribute('class', 'link-hit-layer');
+      layer.setAttribute('aria-hidden', 'true');
+      wireLines.forEach(line => {
+        const hit = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        hit.setAttribute('class', 'link-hit');
+        hit.setAttribute('d', line.getAttribute('d'));
+        hit.addEventListener('mouseenter', event => {
+          line.classList.add('hot');
+          line.style.strokeWidth = `${parseFloat(getComputedStyle(line).strokeWidth) * 1.8}px`;
+          const title = line.querySelector('title');
+          showHoverLabel([
+            textPart('strong', (title && title.textContent) || line.id),
+            textPart('span', linkDetails[line.id], 'hover-notes')
+          ], event.clientX, event.clientY);
+        });
+        hit.addEventListener('mouseleave', () => {
+          line.classList.remove('hot');
+          line.style.strokeWidth = '';
+          hideHoverLabel();
+        });
+        layer.appendChild(hit);
+      });
+      const connections = document.querySelector('#topology g[aria-label="Connections"]');
+      if (connections && connections.nextSibling) connections.parentNode.insertBefore(layer, connections.nextSibling);
+      else if (connections) connections.parentNode.appendChild(layer);
+    })();
 
     
 

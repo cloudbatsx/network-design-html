@@ -440,6 +440,11 @@ body{background:#eef2f5;font-size:14px}
 .lag-bundle .lag-member{pointer-events:stroke;transition:stroke-width .14s ease,filter .14s ease}
 .lag-bundle:hover .lag-member,.lag-bundle:focus .lag-member{stroke-width:4;filter:drop-shadow(0 0 1.5px rgba(0,105,145,.55))}
 .lag-bundle:focus{outline:none}
+/* Link hover for single connections, the NET-RH-001 convention: an id-free
+   hit stroke makes each wire catchable, and the wire heats up under it. */
+.lnk-hit{fill:none;stroke:#fff;stroke-opacity:0;stroke-width:14;pointer-events:stroke}
+#links > path[data-link-id]{transition:stroke-width .14s ease,filter .14s ease}
+#links > path.hot{filter:drop-shadow(0 0 1.5px rgba(0,105,145,.55))}
 @media (max-width: 900px){
   .figure-legend,.rack-local-legend{grid-template-columns:1fr}
   .figure-legend .device-list{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -5111,6 +5116,55 @@ if (typeof module !== "undefined" && module.exports) module.exports = RACK_FACE_
       if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); selectLogical(node); }
     });
   });
+
+  /* Link hover for single (non-bundled) connections, the NET-RH-001
+     convention. An id-free hit stroke rides over each wire, the wire heats
+     up, and the glance box names both ends from the path's own data
+     attributes. Bundle members keep their existing group hover untouched. */
+  (function () {
+    const singles = Array.from(document.querySelectorAll('#links > path[data-link-id]'));
+    if (!singles.length) return;
+    const svgRoot = singles[0].ownerSVGElement;
+    const layer = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    layer.setAttribute('class', 'lnk-hit-layer');
+    layer.setAttribute('aria-hidden', 'true');
+    function showLinkLabel(path, event) {
+      const from = path.dataset.fromNode || '?', to = path.dataset.toNode || '?';
+      const ports = (path.dataset.fromPort || path.dataset.toPort)
+        ? `${path.dataset.fromPort || '—'} → ${path.dataset.toPort || '—'}` : '';
+      logicalLabel.innerHTML = `<strong>${from} → ${to}</strong>${ports ? `<span class="logical-label-detail">${ports}</span>` : ''}`;
+      logicalLabel.classList.add('visible');
+      const mapRect = logicalMap.getBoundingClientRect();
+      const labelWidth = logicalLabel.offsetWidth, labelHeight = logicalLabel.offsetHeight;
+      let left = event.clientX - mapRect.left + 14;
+      if (left + labelWidth > mapRect.width - 8) left = event.clientX - mapRect.left - labelWidth - 14;
+      left = Math.max(8, Math.min(left, mapRect.width - labelWidth - 8));
+      let top = event.clientY - mapRect.top - labelHeight / 2;
+      top = Math.max(8, Math.min(top, mapRect.height - labelHeight - 8));
+      logicalLabel.style.left = `${left}px`;
+      logicalLabel.style.top = `${top}px`;
+    }
+    singles.forEach(path => {
+      const hit = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      hit.setAttribute('class', 'lnk-hit');
+      hit.setAttribute('d', path.getAttribute('d'));
+      hit.addEventListener('mouseenter', event => {
+        path.classList.add('hot');
+        path.style.strokeWidth = `${parseFloat(getComputedStyle(path).strokeWidth) * 1.8}px`;
+        showLinkLabel(path, event);
+      });
+      hit.addEventListener('mouseleave', () => {
+        path.classList.remove('hot');
+        path.style.strokeWidth = '';
+        hideLogicalLabel();
+      });
+      layer.appendChild(hit);
+    });
+    const portsLayer = svgRoot.querySelector('.p-lbl');
+    const anchorGroup = portsLayer || document.getElementById('link-labels');
+    if (anchorGroup && anchorGroup.nextSibling) svgRoot.insertBefore(layer, anchorGroup.nextSibling);
+    else svgRoot.appendChild(layer);
+  })();
 
   const rackDevices = [
     {id:'SJC-OOB-01',model:'Cisco C1000-24T',role:'Out-of-band management switch',u:40,span:1,asset:null},
