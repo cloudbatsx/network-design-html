@@ -48,6 +48,16 @@
     .parts select{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:#fff}
     .fresh{margin:0 0 14px;padding:12px 14px;border:1px dashed #9fc0cd;border-radius:7px;background:#fbfdfe}
     .fresh summary{cursor:pointer;color:var(--blue2);font-weight:700}
+    /* Step 2 has two faces: building a design that does not exist yet, and
+       editing one that does. Each user sees only the one they are in. */
+    #build-panel,#edit-panel{display:none}
+    #step-2.mode-build #build-panel,#step-2.mode-edit #edit-panel{display:block}
+    .turn{margin:0 0 12px;padding:12px 14px;border:1px solid var(--line);border-radius:7px;background:#fff}
+    #turn-build{border-color:#9fc0cd;background:#fbfdfe}
+    .turn-head{margin:0 0 6px;font-weight:700;font-size:.98rem}
+    .turn-tag{margin-left:6px;font-weight:400;font-size:.82rem;color:var(--muted)}
+    #build-options{margin-top:12px}
+    #build-options summary{cursor:pointer;color:var(--blue2);font-weight:700;font-size:.9rem}
     .fresh-field{display:block;margin:8px 0;font-size:.9rem;font-weight:650}
     .fresh-field input,.fresh-field select{display:block;width:min(420px,100%);margin-top:4px;padding:7px 10px;border:1px solid var(--line);border-radius:6px;font-weight:400;font-family:inherit}
     .fresh-hint{color:var(--muted);font-weight:400;font-size:.82rem}
@@ -118,65 +128,83 @@
     </section>
 
     <section class="step" id="step-2" hidden>
-      <h2><span class="n">2</span>Say what you want changed</h2>
-      <p class="hint">Describe the change in plain English, then copy the prompt and paste it into your AI chat. The prompt already contains your current diagram, so you do not need to attach anything.</p>
-      <details class="fresh" id="fresh-start">
-        <summary>Starting fresh — from a diagram, or a blank page?</summary>
-        <p class="hint">Two prompts, both built for you. Works with the blank template — or with any
-        design you already made: load your last file above and your branding, style and
-        conventions carry over into the new document automatically.</p>
-        <p><b>A — Have your AI read your diagram first.</b> Copy this into a new AI chat, attach
-        your picture, send it, then correct anything it got wrong. Keep that chat open.</p>
-        <div class="row">
-          <button class="button" id="copy-extract" type="button">Copy the diagram-reading prompt</button>
-          <span class="file-name" id="extract-state"></span>
+      <h2><span class="n">2</span><span id="step-2-head">Say what you want changed</span></h2>
+
+      <!-- Building a new design. One button does the whole ordinary case; the
+           picture path is a separate AI turn and says so. -->
+      <div id="build-panel">
+        <p class="hint">Copy one prompt, paste it into any AI chat, bring the reply back to step 3.</p>
+
+        <div class="turn" id="turn-picture">
+          <p class="turn-head">Have a picture of your network? <span class="turn-tag">optional · do this first</span></p>
+          <p class="hint">Reading the picture is its own AI turn: the AI lists what it can see, so
+          you can correct it before anything is drawn. Starting from scratch instead? Skip
+          straight to the button below.</p>
+          <div class="row">
+            <button class="button" id="copy-extract" type="button">Copy prompt 1 — read my picture</button>
+            <span class="file-name" id="extract-state"></span>
+          </div>
+          <p class="hint">Open a new AI chat, attach your picture, paste this, send. Fix anything it
+          got wrong in its reply, then keep that chat open.</p>
         </div>
-        <p style="margin-top:14px"><b>B — Three questions, all optional.</b> Leave any of them
-        empty and the AI derives the answer from your diagram. Then press <b>Fill in the
-        request</b>, <b>Copy prompt</b>, and paste into that same chat.</p>
-        <label class="fresh-field">Document title <span class="fresh-hint">(empty = the AI names it from the diagram)</span>
-          <input id="fresh-title" type="text" placeholder="Our Organization Network"></label>
-        <label class="fresh-field">Drawing id <span class="fresh-hint">(also becomes the saved filename; empty = derived from the title)</span>
-          <input id="fresh-drawing" type="text" placeholder="OUR-NET-001"></label>
-        <label class="fresh-field">Physical rack
-          <select id="fresh-rack">
-            <option value="auto" selected>Let the diagram decide</option>
-            <option value="small">Small rack with the network devices</option>
-            <option value="none">No rack — record its absence as a gap</option>
-          </select></label>
+
+        <div class="turn" id="turn-build">
+          <p class="turn-head">Build the document</p>
+          <div class="row">
+            <button class="button primary" id="build-copy" type="button">Copy the build prompt</button>
+            <span class="file-name" id="build-state"></span>
+          </div>
+          <p class="hint">Paste it into that same chat — or into a fresh one if you had no picture.
+          Then bring its reply to step 3.</p>
+          <details id="build-options">
+            <summary>More options — name it yourself, choose the rack</summary>
+            <p class="hint">All optional. Leave them alone and the AI decides from your diagram.</p>
+            <label class="fresh-field">Document title <span class="fresh-hint">(empty = the AI names it)</span>
+              <input id="fresh-title" type="text" placeholder="Our Organization Network"></label>
+            <label class="fresh-field">Drawing id <span class="fresh-hint">(also the saved filename; empty = from the title)</span>
+              <input id="fresh-drawing" type="text" placeholder="OUR-NET-001"></label>
+            <label class="fresh-field">Physical rack
+              <select id="fresh-rack">
+                <option value="auto" selected>Let the diagram decide</option>
+                <option value="small">Small rack with the network devices</option>
+                <option value="none">No rack — record its absence as a gap</option>
+              </select></label>
+          </details>
+        </div>
+      </div>
+
+      <!-- Editing a design that already exists. -->
+      <div id="edit-panel">
+        <p class="hint">Describe the change in plain English, then copy the prompt and paste it into your AI chat. The prompt already contains your current diagram, so you do not need to attach anything.</p>
+        <fieldset class="parts">
+          <legend>Which part is changing?</legend>
+          <p class="hint">A free AI model has a limit on how much it can write in one reply. Pick the smallest part that covers your change: it only has to send that part back, so there is less to run out of room on and less it can break by accident.</p>
+          <select id="slice">
+            <optgroup label="The diagram">
+              <option value="nodes" selected>Devices — add, remove, move, rename</option>
+              <option value="links">Connections — what is wired to what</option>
+              <option value="zones">Areas — the boxes devices sit in</option>
+              <option value="topology">The whole diagram</option>
+            </optgroup>
+            <optgroup label="The rack">
+              <option value="rack">The rack — what is mounted where</option>
+            </optgroup>
+            <optgroup label="The write-up">
+              <option value="findings">Gaps &amp; open items</option>
+              <option value="sections">Notes &amp; tables — every section</option>
+              <option value="document">Cover details — title, branding, footer</option>
+            </optgroup>
+            <optgroup label="Everything">
+              <option value="all">The whole design in one go</option>
+            </optgroup>
+          </select>
+          <p class="counts" id="slice-size"></p>
+        </fieldset>
+        <textarea id="request" rows="3" placeholder="Add a wireless LAN controller in the internal zone and connect it to both core switches."></textarea>
         <div class="row gap">
-          <button class="button primary" id="fresh-fill" type="button">Fill in the request</button>
-          <span class="file-name" id="fresh-state"></span>
+          <button class="button primary" id="copy-prompt" type="button">Copy prompt</button>
+          <span class="file-name" id="copy-state"></span>
         </div>
-      </details>
-      <fieldset class="parts">
-        <legend>Which part is changing?</legend>
-        <p class="hint">A free AI model has a limit on how much it can write in one reply. Pick the smallest part that covers your change: it only has to send that part back, so there is less to run out of room on and less it can break by accident.</p>
-        <select id="slice">
-          <optgroup label="The diagram">
-            <option value="nodes" selected>Devices — add, remove, move, rename</option>
-            <option value="links">Connections — what is wired to what</option>
-            <option value="zones">Areas — the boxes devices sit in</option>
-            <option value="topology">The whole diagram</option>
-          </optgroup>
-          <optgroup label="The rack">
-            <option value="rack">The rack — what is mounted where</option>
-          </optgroup>
-          <optgroup label="The write-up">
-            <option value="findings">Gaps &amp; open items</option>
-            <option value="sections">Notes &amp; tables — every section</option>
-            <option value="document">Cover details — title, branding, footer</option>
-          </optgroup>
-          <optgroup label="Everything">
-            <option value="all">The whole design in one go</option>
-          </optgroup>
-        </select>
-        <p class="counts" id="slice-size"></p>
-      </fieldset>
-      <textarea id="request" rows="3" placeholder="Add a wireless LAN controller in the internal zone and connect it to both core switches."></textarea>
-      <div class="row gap">
-        <button class="button primary" id="copy-prompt" type="button">Copy prompt</button>
-        <span class="file-name" id="copy-state"></span>
       </div>
       <details id="payload-details" style="margin-top:14px">
         <summary style="cursor:pointer;color:var(--blue2);font-weight:700">Show the diagram data being sent</summary>
@@ -909,6 +937,20 @@ function setStage(stage, nowText) {
 let stagedLogoImage = null;   // data URI staged from the branding step's file input
 let stagedLogoViewBox = "";   // that file's own proportions, so a wide lockup stays wide
 
+/* Step 2 shows one of two faces. Building a design nobody has drawn yet is a
+   different job from editing one that exists - the part picker means nothing
+   before there are parts - and showing both at once was what made this step
+   hard to follow. The door in step 1 decides; saving a built design turns it
+   into a design you edit. */
+let buildMode = false;
+function setStepMode(building) {
+  buildMode = building;
+  const step = $("step-2");
+  step.classList.toggle("mode-build", building);
+  step.classList.toggle("mode-edit", !building);
+  $("step-2-head").textContent = building ? "Build your design" : "Say what you want changed";
+}
+
 function note(host, kind, title, body) {
   const box = $(host);
   box.replaceChildren();
@@ -998,12 +1040,15 @@ function loadSource(text, name) {
     $("payload").value = JSON.stringify(parsed, null, 2);
     $("payload-size").textContent = `${raw.length.toLocaleString()} characters of diagram data, out of ${text.length.toLocaleString()} in the whole file.`;
     applyPartMenu(parts);
+    // Editing is the default face; the new-design door flips it to building
+    // immediately after this returns.
+    setStepMode(false);
     note("load-message", "ok", "File loaded.", " Now describe your change below.");
     describeSlice();
     stagedLogoImage = null; stagedLogoViewBox = "";
     $("brand-image").value = ""; $("brand-image-state").textContent = "No image staged";
     $("brand-image-clear").disabled = true; $("brand-state").textContent = "";
-    setStage("build", "describe your change - or use the Starting fresh panel - then press Copy prompt.");
+    setStage("build", "pick the part that is changing, describe the change, then press Copy prompt.");
     $("step-2").hidden = false; $("step-3").hidden = false; $("step-brand").hidden = false;
     $("step-4").hidden = false; $("save").disabled = true;
     $("save-state").textContent = ""; note("save-message", null);
@@ -2279,6 +2324,8 @@ function save() {
     currentData = accepted;
     accepted = null;
     sourceName = name;
+    // A design that has been built and saved is a design you edit from here.
+    if (buildMode) setStepMode(false);
     $("save").disabled = true;
     $("payload").value = JSON.stringify(currentData, null, 2);
     $("payload-size").textContent = `${injected.trim().length.toLocaleString()} characters of diagram data, out of ${out.length.toLocaleString()} in the whole file.`;
@@ -2307,9 +2354,9 @@ $("new-design").addEventListener("click", () => {
   }
   const bytes = Uint8Array.from(atob(encoded), (character) => character.charCodeAt(0));
   loadSource(new TextDecoder("utf-8", { fatal: true }).decode(bytes), "network-design-template.edit.html");
-  // A new design is the fresh-build door - open its panel so the next click
-  // is already on screen.
-  $("fresh-start").open = true;
+  setStepMode(true);
+  note("load-message", "ok", "Blank template ready.", " Now copy the build prompt below.");
+  setStage("build", "press Copy the build prompt, paste it into any AI chat, and bring the reply back. Working from a picture? Do prompt 1 first.");
 });
 $("choose-file").addEventListener("click", () => $("file-input").click());
 $("file-input").addEventListener("change", () => {
@@ -2319,27 +2366,40 @@ $("file-input").addEventListener("change", () => {
 $("copy-extract").addEventListener("click", async () => {
   try {
     await navigator.clipboard.writeText(EXTRACT_PROMPT);
-    $("extract-state").textContent = "Copied. New AI chat, attach your diagram, paste, send.";
+    $("extract-state").textContent = "Copied. New AI chat, attach your picture, paste, send.";
   } catch {
     $("payload-details").open = true;
     $("payload").value = EXTRACT_PROMPT;
     $("extract-state").textContent = "Could not copy - it is in the box under 'Show the diagram data being sent'.";
   }
-  setStage("build", "in a NEW AI chat: attach your diagram, paste, send. Correct its lists, then come back and press Fill in the request.");
+  setStage("build", "in a NEW AI chat: attach your picture, paste, send. Correct its lists, then come back and press Copy the build prompt.");
 });
 $("fresh-title").addEventListener("input", () => {
   if (!$("fresh-drawing").value) $("fresh-drawing").placeholder = freshDrawingId($("fresh-title").value);
 });
-$("fresh-fill").addEventListener("click", () => {
+/* One button for the whole ordinary case: compose the request from whatever
+   the optional fields hold, aim it at the whole design, and put it on the
+   clipboard. Filling and copying were two clicks and two buttons, and the
+   order between them was never obvious. */
+$("build-copy").addEventListener("click", async () => {
   const slice = $("slice");
   if (![...slice.options].some((option) => option.value === "all")) {
-    $("fresh-state").textContent = "Fresh builds start from the template - load starters/network-design-template.edit.html in step 1.";
+    $("build-state").textContent = "Fresh builds start from the blank template - press Start a new design in step 1.";
     return;
   }
   slice.value = "all";
   slice.dispatchEvent(new Event("change"));
   $("request").value = freshRequestText($("fresh-title").value, $("fresh-drawing").value, $("fresh-rack").value);
-  $("fresh-state").textContent = "Request filled - now press Copy prompt and paste it into that same chat.";
+  const text = buildPrompt();
+  try {
+    await navigator.clipboard.writeText(text);
+    $("build-state").textContent = `Copied (${text.length.toLocaleString()} characters). Paste it into your AI chat.`;
+  } catch {
+    $("payload-details").open = true;
+    $("payload").value = text;
+    $("build-state").textContent = "Could not copy - the prompt is in the box below, select it all and copy.";
+  }
+  setStage("check", "paste the AI's whole reply into step 3, then press Check it.");
 });
 /* An SVG is markup, not pixels, so it gets read before it is trusted. Script
    tags, event handlers and javascript: URLs are refused by name: the renderer
