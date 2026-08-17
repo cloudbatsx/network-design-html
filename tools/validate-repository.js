@@ -571,6 +571,52 @@ checkEvery("sheet kits declare exactly their data-driven parts", (want) => {
   }
 });
 
+/* A starter's identity lived in up to four names at once - filename
+   NET-HQ-002, sidebar NET-SJC-HQ-001, control header CB-ND-SJC-HQ-001, a
+   title claiming v2.1 over a header claiming 2.0 - and every run stayed
+   green, because nothing compared the surfaces to each other. The filename
+   is the one name a user actually picks, so it is the authority: every
+   surface that states an identity must state that one, and a claimed
+   revision must exist in the document's own history. */
+checkEvery("every starter claims exactly one identity", (want) => {
+  for (const name of starterNames) {
+    const source = read(`starters/${name}`);
+    const stem = name.replace(/\.edit\.html$/, "");
+    const data = JSON.parse(scriptById(source, "proof-data"));
+    const drawing = data.document?.drawing;
+
+    // The blank template deliberately carries a placeholder id - a real
+    // starter's name on the template would collide the moment it is copied.
+    if (name === "network-design-template.edit.html") {
+      want(drawing === "NET-PROOF-001", `template drawing is "${drawing}", expected the NET-PROOF-001 placeholder`);
+      continue;
+    }
+    want(drawing === stem, `proof-data names the drawing "${drawing}", the file is ${stem}`);
+
+    // Coordinate kits render every identity surface from proof-data at
+    // runtime, so the one equality above covers them. Sheet kits carry
+    // hardcoded copies of the identity on each surface, so each is checked.
+    const canvas = data.topology?.canvas || {};
+    if (Number.isFinite(Number(canvas.width)) && Number.isFinite(Number(canvas.height))) continue;
+
+    const revision = String(data.document?.revision ?? "");
+    want(revision !== "", "proof-data declares no document revision");
+    const metaOf = (field) => source.match(new RegExp(`<meta name="${field}" content="([^"]*)"`))?.[1];
+    want(metaOf("document-id") === stem, `meta document-id is "${metaOf("document-id")}", the file is ${stem}`);
+    want(metaOf("revision") === revision, `meta revision is "${metaOf("revision")}", proof-data says ${revision}`);
+    const fieldOf = (field) => source.match(new RegExp(`data-doc-field="${field}"[^>]*>([^<]*)<`))?.[1]?.trim();
+    want(fieldOf("document-id") === stem, `the control header says "${fieldOf("document-id")}", the file is ${stem}`);
+    want(fieldOf("revision") === revision, `the control header says revision "${fieldOf("revision")}", proof-data says ${revision}`);
+    const doclabel = source.match(/<p class="doclabel">([\s\S]*?)<\/p>/)?.[1] || "";
+    want(doclabel.includes(stem), `the sidebar label does not name ${stem}`);
+    const title = source.match(/<title>([\s\S]*?)<\/title>/)?.[1] || "";
+    want(title.includes(`${stem} v${revision}`), `the title does not state "${stem} v${revision}"`);
+    want(new RegExp(`ss-here">${stem}\\b`).test(source), `the series strip does not mark ${stem} as this document`);
+    const historyRow = new RegExp(`<td[^>]*>(?:<code>)?${revision.replace(/\./g, "\\.")}(?:</code>)?</td>`);
+    want(historyRow.test(source), `the claimed revision ${revision} has no revision-history row`);
+  }
+});
+
 // One packaging engine, two surfaces. The core is injected byte-identically
 // into both apps by build:helper; an edited copy in either is a build failure,
 // which is what lets the helper's final step and the standalone packager
