@@ -157,6 +157,14 @@ and additionally show the node's `address` line. Use the sides on paired
 devices — left member captioned left, right member captioned right — so the
 lane between them stays clear for links.
 
+A node with `"shape": "segment"` is a **shared subnet bar** instead of a
+symbol: a coloured rail at `x`,`y` spanning `width`, with an optional CSS
+`color`. It has no `icon`. Links that end on a segment attach at the member's
+own x, clamped into the bar span, and draw a junction circle — so more-than-
+two-party segments read as one rail with taps, not a fan of lines. Caption
+sits below the bar, or stacked off the right end with `"labelSide": "right"`.
+Use a segment whenever more than two objects share one Layer 3 network.
+
 A strictly logical design may set `"rack": { "applicable": false, "statement":
 "why there is no rack" }` — the physical section then shows the statement
 instead of an empty elevation. Never combine `"applicable": false` with a

@@ -146,7 +146,7 @@
   .diagram-scroll{overflow:auto;border:1px solid #e2e8f0;background:#fff}#topology{display:block;width:100%;min-width:980px;height:auto;transition:width .15s ease}
   .zone{stroke-width:1.2;stroke-dasharray:7 5}.zone.external{fill:#f7f9fa;stroke:#a5b4bc}.zone.perimeter{fill:#fff8f4;stroke:#d5a585}.zone.internal{fill:#f2fafb;stroke:#8eb8c2}.zone.other{fill:#f8f8fb;stroke:#aaa9bb}
   .zone-label{fill:#627580;font-size:13px;font-weight:700;letter-spacing:.08em}.link{fill:none;stroke-linecap:round;stroke-linejoin:round}.link.l3{stroke:#006687;stroke-width:2.5}.link.aggregate{stroke:#167a74;stroke-width:5}.link.ha{stroke:#9a3b70;stroke-width:2.5;stroke-dasharray:8 6}.link.access{stroke:#526b78;stroke-width:2}.link.backup{stroke:#7c929e;stroke-width:1.8;stroke-dasharray:5 5}
-  .link-label-bg{fill:#fff;fill-opacity:.94;stroke:#d8e1e6}.link-label{fill:#42545e;font-size:11px;font-weight:600;text-anchor:middle}.node{cursor:pointer;outline:none;--symbol-main:#007fa8;--symbol-dark:#006687;--symbol-light:#51bde6;--symbol-detail:#fff}.node-shell{fill:transparent;stroke:none}.node:hover .node-shell,.node:focus .node-shell,.node.selected .node-shell{fill:rgba(0,127,168,.05);stroke:#006687;stroke-width:2;filter:url(#node-shadow)}.node-name{fill:#14242f;font-size:13px;font-weight:700;font-family:Consolas,'Courier New',monospace;text-anchor:middle}.node-role{fill:#5d707c;font-size:11px;text-anchor:middle}.node-address{fill:#0e7490;font-size:11px;font-family:Consolas,'Courier New',monospace;text-anchor:middle}.node-warning{fill:#a02d2d;font-size:10px;font-weight:700;text-anchor:middle}.node-generic{fill:#f4f8fa;stroke:#7c929e;stroke-width:1.5;stroke-dasharray:4 3}.node-generic-label{fill:#526b78;font-size:8px;font-weight:700;text-anchor:middle;letter-spacing:.06em}.topology-vector-icon{pointer-events:none}
+  .link-label-bg{fill:#fff;fill-opacity:.94;stroke:#d8e1e6}.link-label{fill:#42545e;font-size:11px;font-weight:600;text-anchor:middle}.node{cursor:pointer;outline:none;--symbol-main:#007fa8;--symbol-dark:#006687;--symbol-light:#51bde6;--symbol-detail:#fff}.node-shell{fill:transparent;stroke:none}.node:hover .node-shell,.node:focus .node-shell,.node.selected .node-shell{fill:rgba(0,127,168,.05);stroke:#006687;stroke-width:2;filter:url(#node-shadow)}.node-name{fill:#14242f;font-size:13px;font-weight:700;font-family:Consolas,'Courier New',monospace;text-anchor:middle}.node-role{fill:#5d707c;font-size:11px;text-anchor:middle}.node-address{fill:#0e7490;font-size:11px;font-family:Consolas,'Courier New',monospace;text-anchor:middle}.segment-hit{fill:transparent;stroke:none}.segment-node:hover .segment-hit,.segment-node:focus .segment-hit,.segment-node.selected .segment-hit{fill:rgba(0,127,168,.05);stroke:#006687;stroke-width:2}.segment-bar{stroke:none}.segment-junction{fill:#fff;stroke-width:3.5}.node-warning{fill:#a02d2d;font-size:10px;font-weight:700;text-anchor:middle}.node-generic{fill:#f4f8fa;stroke:#7c929e;stroke-width:1.5;stroke-dasharray:4 3}.node-generic-label{fill:#526b78;font-size:8px;font-weight:700;text-anchor:middle;letter-spacing:.06em}.topology-vector-icon{pointer-events:none}
   #network-vector-symbols{position:absolute;width:0;height:0;overflow:hidden;pointer-events:none}.sym-primary{fill:var(--symbol-main,#007fa8)}.sym-dark{fill:var(--symbol-dark,#006687)}.sym-light{fill:var(--symbol-light,#51bde6)}.sym-detail{fill:var(--symbol-detail,#fff)}.sym-outline{fill:#fff;stroke:var(--symbol-main,#007fa8);stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}.sym-detail-stroke{fill:none;stroke:var(--symbol-detail,#fff);stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
   .inspector{display:grid;grid-template-columns:150px 1fr;gap:7px 15px;margin-top:13px;padding:15px 17px;border-left:4px solid #0891b2;background:#f6fafb}.inspector h3{grid-column:1/-1;margin:0 0 4px}.inspector .label{color:#64748b;font-size:.79rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
   .errors{display:none;margin:12px 0;padding:10px 12px;border-left:4px solid #dc2626;color:#762121;background:#fff3f3}.errors.visible{display:block}
@@ -746,14 +746,14 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
     "subject": "Edge, DMZ & services",
     "author": "Sayed Haque",
     "classification": "Sample / reference",
-    "revision": "2.2",
+    "revision": "2.3",
     "evidence": {
       "text": "Proposed · validation required",
       "color": "amber"
     },
     "lineage": {
       "source": "cloudbats-NET-ENT-001-v2.0.html",
-      "note": "Ported from the finished CloudBats deliverable, then regenerated through the coordinate engine at revision 2.2. The source's sheet grammar - shared subnet bars, junction circles, orthogonal paths - is translated into the engine grammar recorded in this data block."
+      "note": "Ported from the finished CloudBats deliverable, then regenerated through the coordinate engine at revision 2.2 and refined since. The source's sheet grammar - shared subnet bars, junction circles, orthogonal paths - is translated into the engine grammar recorded in this data block."
     },
     "brand": {
       "name": "cloudbats",
@@ -767,6 +767,12 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
       "equipment": false
     },
     "history": [
+      {
+        "revision": "2.3",
+        "date": "2026-08-16",
+        "author": "Sayed Haque",
+        "summary": "Shared segments draw as true subnet bars with junction taps where members attach - the sheet grammar's signature notation, now data-driven (shape \"segment\" with width, colour and caption side). The cloud-glyph stand-in retires and register entry R8 closes with it. The trusted zone restacks as a bar staircase with each population tapping its own segment; device captions on the paired devices remain side-anchored with visible addressing."
+      },
       {
         "revision": "2.2",
         "date": "2026-08-16",
@@ -829,7 +835,7 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
   "topology": {
     "canvas": {
       "width": 1280,
-      "height": 1000
+      "height": 1130
     },
     "zones": [
       {
@@ -857,7 +863,7 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
         "x": 835,
         "y": 295,
         "width": 420,
-        "height": 200
+        "height": 215
       },
       {
         "id": "trusted",
@@ -866,14 +872,14 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
         "x": 25,
         "y": 525,
         "width": 1230,
-        "height": 330
+        "height": 470
       },
       {
         "id": "management",
         "label": "OUT-OF-BAND MANAGEMENT",
         "kind": "other",
         "x": 25,
-        "y": 885,
+        "y": 1005,
         "width": 350,
         "height": 90
       }
@@ -948,8 +954,8 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
         "label": "LAB-DMZ-LB01",
         "role": "DMZ load balancer",
         "icon": "server",
-        "x": 1105,
-        "y": 350,
+        "x": 935,
+        "y": 385,
         "address": "203.0.113.2/28 · VIPs .8–.10",
         "notes": "Internet-facing virtual services. The vendor-neutral role is carried by the official Cisco load-balancer symbol; a product model would belong in text or inventory."
       },
@@ -958,8 +964,8 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
         "label": "LAB-DMZ-WEB01",
         "role": "DMZ web server",
         "icon": "server",
-        "x": 1015,
-        "y": 445,
+        "x": 1065,
+        "y": 385,
         "address": "203.0.113.3/28",
         "notes": "First member of the public web tier. The logical diagram shows service identity, not rack placement."
       },
@@ -968,8 +974,8 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
         "label": "LAB-DMZ-WEB02",
         "role": "DMZ web server",
         "icon": "server",
-        "x": 1175,
-        "y": 445,
+        "x": 1195,
+        "y": 385,
         "address": "203.0.113.4/28",
         "notes": "Second member of the public web tier. Repeated peers use identical artwork and layout."
       },
@@ -1001,7 +1007,7 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
         "role": "Out-of-band network management",
         "icon": "network-management",
         "x": 170,
-        "y": 930,
+        "y": 1050,
         "address": "10.99.0.10/24",
         "notes": "Management paths are visually separated with dash-dot lines and pushed to the edge of the drawing.",
         "labelSide": "right"
@@ -1011,8 +1017,8 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
         "label": "User endpoint population",
         "role": "Summarized endpoint population",
         "icon": "pc",
-        "x": 240,
-        "y": 805,
+        "x": 150,
+        "y": 930,
         "address": "Attaches to S10",
         "notes": "Endpoint glyphs summarize attached populations; Layer 2 access switches are intentionally omitted from this sheet."
       },
@@ -1021,8 +1027,8 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
         "label": "Voice endpoint population",
         "role": "Summarized endpoint population",
         "icon": "ip-phone",
-        "x": 560,
-        "y": 805,
+        "x": 330,
+        "y": 930,
         "address": "Attaches to S20",
         "notes": "Endpoint glyphs summarize attached populations; Layer 2 access switches are intentionally omitted from this sheet."
       },
@@ -1031,50 +1037,61 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
         "label": "Application population",
         "role": "Summarized endpoint population",
         "icon": "server",
-        "x": 880,
-        "y": 805,
+        "x": 510,
+        "y": 930,
         "address": "Attaches to S50",
         "notes": "Endpoint glyphs summarize attached populations; Layer 2 access switches are intentionally omitted from this sheet."
       },
       {
         "id": "S210",
-        "label": "DMZ · VLAN 210 · shared segment",
+        "label": "DMZ · VLAN 210",
         "role": "Shared Layer 3 segment",
-        "icon": "cloud",
-        "x": 935,
-        "y": 350,
+        "x": 1055,
+        "y": 460,
         "address": "203.0.113.0/28 · gateway 203.0.113.1",
-        "notes": "Drawn as a shared subnet bar because more than two objects attach. Junction circles mark intentional attachments."
+        "notes": "Drawn as a shared subnet bar because more than two objects attach. Junction circles mark intentional attachments.",
+        "shape": "segment",
+        "width": 370,
+        "color": "#c2661d"
       },
       {
         "id": "S10",
-        "label": "USERS · VLAN 10 · shared segment",
+        "label": "USERS · VLAN 10",
         "role": "Shared Layer 3 segment",
-        "icon": "cloud",
-        "x": 240,
-        "y": 705,
+        "x": 580,
+        "y": 690,
         "address": "10.10.10.0/24 · gateway 10.10.10.1",
-        "notes": "Drawn as a shared subnet bar because more than two objects attach. Junction circles mark intentional attachments."
+        "notes": "Drawn as a shared subnet bar because more than two objects attach. Junction circles mark intentional attachments.",
+        "shape": "segment",
+        "width": 920,
+        "color": "#2458b3",
+        "labelSide": "right"
       },
       {
         "id": "S20",
-        "label": "VOICE · VLAN 20 · shared segment",
+        "label": "VOICE · VLAN 20",
         "role": "Shared Layer 3 segment",
-        "icon": "cloud",
-        "x": 560,
-        "y": 705,
+        "x": 670,
+        "y": 760,
         "address": "10.10.20.0/24 · gateway 10.10.20.1",
-        "notes": "Drawn as a shared subnet bar because more than two objects attach. Junction circles mark intentional attachments."
+        "notes": "Drawn as a shared subnet bar because more than two objects attach. Junction circles mark intentional attachments.",
+        "shape": "segment",
+        "width": 740,
+        "color": "#1d7a4f",
+        "labelSide": "right"
       },
       {
         "id": "S50",
-        "label": "APPLICATIONS · VLAN 50 · shared segment",
+        "label": "APPLICATIONS · VLAN 50",
         "role": "Shared Layer 3 segment",
-        "icon": "cloud",
-        "x": 880,
-        "y": 705,
+        "x": 760,
+        "y": 830,
         "address": "10.10.50.0/24 · gateway 10.10.50.1",
-        "notes": "Drawn as a shared subnet bar because more than two objects attach. Junction circles mark intentional attachments."
+        "notes": "Drawn as a shared subnet bar because more than two objects attach. Junction circles mark intentional attachments.",
+        "shape": "segment",
+        "width": 560,
+        "color": "#7c51b3",
+        "labelSide": "right"
       }
     ],
     "links": [
@@ -1300,7 +1317,7 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
       "provenance": [
         {
           "lead": "Provenance",
-          "text": "ported from cloudbats-NET-ENT-001-v2.0.html and regenerated through the coordinate engine at revision 2.2; the topology inventory is carried over in full and the register below retains every inherited ambiguity."
+          "text": "ported from cloudbats-NET-ENT-001-v2.0.html and regenerated through the coordinate engine at revision 2.2 and refined since; the topology inventory is carried over in full and the register below retains every inherited ambiguity."
         },
         {
           "lead": "Evidence",
@@ -1359,7 +1376,7 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
         },
         {
           "lead": "Notation",
-          "text": "shared segments are drawn as abstract-network glyphs labelled with VLAN and prefix (see R8); redundant members are drawn individually; management paths use the dashed backup stroke."
+          "text": "shared segments draw as coloured subnet bars with junction taps where members attach; redundant members are drawn individually; management paths use the dashed backup stroke."
         }
       ],
       "caption": "Fig. 1 — Enterprise edge, DMZ & services. Drawn from the diagram data block; every node, link and segment is a record, and the register pins its findings onto this drawing.",
@@ -1662,7 +1679,7 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
       ],
       "tables": [
         {
-          "caption": "Release audit · revision 2.2",
+          "caption": "Release audit · revision 2.3",
           "columns": [
             "#",
             "Check",
@@ -1792,16 +1809,6 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
           "detail": "The 19-symbol vector library has no load-balancer glyph. Revision 2.0 referenced a Cisco LocalDirector asset directly, which rendered as an empty placeholder box in editable mode. The role is carried by text, not by the artwork. Impact: The reader can mistake a load balancer for a server. Required action: Add a load-balancer symbol to the shared library, or keep the role in text. Severity: MEDIUM.",
           "at": [
             "lab-dmz-lb01"
-          ]
-        },
-        {
-          "title": "R8 — Shared subnet bars are drawn as abstract-network glyphs",
-          "detail": "The engine's 19-symbol library has no subnet-bar glyph, so the four shared segments (VLAN 210, 10, 20, 50) are drawn with the abstract-network cloud symbol and labelled as shared segments. Membership is unchanged - every attachment is a recorded link. Impact: a reader can mistake a segment for a provider cloud until the label is read. Required action: adopt a segment glyph in the vector library, or accept this notation. Severity: LOW.",
-          "at": [
-            "S210",
-            "S10",
-            "S20",
-            "S50"
           ]
         }
       ]
@@ -3025,11 +3032,33 @@ if (typeof module !== "undefined" && module.exports) module.exports = RACK_FACE_
     filter.appendChild(svgEl("feDropShadow",{dx:0,dy:3,stdDeviation:3,"flood-color":"#152d39","flood-opacity":.2}));defs.appendChild(filter);svg.append(title,desc,defs);
     (topo.zones||[]).forEach(zone=>{const zx=Number(zone.x),zy=Number(zone.y),zw=Number(zone.width),zh=Number(zone.height);if(![zx,zy,zw,zh].every(Number.isFinite)){topologyErrors.push(`Zone ${zone.id||zone.label||"?"} has no usable position or size, so it was not drawn.`);return}if(zone.kind!==undefined&&!ZONE_KINDS.includes(zone.kind))topologyErrors.push(`Zone ${zone.id||zone.label||"?"} has the unknown kind "${zone.kind}", which draws as a solid black rectangle.`);svg.appendChild(svgEl("rect",{class:`zone ${zone.kind||"other"}`,x:zx,y:zy,width:zw,height:zh,rx:12}));svg.appendChild(svgEl("text",{class:"zone-label",x:zx+18,y:zy+27},zone.label||zone.id))});
     const nodes=new Map();(topo.nodes||[]).forEach(node=>{if(!node.id)topologyErrors.push("A topology node is missing an id.");else if(nodes.has(node.id))topologyErrors.push(`Duplicate topology node id: ${node.id}.`);else nodes.set(node.id,node)});
-    const links=svgEl("g",{"aria-label":"Network links"}),labels=svgEl("g",{"aria-label":"Link labels"});
-    (topo.links||[]).forEach((link,index)=>{const source=nodes.get(link.from),target=nodes.get(link.to);if(!source||!target){topologyErrors.push(`Link ${index+1} references a missing node.`);return}if(link.kind!==undefined&&!LINK_KINDS.includes(link.kind))topologyErrors.push(`Link ${index+1} (${link.from} to ${link.to}) has the unknown kind "${link.kind}", which draws an invisible line.`);const points=[[source.x,source.y],...(link.via||[]),[target.x,target.y]],traced=points.map(point=>point.join(",")).join(" "),kind=link.kind||"l3";const linkGroup=svgEl("g",{class:"link-group",tabindex:0,"aria-label":`${link.label?`${link.label}, `:""}${KIND_LABELS[kind]||kind} from ${source.label||source.id} to ${target.label||target.id}`});linkGroup.appendChild(svgEl("polyline",{class:`link ${kind}`,points:traced}));linkGroup.appendChild(svgEl("polyline",{class:"link-hit",points:traced}));attachHover(linkGroup,()=>({title:`${source.label||source.id} → ${target.label||target.id}`,lines:[{text:link.label||""},{text:KIND_LABELS[kind]||kind,detail:true}]}));links.appendChild(linkGroup);if(link.label){const auto=midpoint(points),x=Number.isFinite(Number(link.labelX))?Number(link.labelX):auto[0],y=Number.isFinite(Number(link.labelY))?Number(link.labelY):auto[1],w=Math.max(54,link.label.length*6.7+16);labels.appendChild(svgEl("rect",{class:"link-label-bg",x:x-w/2,y:y-12,width:w,height:22,rx:4}));labels.appendChild(svgEl("text",{class:"link-label",x,y:y+4},link.label))}});svg.append(links,labels);
+    const links=svgEl("g",{"aria-label":"Network links"}),junctions=svgEl("g",{"aria-label":"Segment junctions"}),labels=svgEl("g",{"aria-label":"Link labels"});
+    (topo.links||[]).forEach((link,index)=>{const source=nodes.get(link.from),target=nodes.get(link.to);if(!source||!target){topologyErrors.push(`Link ${index+1} references a missing node.`);return}if(link.kind!==undefined&&!LINK_KINDS.includes(link.kind))topologyErrors.push(`Link ${index+1} (${link.from} to ${link.to}) has the unknown kind "${link.kind}", which draws an invisible line.`);const segmentAnchor=(node,ref)=>{const w=Number(node.width)||300,half=Math.max(20,w/2-14),x=Math.max(Number(node.x)-half,Math.min(Number(node.x)+half,Number(ref[0])));return[x,Number(node.y)]};const srcRef=(link.via&&link.via.length)?link.via[0]:[target.x,target.y];const tgtRef=(link.via&&link.via.length)?link.via[link.via.length-1]:[source.x,source.y];const start=source.shape==="segment"?segmentAnchor(source,srcRef):[source.x,source.y];const end=target.shape==="segment"?segmentAnchor(target,tgtRef):[target.x,target.y];if(source.shape==="segment")junctions.appendChild(svgEl("circle",{class:"segment-junction",cx:start[0],cy:start[1],r:7,style:`stroke:${source.color||"#0e7490"}`}));if(target.shape==="segment")junctions.appendChild(svgEl("circle",{class:"segment-junction",cx:end[0],cy:end[1],r:7,style:`stroke:${target.color||"#0e7490"}`}));const points=[start,...(link.via||[]),end],traced=points.map(point=>point.join(",")).join(" "),kind=link.kind||"l3";const linkGroup=svgEl("g",{class:"link-group",tabindex:0,"aria-label":`${link.label?`${link.label}, `:""}${KIND_LABELS[kind]||kind} from ${source.label||source.id} to ${target.label||target.id}`});linkGroup.appendChild(svgEl("polyline",{class:`link ${kind}`,points:traced}));linkGroup.appendChild(svgEl("polyline",{class:"link-hit",points:traced}));attachHover(linkGroup,()=>({title:`${source.label||source.id} → ${target.label||target.id}`,lines:[{text:link.label||""},{text:KIND_LABELS[kind]||kind,detail:true}]}));links.appendChild(linkGroup);if(link.label){const auto=midpoint(points),x=Number.isFinite(Number(link.labelX))?Number(link.labelX):auto[0],y=Number.isFinite(Number(link.labelY))?Number(link.labelY):auto[1],w=Math.max(54,link.label.length*6.7+16);labels.appendChild(svgEl("rect",{class:"link-label-bg",x:x-w/2,y:y-12,width:w,height:22,rx:4}));labels.appendChild(svgEl("text",{class:"link-label",x,y:y+4},link.label))}});svg.append(links,junctions,labels);
     const nodeLayer=svgEl("g",{"aria-label":"Network devices"});
     nodes.forEach(node=>{
       if(!Number.isFinite(Number(node.x))||!Number.isFinite(Number(node.y))){topologyErrors.push(`${node.id} has no usable x,y position, so it was not drawn.`);return}
+      /* A shape:"segment" node is the sheet grammar's shared subnet bar:
+         a coloured rail whose members attach with junction taps. Its caption
+         sits below the bar, or stacked off the right end (labelSide:"right"). */
+      if(node.shape==="segment"){
+        const w=Number(node.width)||300,color=node.color||"#0e7490",sx=Number(node.x),sy=Number(node.y);
+        const group=svgEl("g",{class:"node segment-node",tabindex:0,role:"button","aria-label":`${node.label||node.id}, ${node.role||"shared Layer 3 segment"}`});
+        group.appendChild(svgEl("rect",{class:"segment-hit",x:sx-w/2,y:sy-24,width:w,height:64,rx:8}));
+        group.appendChild(svgEl("rect",{class:"segment-bar",x:sx-w/2,y:sy-5,width:w,height:10,rx:5,style:`fill:${color}`}));
+        if(node.labelSide==="right"){
+          group.appendChild(svgEl("text",{class:"node-name",style:"text-anchor:start",x:sx+w/2+12,y:sy-1},node.label||node.id));
+          if(node.address)group.appendChild(svgEl("text",{class:"node-address",style:"text-anchor:start",x:sx+w/2+12,y:sy+15},node.address));
+        }else{
+          group.appendChild(svgEl("text",{class:"node-name",x:sx,y:sy+24},node.label||node.id));
+          if(node.address)group.appendChild(svgEl("text",{class:"node-address",x:sx,y:sy+41},node.address));
+        }
+        const select=()=>{svg.querySelectorAll(".node.selected").forEach(item=>item.classList.remove("selected"));group.classList.add("selected");makeInspector("topology-inspector",node.label||node.id,[["Role",node.role],["Address / context",node.address],["Documentation note",node.notes],["Rendered icon","segment bar"]])};
+        group.addEventListener("click",select);
+        group.addEventListener("keydown",event=>{if(event.key==="Enter"||event.key===" "){event.preventDefault();select()}});
+        attachHover(group,()=>({title:node.label||node.id,lines:[{text:node.role||""},{text:node.address||""},{text:node.notes||"",detail:true}]}));
+        nodeLayer.appendChild(group);
+        return
+      }
       const group=svgEl("g",{class:"node",tabindex:0,role:"button","aria-label":`${node.label||node.id}, ${node.role||"network device"}`,transform:`translate(${Number(node.x)-NODE_W/2} ${Number(node.y)-NODE_H/2})`});
       group.appendChild(svgEl("rect",{class:"node-shell",width:NODE_W,height:NODE_H,rx:9}));
       const iconRef=appendNodeIcon(group,node);
