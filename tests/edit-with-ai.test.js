@@ -53,7 +53,7 @@ const sandbox = {
   PACKAGER_CORE: require(path.join(root, "tools", "packager-core.js"))
 };
 
-const shim = ";globalThis.__exports = { parseWithRepair, mergeReply, checkStructure, checkMeaning, checkShell, checkAssetStrings, looksTruncated, safeJson, contextFor, summarizeChange, editableParts, freshRequestText, freshDrawingId, brandedData, EXTRACT_PROMPT, SLICES };";
+const shim = ";globalThis.__exports = { parseWithRepair, mergeReply, checkStructure, checkMeaning, checkShell, checkAssetStrings, looksTruncated, safeJson, contextFor, summarizeChange, editableParts, freshRequestText, freshDrawingId, brandedData, EXTRACT_PROMPT, SLICES, polishGeometry, layoutRulesFor };";
 vm.runInNewContext(script[1] + shim, sandbox, { filename: "edit-with-ai.html <script>" });
 const t = sandbox.__exports;
 
@@ -551,6 +551,80 @@ test("packaging: wrong-format artwork is excluded, not embedded", async () => {
   const wrong = report.skipped.find((item) => item.id === "asset:cisco/tiny.jpg");
   assert(wrong && /JPEG is required/.test(wrong.reason), "the mime mismatch was not reported");
   assert.strictEqual(report.embedded, 0);
+});
+
+/* ---- the geometry polish ---- */
+
+test("polish: a slight overlap is separated, reported, and satisfies the checker", () => {
+  const d = baseDesign();
+  // dx = 160 of a 176-wide box: a 9% overlap, the warning band.
+  d.topology.nodes[1].x = 460;
+  const { next, applied } = t.polishGeometry(d);
+  assert.strictEqual(applied.length, 1);
+  assert(/moved "(edge-fw-01|core-sw-01)" \d+px \w+ to clear "/.test(applied[0]), applied[0]);
+  assert(!has(t.checkMeaning(json(next)), /overlap/), "the checker still sees the overlap");
+});
+
+test("polish: a straddler that plainly belongs is seated fully inside", () => {
+  const d = baseDesign();
+  // Zone z1 ends at x 1160; a centre at 1120 leaves the box 73% inside.
+  d.topology.nodes[1].x = 1120;
+  const { next, applied } = t.polishGeometry(d);
+  assert.strictEqual(applied.length, 1);
+  assert(/to sit fully inside "z1"/.test(applied[0]), applied[0]);
+  assert(!has(t.checkMeaning(json(next)), /half in and half out/), "the checker still sees the straddle");
+});
+
+test("polish: a genuinely ambiguous straddler is left alone", () => {
+  const d = baseDesign();
+  // A centre at 1178 leaves the box 40% inside z1 - which side it belongs on
+  // is a judgement call, so the warning must survive.
+  d.topology.nodes[1].x = 1178;
+  const { next, applied } = t.polishGeometry(d);
+  assert.strictEqual(applied.length, 0);
+  assert(has(t.checkMeaning(json(next)), /half in and half out/, false), "the ambiguity was guessed away");
+});
+
+test("polish: a pile-up is a stop and is never repaired", () => {
+  const d = baseDesign();
+  d.topology.nodes[1].x = 320;
+  d.topology.nodes[1].y = 320;
+  const { next, applied } = t.polishGeometry(d);
+  assert.strictEqual(applied.length, 0);
+  assert(has(t.checkMeaning(json(next)), /sit on top of each other/, true), "the stop was hidden by a repair");
+});
+
+test("polish: clean geometry is untouched", () => {
+  const d = baseDesign();
+  const { next, applied } = t.polishGeometry(d);
+  assert.strictEqual(applied.length, 0);
+  assert.deepStrictEqual(json(next), json(d));
+});
+
+test("polish: the engineering-sheet grammar is never touched", () => {
+  const d = baseDesign();
+  d.topology.canvas = {};
+  d.topology.nodes[1].x = 460;
+  const { next, applied } = t.polishGeometry(d);
+  assert.strictEqual(applied.length, 0);
+  assert.deepStrictEqual(json(next), json(d));
+});
+
+/* ---- the layout construction rules ---- */
+
+test("prompt: parts that place devices carry the construction grid", () => {
+  for (const name of ["nodes", "zones", "topology", "all"]) {
+    const rules = t.layoutRulesFor(name);
+    assert(/Construct positions, never estimate them/.test(rules), name);
+    assert(/200 apart across, 140 apart down/.test(rules), name);
+    assert(/raise topology\.canvas\.height/.test(rules), name);
+  }
+});
+
+test("prompt: parts that place nothing carry no grid", () => {
+  for (const name of ["links", "rack", "findings", "sections", "document"]) {
+    assert.strictEqual(t.layoutRulesFor(name), "", name);
+  }
 });
 
 /* ---- runner ---- */

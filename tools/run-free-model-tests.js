@@ -81,7 +81,7 @@ function loadHelper() {
   const shim = ";globalThis.__exports = { parseWithRepair, mergeReply, checkStructure, checkMeaning," +
     " checkShell, checkAssetStrings, checkHostileText, looksTruncated, safeJson, freshRequestText," +
     " freshDrawingId, brandedData, EXTRACT_PROMPT, SLICES, pathLabel, buildPrompt, loadSource," +
-    " FORBIDDEN_IN_DATA, countOf," +
+    " FORBIDDEN_IN_DATA, countOf, polishGeometry," +
     " state: () => ({ source, payloadStart, payloadEnd, currentData })," +
     " setRequest: (text) => { document.getElementById('request').value = text; } };";
   vm.runInNewContext(script[1] + shim, sandbox, { filename: "edit-with-ai.html <script>" });
@@ -180,13 +180,18 @@ function runCheck(t, raw, original) {
   const { merged, problems: mergeProblems } = t.mergeReply(parsed, original, "all");
   if (!merged) return { merged: null, problems: hostile.concat(mergeProblems), applied, truncated: false };
 
+  // The helper tidies arithmetic-band geometry before grading - same call,
+  // same order as check(). Its moves land in the applied list, so run-log.json
+  // records them beside the text repairs.
+  const polished = t.polishGeometry(merged);
+
   const problems = hostile
     .concat(mergeProblems)
-    .concat(t.checkStructure(cleanedText, merged, "all", original))
-    .concat(t.checkAssetStrings(merged))
-    .concat(t.checkShell(merged))
-    .concat(t.checkMeaning(merged));
-  return { merged, problems, applied, truncated: false };
+    .concat(t.checkStructure(cleanedText, polished.next, "all", original))
+    .concat(t.checkAssetStrings(polished.next))
+    .concat(t.checkShell(polished.next))
+    .concat(t.checkMeaning(polished.next));
+  return { merged: polished.next, problems, applied: applied.concat(polished.applied), truncated: false };
 }
 
 // The Copy-problems message, exactly as the helper composes it for "all" scope.
@@ -408,6 +413,8 @@ async function smoke(t, artwork) {
   t.setRequest(t.freshRequestText("Smoke Test Network", "", "auto"));
   const prompt = t.buildPrompt();
   if (!prompt.includes('Title "Smoke Test Network"')) throw new Error("request text missing from prompt");
+  if (prompt.includes("<<<")) throw new Error("an unreplaced placeholder survived in the prompt");
+  if (!prompt.includes("Construct positions, never estimate them")) throw new Error("the layout construction rules are missing from a whole-design prompt");
   console.log(`smoke: prompt builds (${prompt.length} chars), EXTRACT_PROMPT ${t.EXTRACT_PROMPT.length} chars`);
   const spliced = spliceAndGuard(t, state.source, state.payloadStart, state.payloadEnd, state.currentData);
   console.log(`smoke: splice + byte guards pass on the unchanged template (${spliced.length} chars)`);

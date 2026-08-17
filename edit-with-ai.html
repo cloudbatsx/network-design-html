@@ -584,6 +584,13 @@ const ZONE_KINDS = ["external","perimeter","internal","other"];
 
 const NODE_W = 176, NODE_H = 104;
 
+/* The three thresholds the geometry rules grade against, shared by the checker
+   (checkMeaning) and the polish pass (polishGeometry) so the two can never
+   drift apart. CONTAINED tolerates the shipped NET-OT-001, whose four devices
+   hang 2px over an edge on purpose; PILEUP is where an overlap stops being
+   untidy and becomes two devices in one place. */
+const CONTAINED = 0.92, IGNORE_BELOW = 0.15, PILEUP = 0.25;
+
 /* The four parts a person can ask an AI to rewrite. Each one is a set of
    top-level keys in the diagram data; everything outside the chosen set is kept
    from the file and never sent to the model, which is what keeps a reply inside
@@ -823,6 +830,7 @@ NUMBERS
 - A node's x,y is the CENTRE of a box that is ${NODE_W} wide and ${NODE_H} tall.
 - A zone's x,y is its TOP-LEFT corner.
 <<<BOUNDS>>>
+<<<LAYOUT>>>
 - A device must sit FULLY inside an area or fully outside it. One drawn half in
   and half out leaves the reader unable to tell which area it belongs to.
 - Two nodes overlap only when their x values are less than ${NODE_W} apart AND
@@ -1047,6 +1055,32 @@ function applyPartMenu(parts) {
   if (parts && !parts.includes(select.value) && first !== null) select.value = first;
 }
 
+/* The construction recipe, for parts that place devices. Twenty-two automated
+   runs produced fourteen geometry warnings and not one semantic defect: a
+   model asked to satisfy a constraint estimates pixel distances and lands 9%
+   over the line, while a model handed arithmetic follows it. So the placing
+   parts get numbers to build with, not rules to aim at. The grid maths: a
+   ${NODE_W}x${NODE_H} box on these centres leaves 24px between columns and
+   36px between rows, and the first-centre insets keep every box at least 22px
+   inside its area - legal by construction, with margin. */
+const GRID_COL = NODE_W + 24, GRID_ROW = NODE_H + 36;
+const GRID_INSET_X = NODE_W / 2 + 22, GRID_INSET_Y = NODE_H / 2 + 28;
+const PLACING_SLICES = ["nodes", "zones", "topology", "all"];
+
+function layoutRulesFor(name) {
+  if (!PLACING_SLICES.includes(name)) return "";
+  return `- Construct positions, never estimate them. Inside each area, place node
+  centres on a grid: ${GRID_COL} apart across, ${GRID_ROW} apart down, the first centre ${GRID_INSET_X}
+  from the area's left edge and ${GRID_INSET_Y} below its top edge. Grid positions never
+  overlap and never straddle an edge.
+- Size each area for what it holds, before placing: width at least its
+  columns x ${GRID_COL} + 20, height at least its rows x ${GRID_ROW} + 20.
+- If the areas will not fit, raise topology.canvas.height - 48 x the device
+  count is a safe height, and the page scrolls. Never tighten the grid to
+  make things fit.
+`;
+}
+
 function buildPrompt() {
   const request = $("request").value.trim();
   const name = currentSliceName();
@@ -1068,12 +1102,14 @@ finish the part that matters.`;
   // against that and not against the size the reference template happens to use.
   const canvas = currentData.topology?.canvas || {};
   const cw = Number(canvas.width), ch = Number(canvas.height);
+  const layout = layoutRulesFor(name);
   const bounds = Number.isFinite(cw) && Number.isFinite(ch)
-    ? `- The canvas is ${cw} x ${ch}. Keep every node centre between x ${NODE_W / 2} and ${cw - NODE_W / 2}, and y ${NODE_H / 2} and ${ch - NODE_H / 2}, or part of the device hangs off the page.`
+    ? `- The canvas is ${cw} x ${ch}. Keep every node centre between x ${NODE_W / 2} and ${cw - NODE_W / 2}, and y ${NODE_H / 2} and ${ch - NODE_H / 2}, or part of the device hangs off the page.${layout ? " If you raise the canvas height, these limits grow with it." : ""}`
     : `- Keep every node inside the canvas, or part of the device hangs off the page.`;
 
   return PROMPT
     .replace("<<<BOUNDS>>>", bounds)
+    .replace("<<<LAYOUT>>>\n", layout)
     .replace("<<<SCOPE>>>", scope)
     .replace("<<<PART_UPPER>>>", (name === "all" ? "design" : slice.noun.replace(/^the /, "")).toUpperCase())
     .replace("<<<CURRENT_JSON>>>", shape)
@@ -1414,6 +1450,24 @@ function checkShell(data) {
   return out;
 }
 
+// Which area holds most of this node's box, and how much of it. One source of
+// truth for the containment maths: the checker grades against it and the
+// polish pass repairs against it, so a fix here is a fix in both.
+function bestZoneCoverage(x, y, zones) {
+  const box = { left: x - NODE_W / 2, right: x + NODE_W / 2, top: y - NODE_H / 2, bottom: y + NODE_H / 2 };
+  let best = null;
+  for (const zone of zones) {
+    const zx = Number(zone.x), zy = Number(zone.y), zw = Number(zone.width), zh = Number(zone.height);
+    if (![zx, zy, zw, zh].every(Number.isFinite) || zw <= 0 || zh <= 0) continue;
+    const overlapW = Math.min(box.right, zx + zw) - Math.max(box.left, zx);
+    const overlapH = Math.min(box.bottom, zy + zh) - Math.max(box.top, zy);
+    if (overlapW <= 0 || overlapH <= 0) continue;
+    const fraction = (overlapW * overlapH) / (NODE_W * NODE_H);
+    if (!best || fraction > best.fraction) best = { zone, fraction };
+  }
+  return best;
+}
+
 function checkMeaning(data) {
   const out = [];
   const nodes = data.topology?.nodes || [];
@@ -1515,7 +1569,7 @@ function checkMeaning(data) {
       const dy = Math.abs(Number(nodes[a].y) - Number(nodes[b].y));
       if (!(dx < NODE_W && dy < NODE_H)) continue;
       const covered = ((NODE_W - dx) * (NODE_H - dy)) / (NODE_W * NODE_H);
-      const serious = covered >= 0.25;
+      const serious = covered >= PILEUP;
       const extent = covered < 0.01 ? "by a few pixels" : `by ${Math.round(covered * 100)}% of a device box`;
       out.push(problem(serious,
         `"${nodes[a].id}" and "${nodes[b].id}" ${serious ? "sit on top of each other" : "overlap"} ${extent}.`,
@@ -1547,21 +1601,10 @@ function checkMeaning(data) {
      Reported only when it is genuinely split. The shipped NET-OT-001 has four
      devices hanging 2px over an edge on purpose, 98% inside, and a rule that
      shouts at the project's own reference drawing is a rule people switch off. */
-  const CONTAINED = 0.92, IGNORE_BELOW = 0.15;
   if (usesCoordinates) for (const node of nodes) {
     const x = Number(node.x), y = Number(node.y);
     if (!Number.isFinite(x) || !Number.isFinite(y)) continue;
-    const box = { left: x - half.x, right: x + half.x, top: y - half.y, bottom: y + half.y };
-    let best = null;
-    for (const zone of zones) {
-      const zx = Number(zone.x), zy = Number(zone.y), zw = Number(zone.width), zh = Number(zone.height);
-      if (![zx, zy, zw, zh].every(Number.isFinite) || zw <= 0 || zh <= 0) continue;
-      const overlapW = Math.min(box.right, zx + zw) - Math.max(box.left, zx);
-      const overlapH = Math.min(box.bottom, zy + zh) - Math.max(box.top, zy);
-      if (overlapW <= 0 || overlapH <= 0) continue;
-      const fraction = (overlapW * overlapH) / (NODE_W * NODE_H);
-      if (!best || fraction > best.fraction) best = { zone, fraction };
-    }
+    const best = bestZoneCoverage(x, y, zones);
     if (best && best.fraction >= IGNORE_BELOW && best.fraction < CONTAINED) {
       const label = best.zone.id || best.zone.label || "?";
       out.push(problem(false, `"${node.id}" is drawn half in and half out of the area "${label}" (${Math.round(best.fraction * 100)}% inside), so a reader cannot tell which area it belongs to.`,
@@ -1618,6 +1661,130 @@ function checkMeaning(data) {
     }
   }
   return out;
+}
+
+/* ---------- 3b. The geometry polish ----------
+ *
+ * parseWithRepair fixes what is mechanically wrong with the TEXT and says so.
+ * This is the same idea one layer up. Twenty-two automated model runs put
+ * every blemish in one family: geometry - boxes overlapping by a sliver,
+ * devices drawn 85% inside the area they plainly belong to. Those are
+ * arithmetic mistakes, not judgement calls, so the tool fixes them the way it
+ * fixes a trailing comma: silently impossible becomes visibly repaired.
+ *
+ * The line it never crosses: warnings only. A pile-up (a quarter of a box or
+ * more) or a device off the canvas is a stop - that placement is wrong, not
+ * untidy, and repairing it here would hide a real failure from the retry
+ * loop. A device less than 60% inside an area is left alone too: which side
+ * it belongs on is a judgement call, and guessing is how a drawing starts
+ * lying. Every move is validated against the same maths the checker grades
+ * with - a nudge that creates a new problem is reverted, and whatever cannot
+ * be fixed safely stays a warning, honestly. */
+
+// The score a candidate move must improve: the checker's geometry verdicts,
+// counted. Mirrors checkMeaning exactly - off-canvas and pile-ups stop,
+// slight overlaps and boundary straddles warn.
+function geometryFaults(nodes, zones, width, height) {
+  let stops = 0, warns = 0;
+  const half = { x: NODE_W / 2, y: NODE_H / 2 };
+  for (const node of nodes) {
+    const x = Number(node.x), y = Number(node.y);
+    if (!Number.isFinite(x) || !Number.isFinite(y)) { stops++; continue; }
+    if (x - half.x < 0 || x + half.x > width || y - half.y < 0 || y + half.y > height) stops++;
+    const best = bestZoneCoverage(x, y, zones);
+    if (best && best.fraction >= IGNORE_BELOW && best.fraction < CONTAINED) warns++;
+  }
+  for (let a = 0; a < nodes.length; a++) for (let b = a + 1; b < nodes.length; b++) {
+    const dx = Math.abs(Number(nodes[a].x) - Number(nodes[b].x));
+    const dy = Math.abs(Number(nodes[a].y) - Number(nodes[b].y));
+    if (!(dx < NODE_W && dy < NODE_H)) continue;
+    const covered = ((NODE_W - dx) * (NODE_H - dy)) / (NODE_W * NODE_H);
+    if (covered >= PILEUP) stops++; else warns++;
+  }
+  return { stops, warns };
+}
+
+function stepText(dx, dy) {
+  const parts = [];
+  if (dx) parts.push(`${Math.abs(Math.round(dx))}px ${dx > 0 ? "right" : "left"}`);
+  if (dy) parts.push(`${Math.abs(Math.round(dy))}px ${dy > 0 ? "down" : "up"}`);
+  return parts.join(" and ");
+}
+
+function polishGeometry(data) {
+  if (!usesCoordinateGrammar(data)) return { next: data, applied: [] };
+  const next = structuredClone(data);
+  const nodes = next.topology?.nodes || [];
+  const zones = next.topology?.zones || [];
+  const width = Number(next.topology.canvas.width), height = Number(next.topology.canvas.height);
+  const applied = [];
+
+  // A move commits only if the page gets strictly better: no new stop, at
+  // least one warning gone. Anything else reverts without a trace.
+  const attempt = (node, nx, ny, message) => {
+    const before = geometryFaults(nodes, zones, width, height);
+    const ox = node.x, oy = node.y;
+    node.x = nx; node.y = ny;
+    const after = geometryFaults(nodes, zones, width, height);
+    if (after.stops <= before.stops && after.warns < before.warns) {
+      applied.push(message(nx - ox, ny - oy));
+      return true;
+    }
+    node.x = ox; node.y = oy;
+    return false;
+  };
+
+  // Fixes can cascade - pulling a straddler inside can shove it near a
+  // neighbour whose own fix then frees the space - so sweep until a full pass
+  // changes nothing. Four sweeps is far past where real diagrams settle.
+  for (let sweep = 0; sweep < 4; sweep++) {
+    let moved = false;
+
+    // Straddlers that plainly belong: 60%+ inside one area, not yet contained.
+    // The minimal slide that seats the box fully inside, 6px clear of the edge.
+    for (const node of nodes) {
+      const x = Number(node.x), y = Number(node.y);
+      if (!Number.isFinite(x) || !Number.isFinite(y)) continue;
+      const best = bestZoneCoverage(x, y, zones);
+      if (!best || best.fraction < 0.6 || best.fraction >= CONTAINED) continue;
+      const zx = Number(best.zone.x), zy = Number(best.zone.y);
+      const zw = Number(best.zone.width), zh = Number(best.zone.height);
+      const INSET = 6;
+      const lo = { x: Math.max(zx + NODE_W / 2 + INSET, NODE_W / 2), y: Math.max(zy + NODE_H / 2 + INSET, NODE_H / 2) };
+      const hi = { x: Math.min(zx + zw - NODE_W / 2 - INSET, width - NODE_W / 2), y: Math.min(zy + zh - NODE_H / 2 - INSET, height - NODE_H / 2) };
+      if (lo.x > hi.x || lo.y > hi.y) continue; // the area cannot hold the box
+      const nx = Math.round(Math.min(Math.max(x, lo.x), hi.x));
+      const ny = Math.round(Math.min(Math.max(y, lo.y), hi.y));
+      if (nx === x && ny === y) continue;
+      const label = best.zone.id || best.zone.label || "?";
+      if (attempt(node, nx, ny, (mx, my) => `moved "${node.id}" ${stepText(mx, my)} to sit fully inside "${label}"`)) moved = true;
+    }
+
+    // Slight overlaps: separate along the cheaper axis, trying each node in
+    // turn - the one with room moves, the one pinned by its area stays.
+    for (let a = 0; a < nodes.length; a++) for (let b = a + 1; b < nodes.length; b++) {
+      const na = nodes[a], nb = nodes[b];
+      const ax = Number(na.x), ay = Number(na.y), bx = Number(nb.x), by = Number(nb.y);
+      if (![ax, ay, bx, by].every(Number.isFinite)) continue;
+      const dx = Math.abs(ax - bx), dy = Math.abs(ay - by);
+      if (!(dx < NODE_W && dy < NODE_H)) continue;
+      const covered = ((NODE_W - dx) * (NODE_H - dy)) / (NODE_W * NODE_H);
+      if (covered >= PILEUP) continue; // a stop: the model must rethink, not be tidied
+      const GAP = 8;
+      const needX = NODE_W - dx + GAP, needY = NODE_H - dy + GAP;
+      const sx = bx >= ax ? 1 : -1, sy = by >= ay ? 1 : -1;
+      const candidates = needX <= needY
+        ? [[nb, bx + sx * needX, by], [na, ax - sx * needX, ay], [nb, bx, by + sy * needY], [na, ax, ay - sy * needY]]
+        : [[nb, bx, by + sy * needY], [na, ax, ay - sy * needY], [nb, bx + sx * needX, by], [na, ax - sx * needX, ay]];
+      for (const [node, nx, ny] of candidates) {
+        const other = node === na ? nb : na;
+        if (attempt(node, Math.round(nx), Math.round(ny), (mx, my) => `moved "${node.id}" ${stepText(mx, my)} to clear "${other.id}"`)) { moved = true; break; }
+      }
+    }
+
+    if (!moved) break;
+  }
+  return { next, applied };
 }
 
 /* ---------- What actually changed ----------
@@ -1864,35 +2031,42 @@ function check() {
     return;
   }
 
+  // Tidy what is arithmetic before grading what is judgement. The polish only
+  // ever repairs the warning band - see polishGeometry for the line it holds.
+  const { next: tidied, applied: nudges } = polishGeometry(merged);
+
   const all = hostile
     .concat(mergeProblems)
-    .concat(checkStructure(cleanedText, merged, name, original))
-    .concat(checkAssetStrings(merged))
-    .concat(checkShell(merged))
-    .concat(checkMeaning(merged));
+    .concat(checkStructure(cleanedText, tidied, name, original))
+    .concat(checkAssetStrings(tidied))
+    .concat(checkShell(tidied))
+    .concat(checkMeaning(tidied));
   renderProblems(all);
 
   const stops = all.filter((p) => p.stop).length;
   const warns = all.length - stops;
   const cleaned = applied.length ? ` I cleaned up the reply first: ${applied.join(", ")}.` : "";
+  const tidiedNote = nudges.length
+    ? ` I tidied ${nudges.length === 1 ? "one device position" : `${nudges.length} device positions`}: ${nudges.join("; ")}.`
+    : "";
 
   if (stops) {
     $("changes").replaceChildren();
     note("check-message", "error", `${stops} problem${stops === 1 ? "" : "s"} must be fixed before saving.`,
-      `${warns ? ` There ${warns === 1 ? "is" : "are"} also ${warns} warning${warns === 1 ? "" : "s"}.` : ""} Use Copy problems and paste them back to the AI.${cleaned}`);
+      `${warns ? ` There ${warns === 1 ? "is" : "are"} also ${warns} warning${warns === 1 ? "" : "s"}.` : ""} Use Copy problems and paste them back to the AI.${cleaned}${tidiedNote}`);
     setStage("check", "press Copy problems, paste it to your AI, then paste its new reply above and check again.");
     return;
   }
 
-  accepted = merged;
-  renderChanges(currentData, merged);
+  accepted = tidied;
+  renderChanges(currentData, tidied);
   $("save").disabled = false;
   const kept = name === "all" ? "" : ` Only ${SLICES[name].noun} changed; the rest of your file is untouched.`;
   if (warns) {
     note("check-message", "warning", `Ready to save, with ${warns} warning${warns === 1 ? "" : "s"}.`,
-      ` The diagram will draw, but check the warnings below first.${kept}${cleaned}`);
+      ` The diagram will draw, but check the warnings below first.${kept}${cleaned}${tidiedNote}`);
   } else {
-    note("check-message", "ok", "No problems found.", ` The diagram data is complete and consistent.${kept}${cleaned}`);
+    note("check-message", "ok", "No problems found.", ` The diagram data is complete and consistent.${kept}${cleaned}${tidiedNote}`);
   }
   setStage("brand", "optional: set your branding in step 4 - or go straight to Save.");
 }
