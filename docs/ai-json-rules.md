@@ -149,15 +149,15 @@ An **identity row** is either a list of cells, or
 `{ "cells": [], "layer": "gap" }`. Rows marked `"layer": "gap"` are assumptions —
 they hide and reveal with the Key gaps control, so mark anything unverified.
 
-> **Which of this the helper teaches on its own.** The built-in prompt in
-> `edit-with-ai.html` carries the core vocabulary — devices, links, zones,
-> the rack, findings — and deliberately **not** the drawing grammar below
-> (`labelSide`, segment bars, elbow routing, section tables), so a free
-> model's fresh-build reply stays short and correct. The engine renders all
-> of it either way: an edit that names these fields — this document pasted
-> alongside, or a request written by hand — is fully supported, and every
-> starter uses them. If you want a generated document to use the drawing
-> grammar, ask for it by name in your request.
+> **The helper teaches this grammar too.** The built-in prompt in
+> `edit-with-ai.html` carries the drawing grammar below — caption sides,
+> subnet bars, elbow lanes, section tables, the deliberate no-rack
+> statement — scoped to the part being edited, so a prompt about the rack
+> never carries rules about cable lanes. All of it is optional: a design
+> that uses none of it is still correct. The geometry entries state
+> arithmetic rather than intent, for the reason the placement grid does —
+> a model estimating pixels lands just over the line, and a model following
+> stated numbers does not.
 
 `labelSide` places a node's caption: `below` (default, name and role under the
 symbol) or `left` / `right`, which side-anchor the caption beside the symbol

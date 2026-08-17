@@ -1117,8 +1117,10 @@ const PLACING_SLICES = ["nodes", "zones", "topology", "all"];
    reason the layout grid does: a model estimating pixels lands just over the
    line, and a model following stated numbers does not. */
 const NODE_GRAMMAR_SLICES = ["nodes", "topology", "all"];
+const LINK_GRAMMAR_SLICES = ["links", "topology", "all"];
 const SECTION_GRAMMAR_SLICES = ["sections", "all"];
 const RACK_GRAMMAR_SLICES = ["rack", "all"];
+const LANE_STEP = 18;
 
 function grammarRulesFor(name) {
   const rules = [];
@@ -1126,7 +1128,29 @@ function grammarRulesFor(name) {
     rules.push(`- labelSide on a node moves its caption: "below" is the default; "left" or
   "right" anchor the caption beside the symbol and additionally reveal that
   device's address line. Use them on paired devices - the left one "left", the
-  right one "right" - so the lane between them stays clear for links.`);
+  right one "right" - so the lane between them stays clear for links.
+- A node with "shape": "segment" draws a shared subnet bar instead of a symbol:
+  { "id": "seg-users", "label": "USERS - VLAN 10", "shape": "segment",
+    "x": 640, "y": 690, "width": 900, "color": "#2458b3", "labelSide": "right" }
+  It has no icon. Links that end on it tap in at each member's own x and grow a
+  junction circle - the drawing computes every tap, you never place one.
+  USE A BAR whenever MORE THAN TWO devices share one network. Twelve devices on
+  one subnet is one bar with twelve taps; twelve separate lines converging on a
+  single switch draws the same fact twelve times and reads as a fan of noise.
+  Size it from its members, do not estimate: width = (rightmost member x -
+  leftmost member x) + 120, and x = halfway between those two members. Put its
+  y between the members above it and the members below it.`);
+  }
+  if (LINK_GRAMMAR_SLICES.includes(name)) {
+    rules.push(`- A link with "route": "elbow" takes a right-angle path: out of its source,
+  across a horizontal lane at "elbowAt", into its target. Lanes are arithmetic,
+  never estimates: the first link crossing a corridor takes the midpoint
+  between the two rows it joins, and every further link crossing that SAME
+  corridor steps ${LANE_STEP} px on - 460, ${460 + LANE_STEP}, ${460 + LANE_STEP * 2}, ${460 + LANE_STEP * 3}. Two links sharing one lane
+  draw as one line, which is the whole failure this field exists to prevent.
+  Departures already fan apart on their own; never offset them by hand. Leave
+  short vertical drops, paired-device links and anything that already carries
+  "via" waypoints direct - an elbow on a straight run only adds corners.`);
   }
   if (SECTION_GRAMMAR_SLICES.includes(name)) {
     rules.push(`- Any section may carry "tables", a list of

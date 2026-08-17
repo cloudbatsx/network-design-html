@@ -700,6 +700,55 @@ test("grammar: a part carries only the grammar it can use", () => {
   assert(!/labelSide/.test(t.grammarRulesFor("rack")), "the rack part should not carry caption rules");
 });
 
+test("grammar: the parts that draw links are offered elbow lanes with their arithmetic", () => {
+  for (const name of ["links", "topology", "all"]) {
+    const rules = t.grammarRulesFor(name);
+    assert(/"route": "elbow"/.test(rules), name);
+    assert(/steps 18 px on/.test(rules), `${name} never states the lane step`);
+    assert(/never estimates/.test(rules), `${name} lets the model estimate lanes`);
+  }
+  assert(!/elbow/.test(t.grammarRulesFor("nodes")), "the devices part should not carry link routing");
+});
+
+test("grammar: the parts that draw devices are offered subnet bars, sized by arithmetic", () => {
+  for (const name of ["nodes", "topology", "all"]) {
+    const rules = t.grammarRulesFor(name);
+    assert(/"shape": "segment"/.test(rules), name);
+    assert(/MORE THAN TWO devices share one network/.test(rules), `${name} never states when to use a bar`);
+    assert(/rightmost member x -\s+leftmost member x/.test(rules), `${name} never states how to size the bar`);
+  }
+});
+
+/* The grammar is only safe to teach if the checkers accept what it produces.
+   A model that draws a correct subnet bar and gets stopped for it would be
+   worse off than one that never tried. */
+test("grammar: the checkers accept a subnet bar and an elbow lane", () => {
+  const design = baseDesign();
+  design.topology.nodes.push({
+    id: "seg-users", label: "USERS - VLAN 10", shape: "segment",
+    x: 500, y: 600, width: 700, color: "#2458b3", labelSide: "right"
+  });
+  design.topology.nodes.push({ id: "acc-sw-01", label: "Access", icon: "access-switch", x: 300, y: 500, labelSide: "left" });
+  design.topology.links.push({ from: "acc-sw-01", to: "seg-users", kind: "access", route: "elbow", elbowAt: 550 });
+  const problems = t.checkMeaning(design).concat(t.checkShell(design)).concat(t.checkAssetStrings(design));
+  const stops = problems.filter((p) => p.stop);
+  assert.strictEqual(stops.length, 0,
+    "the grammar the prompt now teaches was rejected: " + stops.map((p) => p.what).join(" | "));
+});
+
+test("grammar: the polish pass leaves a subnet bar alone", () => {
+  const design = baseDesign();
+  design.topology.nodes.push({
+    id: "seg-users", label: "USERS", shape: "segment",
+    x: 500, y: 600, width: 700, color: "#2458b3"
+  });
+  const { next } = t.polishGeometry(design);
+  const bar = next.topology.nodes.find((node) => node.id === "seg-users");
+  assert.strictEqual(bar.x, 500, "the bar was moved sideways");
+  assert.strictEqual(bar.y, 600, "the bar was moved vertically");
+  assert.strictEqual(bar.width, 700, "the bar was resized");
+});
+
 test("grammar: the SHAPE rule points at the exceptions instead of forbidding them", () => {
   const built = t.grammarRulesFor("all");
   assert(/OPTIONAL GRAMMAR/.test(built), "the section never names itself");
