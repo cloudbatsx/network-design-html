@@ -328,12 +328,14 @@ dist/                    build output, untracked
 ## Status and license
 
 Pre-release. The workflow is complete, machine-checked on every commit — 35
-repository checks plus a 61-test behaviour suite — and validated on the
-fresh-build path: one live session and twenty-two automated runs, each building
-a complete document from a different diagram image with free Gemini, every one
-reaching a clean save. Source-fidelity auditing of those runs is ongoing, and
-the nine-run editing-protocol matrix is still pending; protocol and results
-live in [`docs/free-model-results.md`](docs/free-model-results.md).
+repository checks plus a 69-test behaviour suite — and validated on both
+paths. Fresh-build: one live session and twenty-two automated runs, each
+building a complete document from a different diagram image with free Gemini,
+every one reaching a clean save (source-fidelity auditing is ongoing).
+Editing: the nine-run protocol matrix passed on 2026-08-17 — nine part-scoped
+edits on the largest starter, each a clean save in one round trip, including
+the whole-design diagnostic run. Protocol, results and the semantic audit live
+in [`docs/free-model-results.md`](docs/free-model-results.md).
 
 Code, tooling, documentation **and the 19 vector symbols** are **MIT licensed** —
 see [`LICENSE`](LICENSE). The symbols are original work; reuse them anywhere.

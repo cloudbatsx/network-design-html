@@ -1,6 +1,9 @@
 # Free-model validation — protocol and results
 
-**Status: fresh-build path validated live and across twenty-two automated runs · nine-run editing matrix still pending.**
+**Status: fresh-build path validated live and across twenty-two automated
+runs · nine-run editing matrix PASSED automated on 2026-08-17 — nine for
+nine in one round trip each, with the semantic audit's findings recorded
+beside the table.**
 
 Everything else in this repository is machine-checked. This is the one claim
 only a live session can test: *"a free AI model is enough."* This document is
@@ -405,37 +408,73 @@ can never get back. As of 2026-08-17 it does exactly that — a new run moves
 the previous log and transcript to the next free `.runN` name before
 writing, and a behaviour test holds it there.
 
-### The nine-run editing matrix
+### The nine-run editing matrix — run automated · 2026-08-17
 
-> Not yet run live. The automated driver shipped 2026-08-17: it plays the
-> nine runs below through the helper's real part machinery — each run a
-> fresh conversation, the design carrying forward from save to save, the
-> scoped Copy-problems loop on retries — and writes its artifacts to
-> `tests/free-model-runs/editing-matrix/`:
->
->     node tools/run-free-model-tests.js --tests-dir tests/free-model-runs --edit-matrix
->
-> Add `--smoke` for the no-quota dry run (composes all nine prompts, proves
-> the slice targeting and the splice path). The smoke already confirms the
-> part economics: the eight part prompts run 7,400–25,500 characters where
-> the Everything prompt runs 45,000.
+The driver shipped the same day: it plays the nine runs through the
+helper's real part machinery — each run a fresh conversation, the design
+carrying forward from save to save, the scoped Copy-problems loop on
+retries — and writes its artifacts to
+`tests/free-model-runs/editing-matrix/` (run-log, word-for-word transcript,
+and the final design, `NET-HQ-001.after-matrix.edit.html`):
 
-**Session:** _date_ · **Model:** _exact name as shown_ · **Interface:** _e.g.
-gemini.google.com free tier_ · **Operator:** _name_
+    node tools/run-free-model-tests.js --tests-dir tests/free-model-runs --edit-matrix
+
+Add `--smoke` for the no-quota dry run. The prompt sizes alone confirm the
+part economics: the eight part prompts run 7,400–25,500 characters where
+the Everything prompt runs 45,000.
+
+**Session:** 2026-08-17 · **Model:** `gemini-3.6-flash` (the id the API
+reported back) · **Interface:** Google AI free-tier API via the driver
+above · **Operator:** automated harness
 
 | # | Part | Round trips | Repaired? | Cut off? | In scope? | Checks fired | Clean save? | Notes |
 |---|---|---|---|---|---|---|---|---|
-| 1 | Devices | | | | | | | |
-| 2 | Connections | | | | | | | |
-| 3 | Areas | | | | | | | |
-| 4 | Whole diagram | | | | | | | |
-| 5 | Rack | | | | | | | |
-| 6 | Gaps | | | | | | | |
-| 7 | Notes & tables | | | | | | | |
-| 8 | Cover details | | | | | | | |
-| 9 | Everything | | | | | | | |
+| 1 | Devices | 1 | no | no | yes | none | yes | Semantic no-op — see below |
+| 2 | Connections | 1 | no | no | yes | none | yes | Mutated, not added — see below |
+| 3 | Areas | 1 | no | no | yes | 1 warning | yes | Grew oob-mgmt 30 px, but past the canvas edge |
+| 4 | Whole diagram | 1 | no | no | yes | 1 (inherited) | yes | Moved hq-srv-01 77 px toward the ESX hosts; core links already existed |
+| 5 | Rack | 1 | no | no | yes | 1 (inherited) | yes | Both WAN routers wear `cisco-isr-router-1u`; face-height rule held |
+| 6 | Gaps | 1 | no | no | yes | 1 (inherited) | yes | Finding pinned to hq-srv-01, exactly as asked |
+| 7 | Notes & tables | 1 | no | no | yes | 1 (inherited) | yes | One note appended word-for-word; nothing else touched |
+| 8 | Cover details | 1 | no | no | yes | 1 (inherited) | yes | Revision v1.1 ✓; "today" became 2025-05-18 — the model's own clock |
+| 9 | Everything | 1 | no | no | yes | 1 (inherited) | yes | 40,908 chars back, no truncation; hq-wlc-02 added, HA-paired, wired to both cores |
 
-**Verdict:** _pending_
+**Verdict: PASS — nine for nine in one round trip each, zero repairs, zero
+truncation.** Runs 1–8 all land inside the two-trip bar, and diagnostic
+run 9 returned the whole ~41,000-character design cleanly — the output-length
+cliff the protocol was braced for did not appear on this model.
 
-**Failures worth fixing:** _list anything the model did that the prompt,
-checker or helper should absorb — each one becomes a work item._
+**The semantic audit, because a mechanical PASS is not the whole truth.**
+The checkers grade consistency; comparing the artifacts against the
+requests by hand found what they cannot see:
+
+- **Run 1 was a no-op.** The current NET-HQ-001 already ships with
+  `hq-wlc-01` in the internal zone, so the model returned the node list
+  unchanged — a defensible reading (it refused to add a duplicate), but the
+  run no longer tests device addition. Run 9 rescued the theme: asked for a
+  second WLC, it added `hq-wlc-02`, HA-paired it and wired it to both cores.
+- **Run 2 mutated instead of adding.** Asked to "connect hq-wan-01 to
+  hq-wan-02 with a backup link", the model changed the existing l3
+  interconnect's kind to `backup` — the primary link is gone. Internally
+  consistent, invisible to every checker, semantically a loss.
+- **Run 4's connect-half was already true** (the starter dual-homes
+  hq-srv-01 to both cores), so only the move happened — and only 77 px of
+  it.
+
+**Failures worth fixing — each a work item:**
+
+1. **Protocol drift.** Runs 1, 2 and 4 were written against an earlier
+   NET-HQ-001 and are now partly pre-satisfied. The requests need re-aiming
+   at the current starter so they test addition and multi-part editing
+   again (e.g. a device the starter genuinely lacks, a link that genuinely
+   does not exist).
+2. **"Add a link" must not repurpose one.** Candidate prompt rule for the
+   connections part: never remove or re-kind an existing link unless the
+   request says to.
+3. **The model has no clock.** "Set the date to today" produced 2025-05-18.
+   The helper knows the real date and should inject it into the
+   cover-details request text.
+4. **Area growth ignored the canvas.** Run 3 grew the zone past the page
+   edge instead of raising `canvas.height` — the permission exists in the
+   grid text for placing parts; the zones part needs the same sentence
+   about the canvas following the areas.

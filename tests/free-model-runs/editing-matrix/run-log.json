@@ -1,0 +1,241 @@
+{
+  "protocol": "nine-run editing matrix",
+  "starter": "NET-HQ-001.edit.html",
+  "model": "gemini-3.6-flash",
+  "date": "2026-08-17T17:17:09.841Z",
+  "runs": [
+    {
+      "run": 1,
+      "part": "nodes",
+      "request": "Add a wireless LAN controller in the internal zone, near the core switches.",
+      "rounds": [
+        {
+          "round": 1,
+          "finishReason": "STOP",
+          "chars": 5420,
+          "usage": {
+            "prompt": 4773,
+            "output": 1875,
+            "thoughts": 4385
+          },
+          "repairsApplied": [],
+          "truncated": false,
+          "stops": [],
+          "warnings": 0,
+          "warningTexts": []
+        }
+      ],
+      "roundTrips": 1,
+      "verdict": "clean save in 1 round trip"
+    },
+    {
+      "run": 2,
+      "part": "links",
+      "request": "Connect hq-wan-01 to hq-wan-02 with a backup link.",
+      "rounds": [
+        {
+          "round": 1,
+          "finishReason": "STOP",
+          "chars": 4364,
+          "usage": {
+            "prompt": 3458,
+            "output": 1704,
+            "thoughts": 1589
+          },
+          "repairsApplied": [],
+          "truncated": false,
+          "stops": [],
+          "warnings": 0,
+          "warningTexts": []
+        }
+      ],
+      "roundTrips": 1,
+      "verdict": "clean save in 1 round trip"
+    },
+    {
+      "run": 3,
+      "part": "zones",
+      "request": "Make the out-of-band zone 30 pixels taller without moving any other zone.",
+      "rounds": [
+        {
+          "round": 1,
+          "finishReason": "STOP",
+          "chars": 458,
+          "usage": {
+            "prompt": 2462,
+            "output": 172,
+            "thoughts": 939
+          },
+          "repairsApplied": [],
+          "truncated": false,
+          "stops": [],
+          "warnings": 1,
+          "warningTexts": [
+            "The area \"oob-mgmt\" runs past the edge of the page."
+          ]
+        }
+      ],
+      "roundTrips": 1,
+      "verdict": "clean save in 1 round trip with 1 warning(s)"
+    },
+    {
+      "run": 4,
+      "part": "topology",
+      "request": "Move hq-srv-01 next to the ESX hosts and connect it to both core switches.",
+      "rounds": [
+        {
+          "round": 1,
+          "finishReason": "STOP",
+          "chars": 8182,
+          "usage": {
+            "prompt": 6635,
+            "output": 3014,
+            "thoughts": 10300
+          },
+          "repairsApplied": [],
+          "truncated": false,
+          "stops": [],
+          "warnings": 1,
+          "warningTexts": [
+            "The area \"oob-mgmt\" runs past the edge of the page."
+          ]
+        }
+      ],
+      "roundTrips": 1,
+      "verdict": "clean save in 1 round trip with 1 warning(s)"
+    },
+    {
+      "run": 5,
+      "part": "rack",
+      "request": "Give hq-wan-01 and hq-wan-02 the drawn face of a 1U router.",
+      "rounds": [
+        {
+          "round": 1,
+          "finishReason": "STOP",
+          "chars": 4990,
+          "usage": {
+            "prompt": 3537,
+            "output": 1799,
+            "thoughts": 3192
+          },
+          "repairsApplied": [],
+          "truncated": false,
+          "stops": [],
+          "warnings": 1,
+          "warningTexts": [
+            "The area \"oob-mgmt\" runs past the edge of the page."
+          ]
+        }
+      ],
+      "roundTrips": 1,
+      "verdict": "clean save in 1 round trip with 1 warning(s)"
+    },
+    {
+      "run": 6,
+      "part": "findings",
+      "request": "Add a finding pinned to hq-srv-01: its backup path has never been tested.",
+      "rounds": [
+        {
+          "round": 1,
+          "finishReason": "STOP",
+          "chars": 4152,
+          "usage": {
+            "prompt": 2860,
+            "output": 915,
+            "thoughts": 2397
+          },
+          "repairsApplied": [],
+          "truncated": false,
+          "stops": [],
+          "warnings": 1,
+          "warningTexts": [
+            "The area \"oob-mgmt\" runs past the edge of the page."
+          ]
+        }
+      ],
+      "roundTrips": 1,
+      "verdict": "clean save in 1 round trip with 1 warning(s)"
+    },
+    {
+      "run": 7,
+      "part": "sections",
+      "request": "Add a note to the operations section: weekly configuration backups are assumed, not verified.",
+      "rounds": [
+        {
+          "round": 1,
+          "finishReason": "STOP",
+          "chars": 15555,
+          "usage": {
+            "prompt": 6946,
+            "output": 3818,
+            "thoughts": 1224
+          },
+          "repairsApplied": [],
+          "truncated": false,
+          "stops": [],
+          "warnings": 1,
+          "warningTexts": [
+            "The area \"oob-mgmt\" runs past the edge of the page."
+          ]
+        }
+      ],
+      "roundTrips": 1,
+      "verdict": "clean save in 1 round trip with 1 warning(s)"
+    },
+    {
+      "run": 8,
+      "part": "document",
+      "request": "Bump the revision to v1.1 and set the date to today. Change nothing else.",
+      "rounds": [
+        {
+          "round": 1,
+          "finishReason": "STOP",
+          "chars": 1785,
+          "usage": {
+            "prompt": 2312,
+            "output": 608,
+            "thoughts": 2312
+          },
+          "repairsApplied": [],
+          "truncated": false,
+          "stops": [],
+          "warnings": 1,
+          "warningTexts": [
+            "The area \"oob-mgmt\" runs past the edge of the page."
+          ]
+        }
+      ],
+      "roundTrips": 1,
+      "verdict": "clean save in 1 round trip with 1 warning(s)"
+    },
+    {
+      "run": 9,
+      "part": "all",
+      "request": "Add a second wireless LAN controller as an HA pair for the first, wired to both cores.",
+      "rounds": [
+        {
+          "round": 1,
+          "finishReason": "STOP",
+          "chars": 40908,
+          "usage": {
+            "prompt": 14134,
+            "output": 12884,
+            "thoughts": 6154
+          },
+          "repairsApplied": [],
+          "truncated": false,
+          "stops": [],
+          "warnings": 1,
+          "warningTexts": [
+            "The area \"oob-mgmt\" runs past the edge of the page."
+          ]
+        }
+      ],
+      "roundTrips": 1,
+      "verdict": "clean save in 1 round trip with 1 warning(s)"
+    }
+  ],
+  "modelVersion": "gemini-3.6-flash",
+  "verdict": "PASS - runs 1-8 clean in at most two round trips, no truncation; run 9 (diagnostic): clean save in 1 round trip with 1 warning(s)",
+  "saved": "NET-HQ-001.after-matrix.edit.html"
+}
