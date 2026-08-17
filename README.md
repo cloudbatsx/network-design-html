@@ -97,9 +97,9 @@ is the light path, and for most documents it is the better one:
 | **Official Cisco artwork** — run the packager | ~4 MB | the `assets` folder |
 
 Over 25× smaller, emails cleanly, diffs in Git, prints identically. The symbols live in
-[`symbols/`](symbols/README.md), they are MIT licensed original work, and you are
+[`symbols/`](tools/symbols/README.md), they are MIT licensed original work, and you are
 free to lift them for anything else you build — see
-[`examples/vector-symbol-showcase.html`](examples/vector-symbol-showcase.html) for
+[`tools/symbols/vector-symbol-showcase.html`](tools/symbols/vector-symbol-showcase.html) for
 all 19 at a glance.
 
 **The rack is drawn the same way.** 26 faceplates — switches, routers, firewalls,
@@ -113,8 +113,8 @@ branding. Name one in the equipment schedule:
 { "id": "core-sw-01", "position": 38, "height": 1, "asset": "cisco-nexus-48sfp-1u" }
 ```
 
-No download and no packaging step — see [`rack-faces/`](rack-faces/README.md) for
-the full list and [`examples/rack-face-preview.html`](examples/rack-face-preview.html)
+No download and no packaging step — see [`rack-faces/`](tools/rack-faces/README.md) for
+the full list and [`tools/rack-faces/rack-face-preview.html`](tools/rack-faces/rack-face-preview.html)
 to browse them.
 
 Nothing is one-way, either: a packaged file carries its editable source inside it,
@@ -278,7 +278,7 @@ for the diagrams people actually hand-draw; not a substitute for Graphviz on 200
 |---|---|
 | [`docs/ai-json-rules.md`](docs/ai-json-rules.md) | The prompt. Copy it into your AI chat. |
 | [`docs/document-shell.md`](docs/document-shell.md) | The layout standard — section spine, toggleable layers, print contract. |
-| [`symbols/README.md`](symbols/README.md) | The 19 vector symbols — the semantic keys, retheming, reusing them elsewhere. |
+| [`tools/symbols/README.md`](tools/symbols/README.md) | The 19 vector symbols — the semantic keys, retheming, reusing them elsewhere. |
 | [`docs/architecture.md`](docs/architecture.md) | The packaging contract and symbol synchronization. |
 | [`CONTRIBUTING.md`](CONTRIBUTING.md) | Read before changing symbol geometry. |
 
@@ -316,13 +316,14 @@ which pointed beginners at the one door a free model cannot open.
 
 ```text
 starters/                ten ready-made designs to copy, plus the blank template
-symbols/                 canonical SVG sprite + semantic map
 assets/                  official Cisco icons and rack faces
-edit-with-ai.html  offline AI editing helper
+edit-with-ai.html        offline AI editing helper
 packager.html            swaps in the official artwork — at the root, beside the helper
-tools/*.js               repository validation and the rack-face build
-docs/                    prompt, layout standard, architecture
-examples/  tests/        showcase and contract fixture
+docs/                    prompt, layout standard, architecture, study notes
+tests/                   contract fixture, behaviour tests, live free-model runs
+tools/                   validation, builds, and the maintainer libraries:
+tools/symbols/           canonical SVG sprite + semantic map + showcase
+tools/rack-faces/        drawn faceplate library + review page
 dist/                    build output, untracked
 ```
 

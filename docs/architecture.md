@@ -18,11 +18,11 @@ vault; it renders the corresponding embedded raster bytes instead.
 
 ## Sources of truth
 
-- `symbols/network-symbols.svg` is the canonical vector geometry.
-- `symbols/symbol-map.json` is the reviewable semantic-to-renderer mapping.
+- `tools/symbols/network-symbols.svg` is the canonical vector geometry.
+- `tools/symbols/symbol-map.json` is the reviewable semantic-to-renderer mapping.
 - `starters/network-design-template.edit.html` is the canonical user template
   and carries synchronized runtime copies of both.
-- `examples/vector-symbol-showcase.html` is a synchronized visual QA surface.
+- `tools/symbols/vector-symbol-showcase.html` is a synchronized visual QA surface.
 - `packager.html` is the packager itself: source in
   the tree, opened directly, with no build step and no artwork inside it.
 - `assets/` is the shipped official artwork the packager reads at runtime.

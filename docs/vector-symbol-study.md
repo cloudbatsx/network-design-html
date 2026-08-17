@@ -1,6 +1,6 @@
 # Vector symbol study
 
-[`../examples/vector-symbol-showcase.html`](../examples/vector-symbol-showcase.html)
+[`../tools/symbols/vector-symbol-showcase.html`](../tools/symbols/vector-symbol-showcase.html)
 is the retained visual study for the canonical 19-symbol library. It combines a
 dense arbitrary topology with enlarged symbol cards so silhouette, orientation,
 line weight, and small details can be reviewed independently.
@@ -26,12 +26,12 @@ archive; it is not another source of truth.
 ## Validation target
 
 The repository validator confirms that the sprite embedded in the editable
-template and this showcase matches `symbols/network-symbols.svg`, that all 19
+template and this showcase matches `tools/symbols/network-symbols.svg`, that all 19
 symbol IDs are unique, and that neither source contains raster image payloads.
 
 ## Licence
 
 The library is original work, MIT licensed with the rest of the project. It is
-free to reuse on its own; see [`../symbols/README.md`](../symbols/README.md) for
+free to reuse on its own; see [`../tools/symbols/README.md`](../tools/symbols/README.md) for
 how to inline it elsewhere. Only the vendor artwork under `assets/` sits outside
 that grant — see [`../THIRD_PARTY_NOTICES.md`](../THIRD_PARTY_NOTICES.md).

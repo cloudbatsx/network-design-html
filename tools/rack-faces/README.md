@@ -20,7 +20,7 @@ node tools/build-rack-faces.js
 ```
 
 That regenerates the sprite and the map, rewrites
-[`../examples/rack-face-preview.html`](../examples/rack-face-preview.html), and
+[`rack-face-preview.html`](rack-face-preview.html), and
 re-inlines the core into every document that draws a rack. Then run `npm test` —
 the validator checks that no document has drifted from the core, that every key
 is documented in the AI prompt at the right unit height, and that the sprite has

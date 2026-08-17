@@ -114,9 +114,9 @@ let alternate;
 check("primary editable contract", () => { primary = validateEditable("starters/network-design-template.edit.html"); });
 check("alternate editable fixture contract", () => { alternate = validateEditable("tests/fixtures/alternate-dashboard.edit.html"); });
 
-const sprite = read("symbols/network-symbols.svg");
-const showcase = read("examples/vector-symbol-showcase.html");
-const map = JSON.parse(read("symbols/symbol-map.json"));
+const sprite = read("tools/symbols/network-symbols.svg");
+const showcase = read("tools/symbols/vector-symbol-showcase.html");
+const map = JSON.parse(read("tools/symbols/symbol-map.json"));
 
 check("canonical 19-symbol library", () => {
   const ids = symbolIds(sprite);
@@ -126,8 +126,8 @@ check("canonical 19-symbol library", () => {
 
 check("embedded vector copies match canonical sprite", () => {
   const canonical = extractDefs(sprite, "sprite");
-  assert(extractDefs(primary, "primary template") === canonical, "primary template sprite drifted from symbols/network-symbols.svg");
-  assert(extractDefs(showcase, "showcase") === canonical, "showcase sprite drifted from symbols/network-symbols.svg");
+  assert(extractDefs(primary, "primary template") === canonical, "primary template sprite drifted from tools/symbols/network-symbols.svg");
+  assert(extractDefs(showcase, "showcase") === canonical, "showcase sprite drifted from tools/symbols/network-symbols.svg");
   assert(topologySymbolIds(primary, "primary template").length === 19, "primary template does not contain 19 symbols");
   assert(topologySymbolIds(showcase, "showcase").length === 19, "showcase does not contain 19 symbols");
 });
@@ -193,7 +193,7 @@ for (const name of starterNames) {
   checkEvery(`starter ${name}`, (want) => {
     const source = validateEditable(`starters/${name}`);
     starters.push(source);
-    want(extractDefs(source, name) === extractDefs(sprite, "sprite"), "sprite drifted from symbols/network-symbols.svg");
+    want(extractDefs(source, name) === extractDefs(sprite, "sprite"), "sprite drifted from tools/symbols/network-symbols.svg");
     want(topologySymbolIds(source, name).length === 19, `expected 19 symbols, found ${topologySymbolIds(source, name).length}`);
     want(!/<image\b/i.test(source), "contains an SVG image element");
 
@@ -254,9 +254,9 @@ for (const name of starterNames) {
 // The rack faceplate library is generated, inlined into every document that
 // draws a rack, and edited in exactly one place. These checks are the reason a
 // contributor can trust that last claim.
-const faceCore = read("rack-faces/rack-face-core.js").trimEnd();
-const faceMap = JSON.parse(read("rack-faces/rack-face-map.json"));
-const faceSprite = read("rack-faces/rack-faces.svg");
+const faceCore = read("tools/rack-faces/rack-face-core.js").trimEnd();
+const faceMap = JSON.parse(read("tools/rack-faces/rack-face-map.json"));
+const faceSprite = read("tools/rack-faces/rack-faces.svg");
 const FACE_BLOCK = { begin: "<!-- RACK-FACE-LIBRARY:BEGIN -->", end: "<!-- RACK-FACE-LIBRARY:END -->" };
 
 function inlinedFaceCore(source) {
@@ -301,8 +301,8 @@ checkEvery("rack faceplate library", (want) => {
   for (const [file, pattern, expected, what] of [
     ["README.md", /(\d+) faceplates/, keys.length, "total faceplates"],
     ["README.md", /(\d+) are vendor-neutral/, generic, "vendor-neutral faces"],
-    ["rack-faces/README.md", /(\d+) semantic keys/, keys.length, "total faceplates"],
-    ["rack-faces/README.md", /(\d+) of them, and/, generic, "vendor-neutral faces"]
+    ["tools/rack-faces/README.md", /(\d+) semantic keys/, keys.length, "total faceplates"],
+    ["tools/rack-faces/README.md", /(\d+) of them, and/, generic, "vendor-neutral faces"]
   ]) {
     const found = read(file).match(pattern);
     want(found, `${file} no longer states its ${what}`);
@@ -332,7 +332,7 @@ checkEvery("every rack document carries the current library", (want) => {
       continue;
     }
     want(inlined !== null, `${label} draws a rack but does not carry the rack face library`);
-    if (inlined !== null) want(inlined === faceCore, `${label} rack face library drifted from rack-faces/rack-face-core.js`);
+    if (inlined !== null) want(inlined === faceCore, `${label} rack face library drifted from tools/rack-faces/rack-face-core.js`);
     want(source.includes('id="rack-face-style"'), `${label} is missing the rack face stylesheet`);
   }
 });
@@ -667,8 +667,8 @@ checkEvery("every embedded script parses", (want) => {
     "edit-with-ai.html",
     "packager.html",
     "tools/cisco-icon-catalog.html",
-    "examples/vector-symbol-showcase.html",
-    "examples/rack-face-preview.html",
+    "tools/symbols/vector-symbol-showcase.html",
+    "tools/rack-faces/rack-face-preview.html",
     "tests/fixtures/alternate-dashboard.edit.html"
   ];
   for (const label of pages) {

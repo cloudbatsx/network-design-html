@@ -19,7 +19,7 @@ gaps list where it renders from data) and refuses the rest.
 > Keep the lists below in sync with the template. They are copied from `ICONS`
 > and `RACK_ASSETS` in `starters/network-design-template.edit.html` and from the
 > `.link.*` / `.zone.*` rules in its stylesheet. Only the drawn-faceplate table is
-> checked automatically, against `rack-faces/rack-face-map.json` — if the others
+> checked automatically, against `tools/rack-faces/rack-face-map.json` — if the others
 > change, change this file too.
 
 ---

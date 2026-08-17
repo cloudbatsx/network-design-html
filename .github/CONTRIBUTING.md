@@ -19,11 +19,11 @@ Before proposing a repository change:
 2. Use existing semantic icon keys whenever possible. For an unsupported Cisco
    image, use one complete literal `asset:cisco/<exact filename>.jpg` value.
 3. Treat official filenames as case-sensitive and never assemble them at runtime.
-4. If vector geometry changes, synchronize `symbols/network-symbols.svg`, the
-   embedded template sprite, and `examples/vector-symbol-showcase.html`.
-5. If a semantic mapping changes, synchronize `symbols/symbol-map.json` and the
+4. If vector geometry changes, synchronize `tools/symbols/network-symbols.svg`, the
+   embedded template sprite, and `tools/symbols/vector-symbol-showcase.html`.
+5. If a semantic mapping changes, synchronize `tools/symbols/symbol-map.json` and the
    embedded `ICONS` map in the template.
-6. Rack faceplates are generated. Edit `rack-faces/rack-face-core.js` and nothing
+6. Rack faceplates are generated. Edit `tools/rack-faces/rack-face-core.js` and nothing
    else, then run `npm run build:rack-faces` — it rewrites the sprite, the map,
    the preview page, and the copy inlined in every document that draws a rack.
    A new faceplate also needs a row in `docs/ai-json-rules.md`, or no model will

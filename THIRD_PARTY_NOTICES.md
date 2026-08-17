@@ -52,7 +52,7 @@ recrop or recolour. CC0 permits this without condition.
 
 ## The vector symbols are not third-party material
 
-The 19 SVG symbols in `symbols/network-symbols.svg`, and their synchronized
+The 19 SVG symbols in `tools/symbols/network-symbols.svg`, and their synchronized
 copies inside the template, the starter kits and the showcase, are the project
 author's own drawings. They are **MIT licensed along with the rest of the
 project** — take them, restyle them, ship them in your own work.
