@@ -195,6 +195,24 @@ function runCheck(t, raw, original) {
 }
 
 // The Copy-problems message, exactly as the helper composes it for "all" scope.
+/* The one fidelity check a harness can make mechanically. The extraction
+   prompt demands a stated device count, so the build can be held to it:
+   fewer placed devices with no finding recording the omission is exactly the
+   silent-condensation failure of the first fidelity audit. The checkers
+   grade consistency and cannot see it; the promised number makes it
+   countable. A shortfall WITH a finding that records it is not a failure -
+   recorded honesty is the product's ethos. */
+function inventoryShortfall(extractText, data) {
+  const match = extractText.match(/total device[^:\n]*count[^0-9]*(\d+)/i);
+  if (!match) return null;
+  const promised = Number(match[1]);
+  const placed = (data.topology?.nodes || []).length;
+  if (placed >= promised) return null;
+  const findings = JSON.stringify(data.sections?.findings || "").toLowerCase();
+  if (/condens|consolidat|omit|omission|combin|grouped|not shown|excluded|left out|dropped/.test(findings)) return null;
+  return { promised, placed };
+}
+
 function problemsMessage(problems) {
   const lines = problems.map((p, i) => `${i + 1}. ${p.what}\n   ${p.tell}`);
   return `Your last reply had these problems. Please send the complete JSON object again with them fixed, and reply with JSON only.\n\n${lines.join("\n\n")}`;
@@ -353,8 +371,25 @@ async function runTest(t, test, options, log) {
     log(`  round ${round}: ${reply.text.length} chars, ${stops.length} stop(s), ${warnings} warning(s)` +
       (checked.applied.length ? `, repaired: ${checked.applied.join(", ")}` : ""));
     if (checked.merged && !stops.length) {
-      transcript.rounds.push({ reply: reply.text });
-      accepted = checked.merged; record.roundTrips = round; break;
+      const shortfall = inventoryShortfall(extract.text, checked.merged);
+      if (!shortfall) {
+        transcript.rounds.push({ reply: reply.text });
+        accepted = checked.merged; record.roundTrips = round; break;
+      }
+      record.rounds[record.rounds.length - 1].inventory = shortfall;
+      if (round === MAX_ROUND_TRIPS) {
+        // Out of retries: keep the design, and let the verdict tell the truth.
+        transcript.rounds.push({ reply: reply.text });
+        accepted = checked.merged; record.roundTrips = round;
+        record.inventoryShortfall = shortfall;
+        break;
+      }
+      log(`  INVENTORY: the extract promised ${shortfall.promised} devices, the design places ${shortfall.placed}, no finding records the omission - retrying`);
+      const countMessage = `Your extracted inventory stated ${shortfall.promised} devices. This design places ${shortfall.placed}, and no finding records what was left out. Either add the missing devices - raise topology.canvas.height if they need room - or record exactly what was condensed or omitted as a finding. Reply with the corrected JSON object only.`;
+      transcript.rounds.push({ reply: reply.text, problemsMessage: countMessage });
+      contents.push({ role: "model", parts: [{ text: reply.text }] });
+      contents.push({ role: "user", parts: [{ text: countMessage }] });
+      continue;
     }
     const retryMessage = problemsMessage(checked.problems);
     transcript.rounds.push({ reply: reply.text, problemsMessage: retryMessage });
@@ -399,7 +434,10 @@ async function runTest(t, test, options, log) {
 
   const warned = record.rounds[record.roundTrips - 1].warnings;
   record.verdict = `PASS - clean save in ${record.roundTrips} round trip${record.roundTrips === 1 ? "" : "s"}` +
-    (warned ? ` with ${warned} warning(s)` : "");
+    (warned ? ` with ${warned} warning(s)` : "") +
+    (record.inventoryShortfall
+      ? ` - BUT the extract promised ${record.inventoryShortfall.promised} devices and only ${record.inventoryShortfall.placed} are placed, unrecorded`
+      : "");
   return record;
 }
 

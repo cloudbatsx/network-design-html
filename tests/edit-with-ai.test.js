@@ -642,6 +642,7 @@ test("prompt: parts that place devices carry the construction grid", () => {
     assert(/Construct positions, never estimate them/.test(rules), name);
     assert(/200 apart across, 140 apart down/.test(rules), name);
     assert(/raise topology\.canvas\.height/.test(rules), name);
+    assert(/never justifies dropping a device/.test(rules), name);
   }
 });
 
