@@ -645,6 +645,73 @@ test("prompt: parts that place nothing carry no grid", () => {
   }
 });
 
+/* ---- the inventory gate and artifact rotation (the free-model runner) ---- */
+
+const gateTools = require(path.join(root, "tools", "run-free-model-tests.js"));
+
+test("gate: the stated count parses in every phrasing the record contains", () => {
+  assert.strictEqual(gateTools.statedDeviceCount("**Total Device Count:** 41 devices"), 41);
+  assert.strictEqual(gateTools.statedDeviceCount("Total device count: 33"), 33);
+  assert.strictEqual(gateTools.statedDeviceCount("Total Devices: 15"), 15);
+  assert.strictEqual(gateTools.statedDeviceCount("Device Count Summary: 12"), 12);
+  assert.strictEqual(gateTools.statedDeviceCount("**Total Physical/Logical Hardware Devices:** **35**"), 35);
+  assert.strictEqual(gateTools.statedDeviceCount("There are 9 devices in total."), 9);
+  assert.strictEqual(gateTools.statedDeviceCount("I see some switches and a router."), null);
+});
+
+test("gate: a missing count is reported, never waved through", () => {
+  const gate = gateTools.inventoryShortfall("no numbers here", { topology: { nodes: [{}] } });
+  assert.strictEqual(gate.gate, "no-count-found");
+  assert.strictEqual(gate.short, false);
+});
+
+test("gate: an unrelated 'omitted' finding is not a confession", () => {
+  const data = { topology: { nodes: [{}, {}] }, sections: { findings: { items: [
+    { title: "Firmware & Serial Numbers Omitted", detail: "Software versions, OS releases, and device serial numbers are unrecorded." }
+  ] } } };
+  const gate = gateTools.inventoryShortfall("Total device count: 5", data);
+  assert.strictEqual(gate.gate, "shortfall");
+  assert.strictEqual(gate.short, true);
+});
+
+test("gate: a numbered consolidation finding is a confession", () => {
+  const data = { topology: { nodes: [{}, {}] }, sections: { findings: { items: [
+    { title: "Endpoint Aggregation in Topology Diagram", detail: "10x Roku units, 8x security cameras, and 5x access points have been aggregated into single functional nodes." }
+  ] } } };
+  const gate = gateTools.inventoryShortfall("Total device count: 41", data);
+  assert.strictEqual(gate.gate, "confessed");
+  assert.strictEqual(gate.short, false);
+});
+
+test("gate: meeting the stated count needs no confession", () => {
+  const gate = gateTools.inventoryShortfall("Total device count: 2", { topology: { nodes: [{}, {}] }, sections: {} });
+  assert.strictEqual(gate.gate, "met");
+  assert.strictEqual(gate.short, false);
+});
+
+test("gate: the prompts demand the exact count line and numbered confessions", () => {
+  assert(/Total device count: 12/.test(t.EXTRACT_PROMPT), "the extraction no longer demands the exact count line");
+  const text = t.freshRequestText("T", "T-NET-001", "auto");
+  assert(/stating both numbers/.test(text), "the confession no longer has to state the numbers");
+});
+
+test("evidence: a new run archives the last log instead of overwriting it", () => {
+  const os = require("os");
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "ndh-rotate-"));
+  try {
+    fs.writeFileSync(path.join(dir, "run-log.json"), "{\"run\":\"first\"}");
+    assert.strictEqual(gateTools.rotateArtifact(dir, "run-log.json"), "run-log.run1.json");
+    fs.writeFileSync(path.join(dir, "run-log.json"), "{\"run\":\"second\"}");
+    assert.strictEqual(gateTools.rotateArtifact(dir, "run-log.json"), "run-log.run2.json");
+    assert(fs.readFileSync(path.join(dir, "run-log.run1.json"), "utf8").includes("first"));
+    assert(fs.readFileSync(path.join(dir, "run-log.run2.json"), "utf8").includes("second"));
+    assert(!fs.existsSync(path.join(dir, "run-log.json")));
+    assert.strictEqual(gateTools.rotateArtifact(dir, "run-log.json"), null);
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
+
 /* ---- runner ---- */
 
 (async () => {

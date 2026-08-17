@@ -321,6 +321,42 @@ had nothing to do — which is the point. The construction recipe made the
 model's job easy enough to do correctly on the first try; the guards exist
 for the day it is not.
 
+### The gate grows teeth · 2026-08-17
+
+The same review re-examined the inventory gate itself and found it right for
+the wrong reasons. test16's document places 10 nodes against an extract that
+counted 41 — and a genuine, numbered confession sits in its findings ("10x
+Roku units, 12x wall plates, 8x security cameras, and 5x access points have
+been aggregated into single functional nodes") — but the gate's keyword list
+did not know the word "aggregated". The run passed only because an unrelated
+finding, "Firmware & Serial Numbers Omitted", happened to contain "omitted".
+Separately, four extracts in the second batch (12, 14, 15, 18) stated their
+count in phrasings the gate's single regex could not parse, so the gate
+silently sat out those runs entirely, and nothing recorded that it had.
+
+Three changes shipped, each pinned by a behaviour test:
+
+- **The extraction prompt demands the count in one exact form** — "Total
+  device count: 12" as the reply's first line — and the gate's parser now
+  accepts every phrasing the 24-run record actually contains as fallback.
+- **A confession is now a single finding that names devices, uses a
+  condensation word, and states a number** — "aggregated" included. An
+  unrelated finding with "omitted" in its title no longer counts.
+- **The gate reports itself.** Every round records the gate outcome — met,
+  confessed, shortfall, or no-count-found — in the run log, so a gate that
+  could not engage is visible instead of indistinguishable from one that
+  passed. The build request likewise now demands that a confession state
+  both numbers: how many the inventory counted, how many the drawing shows.
+
+Applied retroactively to all eighteen runs with a preserved transcript, the
+hardened gate reads: **sixteen met their stated count exactly or exceeded
+it, and two — test16 (41 counted, 10 drawn) and test20 (38 counted, 24
+drawn) — are honestly-confessed consolidations**, recognised now on the
+right evidence. Zero unparseable counts, zero unconfessed shortfalls. The
+count leg of the open fidelity audit is machine-answered for every run that
+kept its transcript; what remains by-eye is whether the *connections and
+labels* match the source.
+
 ### Artifact provenance — what each run folder actually holds · 2026-08-17
 
 A review of the folders against these tables found that later work overwrote
@@ -365,7 +401,9 @@ Recorded plainly:
 
 The lesson: the runner must version every run's log and transcript instead
 of overwriting the last one. An overwrite cost this record two artifacts it
-can never get back.
+can never get back. As of 2026-08-17 it does exactly that — a new run moves
+the previous log and transcript to the next free `.runN` name before
+writing, and a behaviour test holds it there.
 
 ### The nine-run editing matrix
 

@@ -198,19 +198,69 @@ function runCheck(t, raw, original) {
 /* The one fidelity check a harness can make mechanically. The extraction
    prompt demands a stated device count, so the build can be held to it:
    fewer placed devices with no finding recording the omission is exactly the
-   silent-condensation failure of the first fidelity audit. The checkers
-   grade consistency and cannot see it; the promised number makes it
-   countable. A shortfall WITH a finding that records it is not a failure -
-   recorded honesty is the product's ethos. */
+   silent-condensation failure of the first fidelity audit. A shortfall WITH
+   a finding that records it is not a failure - recorded honesty is the
+   product's ethos.
+
+   The 2026-08-17 review hardened all three legs. The count parse accepts
+   every phrasing the 24-run record actually contains, and a reply with no
+   parseable count is reported as such instead of silently waving the build
+   through. The confession test is scoped to a single finding and must see a
+   condensation word, a device word and a number together - test16's real
+   confession said "aggregated", which the old keyword list could not see,
+   while its unrelated "Serial Numbers Omitted" finding satisfied it; the
+   gate reached the right verdict on the wrong evidence. */
+function statedDeviceCount(extractText) {
+  const patterns = [
+    /total\s+device\s+count[^0-9\n]{0,20}(\d+)/i,
+    /total\s+devices?[^0-9\n]{0,20}(\d+)/i,
+    /total[^0-9\n]{0,40}devices?[^0-9\n]{0,20}(\d+)/i,
+    /device\s+count[^0-9\n]{0,20}(\d+)/i,
+    /counted[^0-9\n]{0,20}(\d+)\s+devices?/i,
+    /(\d+)\s+devices?\s+(?:total|drawn|in\s+total)/i
+  ];
+  for (const pattern of patterns) {
+    const match = extractText.match(pattern);
+    if (match) return Number(match[1]);
+  }
+  return null;
+}
+
+function confessesCondensation(data) {
+  const items = (data.sections?.findings?.items) || [];
+  const condenseWord = /condens|consolidat|aggregat|grouped|group\s+node|combin|collapsed|shown\s+as\s+one|represented\s+by|omitted|omission|not\s+shown|not\s+drawn|excluded|left\s+out|dropped/i;
+  const deviceWord = /device|node|endpoint|unit|camera|switch|access\s+point|host|drawn|topolog|diagram|inventory/i;
+  for (const item of items) {
+    const text = `${item.title || ""} ${item.detail || ""}`;
+    if (condenseWord.test(text) && deviceWord.test(text) && /\d/.test(text)) return true;
+  }
+  return false;
+}
+
 function inventoryShortfall(extractText, data) {
-  const match = extractText.match(/total device[^:\n]*count[^0-9]*(\d+)/i);
-  if (!match) return null;
-  const promised = Number(match[1]);
+  const promised = statedDeviceCount(extractText);
   const placed = (data.topology?.nodes || []).length;
-  if (placed >= promised) return null;
-  const findings = JSON.stringify(data.sections?.findings || "").toLowerCase();
-  if (/condens|consolidat|omit|omission|combin|grouped|not shown|excluded|left out|dropped/.test(findings)) return null;
-  return { promised, placed };
+  if (promised === null) return { gate: "no-count-found", promised: null, placed, short: false };
+  if (placed >= promised) return { gate: "met", promised, placed, short: false };
+  if (confessesCondensation(data)) return { gate: "confessed", promised, placed, short: false };
+  return { gate: "shortfall", promised, placed, short: true };
+}
+
+/* Logs and transcripts are evidence; evidence is never overwritten. The
+   previous artifact moves to the next free .runN name (run1 is the oldest),
+   and the plain name always holds the latest run - the convention the
+   3-9 folders already follow. Two runs of the historical record are gone
+   because this rotation did not exist; see free-model-results.md, Artifact
+   provenance. */
+function rotateArtifact(dir, name) {
+  const full = path.join(dir, name);
+  if (!fs.existsSync(full)) return null;
+  const base = name.replace(/\.json$/, "");
+  let n = 1;
+  while (fs.existsSync(path.join(dir, `${base}.run${n}.json`))) n++;
+  const archived = `${base}.run${n}.json`;
+  fs.renameSync(full, path.join(dir, archived));
+  return archived;
 }
 
 function problemsMessage(problems) {
@@ -371,21 +421,24 @@ async function runTest(t, test, options, log) {
     log(`  round ${round}: ${reply.text.length} chars, ${stops.length} stop(s), ${warnings} warning(s)` +
       (checked.applied.length ? `, repaired: ${checked.applied.join(", ")}` : ""));
     if (checked.merged && !stops.length) {
-      const shortfall = inventoryShortfall(extract.text, checked.merged);
-      if (!shortfall) {
+      const gate = inventoryShortfall(extract.text, checked.merged);
+      record.rounds[record.rounds.length - 1].inventoryGate = gate;
+      if (gate.gate === "no-count-found") {
+        log(`  INVENTORY GATE: the extract never stated a parseable count - this build cannot be held to a number`);
+      }
+      if (!gate.short) {
         transcript.rounds.push({ reply: reply.text });
         accepted = checked.merged; record.roundTrips = round; break;
       }
-      record.rounds[record.rounds.length - 1].inventory = shortfall;
       if (round === MAX_ROUND_TRIPS) {
         // Out of retries: keep the design, and let the verdict tell the truth.
         transcript.rounds.push({ reply: reply.text });
         accepted = checked.merged; record.roundTrips = round;
-        record.inventoryShortfall = shortfall;
+        record.inventoryShortfall = gate;
         break;
       }
-      log(`  INVENTORY: the extract promised ${shortfall.promised} devices, the design places ${shortfall.placed}, no finding records the omission - retrying`);
-      const countMessage = `Your extracted inventory stated ${shortfall.promised} devices. This design places ${shortfall.placed}, and no finding records what was left out. Either add the missing devices - raise topology.canvas.height if they need room - or record exactly what was condensed or omitted as a finding. Reply with the corrected JSON object only.`;
+      log(`  INVENTORY: the extract promised ${gate.promised} devices, the design places ${gate.placed}, no finding records the omission - retrying`);
+      const countMessage = `Your extracted inventory stated ${gate.promised} devices. This design places ${gate.placed}, and no finding records what was left out. Either add the missing devices - raise topology.canvas.height if they need room - or record exactly what was condensed or omitted as a finding stating both numbers. Reply with the corrected JSON object only.`;
       transcript.rounds.push({ reply: reply.text, problemsMessage: countMessage });
       contents.push({ role: "model", parts: [{ text: reply.text }] });
       contents.push({ role: "user", parts: [{ text: countMessage }] });
@@ -397,6 +450,7 @@ async function runTest(t, test, options, log) {
     contents.push({ role: "user", parts: [{ text: retryMessage }] });
   }
   if (!options.smoke) {
+    rotateArtifact(test.dir, "run-transcript.json");
     fs.writeFileSync(path.join(test.dir, "run-transcript.json"), JSON.stringify(transcript, null, 2) + "\n", "utf8");
   }
   if (!accepted) {
@@ -482,7 +536,7 @@ function parseArgs(argv) {
   return options;
 }
 
-(async () => {
+if (require.main === module) (async () => {
   const options = parseArgs(process.argv);
   const t = loadHelper();
   const artwork = repoArtwork();
@@ -508,6 +562,7 @@ function parseArgs(argv) {
         verdict: `ERROR - ${error.message}` };
       console.log(`  ERROR: ${error.message}`);
     }
+    rotateArtifact(dir, "run-log.json");
     fs.writeFileSync(path.join(dir, "run-log.json"), JSON.stringify(record, null, 2) + "\n", "utf8");
     results.push(record);
     console.log(`  verdict: ${record.verdict}`);
@@ -521,3 +576,7 @@ function parseArgs(argv) {
   }
   if (results.some((record) => /^(FAIL|ERROR)/.test(record.verdict))) process.exitCode = 1;
 })().catch((error) => { console.error(error.message); process.exit(1); });
+
+// The gate and the rotation are graded by the behaviour suite; requiring
+// this file runs nothing.
+module.exports = { statedDeviceCount, confessesCondensation, inventoryShortfall, rotateArtifact };
