@@ -1,6 +1,6 @@
 # Free-model validation — protocol and results
 
-**Status: fresh-build path validated live and across seven automated runs · nine-run editing matrix still pending.**
+**Status: fresh-build path validated live and across twenty-two automated runs · nine-run editing matrix still pending.**
 
 Everything else in this repository is machine-checked. This is the one claim
 only a live session can test: *"a free AI model is enough."* This document is
@@ -208,6 +208,65 @@ still compresses repetition when allowed, and the prompts no longer allow it
 silently. The six boundary warnings are the honest cost of a fuller canvas —
 cosmetic, correctly reported, and the next candidate for spacing guidance if
 they recur. Items 3 (invented specs) and 4 (icon vocabulary) remain open.
+
+### Live results 9–23 — the second automated matrix, fifteen harder diagrams · 2026-08-16
+
+**Model:** `gemini-3.6-flash` (the id the API reported back for every call) ·
+**Surface:** Google AI free-tier API, driven by `tools/run-free-model-tests.js` ·
+**Operator:** automated harness, Sayed Haque supervising.
+
+Fifteen more fresh-build runs (desktop test folders 10–24), deliberately
+ranging far beyond ordinary LAN diagrams: an AV-integration signal-flow
+drawing, an industrial CC-Link fieldbus map, a VoIP carrier's physical layer,
+an inter-datacenter fabric, a Juniper backbone annotated with interfaces and
+/31s. Same harness, same command with `--tests 10-24`.
+
+| Test | Drawing | Input diagram | Round trips | Repaired? | Cut off? | Stops fired | Warnings | Logo route | Packaging | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 10 | CCN-NET-001 | clinic network, HA UTM pair (png) | 1 | no | no | none | 1 | PNG raster | 29 embedded, 0 skipped | PASS |
+| 11 | CGN-NET-001 | layered HQ campus + branch, textbook figure (png) | 1 | no | no | none | 7 | SVG path+viewBox | 29 embedded, 0 skipped | PASS |
+| 12 | FCN-NET-001 | multi-building campus with two DCs (png) | 1 | no | no | none | 0 | SVG path+viewBox | 29 embedded, 0 skipped | PASS |
+| 13 | BAN-NET-001 | AV-integration signal flow, cafeteria (jpg) | 1 | no | no | none | 1 | PNG raster | 29 embedded, 0 skipped | PASS |
+| 14 | HDN-NET-001 | clinic network, second rendition (jpg) | 1 | no | no | none | 0 | SVG path+viewBox | 29 embedded, 0 skipped | PASS |
+| 15 | CVN-NET-001 | VoIP carrier physical layer (png) | 1 | no | no | none | 0 | SVG path+viewBox | 29 embedded, 0 skipped | PASS |
+| 16 | RRN-NET-001 | residence AV + network rack (png) | 1 | no | no | none | 0 | PNG raster | 29 embedded, 0 skipped | PASS |
+| 17 | ILN-NET-001 | spine-leaf homelab with monitoring (jpg) | 1 | no | no | none | 0 | SVG path+viewBox | 29 embedded, 0 skipped | PASS |
+| 18 | OTN-NET-001 | training-lab topology, logical + physical (png) | 1 | no | no | none | 0 | SVG path+viewBox | 29 embedded, 0 skipped | PASS |
+| 19 | VNN-NET-001 | multi-region monitoring map, 5 branches (png) | 1 | no | no | none | 5 | PNG raster | 29 embedded, 0 skipped | PASS |
+| 20 | RUN-NET-001 | university campus core, JANET/IX uplinks (png) | 2 | no | no | 2 in round 1 | 0 | SVG path+viewBox | 29 embedded, 0 skipped | PASS |
+| 21 | WSHN-NET-001 | integrated smart home (png) | 1 | no | no | none | 0 | SVG path+viewBox | 29 embedded, 0 skipped | PASS |
+| 22 | SDN-NET-001 | inter-datacenter architecture (jpg) | 1 | no | no | none | 0 | PNG raster | 29 embedded, 0 skipped | PASS |
+| 23 | FAN-NET-001 | industrial CC-Link fieldbus network (jpg) | 1 | no | no | none | 0 | SVG path+viewBox | 29 embedded, 0 skipped | PASS |
+| 24 | CTN-NET-001 | Juniper backbone with interfaces and /31s (png) | 1 | no | no | none | 0 | SVG path+viewBox | 29 embedded, 0 skipped | PASS |
+
+Fifteen for fifteen, fourteen in **one round trip**, all with **zero repairs
+and zero truncation**. Test 20 is the interesting one: round 1 pinned two gaps
+to areas named `internal` and `perimeter` while the drawing's areas were
+`zone-internal` and `zone-external` — the checker stopped the save, the
+harness pasted the helper's own Copy-problems message back, and round 2 came
+back clean. That is the second live firing of the retry loop, and like the
+first it converged in one extra trip.
+
+**The imperfections, faithfully.** All fourteen warnings across the batch fall
+into exactly two geometry families the checker already names: device boxes
+overlapping (runs 10, 13, 19 — 9–15 % of a box) and devices drawn 69–91 %
+inside their zone edge (runs 11, 20-round-1). The model's semantic output was
+flawless across the batch; every blemish was spatial. Layout guidance in the
+build prompt — spacing margins, zone padding — is now the clear next
+candidate, promoted from a note to a pattern by fourteen occurrences.
+
+**Fidelity caveat:** unlike results 2–8, this batch has had only one
+source-vs-document comparison so far (run 24: all 8 routers landed with
+faithful ids — `ba1-dca1` through `ra2-dal2` — no condensation). The
+device-count-first extraction rules were in force for every run here; a full
+by-eye audit of the other fourteen remains open.
+
+**Free-tier quota, plainly, for whoever reruns this.** The daily budget resets
+at midnight Pacific; after heavy use the rolling window recovers roughly one
+full test per two hours of idleness. Failed 429 calls cost nothing. The
+cadence that finished this batch: run tests singly, never in bulk, once the
+first 429 wall appears — a batch launched into a thin window burns its own
+retries.
 
 ### The nine-run editing matrix
 
