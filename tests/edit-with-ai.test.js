@@ -227,24 +227,17 @@ test("parts: the coordinate grammar supports every part", () => {
   assert.strictEqual(t.editableParts(baseDesign()), null);
 });
 
-test("parts: a sheet without a declaration is not editable", () => {
+test("parts: the retired sheet grammar is not editable", () => {
   const data = baseDesign();
   data.topology.canvas = { viewBox: "0 0 100 100" };
   assert.deepStrictEqual(json(t.editableParts(data)), []);
 });
 
-test("parts: a sheet offers exactly what it declares", () => {
+test("parts: a legacy sheet declaration is refused, not honoured", () => {
   const data = baseDesign();
   data.topology.canvas = { viewBox: "0 0 100 100" };
-  data.editing = { grammar: "sheet", parts: ["rack", "findings"] };
-  assert.deepStrictEqual(json(t.editableParts(data)), ["rack", "findings"]);
-});
-
-test("parts: a declared drawing part is stripped, not honoured", () => {
-  const data = baseDesign();
-  data.topology.canvas = { viewBox: "0 0 100 100" };
-  data.editing = { grammar: "sheet", parts: ["nodes", "topology", "all", "rack"] };
-  assert.deepStrictEqual(json(t.editableParts(data)), ["rack"]);
+  data.editing = { grammar: "sheet", parts: ["rack", "findings", "nodes", "all"] };
+  assert.deepStrictEqual(json(t.editableParts(data)), []);
 });
 
 /* ---- the sheet grammar in the whole-design checks ---- */

@@ -611,24 +611,18 @@ const SLICES = Object.freeze({
 });
 
 /* Which parts of a design this tool may edit. The coordinate grammar (a numeric
-   canvas) supports every part. The engineering-sheet grammar keeps its geometry
-   inside the data - raw path strings and hand-placed coordinates - so a sheet
-   supports only the parts it declares in `editing.parts`, and never a drawing
-   part, whatever it declares: a model rewriting hand-tuned geometry produces
-   garbage no check here can grade. */
-const SHEET_EDITABLE = ["rack", "findings", "sections", "document"];
-
+   canvas) supports every part. The retired engineering-sheet grammar kept raw
+   path strings and hand-placed geometry inside the data; every kit that used it
+   has been regenerated through the coordinate engine, so a file that still
+   carries it is a legacy edition from an old download and is refused whole. */
 function usesCoordinateGrammar(data) {
   const canvas = data?.topology?.canvas || {};
   return Number.isFinite(Number(canvas.width)) && Number.isFinite(Number(canvas.height));
 }
 
-// null = every part. An array = only those parts. Empty = nothing editable,
-// which is what an engineering sheet without a declaration comes out as.
+// null = every part. Empty = nothing editable - the retired sheet grammar.
 function editableParts(data) {
-  if (usesCoordinateGrammar(data)) return null;
-  const declared = Array.isArray(data?.editing?.parts) ? data.editing.parts : [];
-  return declared.filter((name) => SHEET_EDITABLE.includes(name) && SLICES[name]);
+  return usesCoordinateGrammar(data) ? null : [];
 }
 
 const pathLabel = (path) => path.join(".");
@@ -980,19 +974,16 @@ function loadSource(text, name) {
     const at = locatePayload(text);
     const raw = text.slice(at.start, at.end).trim();
     const parsed = JSON.parse(raw);      // proves the starting point is sound
-    // The engineering-sheet kits (NET-ENT-002, NET-HQ-002, NET-LAB-003,
-    // NET-RH-001) draw in their own grammar: a viewBox canvas and hand-tuned
-    // SVG geometry carried inside the data. Their drawings cannot be edited by
-    // prompt, but the parts each sheet declares in `editing.parts` - the rack
-    // schedule, the gaps list - render from the data and can. A sheet that
-    // declares nothing (a file from before the declarations existed) is still
-    // refused rather than guessed at.
+    // The retired engineering-sheet grammar (a viewBox canvas with hand-tuned
+    // SVG geometry carried in the data) survives only in editions downloaded
+    // before the kits were regenerated through the coordinate engine. Nothing
+    // in such a file can be edited safely by prompt, so it is refused whole.
     const parts = editableParts(parsed);
     if (parts && !parts.length) {
       source = ""; accepted = null; currentData = null;
       $("step-2").hidden = true; $("step-3").hidden = true; $("step-brand").hidden = true; $("step-4").hidden = true;
       note("load-message", "warning", "AI editing is not supported for this file.",
-        " This design is drawn with hand-tuned SVG geometry instead of the shared coordinate data - the grammar of the four engineering-sheet kits (NET-ENT-002, NET-HQ-002, NET-LAB-003, NET-RH-001) - and it declares no AI-editable parts, so this tool refuses rather than guesses. A current copy of these kits declares its editable parts; re-download it from the repository, or start from the template or one of the six standard starters: NET-BR-001, NET-ENT-001, NET-FAB-001, NET-HQ-001, NET-LAB-002, NET-OT-001.");
+        " This is a retired engineering-sheet edition - hand-tuned SVG geometry carried inside the data. Every current starter, including NET-ENT-002, NET-HQ-002, NET-LAB-003 and NET-RH-001, has been regenerated through the coordinate engine and is fully editable. Re-download the current copy from the repository, or start from the template.");
       return;
     }
     source = text; payloadStart = at.start; payloadEnd = at.end;
@@ -1000,13 +991,7 @@ function loadSource(text, name) {
     $("payload").value = JSON.stringify(parsed, null, 2);
     $("payload-size").textContent = `${raw.length.toLocaleString()} characters of diagram data, out of ${text.length.toLocaleString()} in the whole file.`;
     applyPartMenu(parts);
-    if (parts) {
-      const offered = parts.map((name) => SLICES[name].noun).join(" and ");
-      note("load-message", "ok", "File loaded - an engineering sheet.",
-        ` This kit's drawing is hand-tuned, so the AI can edit ${offered} only. The drawing itself is not offered - copy a standard starter if you need AI-editable drawings.`);
-    } else {
-      note("load-message", "ok", "File loaded.", " Now describe your change below.");
-    }
+    note("load-message", "ok", "File loaded.", " Now describe your change below.");
     describeSlice();
     stagedLogoImage = null;
     $("brand-image").value = ""; $("brand-image-state").textContent = "No image staged";
@@ -1477,10 +1462,9 @@ function checkMeaning(data) {
   const zones = data.topology?.zones || [];
   const devices = data.rack?.devices || [];
   const units = Number(data.rack?.units) || 42;
-  // LINK_KINDS and ZONE_KINDS mirror the template family's stylesheet. The
-  // engineering sheets style their own vocabulary (physical-10g, lag, mgmt),
-  // so grading them against the template's lists reports working links as
-  // invisible. Id integrity and the rack rules stay on for both grammars.
+  // LINK_KINDS and ZONE_KINDS mirror the template family's stylesheet. Legacy
+  // sheet editions styled their own vocabulary, so those checks stay keyed to
+  // the coordinate grammar; id integrity and the rack rules run for any file.
   const usesCoordinates = usesCoordinateGrammar(data);
 
   const seen = new Set();
@@ -1531,12 +1515,11 @@ function checkMeaning(data) {
      weak model is worst at, and a device off the edge of the canvas or stacked
      on another is invisible in the data and obvious on the page.
 
-     None of it applies to every document. The engineering-sheet kits
-     (NET-ENT-002, NET-HQ-002, NET-LAB-003, NET-RH-001) draw in a different
-     grammar: a viewBox canvas, and nodes positioned by an `art` rectangle
-     rather than an x,y centre. Running these rules there reports 73 errors
-     against four documents that are perfectly correct. The canvas tells the two
-     apart, because that is exactly where the renderers diverge. */
+     None of it applies to every payload. The retired engineering-sheet grammar
+     (a viewBox canvas, nodes positioned by art rectangles) still exists in old
+     downloads, and running these rules there reports errors against documents
+     that are internally correct. The canvas tells the two apart, because that
+     is exactly where the renderers diverge. */
   const canvas = data.topology?.canvas || {};
   const width = Number(canvas.width), height = Number(canvas.height);
   const half = { x: NODE_W / 2, y: NODE_H / 2 };

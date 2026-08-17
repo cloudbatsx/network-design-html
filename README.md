@@ -153,11 +153,6 @@ faces. Anything the design asks for and you have not supplied is listed by name 
 and **kept as its built-in drawn artwork** in the result, because a partial package
 is a valid package. Nothing fails silently, and nothing missing vetoes a build.
 
-> The four engineering-sheet kits — NET-ENT-002, NET-HQ-002, NET-LAB-003 and
-> NET-RH-001 — draw in their own grammar and ignore `iconAsset`. Their twenty
-> standard icons still swap to official artwork; per-device overrides do not.
-> Start from any of the other kits if you need those.
-
 ---
 
 ## What you get
@@ -179,24 +174,22 @@ Don't start from a blank page. Copy the one closest to your network.
 | Kit | Shape | Size |
 |---|---|---|
 | [**Branch site**](starters/NET-BR-001.edit.html) | One WAN edge, one firewall, one switch, wireless, 12U cabinet | 9 nodes — **start here** |
-| [Regional hub, as an engineering sheet](starters/NET-RH-001.edit.html) | Three diverse transports, an SD-WAN edge pair, a collapsed core, campus access and wireless, and a 24U rack with every unit accounted for | 18 nodes |
+| [Regional hub](starters/NET-RH-001.edit.html) | Three diverse transports, an SD-WAN edge pair, a collapsed core, campus access and wireless, and a 24U rack with every unit accounted for | 18 nodes |
 | [Enterprise edge, DMZ & services](starters/NET-ENT-001.edit.html) | Three zones with a DMZ hanging off the perimeter | 15 nodes |
-| [The same edge, as an engineering sheet](starters/NET-ENT-002.edit.html) | One network, drawn the other way — shared subnet bars and junction circles instead of repeated point-to-point lines, and no rack on purpose | 19 objects |
+| [The same edge, drawn with segment bars](starters/NET-ENT-002.edit.html) | One network, drawn the other way — shared subnet bars and junction circles instead of repeated point-to-point lines, and no rack on purpose | 19 objects |
 | [Leaf-spine fabric](starters/NET-FAB-001.edit.html) | Non-hierarchical: every leaf to every spine, north-south via border leaf | 15 nodes |
 | [**Industrial control network**](starters/NET-OT-001.edit.html) | Not an IT network at all: stacked by Purdue level, an industrial DMZ that brokers every crossing, cell/area **rings** instead of stars, and a safety system deliberately wired to nothing | 18 nodes |
 | [Campus + rack](starters/NET-LAB-002.edit.html) | Two independent gateways, peer link, MLAG downstream | 17 nodes |
-| [The same campus, as an engineering sheet](starters/NET-LAB-003.edit.html) | Dual provider handoffs, a cross-connected perimeter, and access, wireless and services all dual-homed to both cores — every drawn link carries the id of its record | 15 nodes |
+| [The same campus, unified reference](starters/NET-LAB-003.edit.html) | Dual provider handoffs, a cross-connected perimeter, and access, wireless and services all dual-homed to both cores — every drawn link carries the id of its record | 15 nodes |
 | [**Headquarters**](starters/NET-HQ-001.edit.html) | Collapsed core, out-of-band zone, 22-device 42U rack | 20 nodes — **the next size up** |
-| [HQ campus, as an engineering sheet](starters/NET-HQ-002.edit.html) | Dual providers, StackWise Virtual core, three access floors, and a 42U rack scheduled to the unit with dual power feeds and an airflow record | 21 nodes |
+| [HQ campus, engineered to the unit](starters/NET-HQ-002.edit.html) | Dual providers, StackWise Virtual core, three access floors, and a 42U rack scheduled to the unit with dual power feeds and an airflow record | 21 nodes |
 
-> **Every kit supports AI editing of its written record; six also support AI
-> editing of the drawing.** The four *engineering sheets* — NET-ENT-002,
-> NET-HQ-002, NET-LAB-003 and NET-RH-001 — draw with hand-tuned SVG geometry,
-> so `edit-with-ai.html` offers only the parts each sheet renders from its
-> data — the rack schedule and, where it is data-driven, the gaps list — and
-> never the drawing itself. For AI-editable drawings, start from the template
-> or one of the six standard starters. The sheets remain finished reference
-> documents to copy from.
+> **Every kit supports AI editing of everything — drawings included.** The four
+> richest starters — NET-ENT-002, NET-HQ-002, NET-LAB-003 and NET-RH-001 — were
+> once hand-drawn engineering sheets; they have been regenerated through the
+> shared coordinate engine, so their segment bars, routing lanes and caption
+> sides are ordinary data records now. A sheet-edition copy from an old
+> download is refused by `edit-with-ai.html` — re-download the current file.
 
 **NET-ENT-001 and NET-ENT-002 are the same network.** They exist as a pair because
 the drawing is a choice, not a consequence of the data: one spells out every link,

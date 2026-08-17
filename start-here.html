@@ -426,7 +426,7 @@
     <thead><tr><th>If your network is…</th><th>Start with</th><th>What it already contains</th></tr></thead>
     <tbody>
       <tr><td><b>One office, one internet line</b><br><span style="color:var(--muted)">Most people start here</span></td><td><code>NET-BR-001</code></td><td>WAN edge, firewall, one switch, wireless, a 12U cabinet. 9 devices.</td></tr>
-      <tr><td>A bigger site feeding smaller ones</td><td><code>NET-HQ-001</code></td><td>Start here and adapt. <code>NET-RH-001</code> draws this exact shape as an engineering sheet — copy from it, but don't AI-edit it (see below).</td></tr>
+      <tr><td>A bigger site feeding smaller ones</td><td><code>NET-HQ-001</code></td><td>Start here and adapt. <code>NET-RH-001</code> draws this exact shape at hub scale — fully AI-editable too.</td></tr>
       <tr><td>An internet edge with a DMZ</td><td><code>NET-ENT-001</code></td><td>Three zones, DMZ hanging off the perimeter. 15 devices.</td></tr>
       <tr><td>A campus with two of everything</td><td><code>NET-LAB-002</code></td><td>Two gateways, peer link, dual-homed access. 17 devices.</td></tr>
       <tr><td>A head office</td><td><code>NET-HQ-001</code></td><td>Collapsed core, out-of-band zone, 22 devices in a 42U rack.</td></tr>
@@ -436,13 +436,13 @@
   </table>
   </div>
 
-  <div class="note warn">
-    <b>Four starters behave differently — avoid them on your first go</b>
+  <div class="note tip">
+    <b>The four richest starters are fully editable too</b>
     <p><code>NET-ENT-002</code>, <code>NET-HQ-002</code>, <code>NET-LAB-003</code> and
-    <code>NET-RH-001</code> are drawn as <em>engineering sheets</em>. They look superb, but their
-    drawings are hand-tuned: the AI helper offers only the parts each sheet's data actually
-    drives — the rack schedule, or the gaps list — never the drawing itself, and per-device
-    custom artwork does not work. Learn the workflow on one of the others first.</p>
+    <code>NET-RH-001</code> were once hand-drawn <em>engineering sheets</em>. They have been
+    regenerated through the shared engine, so their drawings — segment bars, routing lanes,
+    caption sides — are ordinary data records the AI can edit like any other starter. A copy
+    downloaded before the regeneration is refused by the helper; re-download the current file.</p>
   </div>
 
   <div class="note tip">
@@ -1016,15 +1016,10 @@ diagram. The marker will not be drawn.</pre>
       <tr><td><b>Odd characters like <code>Â·</code> everywhere</b></td><td>The file got saved
         in the wrong encoding. Always save as <b>UTF-8</b>, never open these files in Word,
         and go back to your last good save.</td></tr>
-      <tr><td><b>The helper offers only some parts</b></td><td>You picked one of the four
-<<<<<<< HEAD
-        engineering sheets. Their drawings are hand-tuned, so at most the rack and the gaps
-        list can be AI-edited. For drawing changes, start from one of the other kits.</td></tr>
-=======
-        engineering sheets. Their drawings are hand-tuned, so only the parts the sheet
-        declares — its rack schedule or gaps list — can be AI-edited. For drawing changes,
-        start from one of the other kits.</td></tr>
->>>>>>> sheet-figures-from-data
+      <tr><td><b>The helper refuses the file as a retired sheet edition</b></td><td>You loaded
+        a copy downloaded before the four engineering sheets were regenerated through the
+        engine. Re-download the current starter — every current kit is fully AI-editable,
+        drawings included.</td></tr>
       <tr><td><b>Everything looks broken after an edit</b></td><td>Close it. Open your previous
         saved file — every save made a new file, so the old one is still there.</td></tr>
     </tbody>

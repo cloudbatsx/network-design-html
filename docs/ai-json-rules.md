@@ -7,14 +7,12 @@ This is the prompt for **changing a diagram**. It asks the AI for the data block
 only — never for the HTML file. See [`packaging rules`](template-authoring-rules.md)
 instead if you are a maintainer changing the template itself.
 
-It applies to the template and the six standard starters — NET-BR-001,
-NET-ENT-001, NET-FAB-001, NET-HQ-001, NET-LAB-002, NET-OT-001. The four
-engineering-sheet kits (NET-ENT-002, NET-HQ-002, NET-LAB-003, NET-RH-001) draw
-in their own grammar of hand-tuned SVG geometry, and **their drawings are not
-AI-editable**; hand-prompting a model to edit one corrupts the drawing. Their
-written record is editable, but through `edit-with-ai.html` only — the
-helper offers exactly the parts each sheet declares (the rack schedule, and the
-gaps list where it renders from data) and refuses the rest.
+It applies to the template and **all ten starters** — NET-BR-001, NET-ENT-001,
+NET-ENT-002, NET-FAB-001, NET-HQ-001, NET-HQ-002, NET-LAB-002, NET-LAB-003,
+NET-OT-001, NET-RH-001. Every starter is a coordinate-engine document and every
+part of it is AI-editable, drawings included. (The four former engineering-sheet
+kits were regenerated through the engine; a sheet-edition copy from an old
+download is refused by `edit-with-ai.html` — re-download the current file.)
 
 > Keep the lists below in sync with the template. They are copied from `ICONS`
 > and `RACK_ASSETS` in `starters/network-design-template.edit.html` and from the

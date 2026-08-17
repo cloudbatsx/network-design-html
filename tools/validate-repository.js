@@ -514,67 +514,19 @@ checkEvery("the packager is usable straight from a clone", (want) => {
   want(Buffer.byteLength(packager) <= 200 * 1024, "packager exceeds 200 KB, which suggests baked-in artwork");
 });
 
-// The engineering-sheet kits without a full preflight share one self-check
-// script, byte for byte, exactly as the rack-face library is shared. Edited in
-// one kit and not the other, the two documents would grade themselves against
-// different rules while claiming the same check.
-checkEvery("the shared sheet self-check is byte-identical", (want) => {
-  const MARK = "SHEET-KIT SELF-CHECK";
-  const carriers = starterNames
-    .map((name) => [`starters/${name}`, read(`starters/${name}`)])
-    .filter(([, source]) => source.includes(MARK));
-  // One carrier cannot drift from itself. The check bites only while two or
-  // more sheet kits still share the block, and it retires with the last one
-  // as the kits regenerate through the coordinate engine.
-  if (carriers.length < 2) return;
-  const blockOf = (source) => {
-    const at = source.indexOf(MARK);
-    return source.slice(source.lastIndexOf("<script>", at), source.indexOf("</" + "script>", at));
-  };
-  const reference = carriers.length ? blockOf(carriers[0][1]) : "";
-  for (const [label, source] of carriers.slice(1)) {
-    want(blockOf(source) === reference, `${label} self-check drifted from ${carriers[0][0]}`);
-  }
-});
-
-/* The AI helper opens an engineering sheet only for the parts the sheet
-   declares, and a declaration is a promise about rendering: a declared part
-   must draw from the data block, or an AI edit changes the record while the
-   page keeps showing the old one. Both directions are asserted - a sheet with
-   a data-driven rack or findings register that fails to declare it is hiding
-   a supported edit, and a declaration without the renderer would let drift
-   ship silently. Coordinate-grammar kits need no declaration and must not
-   carry one. */
-checkEvery("sheet kits declare exactly their data-driven parts", (want) => {
+/* Every kit that once used the engineering-sheet grammar - hand-tuned SVG
+   geometry carried in the data, editable only through declared parts - has
+   been regenerated through the coordinate engine. A starter that reintroduces
+   a viewBox canvas or an editing declaration is a regression to the retired
+   grammar, and the helper would refuse it. */
+checkEvery("the retired sheet grammar stays retired", (want) => {
   for (const name of starterNames) {
     const source = read(`starters/${name}`);
     const data = JSON.parse(scriptById(source, "proof-data"));
     const canvas = data.topology?.canvas || {};
-    const coordinate = Number.isFinite(Number(canvas.width)) && Number.isFinite(Number(canvas.height));
-    if (coordinate) {
-      want(data.editing === undefined, `${name} is coordinate-grammar but carries an editing declaration`);
-      continue;
-    }
-    want(data.editing?.grammar === "sheet", `${name} does not declare editing.grammar "sheet"`);
-    const declared = Array.isArray(data.editing?.parts) ? data.editing.parts : [];
-    want(Array.isArray(data.editing?.parts), `${name} declares no editable parts list`);
-    // Only parts with a verified data->render path may be declared. Widen this
-    // set only after the corresponding renderer exists in every declaring kit.
-    const known = new Set(["rack", "findings"]);
-    for (const part of declared) want(known.has(part), `${name} declares "${part}", which has no verified renderer`);
-    const parts = new Set(declared);
-    const hasRack = (data.rack?.devices || []).length > 0;
-    want(parts.has("rack") === hasRack, hasRack
-      ? `${name} has a data-driven rack but does not declare it editable`
-      : `${name} declares the rack editable but has no rack devices`);
-    // The shared self-check and the pin overlays also iterate findings, so a
-    // forEach is not proof the REGISTER rows render from data - that is what
-    // editing findings actually changes, and NET-HQ-002 showed the difference:
-    // pins moved, static rows did not. The renderer declares itself instead.
-    const rendersFindings = source.includes("FINDINGS-REGISTER-RENDERER");
-    want(parts.has("findings") === rendersFindings, rendersFindings
-      ? `${name} renders its findings register from data but does not declare it editable`
-      : `${name} declares findings editable but its register rows are static`);
+    want(Number.isFinite(Number(canvas.width)) && Number.isFinite(Number(canvas.height)),
+      `${name} does not use the coordinate canvas`);
+    want(data.editing === undefined, `${name} carries a sheet-era editing declaration`);
   }
 });
 
@@ -608,27 +560,10 @@ checkEvery("every starter claims exactly one identity", (want) => {
     }
     want(drawing === stem, `proof-data names the drawing "${drawing}", the file is ${stem}`);
 
-    // Coordinate kits render every identity surface from proof-data at
-    // runtime, so the one equality above covers them. Sheet kits carry
-    // hardcoded copies of the identity on each surface, so each is checked.
-    const canvas = data.topology?.canvas || {};
-    if (Number.isFinite(Number(canvas.width)) && Number.isFinite(Number(canvas.height))) continue;
-
-    const revision = String(data.document?.revision ?? "");
-    want(revision !== "", "proof-data declares no document revision");
-    const metaOf = (field) => source.match(new RegExp(`<meta name="${field}" content="([^"]*)"`))?.[1];
-    want(metaOf("document-id") === stem, `meta document-id is "${metaOf("document-id")}", the file is ${stem}`);
-    want(metaOf("revision") === revision, `meta revision is "${metaOf("revision")}", proof-data says ${revision}`);
-    const fieldOf = (field) => source.match(new RegExp(`data-doc-field="${field}"[^>]*>([^<]*)<`))?.[1]?.trim();
-    want(fieldOf("document-id") === stem, `the control header says "${fieldOf("document-id")}", the file is ${stem}`);
-    want(fieldOf("revision") === revision, `the control header says revision "${fieldOf("revision")}", proof-data says ${revision}`);
-    const doclabel = source.match(/<p class="doclabel">([\s\S]*?)<\/p>/)?.[1] || "";
-    want(doclabel.includes(stem), `the sidebar label does not name ${stem}`);
-    const title = source.match(/<title>([\s\S]*?)<\/title>/)?.[1] || "";
-    want(title.includes(`${stem} v${revision}`), `the title does not state "${stem} v${revision}"`);
-    want(new RegExp(`ss-here">${stem}\\b`).test(source), `the series strip does not mark ${stem} as this document`);
-    const historyRow = new RegExp(`<td[^>]*>(?:<code>)?${revision.replace(/\./g, "\\.")}(?:</code>)?</td>`);
-    want(historyRow.test(source), `the claimed revision ${revision} has no revision-history row`);
+    // Every identity surface renders from proof-data at runtime, so the
+    // drawing-id equality and the history check above cover the whole file.
+    // The hardcoded per-surface checks that guarded the sheet-era conversions
+    // retired with the sheet grammar itself.
   }
 });
 
