@@ -51,7 +51,7 @@ No Node. No npm. No command line. Just a browser and an AI chat window.
 
 1. **Download** the [release ZIP](https://github.com/cloudbatsx/network-design-html/releases/latest) — or just two files: the [blank template](starters/network-design-template.edit.html) and [`edit-with-ai.html`](edit-with-ai.html)
 2. **Open `edit-with-ai.html`** — it sits at the top of the download — and press **Start a new design** (the blank template is built in), or open any design you already made. A progress rail walks you through the rest
-3. **Starting from a diagram?** The **Starting fresh** panel: one button has your AI read the picture, one click builds the whole-design request — you type nothing. **Editing?** Pick the part — devices, connections, the rack — and say the change in plain English. Either way: **Copy prompt** → paste into your AI chat
+3. **Building?** Step 2 becomes a build screen: **Copy the build prompt** — one click, you type nothing. Starting from a picture of your network? One button above it has your AI read the picture first. **Editing?** Step 2 is the edit screen instead: pick the part — devices, connections, the rack — say the change in plain English, and **Copy prompt**
 4. **Paste the reply back** → click **Check it** → set your **branding** (name, colours, a PNG logo — no AI involved)
 5. **Save new design file** → double-click it. Done. The **Package** step appears under Save: one click on the `assets` folder and your file gets the official Cisco artwork — anything missing keeps its drawn artwork
 
