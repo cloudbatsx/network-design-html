@@ -746,7 +746,7 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
     "subject": "Enterprise campus",
     "author": "Sayed Haque",
     "classification": "Sample / reference",
-    "revision": "3.2",
+    "revision": "3.3",
     "evidence": {
       "text": "Reference pattern - validation required",
       "color": "amber"
@@ -767,6 +767,12 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
       "equipment": false
     },
     "history": [
+      {
+        "revision": "3.3",
+        "date": "2026-08-16",
+        "author": "Sayed Haque",
+        "summary": "Caption pass from review: the provider cloud, both edge routers, the firewall pair, the core pair and the access tier take side-anchored captions clear of their cable lanes - paired members caption outward - and each side caption states its address line. Figure routing, records and schedules are unchanged."
+      },
       {
         "revision": "3.2",
         "date": "2026-08-16",
@@ -899,7 +905,8 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
         "x": 680,
         "y": 126,
         "address": "Provider-assigned /30s",
-        "notes": "Treat a cloud as an external or abstract network—not as a generic decoration."
+        "notes": "Treat a cloud as an external or abstract network—not as a generic decoration.",
+        "labelSide": "right"
       },
       {
         "id": "edge-rtr-01",
@@ -909,7 +916,8 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
         "x": 445,
         "y": 230,
         "address": "198.51.100.2/30 · AS 65010",
-        "notes": "eBGP to ISP-A; routed transit to perimeter."
+        "notes": "eBGP to ISP-A; routed transit to perimeter.",
+        "labelSide": "left"
       },
       {
         "id": "edge-rtr-02",
@@ -919,7 +927,8 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
         "x": 915,
         "y": 230,
         "address": "203.0.113.2/30 · AS 65010",
-        "notes": "eBGP to ISP-B; routed transit to perimeter."
+        "notes": "eBGP to ISP-B; routed transit to perimeter.",
+        "labelSide": "right"
       },
       {
         "id": "edge-fw-01",
@@ -929,7 +938,8 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
         "x": 445,
         "y": 371,
         "address": "Outside 198.18.0.2/29 · Inside 10.255.0.1/31",
-        "notes": "Security policy, NAT, VPN termination, IPS. Physical model: Cisco FPR4215-NGFW-K9 at R113 U39."
+        "notes": "Security policy, NAT, VPN termination, IPS. Physical model: Cisco FPR4215-NGFW-K9 at R113 U39.",
+        "labelSide": "left"
       },
       {
         "id": "edge-fw-02",
@@ -939,7 +949,8 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
         "x": 915,
         "y": 371,
         "address": "Outside 198.18.0.3/29 · Inside 10.255.0.3/31",
-        "notes": "HA mate to edge-fw-01. Physical model: Cisco FPR4215-NGFW-K9 at R113 U38."
+        "notes": "HA mate to edge-fw-01. Physical model: Cisco FPR4215-NGFW-K9 at R113 U38.",
+        "labelSide": "right"
       },
       {
         "id": "core-sw-01",
@@ -949,7 +960,8 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
         "x": 445,
         "y": 514,
         "address": "Loopback 10.255.255.1/32 · OSPF area 0",
-        "notes": "Default gateway redundancy and routed access. Physical model: Cisco Catalyst 9500X-28C8D at R113 U42."
+        "notes": "Default gateway redundancy and routed access. Physical model: Cisco Catalyst 9500X-28C8D at R113 U42.",
+        "labelSide": "left"
       },
       {
         "id": "core-sw-02",
@@ -959,7 +971,8 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
         "x": 915,
         "y": 514,
         "address": "Loopback 10.255.255.2/32 · OSPF area 0",
-        "notes": "Default gateway redundancy and routed access. Physical model: Cisco Catalyst 9500X-28C8D at R113 U41."
+        "notes": "Default gateway redundancy and routed access. Physical model: Cisco Catalyst 9500X-28C8D at R113 U41.",
+        "labelSide": "right"
       },
       {
         "id": "access-sw-01",
@@ -969,7 +982,8 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
         "x": 250,
         "y": 694,
         "address": "Mgmt 10.10.99.11/24 · VLANs 10, 20, 30",
-        "notes": "Dual-homed Layer-2 access. Physical model: Cisco Catalyst 9300-48P at R113 U35."
+        "notes": "Dual-homed Layer-2 access. Physical model: Cisco Catalyst 9300-48P at R113 U35.",
+        "labelSide": "left"
       },
       {
         "id": "access-sw-02",
@@ -979,7 +993,8 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
         "x": 550,
         "y": 694,
         "address": "Mgmt 10.10.99.12/24 · VLANs 10, 20, 40",
-        "notes": "Dual-homed Layer-2 access. Physical model: Cisco Catalyst 9300-48P at R113 U34."
+        "notes": "Dual-homed Layer-2 access. Physical model: Cisco Catalyst 9300-48P at R113 U34.",
+        "labelSide": "left"
       },
       {
         "id": "services-sw-01",
@@ -989,7 +1004,8 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
         "x": 1005,
         "y": 694,
         "address": "Mgmt 10.50.99.11/24 · VLANs 50, 51",
-        "notes": "Dual-homed service access; hosts use redundant NICs and bonds."
+        "notes": "Dual-homed service access; hosts use redundant NICs and bonds.",
+        "labelSide": "right"
       },
       {
         "id": "ap-01",
@@ -2155,7 +2171,7 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
       ],
       "tables": [
         {
-          "caption": "Release audit · revision 3.2",
+          "caption": "Release audit · revision 3.3",
           "columns": [
             "#",
             "Check",
