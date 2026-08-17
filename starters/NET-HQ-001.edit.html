@@ -2314,7 +2314,7 @@ if (typeof module !== "undefined" && module.exports) module.exports = RACK_FACE_
   }
   function renderHeader(){
     const doc=data.document||{};
-    document.title=`${doc.brand?.name||"cloudbats"} — ${doc.title||"Network design"}`;
+    document.title=`${doc.brand?.name||"cloudbats"} — ${doc.title||"Network design"}`+(doc.drawing?` | ${doc.drawing}${doc.revision?" "+doc.revision:""}`:"");
     setText("page-title",doc.title);setText("page-subtitle",doc.subtitle);
     setText("badge-subject",`${doc.docClass||"Network design"} · ${doc.subject||doc.drawing||"Untitled"}`);
     setText("badge-version",`${doc.revision||"v1"} · ${doc.date||""}`.trim());
