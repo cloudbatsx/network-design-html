@@ -165,6 +165,14 @@ two-party segments read as one rail with taps, not a fan of lines. Caption
 sits below the bar, or stacked off the right end with `"labelSide": "right"`.
 Use a segment whenever more than two objects share one Layer 3 network.
 
+A link with `"route": "elbow"` takes a right-angle path: down from its
+source, across the `elbowAt` lane (the midpoint when unset), down to its
+target. Give parallel paths in the same corridor **different `elbowAt`
+lanes** so they never overlap; departures spread slightly toward travel on
+their own. Elbow runs wear a white casing, so a crossing reads as a small
+halo gap. Vertical drops, paired-device links and anything with authored
+`via` waypoints should stay direct — `via` always wins over `route`.
+
 A strictly logical design may set `"rack": { "applicable": false, "statement":
 "why there is no rack" }` — the physical section then shows the statement
 instead of an empty elevation. Never combine `"applicable": false` with a
