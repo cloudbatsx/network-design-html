@@ -2499,7 +2499,7 @@ if (typeof module !== "undefined" && module.exports) module.exports = RACK_FACE_
       if(node.shape==="segment"){
         const w=Number(node.width)||300,color=node.color||"#0e7490",sx=Number(node.x),sy=Number(node.y);
         const group=svgEl("g",{class:"node segment-node",tabindex:0,role:"button","aria-label":`${node.label||node.id}, ${node.role||"shared Layer 3 segment"}`});
-        group.appendChild(svgEl("rect",{class:"segment-hit",x:sx-w/2,y:sy-24,width:w,height:64,rx:8}));
+        group.appendChild(svgEl("rect",{class:"segment-hit",x:sx-w/2,y:sy-15,width:w,height:30,rx:8}));
         group.appendChild(svgEl("rect",{class:"segment-bar",x:sx-w/2,y:sy-5,width:w,height:10,rx:5,style:`fill:${color}`}));
         if(node.labelSide==="right"){
           group.appendChild(svgEl("text",{class:"node-name",style:"text-anchor:start",x:sx+w/2+12,y:sy-1},node.label||node.id));
@@ -2516,7 +2516,7 @@ if (typeof module !== "undefined" && module.exports) module.exports = RACK_FACE_
         return
       }
       const group=svgEl("g",{class:"node",tabindex:0,role:"button","aria-label":`${node.label||node.id}, ${node.role||"network device"}`,transform:`translate(${Number(node.x)-NODE_W/2} ${Number(node.y)-NODE_H/2})`});
-      group.appendChild(svgEl("rect",{class:"node-shell",width:NODE_W,height:NODE_H,rx:9}));
+      group.appendChild(svgEl("rect",{class:"node-shell",x:41,y:-3,width:94,height:66,rx:9}));
       const iconRef=appendNodeIcon(group,node);
       /* Caption placement: "below" is the two-line default; "left"/"right"
          side-anchor the stack beside the symbol and reveal the address line,
