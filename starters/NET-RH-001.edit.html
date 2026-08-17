@@ -489,9 +489,9 @@ footer{margin-top:22px;padding:12px 2px;color:var(--muted);font-size:12px;border
 
 
 
-/* ===== LAYER 3 — v2.8 / shell bridge =====================================
-   Layer 0 is the NET-LAB-002 engineering component layer, carried over from
-   revision 2.8 unchanged apart from three namespaced class tokens
+/* ===== LAYER 3 — v1.6 / shell bridge =====================================
+   Layer 0 is the CB-ND-SEA-RH-001 engineering component layer, carried over
+   from revision 1.6 unchanged apart from three namespaced class tokens
    (.badge -> .nd-badge, .legend -> .nd-legend, .meta -> .nd-meta) which the
    CloudBats shell also defines. Layers 1 and 2 are the shell. This block
    resolves the remaining conflicts and adds the two behaviours the shell
@@ -722,7 +722,7 @@ footer{margin-top:22px;padding:12px 2px;color:var(--muted);font-size:12px;border
       <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M112 72 H400 V352 Q400 400 376 424 Q356 440 336 424 Q316 400 296 400 H216 Q196 400 176 424 Q156 440 136 424 Q112 400 112 352 Z M312 136 A40 40 0 0 1 352 176 V304 A40 40 0 0 1 312 344 A40 40 0 0 1 272 304 V176 A40 40 0 0 1 312 136 Z" fill-rule="evenodd" fill="#0F172A"/></svg>
       <span>cloudbats</span>
     </div>
-    <p class="doclabel">Systems &middot; Network Design<br>NET-SEA-RH-001 &middot; Seattle Hub</p>
+    <p class="doclabel">Systems &middot; Network Design<br>NET-RH-001 &middot; Seattle Hub</p>
 
     <nav class="sidebar-nav" aria-label="Document sections">
       <ul class="toc">
@@ -781,7 +781,7 @@ footer{margin-top:22px;padding:12px 2px;color:var(--muted);font-size:12px;border
   <p class="tagline">Dual SD-WAN transports into an active/standby security pair and a two-member collapsed core, reconciled against an exact 24U elevation &mdash; a comparison artifact at a deliberately smaller scale, with every unverified port, circuit and feed left visibly open.</p>
 </header>
 
-<div class="series-strip"><b>Network design set</b> &mdash;&nbsp; <span>NET-SJC-HQ-001 &middot; San Jose HQ</span><span class="ss-arrow">&rarr;</span><span class="ss-here">NET-SEA-RH-001 &middot; Seattle hub &mdash; this document</span><span class="ss-arrow">&rarr;</span><span>NET-LAB-002 &middot; Enterprise campus</span><span class="ss-arrow">&rarr;</span><span>NET-FAB-001 &middot; Private cloud fabric</span><span class="ss-arrow">&rarr;</span><span>NET-ENT-001 &middot; Edge, DMZ &amp; services</span></div>
+<div class="series-strip"><b>Network design set</b> &mdash;&nbsp; <span>NET-HQ-002 &middot; San Jose HQ</span><span class="ss-arrow">&rarr;</span><span class="ss-here">NET-RH-001 &middot; Seattle hub &mdash; this document</span><span class="ss-arrow">&rarr;</span><span>NET-LAB-003 &middot; Enterprise campus</span><span class="ss-arrow">&rarr;</span><span>NET-ENT-002 &middot; Edge, DMZ &amp; services</span></div>
 
 
 <section id="overview">
@@ -806,9 +806,9 @@ footer{margin-top:22px;padding:12px 2px;color:var(--muted);font-size:12px;border
   <p id="document-subtitle" class="document-subtitle">Seattle regional-hub reference design · logical topology, rack elevation and engineering schedules.</p>
   <div class="integrity" id="integrity-status" role="status" aria-live="polite">Running embedded identity and data checks…</div>
   <dl class="document-meta" aria-label="Document control">
-    <div class="document-field"><dt>Document ID</dt><dd class="document-code" data-doc-field="document-id">CB-ND-SEA-RH-001</dd></div>
-  <div class="document-field"><dt>Revision</dt><dd class="document-code" data-doc-field="revision">2.0</dd></div>
-    <div class="document-field"><dt>Release date</dt><dd><time class="document-code" datetime="2026-08-13" data-doc-field="date">2026-08-13</time></dd></div>
+    <div class="document-field"><dt>Document ID</dt><dd class="document-code" data-doc-field="document-id">NET-RH-001</dd></div>
+  <div class="document-field"><dt>Revision</dt><dd class="document-code" data-doc-field="revision">2.1</dd></div>
+    <div class="document-field"><dt>Release date</dt><dd><time class="document-code" datetime="2026-08-16" data-doc-field="date">2026-08-16</time></dd></div>
     <div class="document-field"><dt>Site</dt><dd>SEA-RH — Seattle, WA</dd></div>
     <div class="document-field"><dt>Author</dt><dd>Sayed Haque</dd></div>
     <div class="document-field"><dt>Reviewed by</dt><dd>NOT ASSIGNED</dd></div>
@@ -1004,6 +1004,7 @@ footer{margin-top:22px;padding:12px 2px;color:var(--muted);font-size:12px;border
     <tr><td class="m">1.4</td><td class="m">2026-08-13</td><td>OpenAI Codex</td><td>Standardized the document-control header as a shared, accessible nine-field component with a consistent brand, title, subtitle, metadata order, explicit classification and status, visible conventions, responsive stacking, and print treatment. Seattle identity and conventions are preserved; topology, rack placement, engineering data, navigation, and embedded assets are unchanged.</td></tr>
 <tr><td class="m">1.5</td><td class="m">2026-08-13</td><td>OpenAI Codex</td><td>Introduced the shared page-shell token contract for the common document header, view navigation, print action, and skip link: standardized UI and monospace type stacks, neutral shell surfaces, spacing, radii, elevation shadow, focus treatment, and 44-pixel control sizing. Seattle identity, conventions, semantic status colors, topology, rack placement, engineering data, and embedded assets are unchanged.</td></tr>
 <tr><td class="m">1.6</td><td class="m">2026-08-13</td><td>OpenAI Codex</td><td>Standardized Figure 1 as the shared three-column legend for devices and symbols, links and media, and trust and service zones; added visual symbols for every Seattle device class and raised the shared shell focus ring to a higher-contrast color. Seattle-specific topology semantics, geometry, rack placement, engineering data, embedded assets, navigation, and runtime behavior are unchanged.</td></tr>
+<tr><td class="m">2.1</td><td class="m">2026-08-16</td><td>Sayed Haque</td><td>Reissued as the NET-RH-001 starter in the CloudBats documentation shell: sidebar spine and numbered sections, the shared Figure&nbsp;1 legend and the device and link hover behaviour this document originated, and drawn faceplates throughout the rack elevation. Document identity unified as NET-RH-001 across the title, sidebar, control header and series strip; formerly CB-ND-SEA-RH-001. Topology, addressing, rack placement and engineering data are unchanged.</td></tr>
   </tbody></table>
 
 <h3>4.2 &middot; Document QA checklist</h3>

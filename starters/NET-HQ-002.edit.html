@@ -866,9 +866,9 @@ body{background:#eef2f5;font-size:14px}
 
 
 
-/* ===== LAYER 3 — v2.8 / shell bridge =====================================
-   Layer 0 is the NET-LAB-002 engineering component layer, carried over from
-   revision 2.8 unchanged apart from three namespaced class tokens
+/* ===== LAYER 3 — v1.11 / shell bridge ====================================
+   Layer 0 is the CB-ND-SJC-HQ-001 engineering component layer, carried over
+   from revision 1.11 unchanged apart from three namespaced class tokens
    (.badge -> .nd-badge, .legend -> .nd-legend, .meta -> .nd-meta) which the
    CloudBats shell also defines. Layers 1 and 2 are the shell. This block
    resolves the remaining conflicts and adds the two behaviours the shell
@@ -2212,7 +2212,7 @@ window.networkDesignIcons = {
         "class": "d-sub",
         "x": 80,
         "y": 60,
-        "t": "Site B1.DC1 · SJC-HQ · CB-ND-SJC-HQ-001 rev 1.11 · 2026-08-13"
+        "t": "Site B1.DC1 · SJC-HQ · NET-HQ-002 rev 2.1 · 2026-08-16"
       }
     ],
     "bundles": [
@@ -2886,7 +2886,7 @@ window.networkDesignIcons = {
       <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M112 72 H400 V352 Q400 400 376 424 Q356 440 336 424 Q316 400 296 400 H216 Q196 400 176 424 Q156 440 136 424 Q112 400 112 352 Z M312 136 A40 40 0 0 1 352 176 V304 A40 40 0 0 1 312 344 A40 40 0 0 1 272 304 V176 A40 40 0 0 1 312 136 Z" fill-rule="evenodd" fill="#0F172A"/></svg>
       <span>cloudbats</span>
     </div>
-    <p class="doclabel">Systems &middot; Network Design<br>NET-SJC-HQ-001 &middot; San Jose HQ</p>
+    <p class="doclabel">Systems &middot; Network Design<br>NET-HQ-002 &middot; San Jose HQ</p>
 
     <nav class="sidebar-nav" aria-label="Document sections">
       <ul class="toc">
@@ -2945,7 +2945,7 @@ window.networkDesignIcons = {
   <p class="tagline">A Layer&nbsp;3 campus topology with direct physical core-member paths, reconciled against an exact 42U front and rear elevation &mdash; a reference design, not an as-built record, with every unconfirmed value left visibly open.</p>
 </header>
 
-<div class="series-strip"><b>Network design set</b> &mdash;&nbsp; <span class="ss-here">NET-SJC-HQ-001 &middot; San Jose HQ &mdash; this document</span><span class="ss-arrow">&rarr;</span><span>NET-SEA-RH-001 &middot; Seattle hub</span><span class="ss-arrow">&rarr;</span><span>NET-LAB-002 &middot; Enterprise campus</span><span class="ss-arrow">&rarr;</span><span>NET-FAB-001 &middot; Private cloud fabric</span><span class="ss-arrow">&rarr;</span><span>NET-ENT-001 &middot; Edge, DMZ &amp; services</span></div>
+<div class="series-strip"><b>Network design set</b> &mdash;&nbsp; <span class="ss-here">NET-HQ-002 &middot; San Jose HQ &mdash; this document</span><span class="ss-arrow">&rarr;</span><span>NET-RH-001 &middot; Seattle hub</span><span class="ss-arrow">&rarr;</span><span>NET-LAB-003 &middot; Enterprise campus</span><span class="ss-arrow">&rarr;</span><span>NET-ENT-002 &middot; Edge, DMZ &amp; services</span></div>
 
 
 <section id="overview">
@@ -2979,9 +2979,9 @@ window.networkDesignIcons = {
   <p id="document-subtitle" class="document-subtitle">San Jose HQ reference design &middot; logical topology, rack elevation and engineering schedules.</p>
   <div class="integrity" id="integrity-status" role="status" aria-live="polite">Running embedded identity and data checks…</div>
   <dl class="document-meta" aria-label="Document control">
-    <div class="document-field"><dt>Document ID</dt><dd class="document-code" data-doc-field="document-id">CB-ND-SJC-HQ-001</dd></div>
-    <div class="document-field"><dt>Revision</dt><dd class="document-code" data-doc-field="revision">2.0</dd></div>
-    <div class="document-field"><dt>Release date</dt><dd><time class="document-code" datetime="2026-08-13" data-doc-field="date">2026-08-13</time></dd></div>
+    <div class="document-field"><dt>Document ID</dt><dd class="document-code" data-doc-field="document-id">NET-HQ-002</dd></div>
+    <div class="document-field"><dt>Revision</dt><dd class="document-code" data-doc-field="revision">2.1</dd></div>
+    <div class="document-field"><dt>Release date</dt><dd><time class="document-code" datetime="2026-08-16" data-doc-field="date">2026-08-16</time></dd></div>
     <div class="document-field"><dt>Site</dt><dd>B1.DC1 — San Jose, CA</dd></div>
     <div class="document-field"><dt>Author</dt><dd>Sayed Haque</dd></div>
     <div class="document-field"><dt>Reviewed by</dt><dd>NOT ASSIGNED</dd></div>
@@ -3726,6 +3726,7 @@ datasheet typical values — see risk R4.</caption>
 <tr><td class="m">1.9</td><td class="m">2026-08-12</td><td>OpenAI Codex</td><td>Standardized the five-view navigation contract with a separate print action, 44px controls, visible keyboard focus, roving tab focus, responsive horizontal scrolling, deep-link routing, and Back/Forward support. Topology, rack placement, engineering data, and embedded assets are unchanged.</td></tr>
 <tr><td class="m">1.10</td><td class="m">2026-08-13</td><td>OpenAI Codex</td><td>Standardized the document-control header as a shared, accessible nine-field component with a consistent brand, title, subtitle, metadata order, explicit classification and status, visible conventions, responsive stacking, and print treatment. San Jose identity and conventions are preserved; topology, rack placement, engineering data, navigation, and embedded assets are unchanged.</td></tr>
 <tr><td class="m">1.11</td><td class="m">2026-08-13</td><td>OpenAI Codex</td><td>Introduced the shared page-shell token contract for the common document header, view navigation, print action, and skip link: standardized UI and monospace type stacks, neutral shell surfaces, spacing, radii, elevation shadow, focus treatment, and 44-pixel control sizing. San Jose identity, conventions, semantic status colors, topology, rack placement, engineering data, and embedded assets are unchanged.</td></tr>
+<tr><td class="m">2.1</td><td class="m">2026-08-16</td><td>Sayed Haque</td><td>Reissued as the NET-HQ-002 starter in the CloudBats documentation shell: sidebar spine and numbered sections, the shared Figure&nbsp;1 legend and hover contracts, Figure&nbsp;1 drawn from the embedded data records, and the FPR-4215 recorded at its true 1RU height. Document identity unified as NET-HQ-002 across the title, sidebar, control header, series strip, figure footnote and QA rows; formerly CB-ND-SJC-HQ-001. Topology, addressing, rack placement and engineering data are unchanged.</td></tr>
 </tbody>
 </table>
 
@@ -3750,7 +3751,7 @@ release. Reported honestly, including what did not pass.</p>
 <tr><td>Print preview at target paper size</td><td><span class="pill pill-w">NOT RUN</span></td><td>Print CSS is present — Letter landscape, section page breaks, repeated table headers, forced light theme — but not visually confirmed. Run before external release</td></tr>
 <tr><td rowspan="3">Structure</td><td>Zero external resource references</td><td><span class="pill" style="color:var(--status-up);border-color:var(--status-up)">PASS</span></td><td>No <span class="mono">src=</span>, <span class="mono">@import</span>, or <span class="mono">http(s)://</span> fetch. Opens from <span class="mono">file://</span> with no network</td></tr>
 <tr><td>Every SVG has role, title and desc; every diagram has a table companion</td><td><span class="pill" style="color:var(--status-up);border-color:var(--status-up)">PASS</span></td><td>Fig 1 → §5/§6 · Fig 2 → §8/§9/§10</td></tr>
-<tr><td>Version agrees across filename, metadata, title block, history, embedded data, diagram and footer</td><td><span class="pill" style="color:var(--status-up);border-color:var(--status-up)">PASS</span></td><td><span class="mono">CB-ND-SJC-HQ-001 v1.11</span> release-control audit</td></tr>
+<tr><td>Version agrees across filename, metadata, title block, history, embedded data, diagram and footer</td><td><span class="pill" style="color:var(--status-up);border-color:var(--status-up)">PASS</span></td><td><span class="mono">NET-HQ-002 v2.1</span> release-control audit</td></tr>
 </tbody>
 </table>
 <div class="note"><b>What the checklist caught</b>

@@ -831,9 +831,9 @@
 
 
 
-/* ===== LAYER 3 — v2.8 / shell bridge =====================================
-   Layer 0 is the NET-LAB-002 engineering component layer, carried over from
-   revision 2.8 unchanged apart from three namespaced class tokens
+/* ===== LAYER 3 — v1.3 / shell bridge =====================================
+   Layer 0 is the NET-ENT-001 engineering component layer, carried over from
+   revision 1.3 unchanged apart from three namespaced class tokens
    (.badge -> .nd-badge, .legend -> .nd-legend, .meta -> .nd-meta) which the
    CloudBats shell also defines. Layers 1 and 2 are the shell. This block
    resolves the remaining conflicts and adds the two behaviours the shell
@@ -1066,7 +1066,7 @@
       <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M112 72 H400 V352 Q400 400 376 424 Q356 440 336 424 Q316 400 296 400 H216 Q196 400 176 424 Q156 440 136 424 Q112 400 112 352 Z M312 136 A40 40 0 0 1 352 176 V304 A40 40 0 0 1 312 344 A40 40 0 0 1 272 304 V176 A40 40 0 0 1 312 136 Z" fill-rule="evenodd" fill="#0F172A"/></svg>
       <span>cloudbats</span>
     </div>
-    <p class="doclabel">Systems &middot; Network Design<br>NET-ENT-001 &middot; Edge, DMZ &amp; Services</p>
+    <p class="doclabel">Systems &middot; Network Design<br>NET-ENT-002 &middot; Edge, DMZ &amp; Services</p>
 
     <nav class="sidebar-nav" aria-label="Document sections">
       <ul class="toc">
@@ -1113,7 +1113,7 @@
   <p class="tagline">Provider edge, redundant perimeter, DMZ services, collapsed core and out-of-band management as a strictly Layer&nbsp;3 logical view &mdash; a proposed training design that deliberately declines to invent physical placement, and says so.</p>
 </header>
 
-<div class="series-strip"><b>Network design set</b> &mdash;&nbsp; <span>NET-SJC-HQ-001 &middot; San Jose HQ</span><span class="ss-arrow">&rarr;</span><span>NET-SEA-RH-001 &middot; Seattle hub</span><span class="ss-arrow">&rarr;</span><span>NET-LAB-002 &middot; Enterprise campus</span><span class="ss-arrow">&rarr;</span><span>NET-FAB-001 &middot; Private cloud fabric</span><span class="ss-arrow">&rarr;</span><span class="ss-here">NET-ENT-001 &middot; Edge, DMZ &amp; services &mdash; this document</span></div>
+<div class="series-strip"><b>Network design set</b> &mdash;&nbsp; <span>NET-HQ-002 &middot; San Jose HQ</span><span class="ss-arrow">&rarr;</span><span>NET-RH-001 &middot; Seattle hub</span><span class="ss-arrow">&rarr;</span><span>NET-LAB-003 &middot; Enterprise campus</span><span class="ss-arrow">&rarr;</span><span class="ss-here">NET-ENT-002 &middot; Edge, DMZ &amp; services &mdash; this document</span></div>
 
 
 <section id="overview">
@@ -1350,7 +1350,7 @@
 <h3>4.2 &middot; Document QA checklist</h3>
 <p class="section-lede">Evidence-backed release checks for revision 2.0; production print checks remain honestly NOT RUN.</p>
 <div class="table-wrap"><table><caption>Release audit</caption><thead><tr><th scope="col">#</th><th scope="col">Check</th><th scope="col">Result</th><th scope="col">Evidence</th></tr></thead><tbody>
-<tr><td>1</td><td>Filename, title, metadata, title block, JSON, revision history, and footer agree</td><td class="status-word pass">PASS</td><td>NET-ENT-001 · v2.0 identity audit</td></tr>
+<tr><td>1</td><td>Filename, title, metadata, title block, JSON, revision history, and footer agree</td><td class="status-word pass">PASS</td><td>NET-ENT-002 · v2.1 identity audit</td></tr>
         <tr><td>2</td><td>Source topology inventory preserved</td><td class="status-word pass">PASS</td><td>12 named objects + 3 aggregates + 28 relationships + 4 segments</td></tr>
         <tr><td>3</td><td>Every figure node/link/segment reconciles to embedded data</td><td class="status-word pass">PASS</td><td>Embedded integrity preflight</td></tr>
         <tr><td>4</td><td>Redundant routed members remain individually drawn</td><td class="status-word pass">PASS</td><td>L04–L07 and L09–L12</td></tr>
@@ -1416,7 +1416,7 @@
 
 <div class="note"><p style="margin:0">These are the same embedded orthographic faces used to draw Figure&nbsp;2, presented at card scale so each chassis can be recognised on its own. They are built at page load from the figure's own asset set, so the exhibit adds no weight to the file and cannot drift from the rack.</p></div>
 
-<div class="warn"><p style="margin:0"><b>There is no equipment exhibit for this document, and that is deliberate.</b> NET-ENT-001 is a strictly Layer&nbsp;3 logical view: it names no rack, no rack unit and no installed chassis, so there is no orthographic face to exhibit. The same boundary is declared in &sect;3. An exhibit assembled from model names alone would imply a physical record this document does not hold.</p></div><div class="equip-grid" id="equip-grid"></div>
+<div class="warn"><p style="margin:0"><b>There is no equipment exhibit for this document, and that is deliberate.</b> NET-ENT-002 is a strictly Layer&nbsp;3 logical view: it names no rack, no rack unit and no installed chassis, so there is no orthographic face to exhibit. The same boundary is declared in &sect;3. An exhibit assembled from model names alone would imply a physical record this document does not hold.</p></div><div class="equip-grid" id="equip-grid"></div>
 
 <div class="warn"><p style="margin:0"><b>No pricing table is shown.</b> This document carries no cost data and none has been invented to fill the slot. Datasheet values &mdash; depth, weight, airflow, PSU rating &mdash; are not attached to any card; they remain open items in &sect;5.</p></div>
 </section>
