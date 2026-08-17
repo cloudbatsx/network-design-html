@@ -848,12 +848,14 @@ A finding may name what it is about:
 - Never write the marker number yourself: it comes from the order of the list.
 - Leave both out for a finding that is not about one place on the drawing.
 
-SHAPE - keep every field that is already present. Do not rename fields and do
-not invent new ones. Fields you may see but must never add yourself: iconAsset
-on a node, via on a link. If one is already there, copy it through unchanged.
-label, labelX and labelY on a link are optional; if a link already has them keep
-them exactly, and do not add labelX/labelY to a new link.
+SHAPE - keep every field that is already present. Do not rename fields, and
+invent none beyond the OPTIONAL GRAMMAR listed below. Fields you may see but
+must never add yourself: iconAsset on a node, via on a link. If one is already
+there, copy it through unchanged. label, labelX and labelY on a link are
+optional; if a link already has them keep them exactly, and do not add
+labelX/labelY to a new link.
 
+<<<GRAMMAR>>>
 NUMBERS
 - A node's x,y is the CENTRE of a box that is ${NODE_W} wide and ${NODE_H} tall.
 - A zone's x,y is its TOP-LEFT corner.
@@ -1104,6 +1106,54 @@ const GRID_COL = NODE_W + 24, GRID_ROW = NODE_H + 36;
 const GRID_INSET_X = NODE_W / 2 + 22, GRID_INSET_Y = NODE_H / 2 + 28;
 const PLACING_SLICES = ["nodes", "zones", "topology", "all"];
 
+/* The drawing grammar. The engine renders all of it and the starters are built
+   from it, but the prompt never mentioned it, so no generated document has
+   ever used any of it. Every entry is optional - a design without them is
+   correct - and together they are the difference between a document that reads
+   like an engineering drawing and one that reads like a sketch.
+
+   Scoped per part, so a prompt about the rack never carries rules about cable
+   lanes. The geometry entries state arithmetic rather than intent, for the
+   reason the layout grid does: a model estimating pixels lands just over the
+   line, and a model following stated numbers does not. */
+const NODE_GRAMMAR_SLICES = ["nodes", "topology", "all"];
+const SECTION_GRAMMAR_SLICES = ["sections", "all"];
+const RACK_GRAMMAR_SLICES = ["rack", "all"];
+
+function grammarRulesFor(name) {
+  const rules = [];
+  if (NODE_GRAMMAR_SLICES.includes(name)) {
+    rules.push(`- labelSide on a node moves its caption: "below" is the default; "left" or
+  "right" anchor the caption beside the symbol and additionally reveal that
+  device's address line. Use them on paired devices - the left one "left", the
+  right one "right" - so the lane between them stays clear for links.`);
+  }
+  if (SECTION_GRAMMAR_SLICES.includes(name)) {
+    rules.push(`- Any section may carry "tables", a list of
+  { "caption": "...", "columns": ["A", "B"], "rows": [ { "cells": ["1", "2"] } ] }
+  Every row needs one cell per column. A row whose facts are not verified is
+  { "cells": [...], "layer": "gap" }. Use tables for the schedules a reader
+  expects to find: a link schedule, a VLAN plan, an addressing table, a
+  standards list.
+- sections.logical may carry "caption" and "legend" strings describing the
+  figure. Write them from what is actually drawn.`);
+  }
+  if (RACK_GRAMMAR_SLICES.includes(name)) {
+    rules.push(`- A design with nothing rack-mountable sets
+  "rack": { "applicable": false, "statement": "why there is no rack" }
+  and the physical section prints that statement instead of an empty
+  elevation. Never combine "applicable": false with a devices list.`);
+  }
+  if (!rules.length) return "";
+  return `OPTIONAL GRAMMAR - additions the drawing understands
+
+The SHAPE rule forbids inventing fields. These are the exceptions: real fields
+the drawing renders. All are optional; none is required for a correct design.
+
+${rules.join("\n")}
+`;
+}
+
 function layoutRulesFor(name) {
   if (!PLACING_SLICES.includes(name)) return "";
   return `- Construct positions, never estimate them. Inside each area, place node
@@ -1148,6 +1198,7 @@ finish the part that matters.`;
 
   return PROMPT
     .replace("<<<BOUNDS>>>", bounds)
+    .replace("<<<GRAMMAR>>>\n", grammarRulesFor(name))
     .replace("<<<LAYOUT>>>\n", layout)
     .replace("<<<SCOPE>>>", scope)
     .replace("<<<PART_UPPER>>>", (name === "all" ? "design" : slice.noun.replace(/^the /, "")).toUpperCase())

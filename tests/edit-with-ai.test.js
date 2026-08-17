@@ -53,7 +53,7 @@ const sandbox = {
   PACKAGER_CORE: require(path.join(root, "tools", "packager-core.js"))
 };
 
-const shim = ";globalThis.__exports = { parseWithRepair, mergeReply, checkStructure, checkMeaning, checkShell, checkAssetStrings, looksTruncated, safeJson, contextFor, summarizeChange, editableParts, freshRequestText, freshDrawingId, brandedData, EXTRACT_PROMPT, SLICES, polishGeometry, layoutRulesFor, svgLogoFrom };";
+const shim = ";globalThis.__exports = { parseWithRepair, mergeReply, checkStructure, checkMeaning, checkShell, checkAssetStrings, looksTruncated, safeJson, contextFor, summarizeChange, editableParts, freshRequestText, freshDrawingId, brandedData, EXTRACT_PROMPT, SLICES, polishGeometry, layoutRulesFor, grammarRulesFor, svgLogoFrom };";
 vm.runInNewContext(script[1] + shim, sandbox, { filename: "edit-with-ai.html <script>" });
 const t = sandbox.__exports;
 
@@ -665,6 +665,45 @@ test("prompt: parts that place nothing carry no grid", () => {
   for (const name of ["links", "rack", "findings", "sections", "document"]) {
     assert.strictEqual(t.layoutRulesFor(name), "", name);
   }
+});
+
+/* ---- the optional drawing grammar ---- */
+
+test("grammar: the parts that draw devices are offered caption sides", () => {
+  for (const name of ["nodes", "topology", "all"]) {
+    assert(/labelSide/.test(t.grammarRulesFor(name)), name);
+    assert(/left one "left", the/.test(t.grammarRulesFor(name)), `${name} lost the paired-device guidance`);
+  }
+});
+
+test("grammar: the write-up parts are offered tables, caption and legend", () => {
+  for (const name of ["sections", "all"]) {
+    const rules = t.grammarRulesFor(name);
+    assert(/"tables"/.test(rules), name);
+    assert(/one cell per column/.test(rules), `${name} never states the row/column rule`);
+    assert(/"layer": "gap"/.test(rules), `${name} never offers the unverified row`);
+    assert(/"caption" and "legend"/.test(rules), `${name} never offers the figure caption`);
+  }
+});
+
+test("grammar: the rack part is offered the deliberate absence", () => {
+  for (const name of ["rack", "all"]) {
+    assert(/"applicable": false/.test(t.grammarRulesFor(name)), name);
+  }
+  assert(/Never combine/.test(t.grammarRulesFor("rack")), "the contradiction is not forbidden");
+});
+
+test("grammar: a part carries only the grammar it can use", () => {
+  assert.strictEqual(t.grammarRulesFor("document"), "", "cover details need no drawing grammar");
+  assert.strictEqual(t.grammarRulesFor("findings"), "", "the gaps list needs no drawing grammar");
+  assert(!/tables/.test(t.grammarRulesFor("nodes")), "the devices part should not carry table rules");
+  assert(!/labelSide/.test(t.grammarRulesFor("rack")), "the rack part should not carry caption rules");
+});
+
+test("grammar: the SHAPE rule points at the exceptions instead of forbidding them", () => {
+  const built = t.grammarRulesFor("all");
+  assert(/OPTIONAL GRAMMAR/.test(built), "the section never names itself");
+  assert(/none is required/.test(built), "the grammar never says it is optional");
 });
 
 /* ---- the inventory gate and artifact rotation (the free-model runner) ---- */
