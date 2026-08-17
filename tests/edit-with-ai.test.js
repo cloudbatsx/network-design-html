@@ -53,7 +53,7 @@ const sandbox = {
   PACKAGER_CORE: require(path.join(root, "tools", "packager-core.js"))
 };
 
-const shim = ";globalThis.__exports = { parseWithRepair, mergeReply, checkStructure, checkMeaning, checkShell, checkAssetStrings, looksTruncated, safeJson, contextFor, summarizeChange, editableParts, freshRequestText, freshDrawingId, brandedData, EXTRACT_PROMPT, SLICES, polishGeometry, layoutRulesFor };";
+const shim = ";globalThis.__exports = { parseWithRepair, mergeReply, checkStructure, checkMeaning, checkShell, checkAssetStrings, looksTruncated, safeJson, contextFor, summarizeChange, editableParts, freshRequestText, freshDrawingId, brandedData, EXTRACT_PROMPT, SLICES, polishGeometry, layoutRulesFor, svgLogoFrom };";
 vm.runInNewContext(script[1] + shim, sandbox, { filename: "edit-with-ai.html <script>" });
 const t = sandbox.__exports;
 
@@ -465,9 +465,31 @@ test("branding: a small PNG data URI stages as the one allowed raster", () => {
 });
 
 test("branding: a non-image or oversized data URI is refused plainly", () => {
-  assert(/not a valid PNG or JPG/.test(t.brandedData(baseDesign(), { image: "data:text/html;base64,PGh0bWw+" }).problem));
+  assert(/not a valid PNG, JPG or SVG/.test(t.brandedData(baseDesign(), { image: "data:text/html;base64,PGh0bWw+" }).problem));
   const huge = "data:image/png;base64," + "A".repeat(95000);
   assert(/too large/.test(t.brandedData(baseDesign(), { image: huge }).problem));
+});
+
+test("branding: an SVG logo stages with its own proportions", () => {
+  const uri = "data:image/svg+xml;base64," + Buffer.from('<svg viewBox="0 0 320 80"></svg>').toString("base64");
+  const { next, problem } = t.brandedData(baseDesign(), { image: uri, imageViewBox: "0 0 320 80" });
+  assert(!problem, problem);
+  assert.strictEqual(next.document.brand.logoImage, uri);
+  assert.strictEqual(next.document.brand.logoViewBox, "0 0 320 80", "a wide lockup must not be squared off");
+});
+
+test("logo file: an SVG reports the proportions it declares", () => {
+  assert.strictEqual(t.svgLogoFrom('<svg viewBox="0 0 320 80" xmlns="http://www.w3.org/2000/svg"></svg>').viewBox, "0 0 320 80");
+  assert.strictEqual(t.svgLogoFrom('<svg width="240" height="60"></svg>').viewBox, "0 0 240 60", "width and height stand in for a missing viewBox");
+  assert.strictEqual(t.svgLogoFrom("<svg></svg>").viewBox, "0 0 512 512", "a square default when the file declares nothing");
+});
+
+test("logo file: a scripted SVG is refused, a plain one is not", () => {
+  assert(/not an SVG/.test(t.svgLogoFrom("<html><body>hello</body></html>").problem));
+  assert(/carries a script/.test(t.svgLogoFrom('<svg viewBox="0 0 10 10"><script>alert(1)</script></svg>').problem));
+  assert(/carries a script/.test(t.svgLogoFrom('<svg viewBox="0 0 10 10"><rect onload="steal()"/></svg>').problem));
+  assert(/carries a script/.test(t.svgLogoFrom('<svg viewBox="0 0 10 10"><a href="javascript:x()"/></svg>').problem));
+  assert(!t.svgLogoFrom('<svg viewBox="0 0 10 10"><rect fill="#c2661d"/></svg>').problem, "a plain drawing is fine");
 });
 
 test("branding: a real path and viewBox land together", () => {

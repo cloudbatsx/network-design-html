@@ -206,15 +206,15 @@
         <input id="brand-name" type="text" placeholder="keep current"></label>
       <label class="fresh-field">Header label
         <input id="brand-label" type="text" placeholder="e.g. IT Infrastructure · Network Design"></label>
-      <label class="fresh-field">Logo image <span class="fresh-hint">(PNG or JPG, up to 64 KB — what most people have)</span>
-        <input id="brand-image" type="file" accept="image/png,image/jpeg"></label>
+      <label class="fresh-field">Logo file <span class="fresh-hint">(PNG, JPG or SVG, up to 64 KB — an SVG keeps its colours and stays crisp at any size)</span>
+        <input id="brand-image" type="file" accept="image/png,image/jpeg,image/svg+xml,.svg"></label>
       <div class="row">
         <button class="button" id="brand-image-clear" type="button" disabled>Remove staged image</button>
         <span class="file-name" id="brand-image-state">No image staged</span>
       </div>
       <label class="fresh-field">Logo colour <span class="fresh-hint">(hex, e.g. #0F172A — empty keeps current; applies to the drawn mark)</span>
         <input id="brand-fill" type="text" placeholder="keep current"></label>
-      <label class="fresh-field">Logo as SVG path data <span class="fresh-hint">(the crisp option — have any branded file? paste it into your AI chat and ask for “the logo as SVG path data”)</span>
+      <label class="fresh-field">Logo as SVG path data <span class="fresh-hint">(only if you have no logo file at all — upload the SVG above instead and this is done for you)</span>
         <input id="brand-path" type="text" placeholder="M112 72 H400 …"></label>
       <label class="fresh-field">Logo viewBox <span class="fresh-hint">(only with a new path, e.g. 0 0 512 512)</span>
         <input id="brand-viewbox" type="text" placeholder="0 0 512 512"></label>
@@ -734,12 +734,13 @@ function brandedData(base, fields) {
   if (fill && !/^#[0-9a-fA-F]{3,8}$/.test(fill)) {
     return { problem: "The logo colour must be a hex value like #0F172A." };
   }
-  /* The one raster an editable file may carry: a small brand logo, staged
-     locally from a checked PNG or JPG. Capped so a wallpaper cannot ride in
-     dressed as a logo. */
+  /* The one embedded image an editable file may carry: a small brand logo,
+     staged locally from a checked PNG, JPG or SVG. Capped so a wallpaper
+     cannot ride in dressed as a logo. An SVG travels base64-encoded, so its
+     markup can never collide with the host document's own tags. */
   const image = (fields.image || "").trim();
-  if (image && !/^data:image\/(png|jpeg);base64,[A-Za-z0-9+/=]+$/.test(image)) {
-    return { problem: "The staged logo image is not a valid PNG or JPG." };
+  if (image && !/^data:image\/(png|jpeg|svg\+xml);base64,[A-Za-z0-9+/=]+$/.test(image)) {
+    return { problem: "The staged logo image is not a valid PNG, JPG or SVG." };
   }
   if (image && image.length > 90000) {
     return { problem: "The staged logo image is too large - keep it under 64 KB." };
@@ -754,7 +755,12 @@ function brandedData(base, fields) {
     brand.logoPath = path;
     if ((fields.viewBox || "").trim()) brand.logoViewBox = fields.viewBox.trim();
   }
-  if (image) brand.logoImage = image;
+  /* A logo file carries its own proportions. Recording them keeps a wide
+     lockup wide instead of letterboxing it into a square. */
+  if (image) {
+    brand.logoImage = image;
+    if ((fields.imageViewBox || "").trim()) brand.logoViewBox = fields.imageViewBox.trim();
+  }
   next.document.brand = brand;
   return { next };
 }
@@ -901,6 +907,7 @@ function setStage(stage, nowText) {
 }
 
 let stagedLogoImage = null;   // data URI staged from the branding step's file input
+let stagedLogoViewBox = "";   // that file's own proportions, so a wide lockup stays wide
 
 function note(host, kind, title, body) {
   const box = $(host);
@@ -993,7 +1000,7 @@ function loadSource(text, name) {
     applyPartMenu(parts);
     note("load-message", "ok", "File loaded.", " Now describe your change below.");
     describeSlice();
-    stagedLogoImage = null;
+    stagedLogoImage = null; stagedLogoViewBox = "";
     $("brand-image").value = ""; $("brand-image-state").textContent = "No image staged";
     $("brand-image-clear").disabled = true; $("brand-state").textContent = "";
     setStage("build", "describe your change - or use the Starting fresh panel - then press Copy prompt.");
@@ -2334,14 +2341,43 @@ $("fresh-fill").addEventListener("click", () => {
   $("request").value = freshRequestText($("fresh-title").value, $("fresh-drawing").value, $("fresh-rack").value);
   $("fresh-state").textContent = "Request filled - now press Copy prompt and paste it into that same chat.";
 });
+/* An SVG is markup, not pixels, so it gets read before it is trusted. Script
+   tags, event handlers and javascript: URLs are refused by name: the renderer
+   draws a logo through <image>, which never runs them, but the file also
+   lands on the reader's disk and may be opened directly. */
+function svgLogoFrom(text) {
+  if (!/<svg[\s>]/i.test(text)) return { problem: "That file is not an SVG." };
+  if (/<script[\s>]/i.test(text) || /\son\w+\s*=/i.test(text) || /javascript:/i.test(text)) {
+    return { problem: "That SVG carries a script, so it was refused. Export it as a plain drawing and try again." };
+  }
+  const viewBox = (text.match(/\bviewBox\s*=\s*["']([^"']+)["']/i) || [])[1];
+  if (viewBox && viewBox.trim().split(/[\s,]+/).length === 4) return { viewBox: viewBox.trim() };
+  const width = parseFloat((text.match(/\bwidth\s*=\s*["']([\d.]+)/i) || [])[1]);
+  const height = parseFloat((text.match(/\bheight\s*=\s*["']([\d.]+)/i) || [])[1]);
+  if (width > 0 && height > 0) return { viewBox: `0 0 ${width} ${height}` };
+  return { viewBox: "0 0 512 512" };
+}
+
+// A raster's own pixel dimensions, so its proportions survive the brand block.
+function rasterViewBox(dataUri) {
+  return new Promise((resolve) => {
+    const probe = new Image();
+    probe.onload = () => resolve(probe.naturalWidth && probe.naturalHeight
+      ? `0 0 ${probe.naturalWidth} ${probe.naturalHeight}` : "");
+    probe.onerror = () => resolve("");
+    probe.src = dataUri;
+  });
+}
+
 $("brand-image").addEventListener("change", async () => {
   const file = $("brand-image").files[0];
   if (!file) return;
   const bytes = new Uint8Array(await file.arrayBuffer());
   const isPng = bytes.length > 8 && bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4e && bytes[3] === 0x47;
   const isJpg = bytes.length > 3 && bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff;
-  if (!isPng && !isJpg) {
-    $("brand-image-state").textContent = "That file is not a PNG or JPG.";
+  const looksSvg = !isPng && !isJpg && (/\.svg$/i.test(file.name) || /svg/i.test(file.type));
+  if (!isPng && !isJpg && !looksSvg) {
+    $("brand-image-state").textContent = "That file is not a PNG, JPG or SVG.";
     $("brand-image").value = ""; return;
   }
   if (bytes.length > 64 * 1024) {
@@ -2350,12 +2386,26 @@ $("brand-image").addEventListener("change", async () => {
   }
   let binary = "";
   for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
-  stagedLogoImage = `data:image/${isPng ? "png" : "jpeg"};base64,${btoa(binary)}`;
-  $("brand-image-state").textContent = `${file.name} ready (${(bytes.length / 1024).toFixed(0)} KB). Press Stage the branding.`;
+
+  if (looksSvg) {
+    const svg = svgLogoFrom(new TextDecoder().decode(bytes));
+    if (svg.problem) {
+      $("brand-image-state").textContent = svg.problem;
+      $("brand-image").value = ""; return;
+    }
+    // `binary` is already the file bytes one per character, which is what
+    // btoa wants - the same path the rasters take, UTF-8 intact.
+    stagedLogoImage = `data:image/svg+xml;base64,${btoa(binary)}`;
+    stagedLogoViewBox = svg.viewBox;
+  } else {
+    stagedLogoImage = `data:image/${isPng ? "png" : "jpeg"};base64,${btoa(binary)}`;
+    stagedLogoViewBox = await rasterViewBox(stagedLogoImage);
+  }
+  $("brand-image-state").textContent = `${file.name} ready (${(bytes.length / 1024).toFixed(0)} KB${stagedLogoViewBox ? `, ${stagedLogoViewBox.split(/\s+/).slice(2).join(" × ")}` : ""}). Press Stage the branding.`;
   $("brand-image-clear").disabled = false;
 });
 $("brand-image-clear").addEventListener("click", () => {
-  stagedLogoImage = null;
+  stagedLogoImage = null; stagedLogoViewBox = "";
   $("brand-image").value = "";
   $("brand-image-state").textContent = "No image staged";
   $("brand-image-clear").disabled = true;
@@ -2365,7 +2415,7 @@ $("brand-apply").addEventListener("click", () => {
   const { next, problem } = brandedData(accepted || currentData, {
     name: $("brand-name").value, label: $("brand-label").value,
     fill: $("brand-fill").value, path: $("brand-path").value, viewBox: $("brand-viewbox").value,
-    image: stagedLogoImage || ""
+    image: stagedLogoImage || "", imageViewBox: stagedLogoViewBox || ""
   });
   if (problem) { $("brand-state").textContent = problem; return; }
   const before = currentData;
