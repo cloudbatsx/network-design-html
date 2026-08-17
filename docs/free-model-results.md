@@ -107,8 +107,10 @@ problem, token counts) is in each test folder's `run-log.json`. Rerun with:
 The run folders themselves live in the repository at `tests/free-model-runs/`
 - every source diagram, logo, generated document, run-log and word-for-word
 transcript, so any row in these tables can be checked against the artifacts
-that produced it. The study distilled from runs 10-24 is
-`docs/engine-study-2026-08-16.md`.
+that produced it — with the exceptions recorded honestly in *Artifact
+provenance* below: for folders 3–9 the table's evidence is
+`run-log.run1.json`, not the primary log. The study distilled from runs
+10-24 is `docs/engine-study-2026-08-16.md`.
 
 **A note on which models this covers, plainly.** The free gemini.google.com
 picker offers "3.6 Thinking" and "3.1 Pro". Google's documentation identifies
@@ -208,6 +210,10 @@ Test 3 was then re-run from scratch, same model, same image
 | Warnings | 0 | 6 — a denser canvas left six devices 86 %-inside their zone edge, each caught and named by the checker |
 | Badge | PASS · 18 nodes (silently incomplete) | **PASS · 33 nodes · 32 links · 11 rack devices** |
 
+> The log of this exact re-run was later overwritten by one more
+> regeneration of test 3 — see *Artifact provenance* below for what the
+> folder's `run-log.json` now records.
+
 The device count in the extract matches a by-hand count of the source image
 exactly. The fidelity failure mode of run 3 is closed at its cause: the model
 still compresses repetition when allowed, and the prompts no longer allow it
@@ -297,7 +303,9 @@ finding recording the omission becomes one more retry round; a shortfall
 that persists is written into the verdict instead of hidden.
 
 Test 11 was then re-run with the complete program — same image, same
-`gemini-3.6-flash` (logs of both earlier runs preserved in the test folder):
+`gemini-3.6-flash` (the first run's log survives as `run-log.run1.json`; the
+grid-only middle run's log was overwritten — see *Artifact provenance*
+below):
 
 | | First run | Grid only | Grid + no-drop rule + count gate |
 |---|---|---|---|
@@ -312,6 +320,52 @@ The polish pass and the count gate both stood guard on the final run and
 had nothing to do — which is the point. The construction recipe made the
 model's job easy enough to do correctly on the first try; the guards exist
 for the day it is not.
+
+### Artifact provenance — what each run folder actually holds · 2026-08-17
+
+A review of the folders against these tables found that later work overwrote
+some primary artifacts. Nothing here changes a verdict; it changes where the
+evidence for each verdict lives — and two runs' logs are gone for good.
+Recorded plainly:
+
+- **Folders 3–9: `run-log.run1.json` is the first-matrix run** each table row
+  above describes (all `gemini-3.6-flash`, evening of 2026-08-15 Pacific).
+  Checked log-against-table on 2026-08-17: every row matches.
+- **The same evening, after the count-first fix shipped, a regeneration pass
+  was attempted over all seven.** Tests 3 and 4 regenerated clean on
+  3.6-flash; test 5 regenerated on `gemini-3.7-flash` in 2 round trips (its
+  round 1 carried 12 stops and 8 warnings, all cleared in round 2). Tests
+  6–9 never regenerated — the evening's quota wall arrived first, and their
+  primary `run-log.json` records the refusals (503 ×3, 429 ×1) rather than a
+  run. Their saved documents remain first-run vintage, which the fidelity
+  audit above had already graded HIGH/GOOD, so they stand.
+- **Consequence:** in folders 3–5 the primary `run-log.json` describes a
+  later run than the table row; in 6–9 it describes an error. No transcript
+  exists for 6–9 at all — the transcript-keeping runner postdates their
+  successful runs.
+- **The test-3 count-fix re-run's own log is gone.** The re-run table above
+  (1 round trip, 6 boundary warnings) was recorded from the session that ran
+  it, but its log was overwritten about 90 minutes later by one more
+  regeneration during the legend-contract work — the run the folder's
+  `run-log.json` now shows: 2 round trips, two rack-face stops in round 1
+  (the retry loop's first live firing), 0 warnings, all 33 devices held.
+  That third run is what produced the saved document.
+- **test11's middle run is likewise gone.** The three-run arc in the
+  geometry-program section is right, but only the first run (7 warnings) and
+  the final run (clean 40/40) have logs; the "grid only, 32 nodes silently
+  dropped" middle run — the one that motivated the no-drop rule — survives
+  only in this document's description.
+- **Folders 1–2 are hand-run browser sessions, not harness runs.** They
+  predate the harness and hold only the source image and the saved design.
+  `test1` (our-net-001) is live result 1's artifact; `test2` (honi-net-001)
+  is a second hand session — also a clean one-trip save, and the session
+  whose workflow findings produced the helper's guided-stepper round.
+  Neither has a log or transcript, and neither is counted in the
+  twenty-two automated runs.
+
+The lesson: the runner must version every run's log and transcript instead
+of overwriting the last one. An overwrite cost this record two artifacts it
+can never get back.
 
 ### The nine-run editing matrix
 
