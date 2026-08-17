@@ -1682,26 +1682,31 @@ function checkMeaning(data) {
  * be fixed safely stays a warning, honestly. */
 
 // The score a candidate move must improve: the checker's geometry verdicts,
-// counted. Mirrors checkMeaning exactly - off-canvas and pile-ups stop,
-// slight overlaps and boundary straddles warn.
+// counted and NAMED. Mirrors checkMeaning exactly - off-canvas and pile-ups
+// stop, slight overlaps and boundary straddles warn. The names matter: a move
+// that fixes two warnings while minting a brand-new one shows a net
+// improvement, and the polish must still refuse it - trading known problems
+// for fresh ones is not repair.
 function geometryFaults(nodes, zones, width, height) {
   let stops = 0, warns = 0;
+  const keys = new Set();
   const half = { x: NODE_W / 2, y: NODE_H / 2 };
   for (const node of nodes) {
     const x = Number(node.x), y = Number(node.y);
     if (!Number.isFinite(x) || !Number.isFinite(y)) { stops++; continue; }
     if (x - half.x < 0 || x + half.x > width || y - half.y < 0 || y + half.y > height) stops++;
     const best = bestZoneCoverage(x, y, zones);
-    if (best && best.fraction >= IGNORE_BELOW && best.fraction < CONTAINED) warns++;
+    if (best && best.fraction >= IGNORE_BELOW && best.fraction < CONTAINED) { warns++; keys.add(`straddle:${node.id}`); }
   }
   for (let a = 0; a < nodes.length; a++) for (let b = a + 1; b < nodes.length; b++) {
     const dx = Math.abs(Number(nodes[a].x) - Number(nodes[b].x));
     const dy = Math.abs(Number(nodes[a].y) - Number(nodes[b].y));
     if (!(dx < NODE_W && dy < NODE_H)) continue;
     const covered = ((NODE_W - dx) * (NODE_H - dy)) / (NODE_W * NODE_H);
-    if (covered >= PILEUP) stops++; else warns++;
+    if (covered >= PILEUP) stops++;
+    else { warns++; keys.add(`overlap:${[nodes[a].id, nodes[b].id].sort().join("|")}`); }
   }
-  return { stops, warns };
+  return { stops, warns, keys };
 }
 
 function stepText(dx, dy) {
@@ -1732,12 +1737,35 @@ function polishGeometry(data) {
       `moved "${node.id}" ${stepText(nx - Number(node.x), ny - Number(node.y))} ${why}`);
     for (const { node, nx, ny } of moves) { node.x = nx; node.y = ny; }
     const after = geometryFaults(nodes, zones, width, height);
-    if (after.stops <= before.stops && after.warns < before.warns) {
+    const noNewFaults = [...after.keys].every((key) => before.keys.has(key));
+    if (after.stops <= before.stops && after.warns < before.warns && noNewFaults) {
       applied.push(...messages);
       return true;
     }
     for (const [node, ox, oy] of saved) { node.x = ox; node.y = oy; }
     return false;
+  };
+
+  // A push that takes the neighbours along. Full grid rows fail one at a
+  // time: the 24px that separates one pair lands squarely on the next box,
+  // which has open space on its own far side. So the push propagates - every
+  // node the move would newly collide with is pushed by the same delta, and
+  // the whole row rides as one validated group. Six nodes is far past where
+  // a real row ends; longer than that is a re-layout, not a repair.
+  const chainPush = (start, mdx, mdy) => {
+    const moves = [{ node: start, nx: Math.round(Number(start.x) + mdx), ny: Math.round(Number(start.y) + mdy), why: "" }];
+    for (let i = 0; i < moves.length && moves.length <= 6; i++) {
+      const m = moves[i];
+      for (const other of nodes) {
+        if (moves.some((q) => q.node === other)) continue;
+        const ox = Number(other.x), oy = Number(other.y);
+        if (!Number.isFinite(ox) || !Number.isFinite(oy)) continue;
+        const was = Math.abs(Number(m.node.x) - ox) < NODE_W && Math.abs(Number(m.node.y) - oy) < NODE_H;
+        const now = Math.abs(m.nx - ox) < NODE_W && Math.abs(m.ny - oy) < NODE_H;
+        if (now && !was) moves.push({ node: other, nx: Math.round(ox + mdx), ny: Math.round(oy + mdy), why: "" });
+      }
+    }
+    return moves.length <= 6 ? moves : null;
   };
 
   // Fixes can cascade - pulling a straddler inside can shove it near a
@@ -1791,6 +1819,71 @@ function polishGeometry(data) {
       if (sound && group.length > 1 && attemptGroup(group)) moved = true;
     }
 
+    // When a whole grid column pokes past an area edge, no node move helps -
+    // the area was drawn too small for its own devices, and a 180px grid
+    // cannot compress into 176px boxes. Growing the edge is the same
+    // arithmetic one level up: the minimal extension that holds the members
+    // who plainly belong, capped by the canvas, pulled back to abut a
+    // neighbouring area rather than cross it, and validated like every other
+    // move. Growing to an abutment can leave a member a few px short of fully
+    // inside - that lands within the same tolerance the shipped NET-OT-001
+    // uses, and the checker agrees by construction.
+    const asRect = (z) => ({ x: Number(z.x), y: Number(z.y), w: Number(z.width), h: Number(z.height) });
+    const rectsCross = (p, q) => p.x < q.x + q.w && q.x < p.x + p.w && p.y < q.y + q.h && q.y < p.y + p.h;
+    for (const zone of zones) {
+      const rect = asRect(zone);
+      if (![rect.x, rect.y, rect.w, rect.h].every(Number.isFinite) || rect.w <= 0 || rect.h <= 0) continue;
+      let hull = null, first = "", members = 0;
+      for (const node of nodes) {
+        const x = Number(node.x), y = Number(node.y);
+        if (!Number.isFinite(x) || !Number.isFinite(y)) continue;
+        const best = bestZoneCoverage(x, y, zones);
+        if (!best || best.zone !== zone || best.fraction < 0.6 || best.fraction >= CONTAINED) continue;
+        const box = { left: x - NODE_W / 2 - 6, right: x + NODE_W / 2 + 6, top: y - NODE_H / 2 - 6, bottom: y + NODE_H / 2 + 6 };
+        hull = hull ? {
+          left: Math.min(hull.left, box.left), right: Math.max(hull.right, box.right),
+          top: Math.min(hull.top, box.top), bottom: Math.max(hull.bottom, box.bottom)
+        } : box;
+        if (!members) first = node.id;
+        members++;
+      }
+      if (!hull) continue;
+      const grown = {
+        x: Math.max(0, Math.min(rect.x, hull.left)),
+        y: Math.max(0, Math.min(rect.y, hull.top))
+      };
+      grown.w = Math.min(width, Math.max(rect.x + rect.w, hull.right)) - grown.x;
+      grown.h = Math.min(height, Math.max(rect.y + rect.h, hull.bottom)) - grown.y;
+      for (let pass = 0; pass < 2; pass++) for (const other of zones) {
+        if (other === zone) continue;
+        const o = asRect(other);
+        if (![o.x, o.y, o.w, o.h].every(Number.isFinite) || o.w <= 0 || o.h <= 0) continue;
+        if (!rectsCross(grown, o) || rectsCross(rect, o)) continue;
+        if (rect.x + rect.w <= o.x && grown.x + grown.w > o.x) grown.w = o.x - grown.x;
+        if (rect.x >= o.x + o.w && grown.x < o.x + o.w) { grown.w -= (o.x + o.w) - grown.x; grown.x = o.x + o.w; }
+        if (rect.y + rect.h <= o.y && grown.y + grown.h > o.y) grown.h = o.y - grown.y;
+        if (rect.y >= o.y + o.h && grown.y < o.y + o.h) { grown.h -= (o.y + o.h) - grown.y; grown.y = o.y + o.h; }
+      }
+      const dl = rect.x - grown.x, dt = rect.y - grown.y;
+      const dr = (grown.x + grown.w) - (rect.x + rect.w), db = (grown.y + grown.h) - (rect.y + rect.h);
+      if (dl <= 0 && dt <= 0 && dr <= 0 && db <= 0) continue;
+      const before = geometryFaults(nodes, zones, width, height);
+      Object.assign(zone, { x: grown.x, y: grown.y, width: grown.w, height: grown.h });
+      const after = geometryFaults(nodes, zones, width, height);
+      const noNewFaults = [...after.keys].every((key) => before.keys.has(key));
+      if (after.stops <= before.stops && after.warns < before.warns && noNewFaults) {
+        const dirs = [];
+        if (dl > 0) dirs.push(`${Math.round(dl)}px left`);
+        if (dr > 0) dirs.push(`${Math.round(dr)}px right`);
+        if (dt > 0) dirs.push(`${Math.round(dt)}px up`);
+        if (db > 0) dirs.push(`${Math.round(db)}px down`);
+        applied.push(`grew the area "${zone.id || zone.label || "?"}" ${dirs.join(" and ")} to hold "${first}"${members > 1 ? ` and ${members - 1} more` : ""}`);
+        moved = true;
+      } else {
+        Object.assign(zone, { x: rect.x, y: rect.y, width: rect.w, height: rect.h });
+      }
+    }
+
     // Slight overlaps: separate along the cheaper axis. Either node alone, or
     // both splitting the distance - the split is what clears a pair that has
     // a neighbour on each side.
@@ -1806,20 +1899,29 @@ function polishGeometry(data) {
       const needX = NODE_W - dx + GAP, needY = NODE_H - dy + GAP;
       const halfX = Math.ceil(needX / 2), halfY = Math.ceil(needY / 2);
       const sx = bx >= ax ? 1 : -1, sy = by >= ay ? 1 : -1;
-      const xWays = [
-        [{ node: nb, nx: Math.round(bx + sx * needX), ny: by, why: `to clear "${na.id}"` }],
-        [{ node: na, nx: Math.round(ax - sx * needX), ny: ay, why: `to clear "${nb.id}"` }],
-        [{ node: na, nx: Math.round(ax - sx * halfX), ny: ay, why: `to clear "${nb.id}"` },
-         { node: nb, nx: Math.round(bx + sx * halfX), ny: by, why: `to clear "${na.id}"` }]
-      ];
-      const yWays = [
-        [{ node: nb, nx: bx, ny: Math.round(by + sy * needY), why: `to clear "${na.id}"` }],
-        [{ node: na, nx: ax, ny: Math.round(ay - sy * needY), why: `to clear "${nb.id}"` }],
-        [{ node: na, nx: ax, ny: Math.round(ay - sy * halfY), why: `to clear "${nb.id}"` },
-         { node: nb, nx: bx, ny: Math.round(by + sy * halfY), why: `to clear "${na.id}"` }]
-      ];
+      const xWays = [[nb, sx * needX, 0], [na, -sx * needX, 0], "splitX"];
+      const yWays = [[nb, 0, sy * needY], [na, 0, -sy * needY], "splitY"];
       for (const way of (needX <= needY ? [...xWays, ...yWays] : [...yWays, ...xWays])) {
-        if (attemptGroup(way)) { moved = true; break; }
+        let group;
+        if (way === "splitX") {
+          group = [
+            { node: na, nx: Math.round(ax - sx * halfX), ny: ay, why: `to clear "${nb.id}"` },
+            { node: nb, nx: Math.round(bx + sx * halfX), ny: by, why: `to clear "${na.id}"` }
+          ];
+        } else if (way === "splitY") {
+          group = [
+            { node: na, nx: ax, ny: Math.round(ay - sy * halfY), why: `to clear "${nb.id}"` },
+            { node: nb, nx: bx, ny: Math.round(by + sy * halfY), why: `to clear "${na.id}"` }
+          ];
+        } else {
+          const [node, mdx, mdy] = way;
+          group = chainPush(node, mdx, mdy);
+          if (group) {
+            group[0].why = `to clear "${node === na ? nb.id : na.id}"`;
+            for (let i = 1; i < group.length; i++) group[i].why = `to make room for "${group[0].node.id}"`;
+          }
+        }
+        if (group && attemptGroup(group)) { moved = true; break; }
       }
     }
 

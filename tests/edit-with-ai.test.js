@@ -594,6 +594,30 @@ test("polish: a pile-up is a stop and is never repaired", () => {
   assert(has(t.checkMeaning(json(next)), /sit on top of each other/, true), "the stop was hidden by a repair");
 });
 
+test("polish: an area drawn too small for its own device is grown, not guessed", () => {
+  const d = baseDesign();
+  // The straddler's inward path is blocked by a fully-seated neighbour that
+  // is not itself a straddler, so no node move is sound - the area's right
+  // edge grows the 54px that holds the box instead.
+  d.topology.nodes[0].x = 944;
+  d.topology.nodes[1].x = 1120;
+  const { next, applied } = t.polishGeometry(d);
+  assert.strictEqual(applied.length, 1);
+  assert(/grew the area "z1" 54px right to hold "edge-fw-01"/.test(applied[0]), applied[0]);
+  assert(!has(t.checkMeaning(json(next)), /half in and half out/), "the straddle survived the grow");
+});
+
+test("polish: a full row shifts as a chain when one push lands on the next box", () => {
+  const d = baseDesign();
+  d.topology.nodes[1].x = 460; // 9% overlap with core-sw-01 at 300
+  d.topology.nodes.push({ id: "srv-x-01", label: "S", icon: "server", x: 640, y: 300 });
+  const { next, applied } = t.polishGeometry(d);
+  assert.strictEqual(applied.length, 2, applied.join("; "));
+  assert(/moved "edge-fw-01" 24px right to clear "core-sw-01"/.test(applied[0]), applied[0]);
+  assert(/moved "srv-x-01" 24px right to make room for "edge-fw-01"/.test(applied[1]), applied[1]);
+  assert(!has(t.checkMeaning(json(next)), /overlap/), "an overlap survived the chain");
+});
+
 test("polish: clean geometry is untouched", () => {
   const d = baseDesign();
   const { next, applied } = t.polishGeometry(d);
