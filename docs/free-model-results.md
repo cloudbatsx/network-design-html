@@ -102,7 +102,13 @@ same byte-guarded save, the same packaging engine — so these runs test the
 product, not a reimplementation. Per-test detail (every round trip, every
 problem, token counts) is in each test folder's `run-log.json`. Rerun with:
 
-    node tools/run-free-model-tests.js --tests-dir <folder> --tests 3-9
+    node tools/run-free-model-tests.js --tests-dir tests/free-model-runs --tests 3-9
+
+The run folders themselves live in the repository at `tests/free-model-runs/`
+- every source diagram, logo, generated document, run-log and word-for-word
+transcript, so any row in these tables can be checked against the artifacts
+that produced it. The study distilled from runs 10-24 is
+`docs/engine-study-2026-08-16.md`.
 
 **A note on which models this covers, plainly.** The free gemini.google.com
 picker offers "3.6 Thinking" and "3.1 Pro". Google's documentation identifies

@@ -1,0 +1,53 @@
+{
+  "test": "test4",
+  "title": "Northwind Office Network",
+  "organisation": "Northwind Office",
+  "topologyImage": "NIMG.png",
+  "logoImage": "logo-northwind-office.jpg",
+  "model": "gemini-3.6-flash",
+  "surface": "API (Google AI free tier)",
+  "date": "2026-08-16T03:55:19.263Z",
+  "rounds": [
+    {
+      "round": 1,
+      "finishReason": "STOP",
+      "chars": 10093,
+      "usage": {
+        "prompt": 10565,
+        "output": 3181,
+        "thoughts": 5890
+      },
+      "repairsApplied": [],
+      "truncated": false,
+      "stops": [],
+      "warnings": 1,
+      "warningTexts": [
+        "\"pc-04\" and \"scan-01\" overlap by 9% of a device box."
+      ]
+    }
+  ],
+  "verdict": "PASS - clean save in 1 round trip with 1 warning(s)",
+  "modelVersion": "gemini-3.6-flash",
+  "extract": {
+    "finishReason": "STOP",
+    "chars": 3788,
+    "usage": {
+      "prompt": 1278,
+      "output": 1627,
+      "thoughts": 1656
+    }
+  },
+  "roundTrips": 1,
+  "branding": {
+    "applied": "name+image",
+    "note": "raster logo: 10268 bytes"
+  },
+  "drawingId": "NON-NET-001",
+  "saved": "non-net-001.edit.html",
+  "packaged": "non-net-001.portable.html",
+  "packaging": {
+    "embedded": 29,
+    "embeddedBytes": 2963196,
+    "skipped": []
+  }
+}

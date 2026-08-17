@@ -1,0 +1,78 @@
+{
+  "test": "test20",
+  "title": "Redbrick University Network",
+  "organisation": "Redbrick University",
+  "topologyImage": "sz53c.png",
+  "logoImage": "logo-redbrick-university.svg",
+  "model": "gemini-3.6-flash",
+  "surface": "API (Google AI free tier)",
+  "date": "2026-08-16T07:02:47.280Z",
+  "rounds": [
+    {
+      "round": 1,
+      "finishReason": "STOP",
+      "chars": 20670,
+      "usage": {
+        "prompt": 11340,
+        "output": 7047,
+        "thoughts": 16292
+      },
+      "repairsApplied": [],
+      "truncated": false,
+      "stops": [
+        "Gap 2 is pinned to area \"internal\", which does not exist.",
+        "Gap 3 is pinned to area \"perimeter\", which does not exist."
+      ],
+      "warnings": 8,
+      "warningTexts": [
+        "\"ix-manchester\" is drawn half in and half out of the area \"zone-external\" (84% inside), so a reader cannot tell which area it belongs to.",
+        "\"janet\" is drawn half in and half out of the area \"zone-external\" (84% inside), so a reader cannot tell which area it belongs to.",
+        "\"br-01\" is drawn half in and half out of the area \"zone-core\" (69% inside), so a reader cannot tell which area it belongs to.",
+        "\"br-02\" is drawn half in and half out of the area \"zone-core\" (69% inside), so a reader cannot tell which area it belongs to.",
+        "\"srv-sw-01\" is drawn half in and half out of the area \"zone-internal\" (79% inside), so a reader cannot tell which area it belongs to.",
+        "\"srv-sw-02\" is drawn half in and half out of the area \"zone-internal\" (79% inside), so a reader cannot tell which area it belongs to.",
+        "\"dist-sw-01\" is drawn half in and half out of the area \"zone-internal\" (79% inside), so a reader cannot tell which area it belongs to.",
+        "\"dist-sw-02\" is drawn half in and half out of the area \"zone-internal\" (79% inside), so a reader cannot tell which area it belongs to."
+      ]
+    },
+    {
+      "round": 2,
+      "finishReason": "STOP",
+      "chars": 20650,
+      "usage": {
+        "prompt": 19108,
+        "output": 7051,
+        "thoughts": 2287
+      },
+      "repairsApplied": [],
+      "truncated": false,
+      "stops": [],
+      "warnings": 0,
+      "warningTexts": []
+    }
+  ],
+  "verdict": "PASS - clean save in 2 round trips",
+  "modelVersion": "gemini-3.6-flash",
+  "extract": {
+    "finishReason": "STOP",
+    "chars": 5562,
+    "usage": {
+      "prompt": 1317,
+      "output": 2321,
+      "thoughts": 3563
+    }
+  },
+  "roundTrips": 2,
+  "branding": {
+    "applied": "name+path+viewBox+fill",
+    "note": "SVG logo: 1 path(s) extracted"
+  },
+  "drawingId": "RUN-NET-001",
+  "saved": "run-net-001.edit.html",
+  "packaged": "run-net-001.portable.html",
+  "packaging": {
+    "embedded": 29,
+    "embeddedBytes": 2963196,
+    "skipped": []
+  }
+}

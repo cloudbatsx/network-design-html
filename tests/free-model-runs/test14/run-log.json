@@ -1,0 +1,51 @@
+{
+  "test": "test14",
+  "title": "Harborview Dermatology Network",
+  "organisation": "Harborview Dermatology",
+  "topologyImage": "9bc13900891546e70d7ecc25480f58d54a9f3c2d_2_690x464.jpeg",
+  "logoImage": "logo-harborview-dermatology.svg",
+  "model": "gemini-3.6-flash",
+  "surface": "API (Google AI free tier)",
+  "date": "2026-08-16T16:43:28.049Z",
+  "rounds": [
+    {
+      "round": 1,
+      "finishReason": "STOP",
+      "chars": 17238,
+      "usage": {
+        "prompt": 11144,
+        "output": 5820,
+        "thoughts": 4043
+      },
+      "repairsApplied": [],
+      "truncated": false,
+      "stops": [],
+      "warnings": 0,
+      "warningTexts": []
+    }
+  ],
+  "verdict": "PASS - clean save in 1 round trip",
+  "modelVersion": "gemini-3.6-flash",
+  "extract": {
+    "finishReason": "STOP",
+    "chars": 5672,
+    "usage": {
+      "prompt": 1309,
+      "output": 2131,
+      "thoughts": 3509
+    }
+  },
+  "roundTrips": 1,
+  "branding": {
+    "applied": "name+path+viewBox+fill",
+    "note": "SVG logo: 1 path(s) extracted"
+  },
+  "drawingId": "HDN-NET-001",
+  "saved": "hdn-net-001.edit.html",
+  "packaged": "hdn-net-001.portable.html",
+  "packaging": {
+    "embedded": 29,
+    "embeddedBytes": 2963196,
+    "skipped": []
+  }
+}

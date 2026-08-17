@@ -684,11 +684,17 @@ checkEvery("every embedded script parses", (want) => {
 });
 
 check("generated files stay in excluded directories", () => {
+  // tests/free-model-runs holds the live validation runs of
+  // docs/free-model-results.md: source diagram, logo, generated document and
+  // logs per run. Its packaged .portable.html files stay gitignored, and its
+  // images are the run inputs - evidence, not stray assets.
+  const RUNS = "tests/free-model-runs/";
   const files = walk();
-  const portableOutsideDist = files.filter((file) => file.endsWith(".portable.html") && !file.startsWith("dist/"));
+  const portableOutsideDist = files.filter((file) => file.endsWith(".portable.html") &&
+    !file.startsWith("dist/") && !file.startsWith(RUNS));
   assert(portableOutsideDist.length === 0, `portable output outside dist: ${portableOutsideDist.join(", ")}`);
   const binariesOutsidePermitted = files.filter((file) => /\.(?:jpe?g|png|gif|webp)$/i.test(file) &&
-    !file.startsWith("assets/") && !file.startsWith("dist/"));
+    !file.startsWith("assets/") && !file.startsWith("dist/") && !file.startsWith(RUNS));
   assert(binariesOutsidePermitted.length === 0, `raster assets outside assets/: ${binariesOutsidePermitted.join(", ")}`);
 });
 

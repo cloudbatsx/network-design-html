@@ -1,0 +1,51 @@
+{
+  "test": "test3",
+  "title": "Brownstown Schools Network",
+  "organisation": "Brownstown Schools",
+  "topologyImage": "hodgesbo1.webp",
+  "logoImage": "logo-brownstown-schools.png",
+  "model": "gemini-3.6-flash",
+  "surface": "API (Google AI free tier)",
+  "date": "2026-08-16T03:53:15.971Z",
+  "rounds": [
+    {
+      "round": 1,
+      "finishReason": "STOP",
+      "chars": 17345,
+      "usage": {
+        "prompt": 11191,
+        "output": 5690,
+        "thoughts": 3520
+      },
+      "repairsApplied": [],
+      "truncated": false,
+      "stops": [],
+      "warnings": 0,
+      "warningTexts": []
+    }
+  ],
+  "verdict": "PASS - clean save in 1 round trip",
+  "modelVersion": "gemini-3.6-flash",
+  "extract": {
+    "finishReason": "STOP",
+    "chars": 6229,
+    "usage": {
+      "prompt": 1273,
+      "output": 2257,
+      "thoughts": 2809
+    }
+  },
+  "roundTrips": 1,
+  "branding": {
+    "applied": "name+image",
+    "note": "raster logo: 6828 bytes"
+  },
+  "drawingId": "BSN-NET-001",
+  "saved": "bsn-net-001.edit.html",
+  "packaged": "bsn-net-001.portable.html",
+  "packaging": {
+    "embedded": 29,
+    "embeddedBytes": 2963196,
+    "skipped": []
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "test": "test18",
+  "title": "Oakfield Training Network",
+  "organisation": "Oakfield Training",
+  "topologyImage": "cisco topology layout_full.png",
+  "logoImage": "logo-oakfield-training.svg",
+  "model": "gemini-3.6-flash",
+  "surface": "API (Google AI free tier)",
+  "date": "2026-08-16T06:58:27.304Z",
+  "rounds": [
+    {
+      "round": 1,
+      "finishReason": "STOP",
+      "chars": 7021,
+      "usage": {
+        "prompt": 10517,
+        "output": 2559,
+        "thoughts": 6001
+      },
+      "repairsApplied": [],
+      "truncated": false,
+      "stops": [],
+      "warnings": 0,
+      "warningTexts": []
+    }
+  ],
+  "verdict": "PASS - clean save in 1 round trip",
+  "modelVersion": "gemini-3.6-flash",
+  "extract": {
+    "finishReason": "STOP",
+    "chars": 3317,
+    "usage": {
+      "prompt": 1321,
+      "output": 1493,
+      "thoughts": 2022
+    }
+  },
+  "roundTrips": 1,
+  "branding": {
+    "applied": "name+path+viewBox+fill",
+    "note": "SVG logo: 1 path(s) extracted"
+  },
+  "drawingId": "OTN-NET-001",
+  "saved": "otn-net-001.edit.html",
+  "packaged": "otn-net-001.portable.html",
+  "packaging": {
+    "embedded": 29,
+    "embeddedBytes": 2963196,
+    "skipped": []
+  }
+}

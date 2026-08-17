@@ -1,0 +1,51 @@
+{
+  "test": "test16",
+  "title": "Redwood Residence Network",
+  "organisation": "Redwood Residence",
+  "topologyImage": "Screenshot 2026-08-15 223315.png",
+  "logoImage": "logo-redwood-residence.png",
+  "model": "gemini-3.6-flash",
+  "surface": "API (Google AI free tier)",
+  "date": "2026-08-16T18:28:18.449Z",
+  "rounds": [
+    {
+      "round": 1,
+      "finishReason": "STOP",
+      "chars": 12640,
+      "usage": {
+        "prompt": 11145,
+        "output": 4189,
+        "thoughts": 4212
+      },
+      "repairsApplied": [],
+      "truncated": false,
+      "stops": [],
+      "warnings": 0,
+      "warningTexts": []
+    }
+  ],
+  "verdict": "PASS - clean save in 1 round trip",
+  "modelVersion": "gemini-3.6-flash",
+  "extract": {
+    "finishReason": "STOP",
+    "chars": 5200,
+    "usage": {
+      "prompt": 1331,
+      "output": 2111,
+      "thoughts": 2226
+    }
+  },
+  "roundTrips": 1,
+  "branding": {
+    "applied": "name+image",
+    "note": "raster logo: 1282 bytes"
+  },
+  "drawingId": "RRN-NET-001",
+  "saved": "rrn-net-001.edit.html",
+  "packaged": "rrn-net-001.portable.html",
+  "packaging": {
+    "embedded": 29,
+    "embeddedBytes": 2963196,
+    "skipped": []
+  }
+}

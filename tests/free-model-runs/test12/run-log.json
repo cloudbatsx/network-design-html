@@ -1,0 +1,51 @@
+{
+  "test": "test12",
+  "title": "Foxhill Campus Network",
+  "organisation": "Foxhill Campus",
+  "topologyImage": "MCmL6.png",
+  "logoImage": "logo-foxhill-campus.svg",
+  "model": "gemini-3.6-flash",
+  "surface": "API (Google AI free tier)",
+  "date": "2026-08-16T07:13:23.006Z",
+  "rounds": [
+    {
+      "round": 1,
+      "finishReason": "STOP",
+      "chars": 23170,
+      "usage": {
+        "prompt": 12003,
+        "output": 8315,
+        "thoughts": 9535
+      },
+      "repairsApplied": [],
+      "truncated": false,
+      "stops": [],
+      "warnings": 0,
+      "warningTexts": []
+    }
+  ],
+  "verdict": "PASS - clean save in 1 round trip",
+  "modelVersion": "gemini-3.6-flash",
+  "extract": {
+    "finishReason": "STOP",
+    "chars": 7308,
+    "usage": {
+      "prompt": 1309,
+      "output": 2991,
+      "thoughts": 2448
+    }
+  },
+  "roundTrips": 1,
+  "branding": {
+    "applied": "name+path+viewBox+fill",
+    "note": "SVG logo: 1 path(s) extracted"
+  },
+  "drawingId": "FCN-NET-001",
+  "saved": "fcn-net-001.edit.html",
+  "packaged": "fcn-net-001.portable.html",
+  "packaging": {
+    "embedded": 29,
+    "embeddedBytes": 2963196,
+    "skipped": []
+  }
+}

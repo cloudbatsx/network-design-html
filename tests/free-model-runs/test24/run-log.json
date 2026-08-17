@@ -1,0 +1,51 @@
+{
+  "test": "test24",
+  "title": "Crosswind Transit Network",
+  "organisation": "Crosswind Transit",
+  "topologyImage": "QQBB4c2.png",
+  "logoImage": "logo-crosswind-transit.svg",
+  "model": "gemini-3.6-flash",
+  "surface": "API (Google AI free tier)",
+  "date": "2026-08-17T02:05:36.930Z",
+  "rounds": [
+    {
+      "round": 1,
+      "finishReason": "STOP",
+      "chars": 13512,
+      "usage": {
+        "prompt": 11690,
+        "output": 5123,
+        "thoughts": 2523
+      },
+      "repairsApplied": [],
+      "truncated": false,
+      "stops": [],
+      "warnings": 0,
+      "warningTexts": []
+    }
+  ],
+  "verdict": "PASS - clean save in 1 round trip",
+  "modelVersion": "gemini-3.6-flash",
+  "extract": {
+    "finishReason": "STOP",
+    "chars": 4909,
+    "usage": {
+      "prompt": 1321,
+      "output": 2666,
+      "thoughts": 4886
+    }
+  },
+  "roundTrips": 1,
+  "branding": {
+    "applied": "name+path+viewBox+fill",
+    "note": "SVG logo: 1 path(s) extracted"
+  },
+  "drawingId": "CTN-NET-001",
+  "saved": "ctn-net-001.edit.html",
+  "packaged": "ctn-net-001.portable.html",
+  "packaging": {
+    "embedded": 29,
+    "embeddedBytes": 2963196,
+    "skipped": []
+  }
+}

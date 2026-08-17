@@ -1,0 +1,51 @@
+{
+  "test": "test21",
+  "title": "Willowbrook Smart Home Network",
+  "organisation": "Willowbrook Smart Home",
+  "topologyImage": "thumb.png",
+  "logoImage": "logo-willowbrook-smart-home.svg",
+  "model": "gemini-3.6-flash",
+  "surface": "API (Google AI free tier)",
+  "date": "2026-08-16T07:05:32.558Z",
+  "rounds": [
+    {
+      "round": 1,
+      "finishReason": "STOP",
+      "chars": 11044,
+      "usage": {
+        "prompt": 10950,
+        "output": 3215,
+        "thoughts": 5653
+      },
+      "repairsApplied": [],
+      "truncated": false,
+      "stops": [],
+      "warnings": 0,
+      "warningTexts": []
+    }
+  ],
+  "verdict": "PASS - clean save in 1 round trip",
+  "modelVersion": "gemini-3.6-flash",
+  "extract": {
+    "finishReason": "STOP",
+    "chars": 5529,
+    "usage": {
+      "prompt": 1309,
+      "output": 1936,
+      "thoughts": 2835
+    }
+  },
+  "roundTrips": 1,
+  "branding": {
+    "applied": "name+path+viewBox+fill",
+    "note": "SVG logo: 1 path(s) extracted"
+  },
+  "drawingId": "WSHN-NET-001",
+  "saved": "wshn-net-001.edit.html",
+  "packaged": "wshn-net-001.portable.html",
+  "packaging": {
+    "embedded": 29,
+    "embeddedBytes": 2963196,
+    "skipped": []
+  }
+}

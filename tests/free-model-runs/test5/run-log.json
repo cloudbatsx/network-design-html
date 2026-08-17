@@ -1,0 +1,87 @@
+{
+  "test": "test5",
+  "title": "Meridian DC Network",
+  "organisation": "Meridian DC",
+  "topologyImage": "images.jpg",
+  "logoImage": "logo-meridian-dc.svg",
+  "model": "gemini-3.7-flash",
+  "surface": "API (Google AI free tier)",
+  "date": "2026-08-16T05:55:38.746Z",
+  "rounds": [
+    {
+      "round": 1,
+      "finishReason": "STOP",
+      "chars": 17026,
+      "usage": {
+        "prompt": 11135,
+        "output": 4890
+      },
+      "repairsApplied": [],
+      "truncated": false,
+      "stops": [
+        "\"srv-blade-01\" and \"srv-blade-02\" sit on top of each other by 26% of a device box.",
+        "\"srv-blade-02\" and \"srv-rack-01\" sit on top of each other by 26% of a device box.",
+        "\"srv-rack-01\" and \"srv-rack-02\" sit on top of each other by 26% of a device box.",
+        "\"stor-nas-01\" and \"stor-nas-02\" sit on top of each other by 38% of a device box.",
+        "\"sw-san-01\" and \"sw-san-02\" sit on top of each other by 26% of a device box.",
+        "\"sw-san-02\" and \"stor-san-01\" sit on top of each other by 26% of a device box.",
+        "\"stor-san-01\" and \"stor-san-02\" sit on top of each other by 26% of a device box.",
+        "\"stor-san-03\" and \"stor-san-04\" sit on top of each other by 38% of a device box.",
+        "Rack device \"rtr-core-01\" is 2U tall but its face \"generic-router-1u\" draws 1U.",
+        "Rack device \"rtr-core-02\" is 2U tall but its face \"generic-router-1u\" draws 1U.",
+        "Rack device \"sw-san-01\" is 2U tall but its face \"generic-switch-24p-1u\" draws 1U.",
+        "Rack device \"sw-san-02\" is 2U tall but its face \"generic-switch-24p-1u\" draws 1U."
+      ],
+      "warnings": 8,
+      "warningTexts": [
+        "\"rtr-core-01\" and \"rtr-core-02\" overlap by 3% of a device box.",
+        "\"srv-rack-02\" and \"stor-nas-01\" overlap by 17% of a device box.",
+        "\"san-pri-cloud\" and \"sw-san-02\" overlap by 5% of a device box.",
+        "\"san-pri-cloud\" and \"stor-san-01\" overlap by 22% of a device box.",
+        "\"san-pri-cloud\" and \"stor-san-02\" overlap by 7% of a device box.",
+        "\"stor-san-02\" and \"stor-san-03\" overlap by 20% of a device box.",
+        "\"stor-nas-02\" is drawn half in and half out of the area \"primary-dc\" (87% inside), so a reader cannot tell which area it belongs to.",
+        "\"stor-san-04\" is drawn half in and half out of the area \"primary-dc\" (87% inside), so a reader cannot tell which area it belongs to."
+      ]
+    },
+    {
+      "round": 2,
+      "finishReason": "STOP",
+      "chars": 17028,
+      "usage": {
+        "prompt": 17565,
+        "output": 4892,
+        "thoughts": 4860
+      },
+      "repairsApplied": [],
+      "truncated": false,
+      "stops": [],
+      "warnings": 0,
+      "warningTexts": []
+    }
+  ],
+  "verdict": "PASS - clean save in 2 round trips",
+  "modelVersion": "gemini-3.7-flash",
+  "extract": {
+    "finishReason": "STOP",
+    "chars": 6527,
+    "usage": {
+      "prompt": 1321,
+      "output": 2111,
+      "thoughts": 1341
+    }
+  },
+  "roundTrips": 2,
+  "branding": {
+    "applied": "name+path+viewBox+fill",
+    "note": "SVG logo: 1 path(s) extracted"
+  },
+  "drawingId": "MDN-NET-001",
+  "saved": "mdn-net-001.edit.html",
+  "packaged": "mdn-net-001.portable.html",
+  "packaging": {
+    "embedded": 29,
+    "embeddedBytes": 2963196,
+    "skipped": []
+  }
+}

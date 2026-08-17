@@ -1,0 +1,59 @@
+{
+  "test": "test11",
+  "title": "Crestline Group Network",
+  "organisation": "Crestline Group",
+  "topologyImage": "513321_1_En_15_Fig5_HTML.png",
+  "logoImage": "logo-crestline-group.svg",
+  "model": "gemini-3.6-flash",
+  "surface": "API (Google AI free tier)",
+  "date": "2026-08-16T07:11:37.198Z",
+  "rounds": [
+    {
+      "round": 1,
+      "finishReason": "STOP",
+      "chars": 15847,
+      "usage": {
+        "prompt": 11321,
+        "output": 5207,
+        "thoughts": 11794
+      },
+      "repairsApplied": [],
+      "truncated": false,
+      "stops": [],
+      "warnings": 7,
+      "warningTexts": [
+        "\"cloud-01\" is drawn half in and half out of the area \"external\" (86% inside), so a reader cannot tell which area it belongs to.",
+        "\"hq-dc-srv-01\" is drawn half in and half out of the area \"hq-campus\" (84% inside), so a reader cannot tell which area it belongs to.",
+        "\"hq-dc-srv-02\" is drawn half in and half out of the area \"hq-campus\" (90% inside), so a reader cannot tell which area it belongs to.",
+        "\"hq-nms-srv-01\" is drawn half in and half out of the area \"hq-campus\" (90% inside), so a reader cannot tell which area it belongs to.",
+        "\"hq-nms-srv-02\" is drawn half in and half out of the area \"hq-campus\" (90% inside), so a reader cannot tell which area it belongs to.",
+        "\"branch-rtr-01\" is drawn half in and half out of the area \"branch-campus\" (86% inside), so a reader cannot tell which area it belongs to.",
+        "\"branch-wifi-client-02\" is drawn half in and half out of the area \"branch-campus\" (91% inside), so a reader cannot tell which area it belongs to."
+      ]
+    }
+  ],
+  "verdict": "PASS - clean save in 1 round trip with 7 warning(s)",
+  "modelVersion": "gemini-3.6-flash",
+  "extract": {
+    "finishReason": "STOP",
+    "chars": 5489,
+    "usage": {
+      "prompt": 1309,
+      "output": 2308,
+      "thoughts": 4668
+    }
+  },
+  "roundTrips": 1,
+  "branding": {
+    "applied": "name+path+viewBox+fill",
+    "note": "SVG logo: 1 path(s) extracted"
+  },
+  "drawingId": "CGN-NET-001",
+  "saved": "cgn-net-001.edit.html",
+  "packaged": "cgn-net-001.portable.html",
+  "packaging": {
+    "embedded": 29,
+    "embeddedBytes": 2963196,
+    "skipped": []
+  }
+}

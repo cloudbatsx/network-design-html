@@ -1,0 +1,51 @@
+{
+  "test": "test23",
+  "title": "Fairbanks Automation Network",
+  "organisation": "Fairbanks Automation",
+  "topologyImage": "layer_img01.jpg",
+  "logoImage": "logo-fairbanks-automation.svg",
+  "model": "gemini-3.6-flash",
+  "surface": "API (Google AI free tier)",
+  "date": "2026-08-16T07:08:02.304Z",
+  "rounds": [
+    {
+      "round": 1,
+      "finishReason": "STOP",
+      "chars": 17030,
+      "usage": {
+        "prompt": 12557,
+        "output": 5352,
+        "thoughts": 5807
+      },
+      "repairsApplied": [],
+      "truncated": false,
+      "stops": [],
+      "warnings": 0,
+      "warningTexts": []
+    }
+  ],
+  "verdict": "PASS - clean save in 1 round trip",
+  "modelVersion": "gemini-3.6-flash",
+  "extract": {
+    "finishReason": "STOP",
+    "chars": 9697,
+    "usage": {
+      "prompt": 1309,
+      "output": 3546,
+      "thoughts": 5738
+    }
+  },
+  "roundTrips": 1,
+  "branding": {
+    "applied": "name+path+viewBox+fill",
+    "note": "SVG logo: 1 path(s) extracted"
+  },
+  "drawingId": "FAN-NET-001",
+  "saved": "fan-net-001.edit.html",
+  "packaged": "fan-net-001.portable.html",
+  "packaging": {
+    "embedded": 29,
+    "embeddedBytes": 2963196,
+    "skipped": []
+  }
+}

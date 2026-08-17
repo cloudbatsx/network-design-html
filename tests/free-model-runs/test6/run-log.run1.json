@@ -1,0 +1,51 @@
+{
+  "test": "test6",
+  "title": "Summit Academy Network",
+  "organisation": "Summit Academy",
+  "topologyImage": "images (1).jpg",
+  "logoImage": "logo-summit-academy.png",
+  "model": "gemini-3.6-flash",
+  "surface": "API (Google AI free tier)",
+  "date": "2026-08-16T03:57:34.789Z",
+  "rounds": [
+    {
+      "round": 1,
+      "finishReason": "STOP",
+      "chars": 13595,
+      "usage": {
+        "prompt": 10014,
+        "output": 4629,
+        "thoughts": 3832
+      },
+      "repairsApplied": [],
+      "truncated": false,
+      "stops": [],
+      "warnings": 0,
+      "warningTexts": []
+    }
+  ],
+  "verdict": "PASS - clean save in 1 round trip",
+  "modelVersion": "gemini-3.6-flash",
+  "extract": {
+    "finishReason": "STOP",
+    "chars": 2752,
+    "usage": {
+      "prompt": 1273,
+      "output": 1082,
+      "thoughts": 1958
+    }
+  },
+  "roundTrips": 1,
+  "branding": {
+    "applied": "name+image",
+    "note": "raster logo: 3991 bytes"
+  },
+  "drawingId": "SAN-NET-001",
+  "saved": "san-net-001.edit.html",
+  "packaged": "san-net-001.portable.html",
+  "packaging": {
+    "embedded": 29,
+    "embeddedBytes": 2963196,
+    "skipped": []
+  }
+}
