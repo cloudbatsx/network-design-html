@@ -238,7 +238,29 @@
   .gaps,.patterns,.gains { font-size:14px; }
   .caption { font-size:12.5px; line-height:1.5; margin:5px 0 14px; }
   .data-table,.cost-table,.inventory { font-size:13px; }
-  .doc-control { font-size:12px; } .legend { font-size:12px; }
+  .legend { font-size:12px; }
+  /* -- document control: one record, two views. The boxed panel is the screen
+        rendering; the .doc-control strip is the same data at print density.
+        The shell hides the strip here, and its print block below swaps them
+        back, so the two densities can never be shown together. -- */
+  .doc-control { display:none; font-size:12px; }
+  .document-header { border:2px solid #14324e; border-radius:8px; background:#fff; padding:16px 18px; margin:14px 0 12px; }
+  .document-brand { display:flex; flex-wrap:wrap; align-items:baseline; justify-content:space-between; gap:6px 16px; margin:0 0 12px; padding:0 0 10px; border-bottom:1px solid var(--border); font-size:12px; text-transform:uppercase; }
+  .document-brand__name { color:#14324e; font-weight:800; letter-spacing:.18em; }
+  .document-brand__type { color:var(--slate-500); font-weight:600; letter-spacing:.14em; }
+  .document-header h3 { margin:0 0 4px; color:#14324e; font-size:19px; line-height:1.25; }
+  .document-subtitle { margin:0; color:var(--slate-500); font-size:13.5px; line-height:1.5; }
+  .document-meta { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px 24px; margin:15px 0 0; font-size:12px; }
+  .document-field { margin:0; }
+  .document-meta dt { color:var(--slate-500); font-size:11px; letter-spacing:.08em; text-transform:uppercase; }
+  .document-meta dd { margin:3px 0 0; color:#14324e; font-size:13px; font-weight:650; overflow-wrap:anywhere; }
+  .document-code { font-family:Consolas,'Courier New',monospace; }
+  .document-badge { display:inline-block; width:max-content; max-width:100%; padding:2px 7px; border-radius:3px; color:#fff; font-size:11px; font-weight:750; letter-spacing:.05em; line-height:1.45; text-transform:uppercase; }
+  .document-badge--classification { background:#14324e; }
+  .document-badge--status { background:#0e7490; }
+  .document-conventions { margin:12px 0 0; padding:10px 0 0; border-top:1px solid var(--border); color:var(--slate-500); font-size:12px; line-height:1.5; }
+  .document-conventions b { color:#14324e; }
+  @media (max-width:700px) { .document-meta { grid-template-columns:repeat(2,minmax(0,1fr)); } }
   .figwrap { max-width:100%; overflow-x:auto; overscroll-behavior-inline:contain; }
   .status-pill { display:inline-flex; align-items:center; gap:7px; margin:4px 0 0; padding:6px 12px; border-radius:999px; color:#fff; background:var(--green); font-size:13px; font-weight:700; }
   .status-pill.fail { background:var(--red); }
@@ -272,6 +294,8 @@
     .doc-header h1 { font-size:20pt; } .doc-header .tagline { font-size:10pt; }
     section { margin-bottom:24px; break-inside:auto; }
     .section-tools { display:none; }
+    .document-header { display:none !important; }
+    .doc-control { display:table; }
     .figwrap { overflow:visible; }
     .diagram-scroll { overflow:visible; } #topology { min-width:0; width:100% !important; }
     .rack-grid { grid-template-columns:repeat(2,1fr); gap:10px; }
@@ -527,6 +551,23 @@
         <h2 id="overview-heading">What this document is</h2>
         <div class="note"><ul class="notes" id="overview-notes"></ul></div>
         <div class="warn"><ul class="notes" id="overview-provenance"></ul></div>
+        <header class="document-header" aria-label="Document control">
+          <div class="document-brand"><span class="document-brand__name" id="dc-brand">cloudbats</span><span class="document-brand__type">Network Design Document</span></div>
+          <h3 id="dc-title"></h3>
+          <p class="document-subtitle" id="dc-subtitle"></p>
+          <dl class="document-meta">
+            <div class="document-field"><dt>Document ID</dt><dd class="document-code" id="dc-id"></dd></div>
+            <div class="document-field"><dt>Revision</dt><dd class="document-code" id="dc-revision"></dd></div>
+            <div class="document-field"><dt>As of</dt><dd class="document-code" id="dc-date"></dd></div>
+            <div class="document-field"><dt>Subject</dt><dd id="dc-subject"></dd></div>
+            <div class="document-field"><dt>Author</dt><dd id="dc-author"></dd></div>
+            <div class="document-field"><dt>Reviewed by</dt><dd id="dc-reviewed"></dd></div>
+            <div class="document-field"><dt>Approved by</dt><dd id="dc-approved"></dd></div>
+            <div class="document-field"><dt>Classification</dt><dd><span class="document-badge document-badge--classification" id="dc-class"></span></dd></div>
+            <div class="document-field"><dt>Status</dt><dd><span class="document-badge document-badge--status" id="dc-status"></span></dd></div>
+          </dl>
+          <p class="document-conventions" id="dc-conventions"></p>
+        </header>
         <table class="doc-control">
           <tbody>
             <tr><th>Drawing</th><td id="meta-drawing"></td><th>Revision</th><td id="meta-revision"></td></tr>
@@ -680,6 +721,8 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
     "title": "Branch Site — Topology \u0026 Rack Elevation",
     "subtitle": "The smallest complete kit in the set — one WAN edge, one firewall, one PoE access switch, wireless and a 12U cabinet, all generated from a single data block. Copy this file when you are starting from nothing.",
     "drawing": "NET-BR-001",
+    "author": "Sayed Haque",
+    "classification": "Sample / reference",
     "revision": "v1.0",
     "status": "Starter kit · not approved",
     "date": "2026-08-13",
@@ -2248,6 +2291,19 @@ if (typeof module !== "undefined" && module.exports) module.exports = RACK_FACE_
     badge.textContent=evidence.text||"Assumptions · validation required";
     setText("meta-drawing",doc.drawing);setText("meta-revision",doc.revision);
     setText("meta-status",doc.status);setText("meta-date",doc.date);
+    setText("dc-brand",doc.brand?.name||"cloudbats");
+    setText("dc-title",doc.title);setText("dc-subtitle",doc.subtitle);
+    setText("dc-id",doc.drawing);setText("dc-revision",doc.revision);setText("dc-date",doc.date);
+    setText("dc-subject",doc.subject||doc.docClass);
+    setText("dc-author",doc.author||"Not assigned");
+    setText("dc-reviewed",doc.reviewedBy||"Not assigned");
+    setText("dc-approved",doc.approvedBy||"Not assigned");
+    setText("dc-class",doc.classification||"Unclassified");
+    setText("dc-status",doc.status||"Unstated");
+    const conventions=[doc.footer?.caveat,doc.footer?.redaction].filter(Boolean).join(" · ");
+    const conventionsBox=el("dc-conventions");
+    if(conventions){conventionsBox.hidden=false;conventionsBox.replaceChildren(Object.assign(document.createElement("b"),{textContent:"Caveat."}),document.createTextNode(" "+conventions))}
+    else conventionsBox.hidden=true;
     const strip=el("series-strip"),series=Array.isArray(doc.series)?doc.series:[];
     strip.replaceChildren();
     if(!series.length){strip.hidden=true;return}

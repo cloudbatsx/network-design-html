@@ -75,6 +75,16 @@ or the list changes. Anchoring to ids removes that whole class of error.
 **Four header badges, this order, always:** domain (constant `Network &
 Security`) · `{docClass} · {subject}` · `{revision} · {date}` · epistemic status.
 
+**Document control — one record, two views.** Section 0 renders the boxed
+document-control panel (brand row, title, subtitle, nine labeled fields, caveat
+line) from `document`: drawing, revision, date, subject, author, reviewedBy,
+approvedBy, classification and status. Unset people fields render `Not
+assigned` and an unset classification renders `Unclassified` — the panel never
+invents a value, so a fresh build stays honest. The thin `.doc-control` strip
+is the same record at print density: the shell hides it on screen, and its
+`@media print` block swaps it back in for the boxed panel, so the two densities
+can never disagree or appear together.
+
 **Print force-reveal.** `@media print` un-hides both toggled-off layers. The PDF
 is always the complete document — the toggle is a presentation control, not a
 redaction control.
