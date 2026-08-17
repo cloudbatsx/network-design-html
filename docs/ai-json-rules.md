@@ -131,12 +131,12 @@ invent new ones.
     "devices": [ { "id": "", "model": "", "role": "", "position": 1, "height": 1, "asset": "c9300" } ]
   },
   "sections": {
-    "overview":   { "heading": "", "notes": [], "provenance": [] },
-    "logical":    { "heading": "", "notes": [], "caption": "", "legend": "" },
-    "identity":   { "heading": "", "notes": [], "columns": [], "rows": [] },
-    "physical":   { "heading": "", "notes": [], "caption": "", "legend": "" },
-    "change":     { "heading": "", "notes": [] },
-    "operations": { "heading": "", "notes": [] },
+    "overview":   { "heading": "", "notes": [], "provenance": [], "tables": [] },
+    "logical":    { "heading": "", "notes": [], "caption": "", "legend": "", "tables": [] },
+    "identity":   { "heading": "", "notes": [], "columns": [], "rows": [], "tables": [] },
+    "physical":   { "heading": "", "notes": [], "caption": "", "legend": "", "tables": [] },
+    "change":     { "heading": "", "notes": [], "tables": [] },
+    "operations": { "heading": "", "notes": [], "tables": [] },
     "findings":   { "id": "key-gaps", "label": "", "noun": "", "heading": "", "flavour": "gaps", "items": [ { "title": "", "detail": "" } ] },
     "equipment":  { "cards": [ { "model": "", "u": "", "why": "", "asset": "c9300" } ], "costs": [ { "role": "", "model": "", "qty": 1, "unit": 0 } ] }
   }
@@ -148,6 +148,12 @@ A **note** is either a plain string or `{ "lead": "bold part", "text": "rest" }`
 An **identity row** is either a list of cells, or
 `{ "cells": [], "layer": "gap" }`. Rows marked `"layer": "gap"` are assumptions —
 they hide and reveal with the Key gaps control, so mark anything unverified.
+
+A section **table** is `{ "caption": "", "columns": [], "rows": [] }` inside a
+section's `tables` list. Rows use the identity-row grammar, including
+`{ "cells": [], "layer": "gap" }` for unverified rows. The `tables` list is
+optional and empty by default; use it for schedules and registers that need
+their own columns — a link schedule, a release audit, a risk register.
 
 `findings.flavour` is `gaps` (what is missing), `patterns` (what worked), or
 `gains` (what this buys you). Pick the one that matches the document.

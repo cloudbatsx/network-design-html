@@ -94,6 +94,7 @@
   .data-table th { background:#14324e; color:#fff; font-weight:700; }
   .data-table tr:nth-child(even) td { background:#f8fafc; }
   .data-table code,p code,li code { font-family:Consolas,'Courier New',monospace; font-size:8.6pt; background:#eef2f7; border-radius:3px; padding:0 4px; color:#0f172a; white-space:nowrap; }
+  .data-table caption { caption-side:top; text-align:left; font-weight:700; color:#14324e; font-size:9.4pt; padding:0 0 5px; }
   .doc-control { width:100%; border-collapse:collapse; font-size:8.2pt; margin:8px 0 4px; }
   .doc-control th,.doc-control td { border:1px solid #dbe4ee; padding:3px 7px; text-align:left; vertical-align:top; color:#334155; }
   .doc-control th { background:#f8fafc; color:#14324e; white-space:nowrap; width:1%; }
@@ -574,6 +575,7 @@
             <tr><th>Status</th><td id="meta-status"></td><th>As of</th><td id="meta-date"></td></tr>
           </tbody>
         </table>
+        <div class="section-tables" id="tables-overview"></div>
         <div class="status-pill" id="proof-status">Running data checks&hellip;</div>
       </section>
 
@@ -596,6 +598,7 @@
         <p class="caption" id="topology-caption"></p>
         <aside class="figure-legend" id="topology-legend" aria-labelledby="logical-legend-title" hidden></aside>
         <div class="errors" id="topology-errors" role="alert"></div>
+        <div class="section-tables" id="tables-logical"></div>
         <section class="inspector" id="topology-inspector" aria-live="polite">
           <h3>Select a topology device</h3>
           <span class="label">Proof</span>
@@ -620,6 +623,7 @@
           <thead><tr id="identity-head"></tr></thead>
           <tbody id="identity-body"></tbody>
         </table>
+        <div class="section-tables" id="tables-identity"></div>
       </section>
 
       <hr class="rule">
@@ -652,6 +656,7 @@
           <thead><tr><th>Rack position</th><th>Device ID</th><th>Manufacturer / model</th><th>Role</th><th>Face</th></tr></thead>
           <tbody id="inventory-body"></tbody>
         </table>
+        <div class="section-tables" id="tables-physical"></div>
       </section>
 
       <hr class="rule">
@@ -661,6 +666,7 @@
         <p class="kicker">Section 5</p>
         <h2 id="change-heading">Change management</h2>
         <div class="note"><ul class="notes" id="change-notes"></ul></div>
+        <div class="section-tables" id="tables-change"></div>
       </section>
 
       <hr class="rule">
@@ -670,6 +676,7 @@
         <p class="kicker">Section 6</p>
         <h2 id="operations-heading">Operations &amp; observability</h2>
         <div class="note"><ul class="notes" id="operations-notes"></ul></div>
+        <div class="section-tables" id="tables-operations"></div>
       </section>
 
       <hr class="rule">
@@ -2435,7 +2442,34 @@ if (typeof module !== "undefined" && module.exports) module.exports = RACK_FACE_
     fillNotes("change-notes",s.change?.notes,[{lead:"Change record",text:"Describe how this design is versioned, reviewed and rolled back."}]);
     if(s.operations?.heading)setText("operations-heading",s.operations.heading);
     fillNotes("operations-notes",s.operations?.notes,[{lead:"Operations",text:"Describe monitoring, alerting and the operational owner."}]);
-    renderIdentityTable(s.identity)
+    renderIdentityTable(s.identity);renderSectionTables()
+  }
+  /* Authored tables: any spine section may carry tables:[{caption,columns,rows}].
+     Rows reuse the identity-table grammar - a plain array of cells, or
+     {cells:[...],layer:"gap"} to join the toggleable candour layer. */
+  function renderSectionTables(){
+    const s=data.sections||{};
+    [["overview","tables-overview"],["logical","tables-logical"],["identity","tables-identity"],["physical","tables-physical"],["change","tables-change"],["operations","tables-operations"]].forEach(([key,id])=>{
+      const host=el(id);if(!host)return;host.replaceChildren();
+      (Array.isArray(s[key]?.tables)?s[key].tables:[]).forEach(spec=>{
+        const columns=Array.isArray(spec?.columns)?spec.columns:[],rows=Array.isArray(spec?.rows)?spec.rows:[];
+        if(!columns.length||!rows.length)return;
+        const table=document.createElement("table");table.className="data-table section-table";
+        if(spec.caption){const caption=document.createElement("caption");caption.textContent=String(spec.caption);table.appendChild(caption)}
+        const thead=document.createElement("thead"),headRow=document.createElement("tr");
+        columns.forEach(name=>{const th=document.createElement("th");th.textContent=String(name??"");headRow.appendChild(th)});
+        thead.appendChild(headRow);table.appendChild(thead);
+        const tbody=document.createElement("tbody");
+        rows.forEach(row=>{
+          const cells=Array.isArray(row)?row:(Array.isArray(row?.cells)?row.cells:[]);
+          const tr=document.createElement("tr");
+          if(!Array.isArray(row)&&row?.layer==="gap")tr.className="gap-layer";
+          cells.forEach(value=>{const td=document.createElement("td");td.textContent=String(value??"");tr.appendChild(td)});
+          tbody.appendChild(tr)
+        });
+        table.appendChild(tbody);host.appendChild(table)
+      })
+    })
   }
   function renderIdentityTable(identity){
     const table=el("identity-table"),head=el("identity-head"),body=el("identity-body");
