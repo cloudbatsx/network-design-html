@@ -223,6 +223,10 @@ for (const name of starterNames) {
       want(nodeIds.has(link.from), `link references missing node ${link.from}`);
       want(nodeIds.has(link.to), `link references missing node ${link.to}`);
     }
+    // An absence is a record too - but it cannot coexist with a schedule.
+    if (data.rack?.applicable === false) {
+      want((data.rack.devices || []).length === 0, "rack is declared not applicable but schedules devices");
+    }
     const occupied = new Map();
     for (const device of data.rack?.devices || []) {
       want(typeof device.position === "number" && typeof device.height === "number", `${device.id} position/height must be numbers`);

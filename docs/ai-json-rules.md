@@ -126,6 +126,7 @@ invent new ones.
     "links": [ { "from": "", "to": "", "kind": "l3", "label": "", "labelX": 0, "labelY": 0 } ]
   },
   "rack": {
+    "applicable": true, "statement": "",
     "id": "", "location": "", "units": 42,
     "frontAisle": "cold aisle", "rearAisle": "hot aisle",
     "reserved": [ { "position": 1, "height": 1, "label": "" } ],
@@ -149,6 +150,11 @@ A **note** is either a plain string or `{ "lead": "bold part", "text": "rest" }`
 An **identity row** is either a list of cells, or
 `{ "cells": [], "layer": "gap" }`. Rows marked `"layer": "gap"` are assumptions —
 they hide and reveal with the Key gaps control, so mark anything unverified.
+
+A strictly logical design may set `"rack": { "applicable": false, "statement":
+"why there is no rack" }` — the physical section then shows the statement
+instead of an empty elevation. Never combine `"applicable": false` with a
+`devices` list; the validator rejects the contradiction.
 
 `document.history` is the revision history, **newest entry first** — the top
 row must state the same revision as `document.revision`; the repository
