@@ -122,7 +122,7 @@ invent new ones.
   "topology": {
     "canvas": { "width": 1280, "height": 930 },
     "zones": [ { "id": "", "label": "", "kind": "internal", "x": 0, "y": 0, "width": 0, "height": 0 } ],
-    "nodes": [ { "id": "", "label": "", "role": "", "icon": "router", "x": 0, "y": 0, "address": "", "notes": "" } ],
+    "nodes": [ { "id": "", "label": "", "role": "", "icon": "router", "x": 0, "y": 0, "address": "", "notes": "", "labelSide": "below" } ],
     "links": [ { "from": "", "to": "", "kind": "l3", "label": "", "labelX": 0, "labelY": 0 } ]
   },
   "rack": {
@@ -150,6 +150,12 @@ A **note** is either a plain string or `{ "lead": "bold part", "text": "rest" }`
 An **identity row** is either a list of cells, or
 `{ "cells": [], "layer": "gap" }`. Rows marked `"layer": "gap"` are assumptions —
 they hide and reveal with the Key gaps control, so mark anything unverified.
+
+`labelSide` places a node's caption: `below` (default, name and role under the
+symbol) or `left` / `right`, which side-anchor the caption beside the symbol
+and additionally show the node's `address` line. Use the sides on paired
+devices — left member captioned left, right member captioned right — so the
+lane between them stays clear for links.
 
 A strictly logical design may set `"rack": { "applicable": false, "statement":
 "why there is no rack" }` — the physical section then shows the statement
