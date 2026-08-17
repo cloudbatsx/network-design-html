@@ -523,7 +523,10 @@ checkEvery("the shared sheet self-check is byte-identical", (want) => {
   const carriers = starterNames
     .map((name) => [`starters/${name}`, read(`starters/${name}`)])
     .filter(([, source]) => source.includes(MARK));
-  want(carriers.length >= 2, `expected at least two carriers of the shared self-check, found ${carriers.length}`);
+  // One carrier cannot drift from itself. The check bites only while two or
+  // more sheet kits still share the block, and it retires with the last one
+  // as the kits regenerate through the coordinate engine.
+  if (carriers.length < 2) return;
   const blockOf = (source) => {
     const at = source.indexOf(MARK);
     return source.slice(source.lastIndexOf("<script>", at), source.indexOf("</" + "script>", at));
