@@ -20,7 +20,14 @@
  * Usage:
  *   node tools/run-free-model-tests.js --tests-dir <folder> [--tests 3-9]
  *     [--model gemini-3.6-flash] [--env-file <path-to-.env>] [--delay-ms 7000]
- *     [--smoke]
+ *     [--smoke] [--edit-matrix]
+ *
+ * --edit-matrix drives the nine-run editing protocol from
+ * docs/free-model-results.md instead of the fresh-build loop: nine
+ * part-scoped edits on starters/NET-HQ-001.edit.html, each in a fresh
+ * conversation, the design carrying forward from save to save. Artifacts land
+ * in <tests-dir>/editing-matrix/. With --smoke it composes all nine prompts
+ * and proves the splice path without spending quota.
  *
  * Each test folder must hold one topology image and one logo image named
  * logo-<organisation>.<png|jpg|svg>. The API key comes from
@@ -83,7 +90,8 @@ function loadHelper() {
     " freshDrawingId, brandedData, EXTRACT_PROMPT, SLICES, pathLabel, buildPrompt, loadSource," +
     " FORBIDDEN_IN_DATA, countOf, polishGeometry," +
     " state: () => ({ source, payloadStart, payloadEnd, currentData })," +
-    " setRequest: (text) => { document.getElementById('request').value = text; } };";
+    " setRequest: (text) => { document.getElementById('request').value = text; }," +
+    " setSlice: (name) => { document.getElementById('slice').value = name; } };";
   vm.runInNewContext(script[1] + shim, sandbox, { filename: "edit-with-ai.html <script>" });
   return sandbox.__exports;
 }
@@ -161,23 +169,26 @@ async function callModel(model, key, contents, log) {
 
 /* ---------- the helper's check pipeline, orchestrated as check() does ---------- */
 
-function runCheck(t, raw, original) {
+function runCheck(t, raw, original, name = "all") {
   const hostile = t.checkHostileText(raw);
   const { parsed, applied, text: cleanedText } = t.parseWithRepair(raw);
 
   if (parsed === undefined) {
-    // The exact two verdicts check() renders when nothing parsed, "all" scope.
+    // The exact two verdicts check() renders when nothing parsed, scope-aware.
+    const narrower = name === "all"
+      ? "Send it again as one part only: reply with just the topology section, and nothing else."
+      : "Send it again. If it keeps being cut off, change fewer things in one go.";
     const why = t.looksTruncated(cleanedText)
       ? { stop: true,
           what: "The reply is cut off. It stops part-way through, so some of it is missing.",
-          tell: "Your last reply was cut off before it finished. Send it again as one part only: reply with just the topology section, and nothing else." }
+          tell: `Your last reply was cut off before it finished. ${narrower}` }
       : { stop: true,
           what: "This reply is not valid JSON, even after cleaning it up.",
           tell: "Your last reply was not valid JSON. Reply again with one JSON object and nothing else - no explanation, no code fences." };
     return { merged: null, problems: hostile.concat([why]), applied, truncated: t.looksTruncated(cleanedText) };
   }
 
-  const { merged, problems: mergeProblems } = t.mergeReply(parsed, original, "all");
+  const { merged, problems: mergeProblems } = t.mergeReply(parsed, original, name);
   if (!merged) return { merged: null, problems: hostile.concat(mergeProblems), applied, truncated: false };
 
   // The helper tidies arithmetic-band geometry before grading - same call,
@@ -187,7 +198,7 @@ function runCheck(t, raw, original) {
 
   const problems = hostile
     .concat(mergeProblems)
-    .concat(t.checkStructure(cleanedText, polished.next, "all", original))
+    .concat(t.checkStructure(cleanedText, polished.next, name, original))
     .concat(t.checkAssetStrings(polished.next))
     .concat(t.checkShell(polished.next))
     .concat(t.checkMeaning(polished.next));
@@ -515,6 +526,135 @@ async function smoke(t, artwork) {
   console.log("smoke: OK");
 }
 
+/* ---------- the nine-run editing matrix (docs/free-model-results.md) ---------- */
+
+/* The protocol's nine part-scoped edits on NET-HQ-001, verbatim from the
+   document. Each run is a fresh conversation so no run is helped by the
+   context of an earlier one; the design itself carries forward from save to
+   save, exactly as the documented live session would. Runs 1-8 are graded
+   against the pass bar (clean save in at most two round trips, no
+   truncation); run 9 - the whole ~39,000-character design - is diagnostic. */
+const EDIT_MATRIX = [
+  { part: "nodes",    request: "Add a wireless LAN controller in the internal zone, near the core switches." },
+  { part: "links",    request: "Connect hq-wan-01 to hq-wan-02 with a backup link." },
+  { part: "zones",    request: "Make the out-of-band zone 30 pixels taller without moving any other zone." },
+  { part: "topology", request: "Move hq-srv-01 next to the ESX hosts and connect it to both core switches." },
+  { part: "rack",     request: "Give hq-wan-01 and hq-wan-02 the drawn face of a 1U router." },
+  { part: "findings", request: "Add a finding pinned to hq-srv-01: its backup path has never been tested." },
+  { part: "sections", request: "Add a note to the operations section: weekly configuration backups are assumed, not verified." },
+  { part: "document", request: "Bump the revision to v1.1 and set the date to today. Change nothing else." },
+  { part: "all",      request: "Add a second wireless LAN controller as an HA pair for the first, wired to both cores." }
+];
+
+const MATRIX_STARTER = "NET-HQ-001.edit.html";
+
+async function runEditMatrix(t, options, log) {
+  const dir = path.join(options.testsDir, "editing-matrix");
+  fs.mkdirSync(dir, { recursive: true });
+  let source = fs.readFileSync(path.join(root, "starters", MATRIX_STARTER), "utf8");
+  const record = {
+    protocol: "nine-run editing matrix", starter: MATRIX_STARTER,
+    model: options.model, date: new Date().toISOString(), runs: []
+  };
+  const transcript = { starter: MATRIX_STARTER, runs: [] };
+
+  for (let index = 0; index < EDIT_MATRIX.length; index++) {
+    const { part, request } = EDIT_MATRIX[index];
+    const number = index + 1;
+    t.loadSource(source, MATRIX_STARTER);
+    const state = t.state();
+    t.setSlice(part);
+    t.setRequest(request);
+    const prompt = t.buildPrompt();
+    log(`\n  RUN ${number} (${part}): ${request}`);
+    const runRecord = { run: number, part, request, rounds: [] };
+    const runTranscript = { run: number, part, request, prompt, rounds: [] };
+    const contents = [{ role: "user", parts: [{ text: prompt }] }];
+    let accepted = null;
+    for (let round = 1; round <= MAX_ROUND_TRIPS; round++) {
+      await sleep(options.delayMs);
+      const reply = await callModel(options.model, options.key, contents, log);
+      record.modelVersion = reply.modelVersion;
+      const checked = runCheck(t, reply.text, state.currentData, part);
+      const stops = checked.problems.filter((p) => p.stop);
+      const warnings = checked.problems.length - stops.length;
+      runRecord.rounds.push({
+        round, finishReason: reply.finishReason, chars: reply.text.length, usage: reply.usage,
+        repairsApplied: checked.applied, truncated: checked.truncated,
+        stops: stops.map((p) => p.what), warnings,
+        warningTexts: checked.problems.filter((p) => !p.stop).map((p) => p.what)
+      });
+      log(`  run ${number} round ${round}: ${reply.text.length} chars, ${stops.length} stop(s), ${warnings} warning(s)` +
+        (checked.applied.length ? `, repaired: ${checked.applied.join(", ")}` : ""));
+      if (checked.merged && !stops.length) {
+        runTranscript.rounds.push({ reply: reply.text });
+        accepted = checked.merged;
+        runRecord.roundTrips = round;
+        break;
+      }
+      const retryMessage = problemsMessage(checked.problems);
+      runTranscript.rounds.push({ reply: reply.text, problemsMessage: retryMessage });
+      contents.push({ role: "model", parts: [{ text: reply.text }] });
+      contents.push({ role: "user", parts: [{ text: retryMessage }] });
+    }
+    if (!accepted) {
+      runRecord.verdict = `FAIL - no clean save within ${MAX_ROUND_TRIPS} round trips`;
+      record.runs.push(runRecord);
+      transcript.runs.push(runTranscript);
+      log(`  run ${number}: ${runRecord.verdict} - the session cannot continue from an unsaved design`);
+      break;
+    }
+    source = spliceAndGuard(t, state.source, state.payloadStart, state.payloadEnd, accepted);
+    const trips = runRecord.roundTrips;
+    const warned = runRecord.rounds[trips - 1].warnings;
+    runRecord.verdict = `clean save in ${trips} round trip${trips === 1 ? "" : "s"}` +
+      (warned ? ` with ${warned} warning(s)` : "");
+    log(`  run ${number}: ${runRecord.verdict}`);
+    record.runs.push(runRecord);
+    transcript.runs.push(runTranscript);
+  }
+
+  const graded = record.runs.filter((r) => r.run <= 8);
+  const passed = graded.length === 8 && graded.every((r) =>
+    r.roundTrips && r.roundTrips <= 2 && r.rounds.every((round) => !round.truncated));
+  const nine = record.runs.find((r) => r.run === 9);
+  record.verdict = (passed
+    ? "PASS - runs 1-8 clean in at most two round trips, no truncation"
+    : "FAIL - see the runs") +
+    (nine ? `; run 9 (diagnostic): ${nine.verdict || "no clean save"}` : "; run 9 not reached");
+
+  if (!options.smoke) {
+    const finalName = "NET-HQ-001.after-matrix.edit.html";
+    fs.writeFileSync(path.join(dir, finalName), source, "utf8");
+    record.saved = finalName;
+    rotateArtifact(dir, "run-log.json");
+    fs.writeFileSync(path.join(dir, "run-log.json"), JSON.stringify(record, null, 2) + "\n", "utf8");
+    rotateArtifact(dir, "run-transcript.json");
+    fs.writeFileSync(path.join(dir, "run-transcript.json"), JSON.stringify(transcript, null, 2) + "\n", "utf8");
+  }
+  log(`\n  MATRIX: ${record.verdict}`);
+  return record;
+}
+
+/* Matrix smoke: compose all nine prompts against the real starter, prove the
+   slice targeting and the splice path, spend zero quota. */
+function editMatrixSmoke(t) {
+  const source = fs.readFileSync(path.join(root, "starters", MATRIX_STARTER), "utf8");
+  t.loadSource(source, MATRIX_STARTER);
+  const state = t.state();
+  for (const { part, request } of EDIT_MATRIX) {
+    t.setSlice(part);
+    t.setRequest(request);
+    const prompt = t.buildPrompt();
+    if (!prompt.includes(request)) throw new Error(`the ${part} prompt lost its request`);
+    if (part !== "all" && !prompt.includes("ONE PART")) throw new Error(`the ${part} prompt is not part-scoped`);
+    if (part === "all" && !prompt.includes("all four top-level keys")) throw new Error("the Everything prompt is not whole-design");
+    console.log(`smoke: matrix prompt (${part}) builds, ${prompt.length} chars`);
+  }
+  spliceAndGuard(t, state.source, state.payloadStart, state.payloadEnd, state.currentData);
+  console.log("smoke: edit-matrix OK");
+}
+
 /* ---------- main ---------- */
 
 function parseArgs(argv) {
@@ -527,6 +667,7 @@ function parseArgs(argv) {
     else if (arg === "--env-file") options.envFile = argv[++i];
     else if (arg === "--delay-ms") options.delayMs = Number(argv[++i]);
     else if (arg === "--smoke") options.smoke = true;
+    else if (arg === "--edit-matrix") options.editMatrix = true;
     else throw new Error(`unknown argument: ${arg}`);
   }
   const range = options.tests.match(/^(\d+)-(\d+)$/);
@@ -542,11 +683,21 @@ if (require.main === module) (async () => {
   const artwork = repoArtwork();
   console.log(`artwork index: ${artwork.files} files from assets/`);
 
-  if (options.smoke) { await smoke(t, artwork); return; }
+  if (options.smoke) {
+    await smoke(t, artwork);
+    if (options.editMatrix) editMatrixSmoke(t);
+    return;
+  }
 
   if (!options.testsDir) throw new Error("--tests-dir is required (or use --smoke)");
   options.key = readKey(options.envFile);
   options.artwork = artwork;
+
+  if (options.editMatrix) {
+    const record = await runEditMatrix(t, options, (line) => console.log(line));
+    if (/FAIL/.test(record.verdict)) process.exitCode = 1;
+    return;
+  }
 
   const results = [];
   for (const number of options.testNumbers) {
@@ -579,4 +730,4 @@ if (require.main === module) (async () => {
 
 // The gate and the rotation are graded by the behaviour suite; requiring
 // this file runs nothing.
-module.exports = { statedDeviceCount, confessesCondensation, inventoryShortfall, rotateArtifact };
+module.exports = { statedDeviceCount, confessesCondensation, inventoryShortfall, rotateArtifact, EDIT_MATRIX };

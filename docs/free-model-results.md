@@ -407,7 +407,18 @@ writing, and a behaviour test holds it there.
 
 ### The nine-run editing matrix
 
-> Not yet run.
+> Not yet run live. The automated driver shipped 2026-08-17: it plays the
+> nine runs below through the helper's real part machinery — each run a
+> fresh conversation, the design carrying forward from save to save, the
+> scoped Copy-problems loop on retries — and writes its artifacts to
+> `tests/free-model-runs/editing-matrix/`:
+>
+>     node tools/run-free-model-tests.js --tests-dir tests/free-model-runs --edit-matrix
+>
+> Add `--smoke` for the no-quota dry run (composes all nine prompts, proves
+> the slice targeting and the splice path). The smoke already confirms the
+> part economics: the eight part prompts run 7,400–25,500 characters where
+> the Everything prompt runs 45,000.
 
 **Session:** _date_ · **Model:** _exact name as shown_ · **Interface:** _e.g.
 gemini.google.com free tier_ · **Operator:** _name_

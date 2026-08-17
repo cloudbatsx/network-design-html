@@ -695,6 +695,17 @@ test("gate: the prompts demand the exact count line and numbered confessions", (
   assert(/stating both numbers/.test(text), "the confession no longer has to state the numbers");
 });
 
+test("matrix: the nine documented edits target real parts and stand alone", () => {
+  const matrix = gateTools.EDIT_MATRIX;
+  assert.strictEqual(matrix.length, 9, "the protocol has nine runs");
+  for (const { part, request } of matrix) {
+    assert(t.SLICES[part], `unknown part: ${part}`);
+    assert(request && request.length > 10, `empty request for ${part}`);
+  }
+  assert.strictEqual(matrix[8].part, "all", "run 9 is the Everything run");
+  assert(matrix.slice(0, 8).every((entry) => entry.part !== "all"), "runs 1-8 are part-scoped");
+});
+
 test("evidence: a new run archives the last log instead of overwriting it", () => {
   const os = require("os");
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "ndh-rotate-"));
