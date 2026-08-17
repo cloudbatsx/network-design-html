@@ -94,6 +94,7 @@
   .data-table th { background:#14324e; color:#fff; font-weight:700; }
   .data-table tr:nth-child(even) td { background:#f8fafc; }
   .data-table code,p code,li code { font-family:Consolas,'Courier New',monospace; font-size:8.6pt; background:#eef2f7; border-radius:3px; padding:0 4px; color:#0f172a; white-space:nowrap; }
+  .data-table caption { caption-side:top; text-align:left; font-weight:700; color:#14324e; font-size:9.4pt; padding:0 0 5px; }
   .doc-control { width:100%; border-collapse:collapse; font-size:8.2pt; margin:8px 0 4px; }
   .doc-control th,.doc-control td { border:1px solid #dbe4ee; padding:3px 7px; text-align:left; vertical-align:top; color:#334155; }
   .doc-control th { background:#f8fafc; color:#14324e; white-space:nowrap; width:1%; }
@@ -145,7 +146,7 @@
   .diagram-scroll{overflow:auto;border:1px solid #e2e8f0;background:#fff}#topology{display:block;width:100%;min-width:980px;height:auto;transition:width .15s ease}
   .zone{stroke-width:1.2;stroke-dasharray:7 5}.zone.external{fill:#f7f9fa;stroke:#a5b4bc}.zone.perimeter{fill:#fff8f4;stroke:#d5a585}.zone.internal{fill:#f2fafb;stroke:#8eb8c2}.zone.other{fill:#f8f8fb;stroke:#aaa9bb}
   .zone-label{fill:#627580;font-size:13px;font-weight:700;letter-spacing:.08em}.link{fill:none;stroke-linecap:round;stroke-linejoin:round}.link.l3{stroke:#006687;stroke-width:2.5}.link.aggregate{stroke:#167a74;stroke-width:5}.link.ha{stroke:#9a3b70;stroke-width:2.5;stroke-dasharray:8 6}.link.access{stroke:#526b78;stroke-width:2}.link.backup{stroke:#7c929e;stroke-width:1.8;stroke-dasharray:5 5}
-  .link-label-bg{fill:#fff;fill-opacity:.94;stroke:#d8e1e6}.link-label{fill:#42545e;font-size:11px;font-weight:600;text-anchor:middle}.node{cursor:pointer;outline:none;--symbol-main:#007fa8;--symbol-dark:#006687;--symbol-light:#51bde6;--symbol-detail:#fff}.node-shell{fill:#fff;stroke:#aebec7;stroke-width:1.4}.node:hover .node-shell,.node:focus .node-shell,.node.selected .node-shell{stroke:#006687;stroke-width:3;filter:url(#node-shadow)}.node-name{fill:#14242f;font-size:13px;font-weight:700;text-anchor:middle}.node-role{fill:#5d707c;font-size:11px;text-anchor:middle}.node-warning{fill:#a02d2d;font-size:10px;font-weight:700;text-anchor:middle}.node-generic{fill:#f4f8fa;stroke:#7c929e;stroke-width:1.5;stroke-dasharray:4 3}.node-generic-label{fill:#526b78;font-size:8px;font-weight:700;text-anchor:middle;letter-spacing:.06em}.topology-vector-icon{pointer-events:none}
+  .link-label-bg{fill:#fff;fill-opacity:.94;stroke:#d8e1e6}.link-label{fill:#42545e;font-size:11px;font-weight:600;text-anchor:middle}.node{cursor:pointer;outline:none;--symbol-main:#007fa8;--symbol-dark:#006687;--symbol-light:#51bde6;--symbol-detail:#fff}.node-shell{fill:transparent;stroke:none}.node:hover .node-shell,.node:focus .node-shell,.node.selected .node-shell{fill:rgba(0,127,168,.05);stroke:#006687;stroke-width:2;filter:url(#node-shadow)}.node-name{fill:#14242f;font-size:13px;font-weight:700;font-family:Consolas,'Courier New',monospace;text-anchor:middle}.node-role{fill:#5d707c;font-size:11px;text-anchor:middle}.node-address{fill:#0e7490;font-size:11px;font-family:Consolas,'Courier New',monospace;text-anchor:middle}.segment-hit{fill:transparent;stroke:none}.segment-node:hover .segment-hit,.segment-node:focus .segment-hit,.segment-node.selected .segment-hit{fill:rgba(0,127,168,.05);stroke:#006687;stroke-width:2}.segment-bar{stroke:none}.segment-junction{fill:#fff;stroke-width:3.5}.link-casing{fill:none;stroke:#fff;stroke-width:9;stroke-linejoin:round}.link{stroke-linejoin:round}.node-warning{fill:#a02d2d;font-size:10px;font-weight:700;text-anchor:middle}.node-generic{fill:#f4f8fa;stroke:#7c929e;stroke-width:1.5;stroke-dasharray:4 3}.node-generic-label{fill:#526b78;font-size:8px;font-weight:700;text-anchor:middle;letter-spacing:.06em}.topology-vector-icon{pointer-events:none}
   #network-vector-symbols{position:absolute;width:0;height:0;overflow:hidden;pointer-events:none}.sym-primary{fill:var(--symbol-main,#007fa8)}.sym-dark{fill:var(--symbol-dark,#006687)}.sym-light{fill:var(--symbol-light,#51bde6)}.sym-detail{fill:var(--symbol-detail,#fff)}.sym-outline{fill:#fff;stroke:var(--symbol-main,#007fa8);stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}.sym-detail-stroke{fill:none;stroke:var(--symbol-detail,#fff);stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
   .inspector{display:grid;grid-template-columns:150px 1fr;gap:7px 15px;margin-top:13px;padding:15px 17px;border-left:4px solid #0891b2;background:#f6fafb}.inspector h3{grid-column:1/-1;margin:0 0 4px}.inspector .label{color:#64748b;font-size:.79rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
   .errors{display:none;margin:12px 0;padding:10px 12px;border-left:4px solid #dc2626;color:#762121;background:#fff3f3}.errors.visible{display:block}
@@ -238,7 +239,35 @@
   .gaps,.patterns,.gains { font-size:14px; }
   .caption { font-size:12.5px; line-height:1.5; margin:5px 0 14px; }
   .data-table,.cost-table,.inventory { font-size:13px; }
-  .doc-control { font-size:12px; } .legend { font-size:12px; }
+  .legend { font-size:12px; }
+  /* -- document control: one record, two views. The boxed panel is the screen
+        rendering; the .doc-control strip is the same data at print density.
+        The shell hides the strip here, and its print block below swaps them
+        back, so the two densities can never be shown together. -- */
+  .doc-control { display:none; font-size:12px; }
+  .document-header { border:2px solid #14324e; border-radius:8px; background:#fff; padding:16px 18px; margin:14px 0 12px; }
+  .document-brand { display:flex; flex-wrap:wrap; align-items:baseline; justify-content:space-between; gap:6px 16px; margin:0 0 12px; padding:0 0 10px; border-bottom:1px solid var(--border); font-size:12px; text-transform:uppercase; }
+  .document-brand__name { color:#14324e; font-weight:800; letter-spacing:.18em; }
+  .document-brand__type { color:var(--slate-500); font-weight:600; letter-spacing:.14em; }
+  .document-header h3 { margin:0 0 4px; color:#14324e; font-size:19px; line-height:1.25; }
+  .document-subtitle { margin:0; color:var(--slate-500); font-size:13.5px; line-height:1.5; }
+  .document-meta { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px 24px; margin:15px 0 0; font-size:12px; }
+  .document-field { margin:0; }
+  .document-meta dt { color:var(--slate-500); font-size:11px; letter-spacing:.08em; text-transform:uppercase; }
+  .document-meta dd { margin:3px 0 0; color:#14324e; font-size:13px; font-weight:650; overflow-wrap:anywhere; }
+  .document-code { font-family:Consolas,'Courier New',monospace; }
+  .document-badge { display:inline-block; width:max-content; max-width:100%; padding:2px 7px; border-radius:3px; color:#fff; font-size:11px; font-weight:750; letter-spacing:.05em; line-height:1.45; text-transform:uppercase; }
+  .document-badge--classification { background:#14324e; }
+  .document-badge--status { background:#0e7490; }
+  .document-conventions { margin:12px 0 0; padding:10px 0 0; border-top:1px solid var(--border); color:var(--slate-500); font-size:12px; line-height:1.5; }
+  .document-conventions b { color:#14324e; }
+  body.no-rack #physical-view .section-tools,
+  body.no-rack #physical-view .figwrap,
+  body.no-rack #physical-view #rack-caption,
+  body.no-rack #physical-view #rack-legend,
+  body.no-rack #physical-view .rack-inspector,
+  body.no-rack #physical-view .inventory { display:none; }
+  @media (max-width:700px) { .document-meta { grid-template-columns:repeat(2,minmax(0,1fr)); } }
   .figwrap { max-width:100%; overflow-x:auto; overscroll-behavior-inline:contain; }
   .status-pill { display:inline-flex; align-items:center; gap:7px; margin:4px 0 0; padding:6px 12px; border-radius:999px; color:#fff; background:var(--green); font-size:13px; font-weight:700; }
   .status-pill.fail { background:var(--red); }
@@ -272,6 +301,8 @@
     .doc-header h1 { font-size:20pt; } .doc-header .tagline { font-size:10pt; }
     section { margin-bottom:24px; break-inside:auto; }
     .section-tools { display:none; }
+    .document-header { display:none !important; }
+    .doc-control { display:table; }
     .figwrap { overflow:visible; }
     .diagram-scroll { overflow:visible; } #topology { min-width:0; width:100% !important; }
     .rack-grid { grid-template-columns:repeat(2,1fr); gap:10px; }
@@ -527,12 +558,30 @@
         <h2 id="overview-heading">What this document is</h2>
         <div class="note"><ul class="notes" id="overview-notes"></ul></div>
         <div class="warn"><ul class="notes" id="overview-provenance"></ul></div>
+        <header class="document-header" aria-label="Document control">
+          <div class="document-brand"><span class="document-brand__name" id="dc-brand">cloudbats</span><span class="document-brand__type">Network Design Document</span></div>
+          <h3 id="dc-title"></h3>
+          <p class="document-subtitle" id="dc-subtitle"></p>
+          <dl class="document-meta">
+            <div class="document-field"><dt>Document ID</dt><dd class="document-code" id="dc-id"></dd></div>
+            <div class="document-field"><dt>Revision</dt><dd class="document-code" id="dc-revision"></dd></div>
+            <div class="document-field"><dt>As of</dt><dd class="document-code" id="dc-date"></dd></div>
+            <div class="document-field"><dt>Subject</dt><dd id="dc-subject"></dd></div>
+            <div class="document-field"><dt>Author</dt><dd id="dc-author"></dd></div>
+            <div class="document-field"><dt>Reviewed by</dt><dd id="dc-reviewed"></dd></div>
+            <div class="document-field"><dt>Approved by</dt><dd id="dc-approved"></dd></div>
+            <div class="document-field"><dt>Classification</dt><dd><span class="document-badge document-badge--classification" id="dc-class"></span></dd></div>
+            <div class="document-field"><dt>Status</dt><dd><span class="document-badge document-badge--status" id="dc-status"></span></dd></div>
+          </dl>
+          <p class="document-conventions" id="dc-conventions"></p>
+        </header>
         <table class="doc-control">
           <tbody>
             <tr><th>Drawing</th><td id="meta-drawing"></td><th>Revision</th><td id="meta-revision"></td></tr>
             <tr><th>Status</th><td id="meta-status"></td><th>As of</th><td id="meta-date"></td></tr>
           </tbody>
         </table>
+        <div class="section-tables" id="tables-overview"></div>
         <div class="status-pill" id="proof-status">Running data checks&hellip;</div>
       </section>
 
@@ -555,6 +604,7 @@
         <p class="caption" id="topology-caption"></p>
         <aside class="figure-legend" id="topology-legend" aria-labelledby="logical-legend-title" hidden></aside>
         <div class="errors" id="topology-errors" role="alert"></div>
+        <div class="section-tables" id="tables-logical"></div>
         <section class="inspector" id="topology-inspector" aria-live="polite">
           <h3>Select a topology device</h3>
           <span class="label">Proof</span>
@@ -579,6 +629,7 @@
           <thead><tr id="identity-head"></tr></thead>
           <tbody id="identity-body"></tbody>
         </table>
+        <div class="section-tables" id="tables-identity"></div>
       </section>
 
       <hr class="rule">
@@ -588,6 +639,7 @@
         <p class="kicker">Section 4</p>
         <h2 id="rack-heading">Physical view</h2>
         <div class="note"><ul class="notes" id="physical-notes"></ul></div>
+        <div class="warn" id="rack-not-applicable" hidden></div>
         <div class="section-tools">
           <button type="button" id="rack-compact">Compact</button>
           <button type="button" id="rack-full">Full size</button>
@@ -611,6 +663,7 @@
           <thead><tr><th>Rack position</th><th>Device ID</th><th>Manufacturer / model</th><th>Role</th><th>Face</th></tr></thead>
           <tbody id="inventory-body"></tbody>
         </table>
+        <div class="section-tables" id="tables-physical"></div>
       </section>
 
       <hr class="rule">
@@ -620,6 +673,12 @@
         <p class="kicker">Section 5</p>
         <h2 id="change-heading">Change management</h2>
         <div class="note"><ul class="notes" id="change-notes"></ul></div>
+        <table class="data-table revision-history" id="history-table" hidden>
+          <caption>Document revision history</caption>
+          <thead><tr><th>Revision</th><th>Date</th><th>Author</th><th>Change summary</th></tr></thead>
+          <tbody id="history-body"></tbody>
+        </table>
+        <div class="section-tables" id="tables-change"></div>
       </section>
 
       <hr class="rule">
@@ -629,6 +688,7 @@
         <p class="kicker">Section 6</p>
         <h2 id="operations-heading">Operations &amp; observability</h2>
         <div class="note"><ul class="notes" id="operations-notes"></ul></div>
+        <div class="section-tables" id="tables-operations"></div>
       </section>
 
       <hr class="rule">
@@ -678,15 +738,23 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
 {
   "document": {
     "title": "Crestline Group Network",
-    "subtitle": "Hierarchical campus network design featuring headquarters egress, core, aggregation, access, data center, network management, and branch office zones.",
+    "subtitle": "Headquarters campus, data center, network management area, branch campus, and remote user enterprise topology.",
     "drawing": "CGN-NET-001",
     "revision": "v1.0",
-    "status": "As-Built Reference",
+    "status": "As-Drawn Schematic",
     "date": "2026-08-13",
-    "docClass": "Reference Design",
-    "subject": "Campus Architecture",
+    "docClass": "Logical Network Diagram",
+    "subject": "Enterprise Campus",
+    "history": [
+      {
+        "revision": "v1.0",
+        "date": "2026-08-13",
+        "author": "Network Architecture Team",
+        "summary": "Logical network architecture layout captured from schematic."
+      }
+    ],
     "evidence": {
-      "text": "Assumptions · validation required",
+      "text": "Diagram notation · IP \u0026 hardware details unverified",
       "color": "red"
     },
     "brand": {
@@ -701,427 +769,513 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
       "equipment": false
     },
     "footer": {
-      "author": "Prepared by Infrastructure Design Team",
+      "author": "Prepared by Network Architecture Team",
       "originalDate": "2026-08-13",
-      "edition": "Production Reference",
-      "changed": "Initial diagram capture and topology mapping",
-      "detail": "Architectural overview captured from diagram schematic",
-      "caveat": "Every element in this sample is an assumption to validate, not a recorded fact",
-      "redaction": "Facility identifiers at pattern level; personal identifiers redacted"
+      "edition": "Standard Edition",
+      "changed": "Initial schematic ingestion",
+      "detail": "Diagram data extracted directly from visual layout",
+      "caveat": "Visual schematic data captured; physical hardware specifications require validation",
+      "redaction": "Public IP and site identifiers omitted"
     }
   },
   "topology": {
     "canvas": {
       "width": 1280,
-      "height": 1600
+      "height": 1800
     },
     "zones": [
       {
         "id": "external",
-        "label": "EXTERNAL / UNTRUSTED ZONE",
+        "label": "EXTERNAL / PUBLIC INTERNET \u0026 REMOTE",
         "kind": "external",
         "x": 25,
         "y": 25,
         "width": 1230,
-        "height": 180
+        "height": 160
       },
       {
-        "id": "internal",
-        "label": "HEADQUARTERS \u0026 BRANCH CAMPUS (TRUSTED ZONE)",
+        "id": "hq-campus",
+        "label": "HEADQUARTERS CAMPUS",
         "kind": "internal",
         "x": 25,
-        "y": 225,
+        "y": 210,
         "width": 1230,
-        "height": 1320
+        "height": 1000
+      },
+      {
+        "id": "branch-campus",
+        "label": "BRANCH CAMPUS",
+        "kind": "internal",
+        "x": 25,
+        "y": 1235,
+        "width": 1230,
+        "height": 440
       }
     ],
     "nodes": [
       {
         "id": "cloud-dc-01",
-        "label": "Cloud Data Center",
-        "role": "Cloud Services",
+        "label": "Cloud data center",
+        "role": "Cloud Infrastructure",
         "icon": "cloud",
-        "x": 150,
-        "y": 110,
+        "x": 135,
+        "y": 105,
         "address": "Unspecified",
-        "notes": "External cloud data center connected via WAN."
+        "notes": "External Cloud Data Center."
       },
       {
-        "id": "wan-01",
-        "label": "Internet / WAN",
-        "role": "WAN Infrastructure",
+        "id": "internet-wan",
+        "label": "Internet/WAN",
+        "role": "Public Transport Network",
         "icon": "cloud",
-        "x": 500,
-        "y": 110,
-        "address": "Unspecified Provider",
-        "notes": "Central Internet and WAN cloud interconnecting cloud, HQ, branch, and remote users."
+        "x": 435,
+        "y": 105,
+        "address": "Unspecified",
+        "notes": "Central Internet / WAN backbone."
       },
       {
-        "id": "user-biztrip-01",
-        "label": "Business Trip Users",
-        "role": "Remote Access",
+        "id": "remote-user-01",
+        "label": "Users on business trips",
+        "role": "Remote Mobile Client",
         "icon": "laptop",
-        "x": 850,
-        "y": 110,
-        "address": "Dynamic Remote",
-        "notes": "Traveling users connecting via remote access VPN / WAN."
+        "x": 735,
+        "y": 105,
+        "address": "DHCP / VPN",
+        "notes": "Remote traveling workforce via WAN."
       },
       {
-        "id": "user-wfh-01",
-        "label": "WFH Users",
-        "role": "Remote Access",
-        "icon": "workstation",
-        "x": 1100,
-        "y": 110,
-        "address": "Dynamic Remote",
-        "notes": "Work-from-home users connecting via remote access VPN / WAN."
+        "id": "remote-user-02",
+        "label": "Users working from home",
+        "role": "Teleworker Client",
+        "icon": "laptop",
+        "x": 1035,
+        "y": 105,
+        "address": "DHCP / VPN",
+        "notes": "Remote home office user via WAN."
       },
       {
         "id": "hq-egress-rtr-01",
-        "label": "HQ Egress Router 1",
-        "role": "WAN Border Router",
+        "label": "hq-egress-rtr-01",
+        "role": "HQ Egress Router",
         "icon": "router",
-        "x": 350,
-        "y": 300,
+        "x": 335,
+        "y": 290,
         "address": "Unspecified",
-        "notes": "Primary WAN gateway router for Headquarters Campus egress."
+        "notes": "HQ Egress Edge Router 1."
       },
       {
         "id": "hq-egress-rtr-02",
-        "label": "HQ Egress Router 2",
-        "role": "WAN Border Router",
+        "label": "hq-egress-rtr-02",
+        "role": "HQ Egress Router",
         "icon": "router",
-        "x": 550,
-        "y": 300,
+        "x": 535,
+        "y": 290,
         "address": "Unspecified",
-        "notes": "Secondary WAN gateway router for Headquarters Campus egress."
+        "notes": "HQ Egress Edge Router 2."
       },
       {
-        "id": "hq-fw-01",
-        "label": "HQ Egress FW 1",
-        "role": "Perimeter Firewall",
+        "id": "hq-egress-fw-01",
+        "label": "hq-egress-fw-01",
+        "role": "Egress Firewall",
         "icon": "firewall",
-        "x": 350,
-        "y": 430,
+        "x": 735,
+        "y": 290,
         "address": "Unspecified",
-        "notes": "Egress layer perimeter security firewall member."
+        "notes": "HQ Egress Firewall 1 (Primary)."
       },
       {
-        "id": "hq-fw-02",
-        "label": "HQ Egress FW 2",
-        "role": "Perimeter Firewall",
+        "id": "hq-egress-fw-02",
+        "label": "hq-egress-fw-02",
+        "role": "Egress Firewall",
         "icon": "firewall",
-        "x": 550,
-        "y": 430,
+        "x": 935,
+        "y": 290,
         "address": "Unspecified",
-        "notes": "Egress layer perimeter security firewall member (HA mate)."
+        "notes": "HQ Egress Firewall 2 (HA Peer)."
       },
       {
         "id": "hq-core-sw-01",
-        "label": "HQ Core Switch 1",
-        "role": "Core Switching",
+        "label": "hq-core-sw-01",
+        "role": "Core Switch",
         "icon": "core-switch",
-        "x": 350,
-        "y": 560,
+        "x": 335,
+        "y": 430,
         "address": "Unspecified",
-        "notes": "HQ Core Layer redundant switch 1."
+        "notes": "HQ Core Layer Switch 1."
       },
       {
         "id": "hq-core-sw-02",
-        "label": "HQ Core Switch 2",
-        "role": "Core Switching",
+        "label": "hq-core-sw-02",
+        "role": "Core Switch",
         "icon": "core-switch",
-        "x": 550,
-        "y": 560,
+        "x": 535,
+        "y": 430,
         "address": "Unspecified",
-        "notes": "HQ Core Layer redundant switch 2."
+        "notes": "HQ Core Layer Switch 2."
       },
       {
         "id": "hq-dc-sw-01",
-        "label": "DC Campus Switch",
-        "role": "Data Center Aggregation",
+        "label": "hq-dc-sw-01",
+        "role": "Data Center Switch",
         "icon": "dc-switch",
-        "x": 800,
+        "x": 735,
         "y": 430,
         "address": "Unspecified",
-        "notes": "Data Center Campus network gateway switch."
-      },
-      {
-        "id": "hq-dc-srv-01",
-        "label": "DC Application Server",
-        "role": "Compute Server",
-        "icon": "server",
-        "x": 1000,
-        "y": 430,
-        "address": "Unspecified",
-        "notes": "Data Center server node."
-      },
-      {
-        "id": "hq-dc-srv-02",
-        "label": "DC Database Host",
-        "role": "Database / Compute",
-        "icon": "server",
-        "x": 1000,
-        "y": 560,
-        "address": "Unspecified",
-        "notes": "Data Center host server."
+        "notes": "Data Center Campus Aggregation Switch."
       },
       {
         "id": "hq-mgmt-sw-01",
-        "label": "Management Area Switch",
-        "role": "Network Management Access",
+        "label": "hq-mgmt-sw-01",
+        "role": "Management Switch",
         "icon": "access-switch",
-        "x": 800,
-        "y": 690,
+        "x": 935,
+        "y": 430,
         "address": "Unspecified",
-        "notes": "Switch dedicated to Network Management Area."
+        "notes": "Network Management Area Switch."
+      },
+      {
+        "id": "hq-dc-srv-01",
+        "label": "hq-dc-srv-01",
+        "role": "Data Center Server",
+        "icon": "server",
+        "x": 135,
+        "y": 570,
+        "address": "Unspecified",
+        "notes": "DC Host / Application Server 1."
+      },
+      {
+        "id": "hq-dc-srv-02",
+        "label": "hq-dc-srv-02",
+        "role": "Data Center Server",
+        "icon": "server",
+        "x": 335,
+        "y": 570,
+        "address": "Unspecified",
+        "notes": "DC Host / Storage Server 2."
+      },
+      {
+        "id": "hq-dc-srv-03",
+        "label": "hq-dc-srv-03",
+        "role": "Data Center Server",
+        "icon": "server",
+        "x": 535,
+        "y": 570,
+        "address": "Unspecified",
+        "notes": "DC Host / Database Server 3."
       },
       {
         "id": "hq-mgmt-srv-01",
-        "label": "Network Mgmt Appliance",
-        "role": "Management System",
+        "label": "hq-mgmt-srv-01",
+        "role": "NMS Appliance",
         "icon": "network-management",
-        "x": 1000,
-        "y": 690,
+        "x": 735,
+        "y": 570,
         "address": "Unspecified",
-        "notes": "NMS server / monitoring management system."
+        "notes": "Network Management Server 1."
+      },
+      {
+        "id": "hq-mgmt-srv-02",
+        "label": "hq-mgmt-srv-02",
+        "role": "NMS Appliance",
+        "icon": "network-management",
+        "x": 935,
+        "y": 570,
+        "address": "Unspecified",
+        "notes": "Network Management Server 2."
       },
       {
         "id": "hq-agg-sw-01",
-        "label": "HQ Agg Switch 1",
-        "role": "Aggregation Switching",
+        "label": "hq-agg-sw-01",
+        "role": "Aggregation Switch",
         "icon": "core-switch",
-        "x": 150,
-        "y": 690,
+        "x": 335,
+        "y": 710,
         "address": "Unspecified",
-        "notes": "HQ Aggregation Layer switch 1."
+        "notes": "HQ Aggregation Layer Switch 1."
       },
       {
         "id": "hq-agg-sw-02",
-        "label": "HQ Agg Switch 2",
-        "role": "Aggregation Switching",
+        "label": "hq-agg-sw-02",
+        "role": "Aggregation Switch",
         "icon": "core-switch",
-        "x": 350,
-        "y": 690,
+        "x": 535,
+        "y": 710,
         "address": "Unspecified",
-        "notes": "HQ Aggregation Layer switch 2."
+        "notes": "HQ Aggregation Layer Switch 2."
       },
       {
         "id": "hq-agg-sw-03",
-        "label": "HQ Agg Switch 3",
-        "role": "Aggregation Switching",
+        "label": "hq-agg-sw-03",
+        "role": "Aggregation Switch",
         "icon": "core-switch",
-        "x": 550,
-        "y": 690,
+        "x": 735,
+        "y": 710,
         "address": "Unspecified",
-        "notes": "HQ Aggregation Layer switch 3."
+        "notes": "HQ Aggregation Layer Switch 3."
+      },
+      {
+        "id": "hq-agg-sw-04",
+        "label": "hq-agg-sw-04",
+        "role": "Aggregation Switch",
+        "icon": "core-switch",
+        "x": 935,
+        "y": 710,
+        "address": "Unspecified",
+        "notes": "HQ Aggregation Layer Switch 4."
       },
       {
         "id": "hq-access-sw-01",
-        "label": "HQ Access Switch 1",
-        "role": "Floor Access",
+        "label": "hq-access-sw-01",
+        "role": "Access Switch",
         "icon": "access-switch",
-        "x": 150,
-        "y": 820,
+        "x": 335,
+        "y": 850,
         "address": "Unspecified",
-        "notes": "HQ Access Layer switch 1."
+        "notes": "HQ Access Layer Switch 1."
       },
       {
         "id": "hq-access-sw-02",
-        "label": "HQ Access Switch 2",
-        "role": "Floor Access",
+        "label": "hq-access-sw-02",
+        "role": "Access Switch",
         "icon": "access-switch",
-        "x": 350,
-        "y": 820,
+        "x": 535,
+        "y": 850,
         "address": "Unspecified",
-        "notes": "HQ Access Layer switch 2."
+        "notes": "HQ Access Layer Switch 2."
       },
       {
         "id": "hq-access-sw-03",
-        "label": "HQ Access Switch 3",
-        "role": "Floor Access",
+        "label": "hq-access-sw-03",
+        "role": "Access Switch",
         "icon": "access-switch",
-        "x": 550,
-        "y": 820,
+        "x": 735,
+        "y": 850,
         "address": "Unspecified",
-        "notes": "HQ Access Layer switch 3."
+        "notes": "HQ Access Layer Switch 3."
+      },
+      {
+        "id": "hq-access-sw-04",
+        "label": "hq-access-sw-04",
+        "role": "Access Switch",
+        "icon": "access-switch",
+        "x": 935,
+        "y": 850,
+        "address": "Unspecified",
+        "notes": "HQ Access Layer Switch 4."
       },
       {
         "id": "hq-ap-01",
-        "label": "HQ Wireless AP",
-        "role": "Wi-Fi Coverage",
+        "label": "hq-ap-01",
+        "role": "Wireless Access Point",
         "icon": "access-point",
-        "x": 750,
-        "y": 820,
+        "x": 1135,
+        "y": 850,
         "address": "Unspecified",
-        "notes": "HQ Access Layer Wireless Access Point."
+        "notes": "HQ Access Layer Wireless AP."
       },
       {
         "id": "hq-pc-01",
-        "label": "HQ Workstation 1",
-        "role": "Client PC",
+        "label": "hq-pc-01",
+        "role": "Workstation",
         "icon": "pc",
-        "x": 150,
-        "y": 950,
-        "address": "DHCP Assigned",
-        "notes": "Wired desktop endpoint."
+        "x": 135,
+        "y": 990,
+        "address": "Unspecified",
+        "notes": "HQ Wired Workstation 1."
       },
       {
         "id": "hq-pc-02",
-        "label": "HQ Workstation 2",
-        "role": "Client PC",
+        "label": "hq-pc-02",
+        "role": "Workstation",
         "icon": "pc",
-        "x": 350,
-        "y": 950,
-        "address": "DHCP Assigned",
-        "notes": "Wired desktop endpoint."
+        "x": 335,
+        "y": 990,
+        "address": "Unspecified",
+        "notes": "HQ Wired Workstation 2."
       },
       {
         "id": "hq-pc-03",
-        "label": "HQ Workstation 3",
-        "role": "Client PC",
+        "label": "hq-pc-03",
+        "role": "Workstation",
         "icon": "pc",
-        "x": 550,
-        "y": 950,
-        "address": "DHCP Assigned",
-        "notes": "Wired desktop endpoint."
+        "x": 535,
+        "y": 990,
+        "address": "Unspecified",
+        "notes": "HQ Wired Workstation 3."
+      },
+      {
+        "id": "hq-pc-04",
+        "label": "hq-pc-04",
+        "role": "Workstation",
+        "icon": "pc",
+        "x": 735,
+        "y": 990,
+        "address": "Unspecified",
+        "notes": "HQ Wired Workstation 4."
       },
       {
         "id": "hq-mobile-01",
-        "label": "HQ Wireless Client",
-        "role": "Mobile Endpoint",
+        "label": "hq-mobile-01",
+        "role": "Wireless Client",
         "icon": "laptop",
-        "x": 750,
-        "y": 950,
-        "address": "DHCP Dynamic",
-        "notes": "Wireless user device in HQ."
+        "x": 935,
+        "y": 990,
+        "address": "Unspecified",
+        "notes": "HQ Wireless Mobile Device 1."
+      },
+      {
+        "id": "hq-mobile-02",
+        "label": "hq-mobile-02",
+        "role": "Wireless Client",
+        "icon": "laptop",
+        "x": 1135,
+        "y": 990,
+        "address": "Unspecified",
+        "notes": "HQ Wireless Mobile Device 2."
+      },
+      {
+        "id": "hq-mobile-03",
+        "label": "hq-mobile-03",
+        "role": "Wireless Client",
+        "icon": "laptop",
+        "x": 1135,
+        "y": 1130,
+        "address": "Unspecified",
+        "notes": "HQ Wireless Mobile Device 3."
       },
       {
         "id": "branch-rtr-01",
-        "label": "Branch Router",
-        "role": "Branch Gateway",
+        "label": "branch-rtr-01",
+        "role": "Branch Router",
         "icon": "router",
-        "x": 1000,
-        "y": 950,
+        "x": 335,
+        "y": 1315,
         "address": "Unspecified",
-        "notes": "Branch campus WAN edge gateway router."
+        "notes": "Branch Campus WAN Router."
       },
       {
         "id": "branch-sw-01",
-        "label": "Branch Switch",
-        "role": "Branch Access",
+        "label": "branch-sw-01",
+        "role": "Branch Switch",
         "icon": "access-switch",
-        "x": 1000,
-        "y": 1080,
+        "x": 335,
+        "y": 1455,
         "address": "Unspecified",
-        "notes": "Branch campus central access switch."
+        "notes": "Branch Campus Ethernet Switch."
       },
       {
         "id": "branch-ap-01",
-        "label": "Branch AP",
-        "role": "Branch Wi-Fi",
+        "label": "branch-ap-01",
+        "role": "Branch AP",
         "icon": "access-point",
-        "x": 800,
-        "y": 1080,
+        "x": 535,
+        "y": 1455,
         "address": "Unspecified",
-        "notes": "Branch campus wireless access point."
+        "notes": "Branch Campus Access Point."
       },
       {
         "id": "branch-pc-01",
-        "label": "Branch Workstation 1",
-        "role": "Branch Client",
+        "label": "branch-pc-01",
+        "role": "Branch Workstation",
         "icon": "pc",
-        "x": 1000,
-        "y": 1210,
-        "address": "DHCP Assigned",
-        "notes": "Branch campus wired user PC."
+        "x": 135,
+        "y": 1595,
+        "address": "Unspecified",
+        "notes": "Branch Campus Workstation 1."
       },
       {
         "id": "branch-pc-02",
-        "label": "Branch Workstation 2",
-        "role": "Branch Client",
+        "label": "branch-pc-02",
+        "role": "Branch Workstation",
         "icon": "pc",
-        "x": 1180,
-        "y": 1210,
-        "address": "DHCP Assigned",
-        "notes": "Branch campus wired user PC."
+        "x": 335,
+        "y": 1595,
+        "address": "Unspecified",
+        "notes": "Branch Campus Workstation 2."
       },
       {
         "id": "branch-mobile-01",
-        "label": "Branch Mobile Client",
-        "role": "Branch Wireless Client",
+        "label": "branch-mobile-01",
+        "role": "Branch Mobile Client",
         "icon": "laptop",
-        "x": 800,
-        "y": 1210,
-        "address": "DHCP Dynamic",
-        "notes": "Branch campus wireless user device."
+        "x": 535,
+        "y": 1595,
+        "address": "Unspecified",
+        "notes": "Branch Campus Wireless Device 1."
+      },
+      {
+        "id": "branch-mobile-02",
+        "label": "branch-mobile-02",
+        "role": "Branch Mobile Client",
+        "icon": "laptop",
+        "x": 735,
+        "y": 1595,
+        "address": "Unspecified",
+        "notes": "Branch Campus Wireless Device 2."
       }
     ],
     "links": [
       {
         "from": "cloud-dc-01",
-        "to": "wan-01",
+        "to": "internet-wan",
         "kind": "l3"
       },
       {
-        "from": "user-biztrip-01",
-        "to": "wan-01",
-        "kind": "l3"
+        "from": "remote-user-01",
+        "to": "internet-wan",
+        "kind": "access"
       },
       {
-        "from": "user-wfh-01",
-        "to": "wan-01",
-        "kind": "l3"
+        "from": "remote-user-02",
+        "to": "internet-wan",
+        "kind": "access"
       },
       {
-        "from": "wan-01",
+        "from": "internet-wan",
         "to": "hq-egress-rtr-01",
         "kind": "l3"
       },
       {
-        "from": "wan-01",
+        "from": "internet-wan",
         "to": "hq-egress-rtr-02",
         "kind": "l3"
       },
       {
-        "from": "wan-01",
+        "from": "internet-wan",
         "to": "branch-rtr-01",
         "kind": "l3"
       },
       {
         "from": "hq-egress-rtr-01",
-        "to": "hq-fw-01",
+        "to": "hq-egress-fw-01",
         "kind": "l3"
       },
       {
         "from": "hq-egress-rtr-02",
-        "to": "hq-fw-02",
+        "to": "hq-egress-fw-02",
         "kind": "l3"
       },
       {
-        "from": "hq-fw-01",
-        "to": "hq-fw-02",
-        "kind": "ha"
+        "from": "hq-egress-fw-01",
+        "to": "hq-egress-fw-02",
+        "kind": "ha",
+        "label": "HA State / Sync"
       },
       {
-        "from": "hq-fw-01",
+        "from": "hq-egress-fw-01",
         "to": "hq-core-sw-01",
         "kind": "aggregate"
       },
       {
-        "from": "hq-fw-02",
+        "from": "hq-egress-fw-02",
         "to": "hq-core-sw-02",
         "kind": "aggregate"
       },
       {
         "from": "hq-core-sw-01",
         "to": "hq-core-sw-02",
-        "kind": "ha"
-      },
-      {
-        "from": "hq-core-sw-01",
-        "to": "hq-dc-sw-01",
-        "kind": "aggregate"
+        "kind": "ha",
+        "label": "Core Interconnect"
       },
       {
         "from": "hq-core-sw-02",
@@ -1144,8 +1298,18 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
         "kind": "access"
       },
       {
+        "from": "hq-dc-sw-01",
+        "to": "hq-dc-srv-03",
+        "kind": "access"
+      },
+      {
         "from": "hq-mgmt-sw-01",
         "to": "hq-mgmt-srv-01",
+        "kind": "access"
+      },
+      {
+        "from": "hq-mgmt-sw-01",
+        "to": "hq-mgmt-srv-02",
         "kind": "access"
       },
       {
@@ -1164,34 +1328,59 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
         "kind": "aggregate"
       },
       {
+        "from": "hq-core-sw-02",
+        "to": "hq-agg-sw-04",
+        "kind": "aggregate"
+      },
+      {
         "from": "hq-agg-sw-01",
         "to": "hq-agg-sw-02",
         "kind": "ha"
       },
       {
+        "from": "hq-agg-sw-03",
+        "to": "hq-agg-sw-04",
+        "kind": "ha"
+      },
+      {
         "from": "hq-agg-sw-01",
         "to": "hq-access-sw-01",
-        "kind": "access"
+        "kind": "aggregate"
       },
       {
         "from": "hq-agg-sw-01",
         "to": "hq-access-sw-02",
-        "kind": "access"
+        "kind": "aggregate"
       },
       {
         "from": "hq-agg-sw-02",
         "to": "hq-access-sw-01",
-        "kind": "access"
+        "kind": "aggregate"
       },
       {
         "from": "hq-agg-sw-02",
         "to": "hq-access-sw-02",
-        "kind": "access"
+        "kind": "aggregate"
       },
       {
         "from": "hq-agg-sw-03",
         "to": "hq-access-sw-03",
-        "kind": "access"
+        "kind": "aggregate"
+      },
+      {
+        "from": "hq-agg-sw-03",
+        "to": "hq-access-sw-04",
+        "kind": "aggregate"
+      },
+      {
+        "from": "hq-agg-sw-04",
+        "to": "hq-access-sw-03",
+        "kind": "aggregate"
+      },
+      {
+        "from": "hq-agg-sw-04",
+        "to": "hq-access-sw-04",
+        "kind": "aggregate"
       },
       {
         "from": "hq-access-sw-01",
@@ -1209,13 +1398,28 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
         "kind": "access"
       },
       {
-        "from": "hq-access-sw-03",
+        "from": "hq-access-sw-04",
+        "to": "hq-pc-04",
+        "kind": "access"
+      },
+      {
+        "from": "hq-access-sw-04",
         "to": "hq-ap-01",
         "kind": "access"
       },
       {
         "from": "hq-ap-01",
         "to": "hq-mobile-01",
+        "kind": "access"
+      },
+      {
+        "from": "hq-ap-01",
+        "to": "hq-mobile-02",
+        "kind": "access"
+      },
+      {
+        "from": "hq-ap-01",
+        "to": "hq-mobile-03",
         "kind": "access"
       },
       {
@@ -1242,197 +1446,166 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
         "from": "branch-ap-01",
         "to": "branch-mobile-01",
         "kind": "access"
+      },
+      {
+        "from": "branch-ap-01",
+        "to": "branch-mobile-02",
+        "kind": "access"
       }
     ]
   },
   "rack": {
-    "id": "HQ-RACK-01",
-    "location": "HQ Data Center / MDF",
+    "id": "RACK-MDF-01",
+    "location": "HQ MDF",
     "units": 42,
     "frontAisle": "cold aisle",
     "rearAisle": "hot aisle",
     "reserved": [],
-    "devices": [
-      {
-        "id": "hq-core-sw-01",
-        "model": "Generic Core Switch 1U",
-        "role": "HQ Core Switch 1",
-        "position": 42,
-        "height": 1,
-        "asset": "generic-switch-48p-1u"
-      },
-      {
-        "id": "hq-core-sw-02",
-        "model": "Generic Core Switch 1U",
-        "role": "HQ Core Switch 2",
-        "position": 41,
-        "height": 1,
-        "asset": "generic-switch-48p-1u"
-      },
-      {
-        "id": "hq-fw-01",
-        "model": "Generic Perimeter Firewall 1U",
-        "role": "HQ Egress FW 1",
-        "position": 39,
-        "height": 1,
-        "asset": "generic-firewall-1u"
-      },
-      {
-        "id": "hq-fw-02",
-        "model": "Generic Perimeter Firewall 1U",
-        "role": "HQ Egress FW 2",
-        "position": 38,
-        "height": 1,
-        "asset": "generic-firewall-1u"
-      },
-      {
-        "id": "hq-dc-srv-01",
-        "model": "Generic Server 2U",
-        "role": "Data Center Application Server",
-        "position": 34,
-        "height": 2,
-        "asset": "generic-server-2u"
-      },
-      {
-        "id": "hq-dc-srv-02",
-        "model": "Generic Server 2U",
-        "role": "Data Center Database Host",
-        "position": 31,
-        "height": 2,
-        "asset": "generic-server-2u"
-      }
-    ]
+    "devices": []
   },
   "sections": {
     "overview": {
-      "heading": "Network Architecture Overview",
+      "heading": "Diagram Summary \u0026 Purpose",
       "notes": [
         {
-          "lead": "Hierarchical Design",
-          "text": "The network diagram illustrates a multi-tiered corporate network architecture comprising a Headquarters Campus, Data Center Campus, Network Management Area, and Branch Campus interconnected via WAN/Internet."
+          "lead": "Enterprise Tiered Campus Architecture",
+          "text": "The network schematic illustrates a multi-layer enterprise architecture comprising an Egress Layer, Core Layer, Data Center Campus, Network Management Area, Aggregation Layer, Access Layer, Branch Campus, and Remote User connectivity via WAN."
         },
         {
-          "lead": "Headquarters Egress \u0026 Core",
-          "text": "Egress routers connect to dual perimeter firewalls, feeding into a core switching layer with cross-links to data center and aggregation switches."
+          "lead": "High Availability \u0026 Redundancy",
+          "text": "Dual egress routers, dual firewall units with state sync, dual core switches, and dual aggregation switch pairs provide redundancy across headquarters."
         }
       ],
       "provenance": [
         {
-          "lead": "Diagram Ingestion",
-          "text": "Extracted from conceptual topology diagram without explicit interface labels or IP addressing specifications."
+          "lead": "Diagram Source Data",
+          "text": "Topology nodes and connections directly extracted from graphic diagram NET-PROOF-001."
         }
       ]
     },
     "logical": {
-      "heading": "Logical Topology Details",
+      "heading": "Logical Network Architecture",
       "notes": [
         {
-          "lead": "Layer Structure",
-          "text": "HQ consists of four logical layers: Egress layer, Core layer, Aggregation layer, and Access layer."
+          "lead": "Layered Hierarchy",
+          "text": "Headquarters uses strict functional partitioning across Egress, Core, Aggregation, and Access layers, plus isolated Data Center and Management areas."
         },
         {
           "lead": "Branch \u0026 Remote Connectivity",
-          "text": "Branch campus connects via an edge router directly to the Internet/WAN cloud, mirroring the access/WLAN structure of HQ."
+          "text": "Branch campus connects back over Internet/WAN. Teleworkers and mobile users access internal services via remote WAN/VPN paths."
         }
       ]
     },
     "identity": {
-      "heading": "Identity \u0026 Network Segmentation",
+      "heading": "Subnets, SSIDs \u0026 Addressing",
       "notes": [
         {
-          "lead": "Functional Zones",
-          "text": "Network zones are partitioned by function: WAN Egress, Core/Distribution, Data Center, Network Management, and Campus Access."
+          "lead": "Addressing Schema Unverified",
+          "text": "No VLAN IDs, IP address blocks, or SSIDs are printed on the source diagram."
         }
       ],
       "columns": [
-        "Zone / Function",
-        "Location",
-        "Addressing Type",
+        "Zone / Area",
+        "Subnet Range",
+        "VLAN ID",
+        "SSID",
         "Provenance"
       ],
       "rows": [
         {
           "cells": [
-            "Data Center Campus",
-            "Headquarters",
-            "Static / Unspecified",
-            "Diagram Assumed"
+            "HQ Core / Infrastructure",
+            "Unspecified",
+            "Unspecified",
+            "N/A",
+            "Visual Schematic"
           ],
           "layer": "gap"
         },
         {
           "cells": [
-            "Network Management Area",
-            "Headquarters",
-            "Static / Unspecified",
-            "Diagram Assumed"
+            "HQ Data Center",
+            "Unspecified",
+            "Unspecified",
+            "N/A",
+            "Visual Schematic"
           ],
           "layer": "gap"
         },
         {
           "cells": [
-            "Campus Access Endpoints",
-            "HQ \u0026 Branch",
-            "DHCP Dynamic",
-            "Diagram Assumed"
+            "HQ Wireless",
+            "Unspecified",
+            "Unspecified",
+            "Unspecified",
+            "Visual Schematic"
+          ],
+          "layer": "gap"
+        },
+        {
+          "cells": [
+            "Branch Campus",
+            "Unspecified",
+            "Unspecified",
+            "Unspecified",
+            "Visual Schematic"
           ],
           "layer": "gap"
         }
       ]
     },
     "physical": {
-      "heading": "Physical Placement \u0026 Equipment",
+      "heading": "Physical Rack Elevation",
       "notes": [
         {
-          "lead": "Rack Documentation Gap",
-          "text": "Physical hardware models and rack unit positions are omitted in the original diagram and modeled using generic reference profiles."
+          "lead": "Physical Rack Data Missing",
+          "text": "No physical rack elevations, U positions, or chassis model numbers are provided in the source diagram."
         }
       ]
     },
     "change": {
-      "heading": "Change Tracking \u0026 Auditing",
+      "heading": "Change History \u0026 Management",
       "notes": [
         {
-          "lead": "Baseline Creation",
-          "text": "Initial structural baselining established under revision v1.0."
+          "lead": "Document Versioning",
+          "text": "Initial extraction and standard JSON formatting created on 2026-08-13."
         }
       ]
     },
     "operations": {
-      "heading": "Operations \u0026 Monitoring",
+      "heading": "Operational Overview",
       "notes": [
         {
-          "lead": "Centralized NMS",
-          "text": "Dedicated Network Management Area designated in Headquarters Campus for central observability."
+          "lead": "Monitoring Responsibilities",
+          "text": "Network operations center must verify HA sync links between firewalls, core switches, and aggregation pairs."
         }
       ]
     },
     "findings": {
       "id": "gaps",
-      "label": "Gaps \u0026 Unverified Details",
+      "label": "Gaps \u0026 Unverified Items",
       "noun": "gaps",
-      "heading": "Gaps and Open Items — Unrecorded Metadata",
+      "heading": "Gaps and Unverified Diagram Information",
       "flavour": "gaps",
       "items": [
         {
-          "title": "Missing IP Addresses and VLAN IDs",
-          "detail": "No IP addresses, subnet masks, interface names, or VLAN IDs were present on the visual diagram schematic.",
-          "atZone": "internal"
+          "title": "Absence of Physical Hardware Documentation",
+          "detail": "The diagram provides logical architecture only; rack placement, U positions, power, and physical cabling specifications are unrecorded."
         },
         {
-          "title": "Unspecified Hardware Models",
-          "detail": "Device vendor model numbers, firmware versions, and port counts are unrecorded on all diagram nodes.",
+          "title": "Unspecified IP Addressing \u0026 Subnets",
+          "detail": "No IP addresses, subnet masks, VLAN assignments, or routing protocol details were specified on the source graphic.",
+          "atZone": "hq-campus"
+        },
+        {
+          "title": "Missing Device Models and Operating System Versions",
+          "detail": "Hardware model numbers, software releases, hardware serial numbers, and license expiration dates are not provided on the diagram.",
           "at": [
             "hq-core-sw-01",
             "hq-core-sw-02",
-            "hq-fw-01",
-            "hq-fw-02"
+            "hq-egress-fw-01",
+            "hq-egress-fw-02"
           ]
-        },
-        {
-          "title": "Physical Rack Elevation Unverified",
-          "detail": "Physical rack mounting heights, cabinet assignments, and power supply links are illustrative assumptions.",
-          "atZone": "internal"
         }
       ]
     },
@@ -1517,7 +1690,7 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
 // The rack faceplate drawing core. Shared, verbatim, by three consumers:
 //
 //   * tools/build-rack-faces.js, which expands it into an SVG sprite
-//   * examples/rack-face-preview.html, the review page
+//   * tools/rack-faces/rack-face-preview.html, the review page
 //   * the design documents themselves, which inline this whole file and call
 //     faceMarkup() at render time
 //
@@ -2586,6 +2759,19 @@ if (typeof module !== "undefined" && module.exports) module.exports = RACK_FACE_
     badge.textContent=evidence.text||"Assumptions · validation required";
     setText("meta-drawing",doc.drawing);setText("meta-revision",doc.revision);
     setText("meta-status",doc.status);setText("meta-date",doc.date);
+    setText("dc-brand",doc.brand?.name||"cloudbats");
+    setText("dc-title",doc.title);setText("dc-subtitle",doc.subtitle);
+    setText("dc-id",doc.drawing);setText("dc-revision",doc.revision);setText("dc-date",doc.date);
+    setText("dc-subject",doc.subject||doc.docClass);
+    setText("dc-author",doc.author||"Not assigned");
+    setText("dc-reviewed",doc.reviewedBy||"Not assigned");
+    setText("dc-approved",doc.approvedBy||"Not assigned");
+    setText("dc-class",doc.classification||"Unclassified");
+    setText("dc-status",doc.status||"Unstated");
+    const conventions=[doc.footer?.caveat,doc.footer?.redaction].filter(Boolean).join(" · ");
+    const conventionsBox=el("dc-conventions");
+    if(conventions){conventionsBox.hidden=false;conventionsBox.replaceChildren(Object.assign(document.createElement("b"),{textContent:"Caveat."}),document.createTextNode(" "+conventions))}
+    else conventionsBox.hidden=true;
     const strip=el("series-strip"),series=Array.isArray(doc.series)?doc.series:[];
     strip.replaceChildren();
     if(!series.length){strip.hidden=true;return}
@@ -2642,16 +2828,51 @@ if (typeof module !== "undefined" && module.exports) module.exports = RACK_FACE_
     filter.appendChild(svgEl("feDropShadow",{dx:0,dy:3,stdDeviation:3,"flood-color":"#152d39","flood-opacity":.2}));defs.appendChild(filter);svg.append(title,desc,defs);
     (topo.zones||[]).forEach(zone=>{const zx=Number(zone.x),zy=Number(zone.y),zw=Number(zone.width),zh=Number(zone.height);if(![zx,zy,zw,zh].every(Number.isFinite)){topologyErrors.push(`Zone ${zone.id||zone.label||"?"} has no usable position or size, so it was not drawn.`);return}if(zone.kind!==undefined&&!ZONE_KINDS.includes(zone.kind))topologyErrors.push(`Zone ${zone.id||zone.label||"?"} has the unknown kind "${zone.kind}", which draws as a solid black rectangle.`);svg.appendChild(svgEl("rect",{class:`zone ${zone.kind||"other"}`,x:zx,y:zy,width:zw,height:zh,rx:12}));svg.appendChild(svgEl("text",{class:"zone-label",x:zx+18,y:zy+27},zone.label||zone.id))});
     const nodes=new Map();(topo.nodes||[]).forEach(node=>{if(!node.id)topologyErrors.push("A topology node is missing an id.");else if(nodes.has(node.id))topologyErrors.push(`Duplicate topology node id: ${node.id}.`);else nodes.set(node.id,node)});
-    const links=svgEl("g",{"aria-label":"Network links"}),labels=svgEl("g",{"aria-label":"Link labels"});
-    (topo.links||[]).forEach((link,index)=>{const source=nodes.get(link.from),target=nodes.get(link.to);if(!source||!target){topologyErrors.push(`Link ${index+1} references a missing node.`);return}if(link.kind!==undefined&&!LINK_KINDS.includes(link.kind))topologyErrors.push(`Link ${index+1} (${link.from} to ${link.to}) has the unknown kind "${link.kind}", which draws an invisible line.`);const points=[[source.x,source.y],...(link.via||[]),[target.x,target.y]],traced=points.map(point=>point.join(",")).join(" "),kind=link.kind||"l3";const linkGroup=svgEl("g",{class:"link-group",tabindex:0,"aria-label":`${link.label?`${link.label}, `:""}${KIND_LABELS[kind]||kind} from ${source.label||source.id} to ${target.label||target.id}`});linkGroup.appendChild(svgEl("polyline",{class:`link ${kind}`,points:traced}));linkGroup.appendChild(svgEl("polyline",{class:"link-hit",points:traced}));attachHover(linkGroup,()=>({title:`${source.label||source.id} → ${target.label||target.id}`,lines:[{text:link.label||""},{text:KIND_LABELS[kind]||kind,detail:true}]}));links.appendChild(linkGroup);if(link.label){const auto=midpoint(points),x=Number.isFinite(Number(link.labelX))?Number(link.labelX):auto[0],y=Number.isFinite(Number(link.labelY))?Number(link.labelY):auto[1],w=Math.max(54,link.label.length*6.7+16);labels.appendChild(svgEl("rect",{class:"link-label-bg",x:x-w/2,y:y-12,width:w,height:22,rx:4}));labels.appendChild(svgEl("text",{class:"link-label",x,y:y+4},link.label))}});svg.append(links,labels);
+    const links=svgEl("g",{"aria-label":"Network links"}),junctions=svgEl("g",{"aria-label":"Segment junctions"}),labels=svgEl("g",{"aria-label":"Link labels"});
+    (topo.links||[]).forEach((link,index)=>{const source=nodes.get(link.from),target=nodes.get(link.to);if(!source||!target){topologyErrors.push(`Link ${index+1} references a missing node.`);return}if(link.kind!==undefined&&!LINK_KINDS.includes(link.kind))topologyErrors.push(`Link ${index+1} (${link.from} to ${link.to}) has the unknown kind "${link.kind}", which draws an invisible line.`);const segmentAnchor=(node,ref)=>{const w=Number(node.width)||300,half=Math.max(20,w/2-14),x=Math.max(Number(node.x)-half,Math.min(Number(node.x)+half,Number(ref[0])));return[x,Number(node.y)]};const srcRef=(link.via&&link.via.length)?link.via[0]:[target.x,target.y];const tgtRef=(link.via&&link.via.length)?link.via[link.via.length-1]:[source.x,source.y];const start=source.shape==="segment"?segmentAnchor(source,srcRef):[source.x,source.y];const end=target.shape==="segment"?segmentAnchor(target,tgtRef):[target.x,target.y];if(source.shape==="segment")junctions.appendChild(svgEl("circle",{class:"segment-junction",cx:start[0],cy:start[1],r:7,style:`stroke:${source.color||"#0e7490"}`}));if(target.shape==="segment")junctions.appendChild(svgEl("circle",{class:"segment-junction",cx:end[0],cy:end[1],r:7,style:`stroke:${target.color||"#0e7490"}`}));let points;if(link.route==="elbow"&&!(link.via&&link.via.length)){const lane=Number.isFinite(Number(link.elbowAt))?Number(link.elbowAt):(start[1]+end[1])/2;const spread=(from,to,isSegment)=>isSegment?from[0]:from[0]+(to[0]>from[0]?10:to[0]<from[0]?-10:0);const sx=spread(start,end,source.shape==="segment"),ex=spread(end,start,target.shape==="segment");points=[[sx,start[1]],[sx,lane],[ex,lane],[ex,end[1]]]}else{points=[start,...(link.via||[]),end]}const traced=points.map(point=>point.join(",")).join(" "),kind=link.kind||"l3";const linkGroup=svgEl("g",{class:"link-group",tabindex:0,"aria-label":`${link.label?`${link.label}, `:""}${KIND_LABELS[kind]||kind} from ${source.label||source.id} to ${target.label||target.id}`});if(link.route==="elbow"&&kind!=="backup"&&kind!=="ha")linkGroup.appendChild(svgEl("polyline",{class:"link-casing",points:traced}));linkGroup.appendChild(svgEl("polyline",{class:`link ${kind}`,points:traced}));linkGroup.appendChild(svgEl("polyline",{class:"link-hit",points:traced}));attachHover(linkGroup,()=>({title:`${source.label||source.id} → ${target.label||target.id}`,lines:[{text:link.label||""},{text:KIND_LABELS[kind]||kind,detail:true}]}));links.appendChild(linkGroup);if(link.label){const auto=midpoint(points),x=Number.isFinite(Number(link.labelX))?Number(link.labelX):auto[0],y=Number.isFinite(Number(link.labelY))?Number(link.labelY):auto[1],w=Math.max(54,link.label.length*6.7+16);labels.appendChild(svgEl("rect",{class:"link-label-bg",x:x-w/2,y:y-12,width:w,height:22,rx:4}));labels.appendChild(svgEl("text",{class:"link-label",x,y:y+4},link.label))}});svg.append(links,junctions,labels);
     const nodeLayer=svgEl("g",{"aria-label":"Network devices"});
     nodes.forEach(node=>{
       if(!Number.isFinite(Number(node.x))||!Number.isFinite(Number(node.y))){topologyErrors.push(`${node.id} has no usable x,y position, so it was not drawn.`);return}
+      /* A shape:"segment" node is the sheet grammar's shared subnet bar:
+         a coloured rail whose members attach with junction taps. Its caption
+         sits below the bar, or stacked off the right end (labelSide:"right"). */
+      if(node.shape==="segment"){
+        const w=Number(node.width)||300,color=node.color||"#0e7490",sx=Number(node.x),sy=Number(node.y);
+        const group=svgEl("g",{class:"node segment-node",tabindex:0,role:"button","aria-label":`${node.label||node.id}, ${node.role||"shared Layer 3 segment"}`});
+        group.appendChild(svgEl("rect",{class:"segment-hit",x:sx-w/2,y:sy-24,width:w,height:64,rx:8}));
+        group.appendChild(svgEl("rect",{class:"segment-bar",x:sx-w/2,y:sy-5,width:w,height:10,rx:5,style:`fill:${color}`}));
+        if(node.labelSide==="right"){
+          group.appendChild(svgEl("text",{class:"node-name",style:"text-anchor:start",x:sx+w/2+12,y:sy-1},node.label||node.id));
+          if(node.address)group.appendChild(svgEl("text",{class:"node-address",style:"text-anchor:start",x:sx+w/2+12,y:sy+15},node.address));
+        }else{
+          group.appendChild(svgEl("text",{class:"node-name",x:sx,y:sy+24},node.label||node.id));
+          if(node.address)group.appendChild(svgEl("text",{class:"node-address",x:sx,y:sy+41},node.address));
+        }
+        const select=()=>{svg.querySelectorAll(".node.selected").forEach(item=>item.classList.remove("selected"));group.classList.add("selected");makeInspector("topology-inspector",node.label||node.id,[["Role",node.role],["Address / context",node.address],["Documentation note",node.notes],["Rendered icon","segment bar"]])};
+        group.addEventListener("click",select);
+        group.addEventListener("keydown",event=>{if(event.key==="Enter"||event.key===" "){event.preventDefault();select()}});
+        attachHover(group,()=>({title:node.label||node.id,lines:[{text:node.role||""},{text:node.address||""},{text:node.notes||"",detail:true}]}));
+        nodeLayer.appendChild(group);
+        return
+      }
       const group=svgEl("g",{class:"node",tabindex:0,role:"button","aria-label":`${node.label||node.id}, ${node.role||"network device"}`,transform:`translate(${Number(node.x)-NODE_W/2} ${Number(node.y)-NODE_H/2})`});
       group.appendChild(svgEl("rect",{class:"node-shell",width:NODE_W,height:NODE_H,rx:9}));
       const iconRef=appendNodeIcon(group,node);
-      group.appendChild(svgEl("text",{class:"node-name",x:NODE_W/2,y:78},node.label||node.id));
-      group.appendChild(svgEl("text",{class:"node-role",x:NODE_W/2,y:95},node.role||""));
+      /* Caption placement: "below" is the two-line default; "left"/"right"
+         side-anchor the stack beside the symbol and reveal the address line,
+         the source sheets' notation. Inline style wins over the stylesheet's
+         text-anchor, so the same classes serve both modes. */
+      const side=node.labelSide==="left"?"left":node.labelSide==="right"?"right":"below";
+      if(side==="below"){
+        group.appendChild(svgEl("text",{class:"node-name",x:NODE_W/2,y:78},node.label||node.id));
+        group.appendChild(svgEl("text",{class:"node-role",x:NODE_W/2,y:95},node.role||""));
+      }else{
+        const anchorStyle=side==="left"?"text-anchor:end":"text-anchor:start";
+        const tx=side==="left"?NODE_W/2-46:NODE_W/2+46;
+        group.appendChild(svgEl("text",{class:"node-name",style:anchorStyle,x:tx,y:22},node.label||node.id));
+        group.appendChild(svgEl("text",{class:"node-role",style:anchorStyle,x:tx,y:38},node.role||""));
+        if(node.address)group.appendChild(svgEl("text",{class:"node-address",style:anchorStyle,x:tx,y:54},node.address));
+      }
       const select=()=>{svg.querySelectorAll(".node.selected").forEach(item=>item.classList.remove("selected"));group.classList.add("selected");makeInspector("topology-inspector",node.label||node.id,[["Role",node.role],["Address / context",node.address],["Documentation note",node.notes],["Rendered icon",iconRef]])};
       group.addEventListener("click",select);
       group.addEventListener("keydown",event=>{if(event.key==="Enter"||event.key===" "){event.preventDefault();select()}});
@@ -2699,7 +2920,7 @@ if (typeof module !== "undefined" && module.exports) module.exports = RACK_FACE_
     return vectorFace(device,view)||placeholderFace(`${device.id} / ${view}`,view)
   }
   function renderRackView(view,rack){const bay=el(`rack-${view}`),wrap=el(`rack-${view}-wrap`);bay.replaceChildren();wrap.querySelectorAll(".rack-tooltip").forEach(item=>item.remove());bay.style.height=`calc(${rack.units} * var(--u))`;wrap.querySelectorAll(".ruler").forEach(ruler=>ruler.style.height=`calc(${rack.units} * var(--u))`);buildRuler(wrap,rack.units);const tooltip=document.createElement("div");tooltip.className="rack-tooltip";tooltip.setAttribute("role","tooltip");wrap.appendChild(tooltip);(rack.reserved||[]).forEach(slot=>{const item=document.createElement("div");item.className="reserved-slot";item.style.bottom=`calc((${slot.position} - 1) * var(--u))`;item.style.height=`calc(${slot.height} * var(--u))`;item.textContent=slot.label;bay.appendChild(item)});(rack.devices||[]).forEach(device=>{if(!Number.isFinite(Number(device.position))||!Number.isFinite(Number(device.height)))return;const wanted=device.asset&&device.asset!=="generic",asset=wanted?RACK_ASSETS[device.asset]:null,vector=wanted?vectorInfo(device.asset,device.height):null;if(wanted&&!asset&&!vector&&view==="front")rackErrors.push(`Unknown rack asset ${device.asset} on ${device.id}; drawn as a generic face.`);if(vector&&vector.units!==device.height&&view==="front")rackErrors.push(`${device.id} is scheduled as ${device.height}U but ${device.asset} draws a ${vector.units}U face.`);if(wanted&&asset&&!vector&&view==="front")rackErrors.push(`${device.id} is scheduled as ${device.height}U but ${device.asset} has no ${device.height}U face.`);const face=document.createElement("button");face.type="button";face.className="device-face";face.dataset.device=device.id;face.style.bottom=`calc((${device.position} - 1) * var(--u))`;face.style.height=`calc(${device.height} * var(--u))`;face.setAttribute("aria-label",`${device.id}, ${device.model}, ${range(device)}, ${view} view`);face.appendChild(rackFaceContent(device,view,asset?asset[view]:null));const show=()=>showRackTooltip(wrap,bay,face,device,view);face.addEventListener("mouseenter",show);face.addEventListener("focus",show);face.addEventListener("mouseleave",()=>{if(!face.classList.contains("selected"))tooltip.classList.remove("visible")});face.addEventListener("blur",()=>{if(!face.classList.contains("selected"))tooltip.classList.remove("visible")});face.addEventListener("click",()=>{selectRackDevice(device);show()});bay.appendChild(face)})}
-  function renderRack(){const rack=data.rack||{};rack.units=Number(rack.units)||42;setText("rack-heading",data.sections?.physical?.heading||`Physical view · ${rack.id||"rack"} · ${rack.units}U`);const occupied=new Map(),rackIds=new Set();(rack.devices||[]).forEach(device=>{if(device.id){if(rackIds.has(device.id))rackErrors.push(`Duplicate rack device id: ${device.id}.`);rackIds.add(device.id)}else rackErrors.push("A rack device is missing an id.");if(typeof device.position==="string"||typeof device.height==="string")rackErrors.push(`${device.id||"A rack device"} has its position or height written as text instead of a number.`);const p=Number(device.position),h=Number(device.height);if(!Number.isFinite(p)||!Number.isFinite(h)||h<1){rackErrors.push(`${device.id||"A rack device"} has no usable position or height, so it was not drawn.`);return}device.position=p;device.height=h;if(p<1||p+h-1>rack.units)rackErrors.push(`${device.id} is outside the rack.`);for(let u=p;u<p+h;u++){if(occupied.has(u))rackErrors.push(`${device.id} overlaps ${occupied.get(u)} at U${u}.`);else occupied.set(u,device.id)}});setText("rack-front-caption",`Front elevation · ${rack.frontAisle||"cold aisle"}`);setText("rack-rear-caption",`Rear elevation · ${rack.rearAisle||"hot aisle"}`);renderRackView("front",rack);renderRackView("rear",rack);const tbody=el("inventory-body");tbody.replaceChildren();(rack.devices||[]).forEach(device=>{const row=document.createElement("tr");row.dataset.device=device.id;[range(device),device.id,device.model,device.role,faceKind(device)].forEach((value,index)=>{const cell=document.createElement("td");if(index===1){const code=document.createElement("code");code.textContent=value;cell.appendChild(code)}else cell.textContent=value;row.appendChild(cell)});row.addEventListener("click",()=>selectRackDevice(device));tbody.appendChild(row)});showErrors("rack-errors",rackErrors)}
+  function renderRack(){const rack=data.rack||{};rack.units=Number(rack.units)||42;const notApplicable=rack.applicable===false;document.body.classList.toggle("no-rack",notApplicable);const statement=el("rack-not-applicable");if(statement){statement.hidden=!notApplicable;if(notApplicable)statement.textContent=rack.statement||"This design deliberately records no rack: it is a logical view only, and an elevation would imply a physical record this document does not hold."}if(notApplicable){setText("rack-heading",data.sections?.physical?.heading||"Physical view — intentionally not applicable");return}setText("rack-heading",data.sections?.physical?.heading||`Physical view · ${rack.id||"rack"} · ${rack.units}U`);const occupied=new Map(),rackIds=new Set();(rack.devices||[]).forEach(device=>{if(device.id){if(rackIds.has(device.id))rackErrors.push(`Duplicate rack device id: ${device.id}.`);rackIds.add(device.id)}else rackErrors.push("A rack device is missing an id.");if(typeof device.position==="string"||typeof device.height==="string")rackErrors.push(`${device.id||"A rack device"} has its position or height written as text instead of a number.`);const p=Number(device.position),h=Number(device.height);if(!Number.isFinite(p)||!Number.isFinite(h)||h<1){rackErrors.push(`${device.id||"A rack device"} has no usable position or height, so it was not drawn.`);return}device.position=p;device.height=h;if(p<1||p+h-1>rack.units)rackErrors.push(`${device.id} is outside the rack.`);for(let u=p;u<p+h;u++){if(occupied.has(u))rackErrors.push(`${device.id} overlaps ${occupied.get(u)} at U${u}.`);else occupied.set(u,device.id)}});setText("rack-front-caption",`Front elevation · ${rack.frontAisle||"cold aisle"}`);setText("rack-rear-caption",`Rear elevation · ${rack.rearAisle||"hot aisle"}`);renderRackView("front",rack);renderRackView("rear",rack);const tbody=el("inventory-body");tbody.replaceChildren();(rack.devices||[]).forEach(device=>{const row=document.createElement("tr");row.dataset.device=device.id;[range(device),device.id,device.model,device.role,faceKind(device)].forEach((value,index)=>{const cell=document.createElement("td");if(index===1){const code=document.createElement("code");code.textContent=value;cell.appendChild(code)}else cell.textContent=value;row.appendChild(cell)});row.addEventListener("click",()=>selectRackDevice(device));tbody.appendChild(row)});showErrors("rack-errors",rackErrors)}
 
   /* ---- spine sections 0, 2, 4, 5 ---- */
   function renderSections(){
@@ -2717,7 +2938,51 @@ if (typeof module !== "undefined" && module.exports) module.exports = RACK_FACE_
     fillNotes("change-notes",s.change?.notes,[{lead:"Change record",text:"Describe how this design is versioned, reviewed and rolled back."}]);
     if(s.operations?.heading)setText("operations-heading",s.operations.heading);
     fillNotes("operations-notes",s.operations?.notes,[{lead:"Operations",text:"Describe monitoring, alerting and the operational owner."}]);
-    renderIdentityTable(s.identity)
+    renderIdentityTable(s.identity);renderSectionTables();renderHistory()
+  }
+  /* The revision history renders from document.history, newest entry FIRST -
+     the top row is the revision the document claims to be, and the repository
+     validator holds those two to each other. No history, no table. */
+  function renderHistory(){
+    const table=el("history-table"),body=el("history-body");if(!table||!body)return;
+    const history=Array.isArray(data.document?.history)?data.document.history:[];
+    body.replaceChildren();
+    if(!history.length){table.hidden=true;return}
+    table.hidden=false;
+    history.forEach(entry=>{
+      const tr=document.createElement("tr");
+      const rev=document.createElement("td"),code=document.createElement("code");
+      code.textContent=String(entry?.revision??"");rev.appendChild(code);tr.appendChild(rev);
+      [entry?.date,entry?.author,entry?.summary].forEach(value=>{const td=document.createElement("td");td.textContent=String(value??"");tr.appendChild(td)});
+      body.appendChild(tr)
+    })
+  }
+  /* Authored tables: any spine section may carry tables:[{caption,columns,rows}].
+     Rows reuse the identity-table grammar - a plain array of cells, or
+     {cells:[...],layer:"gap"} to join the toggleable candour layer. */
+  function renderSectionTables(){
+    const s=data.sections||{};
+    [["overview","tables-overview"],["logical","tables-logical"],["identity","tables-identity"],["physical","tables-physical"],["change","tables-change"],["operations","tables-operations"]].forEach(([key,id])=>{
+      const host=el(id);if(!host)return;host.replaceChildren();
+      (Array.isArray(s[key]?.tables)?s[key].tables:[]).forEach(spec=>{
+        const columns=Array.isArray(spec?.columns)?spec.columns:[],rows=Array.isArray(spec?.rows)?spec.rows:[];
+        if(!columns.length||!rows.length)return;
+        const table=document.createElement("table");table.className="data-table section-table";
+        if(spec.caption){const caption=document.createElement("caption");caption.textContent=String(spec.caption);table.appendChild(caption)}
+        const thead=document.createElement("thead"),headRow=document.createElement("tr");
+        columns.forEach(name=>{const th=document.createElement("th");th.textContent=String(name??"");headRow.appendChild(th)});
+        thead.appendChild(headRow);table.appendChild(thead);
+        const tbody=document.createElement("tbody");
+        rows.forEach(row=>{
+          const cells=Array.isArray(row)?row:(Array.isArray(row?.cells)?row.cells:[]);
+          const tr=document.createElement("tr");
+          if(!Array.isArray(row)&&row?.layer==="gap")tr.className="gap-layer";
+          cells.forEach(value=>{const td=document.createElement("td");td.textContent=String(value??"");tr.appendChild(td)});
+          tbody.appendChild(tr)
+        });
+        table.appendChild(tbody);host.appendChild(table)
+      })
+    })
   }
   function renderIdentityTable(identity){
     const table=el("identity-table"),head=el("identity-head"),body=el("identity-body");
@@ -2842,7 +3107,7 @@ if (typeof module !== "undefined" && module.exports) module.exports = RACK_FACE_
     setText("cost-total",total?`$${total.toLocaleString()}`:"—")
   }
 
-  function updateProofStatus(){const topologyIds=new Set((data.topology?.nodes||[]).map(node=>node.id)),matched=(data.rack?.devices||[]).filter(device=>topologyIds.has(device.id)).length,totalErrors=topologyErrors.length+rackErrors.length,status=el("proof-status");status.classList.remove("fail");if(totalErrors){status.textContent=`FAIL · ${totalErrors} data error${totalErrors===1?"":"s"}`;status.classList.add("fail")}else status.textContent=`PASS · ${(data.topology?.nodes||[]).length} logical nodes · ${(data.topology?.links||[]).length} links · ${(data.rack?.devices||[]).length} rack devices · ${matched} synchronized IDs`}
+  function updateProofStatus(){const topologyIds=new Set((data.topology?.nodes||[]).map(node=>node.id)),matched=(data.rack?.devices||[]).filter(device=>topologyIds.has(device.id)).length,totalErrors=topologyErrors.length+rackErrors.length,status=el("proof-status");status.classList.remove("fail");if(totalErrors){status.textContent=`FAIL · ${totalErrors} data error${totalErrors===1?"":"s"}`;status.classList.add("fail")}else{const rackPart=data.rack?.applicable===false?"rack · deliberately none":`${(data.rack?.devices||[]).length} rack devices · ${matched} synchronized IDs`;status.textContent=`PASS · ${(data.topology?.nodes||[]).length} logical nodes · ${(data.topology?.links||[]).length} links · ${rackPart}`}}
   function setupControls(){let zoom=1;document.querySelectorAll("[data-zoom]").forEach(button=>button.addEventListener("click",()=>{if(button.dataset.zoom==="in")zoom=Math.min(1.8,zoom+.2);if(button.dataset.zoom==="out")zoom=Math.max(.8,zoom-.2);if(button.dataset.zoom==="fit")zoom=1;el("topology").style.width=`${zoom*100}%`}));el("rack-compact").addEventListener("click",()=>document.documentElement.style.setProperty("--u","18px"));el("rack-full").addEventListener("click",()=>document.documentElement.style.setProperty("--u","28px"))}
 
   function updatePackagingCopy(){
@@ -2914,7 +3179,7 @@ if (typeof module !== "undefined" && module.exports) module.exports = RACK_FACE_
     ["nodes","links"].forEach(key=>{if(!Array.isArray(data.topology[key])){data.topology[key]=[];topologyErrors.push(`topology.${key} is missing or is not a list.`)}});
     if(data.topology.zones!==undefined&&!Array.isArray(data.topology.zones)){data.topology.zones=[];topologyErrors.push("topology.zones is not a list, so it was ignored.")}
     if(!data.rack||typeof data.rack!=="object"||Array.isArray(data.rack)){data.rack={};rackErrors.push("The rack section is missing from the data block.")}
-    if(!Array.isArray(data.rack.devices)){data.rack.devices=[];rackErrors.push("rack.devices is missing or is not a list.")}
+    if(!Array.isArray(data.rack.devices)){data.rack.devices=[];if(data.rack.applicable!==false)rackErrors.push("rack.devices is missing or is not a list.")}
   }
 
   try{

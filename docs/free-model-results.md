@@ -274,6 +274,45 @@ cadence that finished this batch: run tests singly, never in bulk, once the
 first 429 wall appears — a batch launched into a thin window burns its own
 retries.
 
+### The geometry program, and the run that proves it · 2026-08-17
+
+The second matrix's fourteen warnings were all spatial, so two changes
+shipped. The placing parts of the build prompt now carry a construction
+recipe — grid centres, area sizing arithmetic, permission to grow the canvas
+— because a model estimating pixel distances lands 9 % over a threshold and a
+model following stated numbers does not. And the helper gained a geometry
+polish: warning-band overlaps and plainly-belonging straddlers are repaired
+deterministically and reported like text repairs. Proven against the saved
+output of the two warning-heaviest runs before any new quota was spent:
+test 11's seven warnings and test 19's five all repair to zero, including
+full grid rows shifting as one chain and an area edge growing to hold its
+own column.
+
+The first live run with the grid found the trap the arithmetic had opened:
+rather than grow the canvas further, the model **dropped 8 of the 40 devices
+its own extract had counted** — silently, PASS badge and all. The prompt now
+states that the grid never justifies dropping a device, and the runner holds
+the build to the extract's own number: fewer nodes than promised with no
+finding recording the omission becomes one more retry round; a shortfall
+that persists is written into the verdict instead of hidden.
+
+Test 11 was then re-run with the complete program — same image, same
+`gemini-3.6-flash` (logs of both earlier runs preserved in the test folder):
+
+| | First run | Grid only | Grid + no-drop rule + count gate |
+|---|---|---|---|
+| Extract promised | 40 | 40 | 40 |
+| Nodes placed | 40 | **32, silently** | **40** |
+| Canvas | 1280×930 (default) | 1280×1600 | **1280×1800, model-grown** |
+| Geometry warnings | 7 | 0 | **0** |
+| Polish repairs needed | — | 0 | **0 — legal by construction** |
+| Round trips | 1 | 1 | 1 |
+
+The polish pass and the count gate both stood guard on the final run and
+had nothing to do — which is the point. The construction recipe made the
+model's job easy enough to do correctly on the first try; the guards exist
+for the day it is not.
+
 ### The nine-run editing matrix
 
 > Not yet run.
