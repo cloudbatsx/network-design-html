@@ -93,10 +93,10 @@ is the light path, and for most documents it is the better one:
 
 | | file size | needs |
 |---|---|---|
-| **Vector symbols** — just save it | **~150 KB** | nothing |
+| **Vector symbols** — just save it | **~180–240 KB** | nothing |
 | **Official Cisco artwork** — run the packager | ~4 MB | the `assets` folder |
 
-Over 25× smaller, emails cleanly, diffs in Git, prints identically. The symbols live in
+Over 20× smaller, emails cleanly, diffs in Git, prints identically. The symbols live in
 [`symbols/`](tools/symbols/README.md), they are MIT licensed original work, and you are
 free to lift them for anything else you build — see
 [`tools/symbols/vector-symbol-showcase.html`](tools/symbols/vector-symbol-showcase.html) for
@@ -273,7 +273,7 @@ for the diagrams people actually hand-draw; not a substitute for Graphviz on 200
 | [`docs/document-shell.md`](docs/document-shell.md) | The layout standard — section spine, toggleable layers, print contract. |
 | [`tools/symbols/README.md`](tools/symbols/README.md) | The 19 vector symbols — the semantic keys, retheming, reusing them elsewhere. |
 | [`docs/architecture.md`](docs/architecture.md) | The packaging contract and symbol synchronization. |
-| [`CONTRIBUTING.md`](CONTRIBUTING.md) | Read before changing symbol geometry. |
+| [`CONTRIBUTING.md`](.github/CONTRIBUTING.md) | Read before changing symbol geometry. |
 
 <details>
 <summary><b>For maintainers</b> — tests, the packager, repo layout</summary>
@@ -303,7 +303,7 @@ reproducible from the tree in one click anyway.
 
 [`docs/template-authoring-rules.md`](docs/template-authoring-rules.md) is the
 template-authoring and packaging contract — the rules for rewriting the template
-itself, *not* the prompt for editing a diagram. It asks for a complete ~145 KB HTML
+itself, *not* the prompt for editing a diagram. It asks for a complete ~175 KB HTML
 file back, so it needs a strong model; it was called `gemini-editing-rules.md`,
 which pointed beginners at the one door a free model cannot open.
 
@@ -312,6 +312,7 @@ starters/                ten ready-made designs to copy, plus the blank template
 assets/                  official Cisco icons and rack faces
 edit-with-ai.html        offline AI editing helper
 packager.html            swaps in the official artwork — at the root, beside the helper
+start-here.html          the beginner guide, also at the root
 docs/                    prompt, layout standard, architecture, study notes
 tests/                   contract fixture, behaviour tests, live free-model runs
 tools/                   validation, builds, and the maintainer libraries:
@@ -326,12 +327,13 @@ dist/                    build output, untracked
 
 ## Status and license
 
-Pre-release. The workflow is complete, machine-checked on every commit — 33
-repository checks plus a behaviour test suite — and has survived its first live
-free-model run: a complete document built from a diagram image by free Gemini,
-one round trip, no repairs. The full editing-protocol matrix is still pending;
-protocol and results live in
-[`docs/free-model-results.md`](docs/free-model-results.md).
+Pre-release. The workflow is complete, machine-checked on every commit — 35
+repository checks plus a 61-test behaviour suite — and validated on the
+fresh-build path: one live session and twenty-two automated runs, each building
+a complete document from a different diagram image with free Gemini, every one
+reaching a clean save. Source-fidelity auditing of those runs is ongoing, and
+the nine-run editing-protocol matrix is still pending; protocol and results
+live in [`docs/free-model-results.md`](docs/free-model-results.md).
 
 Code, tooling, documentation **and the 19 vector symbols** are **MIT licensed** —
 see [`LICENSE`](LICENSE). The symbols are original work; reuse them anywhere.

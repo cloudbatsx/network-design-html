@@ -32,7 +32,7 @@ Before proposing a repository change:
    `npm run build:packager` and `npm run verify:packager`.
 
 The artwork in `assets/` ships with the repository and is covered in
-[`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md). Adding to it is a rights
+[`THIRD_PARTY_NOTICES.md`](../THIRD_PARTY_NOTICES.md). Adding to it is a rights
 decision, not a code decision: no new third-party image goes in without its
 provenance and licence recorded there first, and existing files are never
 recoloured, cropped or retraced — the packager verifies their checksums, so an

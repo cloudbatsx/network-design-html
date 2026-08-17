@@ -1,7 +1,7 @@
 # Inline SVG symbol library
 
 This directory is the canonical maintainer source for the clean vector symbols
-embedded in [`../starters/network-design-template.edit.html`](../starters/network-design-template.edit.html).
+embedded in [`../../starters/network-design-template.edit.html`](../../starters/network-design-template.edit.html).
 The editable HTML carries its own synchronized copy and does not load this file
 at runtime.
 
@@ -12,6 +12,10 @@ at runtime.
   and the exact official Cisco asset identifier understood by the packager.
 
 The `pc` and `workstation` semantic keys intentionally share one vector symbol.
+
+The design rationale behind the library — why inline vector symbols beat the
+alternatives that were tried — is retained in
+[`../../docs/vector-symbol-study.md`](../../docs/vector-symbol-study.md).
 
 ## Rendering contract
 
@@ -31,7 +35,7 @@ template, and the source showcase together, then run `npm test`.
 ## Licence
 
 Original work, **MIT licensed** with the rest of the project — see
-[`../LICENSE`](../LICENSE). Use them here, in your own diagrams, or in an
+[`../../LICENSE`](../../LICENSE). Use them here, in your own diagrams, or in an
 unrelated project; restyle or extend them freely. No vendor artwork is involved
 and no attribution beyond the MIT notice is required.
 

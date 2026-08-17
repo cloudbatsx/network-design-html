@@ -1,7 +1,7 @@
 # Rack faceplate library
 
 Front and rear faces for the rack elevation, as inline SVG. This is the vector
-counterpart to the photographic PNGs in [`../assets/rack-assets/`](../assets/rack-assets/):
+counterpart to the photographic PNGs in [`../../assets/rack-assets/`](../../assets/rack-assets/):
 same job, no download, and it works in editable mode where the PNGs do not.
 
 ## Files
@@ -75,7 +75,7 @@ A rack slot is drawn three ways, in falling order of fidelity:
 ```
 
 1. **Official photography**, once the document has been packaged and the key
-   names one of the five models in [`../assets/rack-assets/`](../assets/rack-assets/).
+   names one of the five models in [`../../assets/rack-assets/`](../../assets/rack-assets/).
 2. **A drawn faceplate**, whenever the key is in this library — which is the
    normal case, and needs no packaging step.
 3. **A labelled placeholder**, for `generic` and for anything unrecognised.
@@ -105,7 +105,7 @@ Models select semantic keys; they should not redraw geometry.
 ## Licence
 
 Original work, **MIT licensed** with the rest of the project — see
-[`../LICENSE`](../LICENSE). No vendor artwork is involved: these are drawn from
+[`../../LICENSE`](../../LICENSE). No vendor artwork is involved: these are drawn from
 published dimensions and port counts, not traced from photographs or vendor
 vector files. Restyle or extend them freely.
 

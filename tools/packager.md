@@ -37,4 +37,4 @@ build tokens, no embedded artwork, and a byte ceiling.
 
 Both write into `dist/`, which is Git-ignored — those outputs embed third-party
 artwork from `assets/` and are reproducible from the tree. Do not redistribute
-them without reading [`../../THIRD_PARTY_NOTICES.md`](../../THIRD_PARTY_NOTICES.md) first.
+them without reading [`../THIRD_PARTY_NOTICES.md`](../THIRD_PARTY_NOTICES.md) first.

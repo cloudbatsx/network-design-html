@@ -89,7 +89,7 @@ starter felt like homework (now: the blank-template door), and composing the
 two prompts by hand was error-prone (now: the helper's "Starting fresh" panel
 builds both).
 
-### Live results 2–8 — the automated fresh-build matrix · 2026-08-15
+### Live results 2–8 — the automated fresh-build matrix (test folders 3–9) · 2026-08-15
 
 **Model:** `gemini-3.6-flash` (the id the API reported back for every call) ·
 **Surface:** Google AI free-tier API, driven by `tools/run-free-model-tests.js` ·
@@ -215,7 +215,7 @@ silently. The six boundary warnings are the honest cost of a fuller canvas —
 cosmetic, correctly reported, and the next candidate for spacing guidance if
 they recur. Items 3 (invented specs) and 4 (icon vocabulary) remain open.
 
-### Live results 9–23 — the second automated matrix, fifteen harder diagrams · 2026-08-16
+### Live results 9–23 — the second automated matrix, fifteen harder diagrams (test folders 10–24) · 2026-08-16
 
 **Model:** `gemini-3.6-flash` (the id the API reported back for every call) ·
 **Surface:** Google AI free-tier API, driven by `tools/run-free-model-tests.js` ·

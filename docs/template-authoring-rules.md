@@ -1,7 +1,7 @@
 # Template authoring rules
 
 > **Who this is for.** Maintainers rebuilding the template itself. It asks an AI
-> to return a **complete ~145 KB HTML file**, which a free model cannot do
+> to return a **complete ~175 KB HTML file**, which a free model cannot do
 > reliably — expect a strong model and a careful review.
 >
 > **Changing a diagram is the other document.** Use
