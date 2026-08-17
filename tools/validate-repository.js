@@ -585,6 +585,14 @@ checkEvery("every starter claims exactly one identity", (want) => {
     const data = JSON.parse(scriptById(source, "proof-data"));
     const drawing = data.document?.drawing;
 
+    // A data-block history renders newest-first, so its top row IS the
+    // document's claimed revision - hold the two to each other.
+    const history = Array.isArray(data.document?.history) ? data.document.history : [];
+    if (history.length) {
+      want(String(history[0]?.revision ?? "") === String(data.document?.revision ?? ""),
+        `the newest history row says "${history[0]?.revision}", the document claims "${data.document?.revision}"`);
+    }
+
     // The blank template deliberately carries a placeholder id - a real
     // starter's name on the template would collide the moment it is copied.
     if (name === "network-design-template.edit.html") {

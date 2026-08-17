@@ -114,6 +114,7 @@ invent new ones.
     "title": "", "subtitle": "", "drawing": "", "revision": "", "status": "", "date": "",
     "docClass": "", "subject": "",
     "evidence": { "text": "", "color": "red" },
+    "history": [ { "revision": "", "date": "", "author": "", "summary": "" } ],
     "brand": { "name": "", "label": "", "logoViewBox": "", "logoFill": "", "logoPath": "" },
     "layers": { "findings": true, "equipment": false },
     "footer": { "author": "", "originalDate": "", "edition": "", "changed": "", "detail": "", "caveat": "", "redaction": "" }
@@ -148,6 +149,11 @@ A **note** is either a plain string or `{ "lead": "bold part", "text": "rest" }`
 An **identity row** is either a list of cells, or
 `{ "cells": [], "layer": "gap" }`. Rows marked `"layer": "gap"` are assumptions —
 they hide and reveal with the Key gaps control, so mark anything unverified.
+
+`document.history` is the revision history, **newest entry first** — the top
+row must state the same revision as `document.revision`; the repository
+validator holds the two to each other. Append a new first entry when the
+revision changes; never rewrite old entries.
 
 A section **table** is `{ "caption": "", "columns": [], "rows": [] }` inside a
 section's `tables` list. Rows use the identity-row grammar, including

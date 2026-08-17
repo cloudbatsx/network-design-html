@@ -666,6 +666,11 @@
         <p class="kicker">Section 5</p>
         <h2 id="change-heading">Change management</h2>
         <div class="note"><ul class="notes" id="change-notes"></ul></div>
+        <table class="data-table revision-history" id="history-table" hidden>
+          <caption>Document revision history</caption>
+          <thead><tr><th>Revision</th><th>Date</th><th>Author</th><th>Change summary</th></tr></thead>
+          <tbody id="history-body"></tbody>
+        </table>
         <div class="section-tables" id="tables-change"></div>
       </section>
 
@@ -730,6 +735,9 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
     "drawing": "NET-BR-001",
     "author": "Sayed Haque",
     "classification": "Sample / reference",
+    "history": [
+      { "revision": "v1.0", "date": "2026-08-13", "author": "Sayed Haque", "summary": "Published as the NET-BR-001 starter kit." }
+    ],
     "revision": "v1.0",
     "status": "Starter kit · proposed",
     "date": "2026-08-13",
@@ -2442,7 +2450,24 @@ if (typeof module !== "undefined" && module.exports) module.exports = RACK_FACE_
     fillNotes("change-notes",s.change?.notes,[{lead:"Change record",text:"Describe how this design is versioned, reviewed and rolled back."}]);
     if(s.operations?.heading)setText("operations-heading",s.operations.heading);
     fillNotes("operations-notes",s.operations?.notes,[{lead:"Operations",text:"Describe monitoring, alerting and the operational owner."}]);
-    renderIdentityTable(s.identity);renderSectionTables()
+    renderIdentityTable(s.identity);renderSectionTables();renderHistory()
+  }
+  /* The revision history renders from document.history, newest entry FIRST -
+     the top row is the revision the document claims to be, and the repository
+     validator holds those two to each other. No history, no table. */
+  function renderHistory(){
+    const table=el("history-table"),body=el("history-body");if(!table||!body)return;
+    const history=Array.isArray(data.document?.history)?data.document.history:[];
+    body.replaceChildren();
+    if(!history.length){table.hidden=true;return}
+    table.hidden=false;
+    history.forEach(entry=>{
+      const tr=document.createElement("tr");
+      const rev=document.createElement("td"),code=document.createElement("code");
+      code.textContent=String(entry?.revision??"");rev.appendChild(code);tr.appendChild(rev);
+      [entry?.date,entry?.author,entry?.summary].forEach(value=>{const td=document.createElement("td");td.textContent=String(value??"");tr.appendChild(td)});
+      body.appendChild(tr)
+    })
   }
   /* Authored tables: any spine section may carry tables:[{caption,columns,rows}].
      Rows reuse the identity-table grammar - a plain array of cells, or
