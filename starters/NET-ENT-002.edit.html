@@ -599,7 +599,7 @@
           <button type="button" data-zoom="in">+</button>
         </div>
         <div class="figwrap">
-          <div class="diagram-scroll"><svg id="topology" role="img" aria-labelledby="svg-title svg-desc"></svg></div>
+          <div class="diagram-scroll"><svg id="topology" role="img" aria-describedby="svg-desc"></svg></div>
           <div class="hover-label" id="topology-hover" role="status" aria-live="polite"></div>
         </div>
         <p class="caption" id="topology-caption"></p>
@@ -3081,8 +3081,12 @@ if (typeof module !== "undefined" && module.exports) module.exports = RACK_FACE_
   function renderTopology(){
     const topo=data.topology||{},width=Number(topo.canvas?.width)||1280,height=Number(topo.canvas?.height)||800,svg=el("topology");
     svg.replaceChildren();svg.setAttribute("viewBox",`0 0 ${width} ${height}`);
-    const title=svgEl("title",{id:"svg-title"},data.document?.title||"Logical topology"),desc=svgEl("desc",{id:"svg-desc"},data.document?.subtitle||""),defs=svgEl("defs"),filter=svgEl("filter",{id:"node-shadow",x:"-20%",y:"-20%",width:"140%",height:"150%"});
-    filter.appendChild(svgEl("feDropShadow",{dx:0,dy:3,stdDeviation:3,"flood-color":"#152d39","flood-opacity":.2}));defs.appendChild(filter);svg.append(title,desc,defs);
+    /* The name goes on the element, not into a <title> child: a <title> is
+       also what the browser draws as its own tooltip, and it landed on top of
+       the glance box this figure draws for itself. <desc> never drew one. */
+    svg.setAttribute("aria-label",data.document?.title||"Logical topology");
+    const desc=svgEl("desc",{id:"svg-desc"},data.document?.subtitle||""),defs=svgEl("defs"),filter=svgEl("filter",{id:"node-shadow",x:"-20%",y:"-20%",width:"140%",height:"150%"});
+    filter.appendChild(svgEl("feDropShadow",{dx:0,dy:3,stdDeviation:3,"flood-color":"#152d39","flood-opacity":.2}));defs.appendChild(filter);svg.append(desc,defs);
     const zoneLabelLayer=svgEl("g",{"aria-label":"Zone labels"});
     (topo.zones||[]).forEach(zone=>{const zx=Number(zone.x),zy=Number(zone.y),zw=Number(zone.width),zh=Number(zone.height);if(![zx,zy,zw,zh].every(Number.isFinite)){topologyErrors.push(`Zone ${zone.id||zone.label||"?"} has no usable position or size, so it was not drawn.`);return}if(zone.kind!==undefined&&!ZONE_KINDS.includes(zone.kind))topologyErrors.push(`Zone ${zone.id||zone.label||"?"} has the unknown kind "${zone.kind}", which draws as a solid black rectangle.`);svg.appendChild(svgEl("rect",{class:`zone ${zone.kind||"other"}`,x:zx,y:zy,width:zw,height:zh,rx:12}));zoneLabelLayer.appendChild(svgEl("text",{class:"zone-label",x:zx+18,y:zy+27},zone.label||zone.id))});
     const nodes=new Map();(topo.nodes||[]).forEach(node=>{if(!node.id)topologyErrors.push("A topology node is missing an id.");else if(nodes.has(node.id))topologyErrors.push(`Duplicate topology node id: ${node.id}.`);else nodes.set(node.id,node)});
