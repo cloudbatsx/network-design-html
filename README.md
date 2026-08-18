@@ -163,7 +163,7 @@ is a valid package. Nothing fails silently, and nothing missing vetoes a build.
 | 🗄️ **Rack elevation** | Front and rear from one equipment schedule, so they can't drift apart. 26 drawn faceplates ship built in — no artwork needed. |
 | ✂️ **Part-based editing** | The helper sends the AI one part — devices, connections, the rack — so a free model writes 80–90% less and stops getting cut off. |
 | ✅ **It checks itself** | Catches rack overlaps, dangling links, duplicate IDs, unknown icons and kinds, face-height mismatches, broken JSON — loudly, in the file itself. |
-| 🖨️ **Prints properly** | Letter-size PDF with the sidebar dropped and hidden sections revealed. |
+| 🖨️ **Prints properly** | Letter-size PDF with the sidebar dropped, printing exactly the layers you have on screen. |
 | 🎨 **Your branding** | Name, colours and logo staged in the helper's Branding panel — the one edit no AI ever touches. |
 | 📦 **Zero dependencies** | No CDN, no fonts, no build step, no server. Works on a plane. |
 
@@ -213,8 +213,9 @@ position in the list — so the drawing and the list can never disagree. Click t
 marker to jump to the finding. `"atZone": "perimeter"` outlines a whole area instead.
 
 One control hides the section, the markers, and every table row marked as an
-assumption, together. Printing reveals all of it anyway: the toggle is a
-presentation control, not a redaction control.
+assumption, together — and printing follows it, so you decide what a printed
+deliverable contains. What keeps a document honest is not the printer: the gaps
+list can never be empty, assumed rows stay marked, and the layer ships visible.
 
 ### It catches your mistakes
 

@@ -106,7 +106,7 @@
 
   /* ==== TOGGLEABLE LAYERS — exactly two, no more, no fewer ================
      Slot A = the candour layer (section 2). Slot B = the equipment exhibit.
-     @media print force-reveals both so the PDF is always complete. ======== */
+     @media print prints them exactly as the eye controls leave them. ======== */
   body:not(.show-gaps) .gap-layer { display:none !important; }
   body:not(.show-equip) .equip-layer { display:none !important; }
 
@@ -293,8 +293,9 @@
   }
   @media (max-width:560px) { .doc-header h1 { font-size:27px; } .sidebar-nav .toc { grid-template-columns:1fr; } .inspector { grid-template-columns:1fr; } }
 
-  /* -- print: drop the chrome, hand typography back to Layer 1, and
-        FORCE-REVEAL the hidden layers so the PDF is the complete document -- */
+  /* -- print: drop the chrome, hand typography back to Layer 1, and print
+        exactly the layers the reader has on screen -- the eye control decides
+        the PDF, so a printed copy is always the document someone looked at -- */
   @media print {
     body { background:#fff; font-size:9.5pt; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
     .sidebar { display:none !important; }
@@ -309,8 +310,6 @@
     .diagram-scroll { overflow:visible; } #topology { min-width:0; width:100% !important; }
     .rack-grid { grid-template-columns:repeat(2,1fr); gap:10px; }
     .rack-wrap { transform:scale(.72); transform-origin:top center; margin-bottom:calc(-.28 * 42 * var(--u)); }
-    body:not(.show-gaps) .gap-layer { display:revert !important; }
-    body:not(.show-equip) .equip-layer { display:revert !important; }
   }
   </style>
 </head>
@@ -697,7 +696,7 @@
 
       <!-- ============ SECTION 6 — SLOT A: the toggleable candour layer ============
            The whole point is that the document can be shown with its own
-           weaknesses visible or hidden. Print force-reveals it regardless. -->
+           weaknesses visible or hidden. The PDF follows whatever it shows. -->
 
       <hr class="rule">
 
@@ -1029,7 +1028,7 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
       "provenance": [
         { "lead": "Two classes of statement, kept visibly apart", "text": "Recorded = the shape, the device list and the rack geometry in this file, which render exactly what they say. Assumed = every address, every model choice and every capacity claim." },
         { "lead": "Nothing here has been reconciled against a live device", "text": "no configuration was read, no port was walked, no feed was measured. Treat the whole file as a proposal." },
-        { "lead": "The Key gaps eye control in the sidebar", "text": "hides the assumption layer for a recorded-only view. Printing force-reveals it, so the PDF is always the complete document." }
+        { "lead": "The Key gaps eye control in the sidebar", "text": "hides the assumption layer for a recorded-only view. Printing follows it, so the PDF is whatever the document shows on screen." }
       ]
     },
     "logical": {

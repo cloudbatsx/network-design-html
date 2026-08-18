@@ -85,9 +85,16 @@ is the same record at print density: the shell hides it on screen, and its
 `@media print` block swaps it back in for the boxed panel, so the two densities
 can never disagree or appear together.
 
-**Print force-reveal.** `@media print` un-hides both toggled-off layers. The PDF
-is always the complete document — the toggle is a presentation control, not a
-redaction control.
+**Print follows the eye.** `@media print` prints exactly the layers the reader
+has on screen. A printed copy is always a document someone actually looked at,
+and the eye controls are how you decide what a deliverable contains.
+
+The honesty doctrine does not rest on the printer. It rests on rules the reader
+cannot switch off: `sections.findings.items` can never be empty, assumed rows
+stay marked as assumed, the provenance declaration in section 0 is mandatory,
+the footer must end in a caveat, and Slot A ships **on**. Someone who hides the
+gap layer and prints has made a choice; someone who never recorded a gap has
+made a document this shell refuses to render.
 
 **Footer grammar**, middot-separated, in order: author · original date · edition
 · version and what changed · where the working detail lives · **epistemic
@@ -113,7 +120,7 @@ what is known from what is assumed.**
 
 That is why badge 4 is epistemic status, why captions must name what is assumed,
 why Slot A exists at all, why the provenance declaration is mandatory in section
-0, why print force-reveals the hidden layers, and why the footer must end in a
-caveat and a redaction statement.
+0, why Slot A ships on rather than off, and why the footer must end in a caveat
+and a redaction statement.
 
 A document that renders perfectly but hides its own uncertainty is off-template.
