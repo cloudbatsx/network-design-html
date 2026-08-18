@@ -1,6 +1,6 @@
 {
   "name": "network-design-html",
-  "version": "0.4.6",
+  "version": "0.4.7",
   "private": true,
   "description": "Self-contained HTML network diagrams with editable SVG symbols and one-click packaging into official Cisco artwork.",
   "scripts": {
