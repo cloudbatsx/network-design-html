@@ -2471,6 +2471,32 @@ if (typeof module !== "undefined" && module.exports) module.exports = RACK_FACE_
     target.addEventListener("mouseenter",show);target.addEventListener("mouseleave",hide);target.addEventListener("focus",()=>show(null));target.addEventListener("blur",hide)
   }
 
+  /* A link label earns its white box only where there is room for one. Four
+     parallel uplinks and a redundant core pair put their midpoints within a
+     few pixels of each other, and the boxes stack into a smear that tells the
+     reader less than the bare lines already did. So the crowded ones stand
+     down and the hover keeps every word - nothing is lost, only quieter.
+
+     Three rules, in this order:
+       - a position someone authored is placed first and never overruled;
+       - the same words on the same pair of devices are the same fact drawn
+         twice, so only the first is drawn;
+       - anything left is drawn if its box clears every box already placed.
+     A lone cable in open space always keeps its label, because nothing is
+     there to collide with. The drawing tunes itself to its own density. */
+  function placeLinkLabels(queue,layer){
+    const placed=[],seen=new Set();
+    const hits=(box)=>placed.some(p=>box.left<p.right&&p.left<box.right&&box.top<p.bottom&&p.top<box.bottom);
+    const ordered=queue.filter(c=>c.authored).concat(queue.filter(c=>!c.authored));
+    for(const cand of ordered){
+      const box={left:cand.x-cand.w/2,right:cand.x+cand.w/2,top:cand.y-12,bottom:cand.y+10};
+      const same=cand.pair+"\u0000"+cand.text;
+      if(!cand.authored&&(seen.has(same)||hits(box)))continue;
+      seen.add(same);placed.push(box);
+      layer.appendChild(svgEl("rect",{class:"link-label-bg",x:box.left,y:cand.y-12,width:cand.w,height:22,rx:4}));
+      layer.appendChild(svgEl("text",{class:"link-label",x:cand.x,y:cand.y+4},cand.text));
+    }
+  }
   function renderTopology(){
     const topo=data.topology||{},width=Number(topo.canvas?.width)||1280,height=Number(topo.canvas?.height)||800,svg=el("topology");
     svg.replaceChildren();svg.setAttribute("viewBox",`0 0 ${width} ${height}`);
@@ -2513,7 +2539,8 @@ if (typeof module !== "undefined" && module.exports) module.exports = RACK_FACE_
       if(withDirect&&val===0)val=16*(Math.sign(sorted[at].sortX-nodeX)||-1);
       return val;
     };
-    (topo.links||[]).forEach((link,index)=>{const source=nodes.get(link.from),target=nodes.get(link.to);if(!source||!target){topologyErrors.push(`Link ${index+1} references a missing node.`);return}if(link.kind!==undefined&&!LINK_KINDS.includes(link.kind))topologyErrors.push(`Link ${index+1} (${link.from} to ${link.to}) has the unknown kind "${link.kind}", which draws an invisible line.`);const segmentAnchor=(node,ref)=>{const w=Number(node.width)||300,half=Math.max(20,w/2-14),x=Math.max(Number(node.x)-half,Math.min(Number(node.x)+half,Number(ref[0])));return[x,Number(node.y)]};const srcRef=(link.via&&link.via.length)?link.via[0]:[target.x,target.y];const tgtRef=(link.via&&link.via.length)?link.via[link.via.length-1]:[source.x,source.y];const start=source.shape==="segment"?segmentAnchor(source,srcRef):[source.x,source.y];const end=target.shape==="segment"?segmentAnchor(target,tgtRef):[target.x,target.y];if(source.shape==="segment")junctions.appendChild(svgEl("circle",{class:"segment-junction",cx:start[0],cy:start[1],r:7,style:`stroke:${source.color||"#0e7490"}`}));if(target.shape==="segment")junctions.appendChild(svgEl("circle",{class:"segment-junction",cx:end[0],cy:end[1],r:7,style:`stroke:${target.color||"#0e7490"}`}));let points;if(link.route==="elbow"&&!(link.via&&link.via.length)){const lane=Number.isFinite(Number(link.elbowAt))?Number(link.elbowAt):(start[1]+end[1])/2;const sx=source.shape==="segment"?start[0]:start[0]+stubOffset(link.from,lane>start[1],index,"s",Number(source.x));const ex=target.shape==="segment"?end[0]:end[0]+stubOffset(link.to,lane>end[1],index,"t",Number(target.x));points=[[sx,start[1]],[sx,lane],[ex,lane],[ex,end[1]]]}else{points=[start,...(link.via||[]),end]}const traced=points.map(point=>point.join(",")).join(" "),kind=link.kind||"l3";const linkGroup=svgEl("g",{class:"link-group",tabindex:0,"aria-label":`${link.label?`${link.label}, `:""}${KIND_LABELS[kind]||kind} from ${source.label||source.id} to ${target.label||target.id}`});if((link.route==="elbow"||(link.via&&link.via.length))&&kind!=="backup"&&kind!=="ha")linkGroup.appendChild(svgEl("polyline",{class:"link-casing",points:traced}));linkGroup.appendChild(svgEl("polyline",{class:`link ${kind}`,points:traced}));linkGroup.appendChild(svgEl("polyline",{class:"link-hit",points:traced}));attachHover(linkGroup,()=>({title:`${source.label||source.id} → ${target.label||target.id}`,lines:[{text:link.label||""},{text:KIND_LABELS[kind]||kind,detail:true}]}));links.appendChild(linkGroup);if(link.label){const auto=midpoint(points),x=Number.isFinite(Number(link.labelX))?Number(link.labelX):auto[0],y=Number.isFinite(Number(link.labelY))?Number(link.labelY):auto[1],w=Math.max(54,link.label.length*6.7+16);labels.appendChild(svgEl("rect",{class:"link-label-bg",x:x-w/2,y:y-12,width:w,height:22,rx:4}));labels.appendChild(svgEl("text",{class:"link-label",x,y:y+4},link.label))}});svg.append(links,junctions,zoneLabelLayer,labels);
+    const labelQueue=[];
+    (topo.links||[]).forEach((link,index)=>{const source=nodes.get(link.from),target=nodes.get(link.to);if(!source||!target){topologyErrors.push(`Link ${index+1} references a missing node.`);return}if(link.kind!==undefined&&!LINK_KINDS.includes(link.kind))topologyErrors.push(`Link ${index+1} (${link.from} to ${link.to}) has the unknown kind "${link.kind}", which draws an invisible line.`);const segmentAnchor=(node,ref)=>{const w=Number(node.width)||300,half=Math.max(20,w/2-14),x=Math.max(Number(node.x)-half,Math.min(Number(node.x)+half,Number(ref[0])));return[x,Number(node.y)]};const srcRef=(link.via&&link.via.length)?link.via[0]:[target.x,target.y];const tgtRef=(link.via&&link.via.length)?link.via[link.via.length-1]:[source.x,source.y];const start=source.shape==="segment"?segmentAnchor(source,srcRef):[source.x,source.y];const end=target.shape==="segment"?segmentAnchor(target,tgtRef):[target.x,target.y];if(source.shape==="segment")junctions.appendChild(svgEl("circle",{class:"segment-junction",cx:start[0],cy:start[1],r:7,style:`stroke:${source.color||"#0e7490"}`}));if(target.shape==="segment")junctions.appendChild(svgEl("circle",{class:"segment-junction",cx:end[0],cy:end[1],r:7,style:`stroke:${target.color||"#0e7490"}`}));let points;if(link.route==="elbow"&&!(link.via&&link.via.length)){const lane=Number.isFinite(Number(link.elbowAt))?Number(link.elbowAt):(start[1]+end[1])/2;const sx=source.shape==="segment"?start[0]:start[0]+stubOffset(link.from,lane>start[1],index,"s",Number(source.x));const ex=target.shape==="segment"?end[0]:end[0]+stubOffset(link.to,lane>end[1],index,"t",Number(target.x));points=[[sx,start[1]],[sx,lane],[ex,lane],[ex,end[1]]]}else{points=[start,...(link.via||[]),end]}const traced=points.map(point=>point.join(",")).join(" "),kind=link.kind||"l3";const linkGroup=svgEl("g",{class:"link-group",tabindex:0,"aria-label":`${link.label?`${link.label}, `:""}${KIND_LABELS[kind]||kind} from ${source.label||source.id} to ${target.label||target.id}`});if((link.route==="elbow"||(link.via&&link.via.length))&&kind!=="backup"&&kind!=="ha")linkGroup.appendChild(svgEl("polyline",{class:"link-casing",points:traced}));linkGroup.appendChild(svgEl("polyline",{class:`link ${kind}`,points:traced}));linkGroup.appendChild(svgEl("polyline",{class:"link-hit",points:traced}));attachHover(linkGroup,()=>({title:`${source.label||source.id} → ${target.label||target.id}`,lines:[{text:link.label||""},{text:KIND_LABELS[kind]||kind,detail:true}]}));links.appendChild(linkGroup);if(link.label){const auto=midpoint(points),authored=Number.isFinite(Number(link.labelX))||Number.isFinite(Number(link.labelY)),x=Number.isFinite(Number(link.labelX))?Number(link.labelX):auto[0],y=Number.isFinite(Number(link.labelY))?Number(link.labelY):auto[1],w=Math.max(54,link.label.length*6.7+16);labelQueue.push({x,y,w,text:link.label,authored,pair:[link.from,link.to].sort().join("|")})}});placeLinkLabels(labelQueue,labels);svg.append(links,junctions,zoneLabelLayer,labels);
     const nodeLayer=svgEl("g",{"aria-label":"Network devices"});
     nodes.forEach(node=>{
       if(!Number.isFinite(Number(node.x))||!Number.isFinite(Number(node.y))){topologyErrors.push(`${node.id} has no usable x,y position, so it was not drawn.`);return}

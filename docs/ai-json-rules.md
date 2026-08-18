@@ -241,6 +241,14 @@ on a link, and `iconAsset` on a node.
 
 **If one is already there, copy it through exactly. Never add a new one.**
 
+A link label is drawn where there is room for it. The figure measures every
+label box before drawing any: identical labels on the same pair of devices
+collapse to one, and a box that would land on top of one already placed stands
+down, because four stacked boxes on a meshed run say less than the bare lines
+already do. The hover keeps every word either way, so nothing is lost. A label
+carrying `labelX`/`labelY` is placed first and never stands down - a position
+someone chose by hand is a decision, not a suggestion.
+
 They exist because a straight line between two devices sometimes crosses a third.
 Someone positioned those waypoints against a real render; removing one puts a
 cable through the middle of a switch. Adding one blind usually makes it worse —
