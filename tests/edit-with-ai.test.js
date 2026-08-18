@@ -667,6 +667,36 @@ test("prompt: parts that place nothing carry no grid", () => {
   }
 });
 
+/* ---- the three ways a build can start ---- */
+
+test("source: a picture build still works from the inventory the AI read", () => {
+  const text = t.freshRequestText("T", "T-NET-001", "auto", { mode: "picture" });
+  assert(/^Build this whole design from the inventory above\./.test(text), text.slice(0, 80));
+  assert(/every device in the inventory/.test(text));
+});
+
+test("source: no arguments still means the picture path (nothing regressed)", () => {
+  assert(/from the inventory above/.test(t.freshRequestText("T", "T-NET-001", "auto")));
+});
+
+test("source: a described network travels inside the request", () => {
+  const description = "Two sites joined by IPsec. Each has a router, a firewall and one switch.";
+  const text = t.freshRequestText("", "", "auto", { mode: "describe", description });
+  assert(text.includes(description), "the description never reached the prompt");
+  assert(/from this description of the network/.test(text));
+  assert(/never a guess/.test(text), "the honesty rule is missing from the described path");
+  assert(!/inventory above/.test(text), "it still claims an inventory that does not exist");
+  assert(/every device in the description/.test(text), "completeness is still worded for an inventory");
+});
+
+test("source: an example build says plainly that nothing in it was surveyed", () => {
+  const text = t.freshRequestText("", "", "auto", { mode: "sample" });
+  assert(/Invent a small plausible network/.test(text));
+  assert(/worked example and nothing in it was surveyed/.test(text),
+    "an invented document does not confess that it is invented");
+  assert(!/inventory above/.test(text), "it still claims an inventory that does not exist");
+});
+
 /* ---- what the client's stuck session bought us ---- */
 
 test("brand: a document that never had a logo path is not accused of destroying one", () => {

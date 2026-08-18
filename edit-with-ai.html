@@ -56,6 +56,12 @@
     #turn-build{border-color:#9fc0cd;background:#fbfdfe}
     .turn-head{margin:0 0 6px;font-weight:700;font-size:.98rem}
     .turn-tag{margin-left:6px;font-weight:400;font-size:.82rem;color:var(--muted)}
+    .pick{display:flex;gap:9px;align-items:flex-start;margin:7px 0;font-size:.92rem;cursor:pointer}
+    .pick input{margin-top:3px;flex-shrink:0}
+    .pick span b{font-weight:700}
+    .branch{display:none;margin:10px 0 0;padding:10px 12px;border-left:3px solid #9fc0cd;background:#fbfdfe}
+    .branch.on{display:block}
+    #network-description{width:100%;margin:0;min-height:76px}
     #build-options{margin-top:12px}
     #build-options summary{cursor:pointer;color:var(--blue2);font-weight:700;font-size:.9rem}
     .fresh-field{display:block;margin:8px 0;font-size:.9rem;font-weight:650}
@@ -133,29 +139,55 @@
       <!-- Building a new design. One button does the whole ordinary case; the
            picture path is a separate AI turn and says so. -->
       <div id="build-panel">
-        <p class="hint">Copy one prompt, paste it into any AI chat, bring the reply back to step 3.</p>
+        <p class="hint">Two steps, in order. <b>A</b> gets your network into an AI chat;
+        <b>B</b> turns it into the document. The last click is always <b>Copy the build
+        prompt</b>.</p>
 
-        <div class="turn" id="turn-picture">
-          <p class="turn-head">Have a picture of your network? <span class="turn-tag">optional · do this first</span></p>
-          <p class="hint">Reading the picture is its own AI turn: the AI lists what it can see, so
-          you can correct it before anything is drawn. Starting from scratch instead? Skip
-          straight to the button below.</p>
-          <div class="row">
-            <button class="button" id="copy-extract" type="button">Copy prompt 1 — read my picture</button>
-            <span class="file-name" id="extract-state"></span>
+        <div class="turn" id="turn-source">
+          <p class="turn-head">A · Where is your network coming from?</p>
+          <label class="pick"><input type="radio" name="build-source" value="picture" checked>
+            <span><b>I have a picture of it</b> — a diagram, a screenshot, a photo of a whiteboard</span></label>
+          <label class="pick"><input type="radio" name="build-source" value="describe">
+            <span><b>I'll describe it in words</b> — no picture needed</span></label>
+          <label class="pick"><input type="radio" name="build-source" value="sample">
+            <span><b>Nothing yet — build me a worked example</b> to look at first</span></label>
+
+          <div class="branch" id="source-picture">
+            <p class="hint">Reading the picture is its own AI turn, and it comes first: the AI
+            lists every device it can see so you can correct it <em>before</em> anything is
+            drawn. That corrected list is what B builds from.</p>
+            <div class="row">
+              <button class="button" id="copy-extract" type="button">Copy prompt 1 — read my picture</button>
+              <span class="file-name" id="extract-state"></span>
+            </div>
+            <p class="hint">New AI chat → attach the picture → paste this → send. Fix anything it
+            misread, keep that chat open, then do B <b>in the same chat</b>.</p>
           </div>
-          <p class="hint">Open a new AI chat, attach your picture, paste this, send. Fix anything it
-          got wrong in its reply, then keep that chat open.</p>
+
+          <div class="branch" id="source-describe">
+            <p class="hint">Say what you have in plain English — sites, devices, what connects to
+            what, any addresses you know. It travels inside the build prompt, so there is no
+            first AI turn and no second chat.</p>
+            <textarea id="network-description" rows="4" placeholder="One office. Fibre from the ISP into a router, then a firewall, then a core switch. Two 48-port access switches on the floor, three wireless access points, a file server and a backup NAS. Guest wifi is separate."></textarea>
+          </div>
+
+          <div class="branch" id="source-sample">
+            <p class="hint">The AI invents a small plausible network — one site, a handful of
+            devices — and records in the gaps list that every value in it is invented rather
+            than surveyed. Useful for seeing what a finished document looks like, and for
+            having something real to edit part by part. Replace it with your own network when
+            you are ready.</p>
+          </div>
         </div>
 
         <div class="turn" id="turn-build">
-          <p class="turn-head">Build the document</p>
+          <p class="turn-head">B · Build the document</p>
           <div class="row">
             <button class="button primary" id="build-copy" type="button">Copy the build prompt</button>
             <span class="file-name" id="build-state"></span>
           </div>
-          <p class="hint">Paste it into that same chat — or into a fresh one if you had no picture.
-          Then bring its reply to step 3.</p>
+          <p class="hint" id="build-where">Paste it into the same chat you used in A, then bring
+          its reply to step 3.</p>
           <details id="build-options">
             <summary>More options — name it yourself, choose the rack</summary>
             <p class="hint">All optional. Leave them alone and the AI decides from your diagram.</p>
@@ -745,22 +777,37 @@ function freshDrawingId(title) {
    which keeps the reply pure JSON. The alternative - having the model ask the
    person in chat - would train it to reply with prose, which is the one thing
    the whole checking pipeline depends on it never doing. */
-function freshRequestText(title, drawing, rack) {
+/* The opening sentence has to match where the network actually came from. It
+   used to open "from the inventory above" always - which is a lie in a chat
+   that never read a picture, and the reason building with nothing felt
+   pointless: the model was told to work from an inventory that was not there,
+   so it quietly invented one and said nothing. */
+function freshRequestText(title, drawing, rack, source) {
+  const mode = (source && source.mode) || "picture";
+  const described = ((source && source.description) || "").trim();
   const cleanTitle = (title || "").trim();
   const cleanDrawing = (drawing || "").trim();
+  const noun = mode === "describe" ? "description" : mode === "sample" ? "example" : "inventory";
+  const opening = mode === "describe" && described
+    ? `Build this whole design from this description of the network:\n\n${described}\n\nWork only from what it states; anything it does not say becomes a gap, never a guess. `
+    : mode === "sample"
+      ? "Invent a small plausible network for this document - one site, eight to twelve devices, an internet edge, a firewall, a core switch, access switches, wireless and a server or two. Every address, model and version in it is invented, so the gaps list must say plainly that this document is a worked example and nothing in it was surveyed. "
+      : "Build this whole design from the inventory above. ";
   const identity = cleanTitle
     ? `Title "${cleanTitle}", drawing id ${cleanDrawing || freshDrawingId(cleanTitle)}. `
-    : "Choose a fitting document title from what the diagram shows, and a drawing id built from the title's initials (like ABC-NET-001). ";
+    : mode === "picture"
+      ? "Choose a fitting document title from what the diagram shows, and a drawing id built from the title's initials (like ABC-NET-001). "
+      : `Choose a fitting document title from the ${noun}, and a drawing id built from the title's initials (like ABC-NET-001). `;
   const rackLine = rack === "none"
     ? "No rack: record the absence of physical documentation as a gap."
     : rack === "small"
       ? "Small rack with the rack-mountable devices - firewall, switches, servers."
       : "If the diagram shows rack-mountable devices, put them in a small rack; if it shows none, record the absence of physical documentation as a gap.";
-  return "Build this whole design from the inventory above. " + identity +
+  return opening + identity +
     "Put the internet and anything outside the organization in an external area, and the organization in an internal area. " +
     rackLine +
-    " Carry every detail from the inventory into the document: models, versions and specs in each device's notes, its address in the address field, interface or port names as connection labels, and addressing, VLANs and SSIDs as identity table rows." +
-    " The document must contain every device in the inventory. If you condense repeated devices or leave anything out, record exactly what was condensed or omitted as a finding stating both numbers - how many the inventory counted, how many the drawing shows - the document must never look more complete than it is." +
+    ` Carry every detail from the ${noun} into the document: models, versions and specs in each device's notes, its address in the address field, interface or port names as connection labels, and addressing, VLANs and SSIDs as identity table rows.` +
+    ` The document must contain every device in the ${noun}. If you condense repeated devices or leave anything out, record exactly what was condensed or omitted as a finding stating both numbers - how many the ${noun} counted, how many the drawing shows - the document must never look more complete than it is.` +
     " Anything dated, expired or end-of-life becomes a finding, and anything you could not read from the diagram goes in the gaps list." +
     " Write the figure caption and legend to describe what is actually drawn.";
 }
@@ -2472,7 +2519,7 @@ $("new-design").addEventListener("click", () => {
   loadSource(new TextDecoder("utf-8", { fatal: true }).decode(bytes), "network-design-template.edit.html");
   setStepMode(true);
   note("load-message", "ok", "Blank template ready.", " Now copy the build prompt below.");
-  setStage("build", "press Copy the build prompt, paste it into any AI chat, and bring the reply back. Working from a picture? Do prompt 1 first.");
+  setStage("build", "answer A - where your network is coming from - then press Copy the build prompt in B.");
 });
 $("choose-file").addEventListener("click", () => $("file-input").click());
 $("file-input").addEventListener("change", () => {
@@ -2497,6 +2544,27 @@ $("fresh-title").addEventListener("input", () => {
    the optional fields hold, aim it at the whole design, and put it on the
    clipboard. Filling and copying were two clicks and two buttons, and the
    order between them was never obvious. */
+/* The chosen starting point decides which branch is on screen, what the build
+   button's help line says, and which opening the request carries. */
+function buildSource() {
+  const picked = [...document.querySelectorAll('input[name="build-source"]')].find((radio) => radio.checked);
+  const mode = picked ? picked.value : "picture";
+  return { mode, description: $("network-description").value };
+}
+function showBuildSource() {
+  const { mode } = buildSource();
+  for (const name of ["picture", "describe", "sample"]) {
+    $("source-" + name).classList.toggle("on", name === mode);
+  }
+  $("build-where").textContent = mode === "picture"
+    ? "Paste it into the same chat you used in A, then bring its reply to step 3."
+    : "Paste it into any new AI chat - nothing to attach, nothing to do first - then bring its reply to step 3.";
+}
+document.querySelectorAll('input[name="build-source"]').forEach((radio) => {
+  radio.addEventListener("change", () => { showBuildSource(); $("build-state").textContent = ""; });
+});
+showBuildSource();
+
 $("build-copy").addEventListener("click", async () => {
   const slice = $("slice");
   if (![...slice.options].some((option) => option.value === "all")) {
@@ -2505,7 +2573,12 @@ $("build-copy").addEventListener("click", async () => {
   }
   slice.value = "all";
   slice.dispatchEvent(new Event("change"));
-  $("request").value = freshRequestText($("fresh-title").value, $("fresh-drawing").value, $("fresh-rack").value);
+  const source = buildSource();
+  if (source.mode === "describe" && !source.description.trim()) {
+    $("build-state").textContent = "Describe your network in the box above first, or pick another starting point.";
+    return;
+  }
+  $("request").value = freshRequestText($("fresh-title").value, $("fresh-drawing").value, $("fresh-rack").value, source);
   const text = buildPrompt();
   try {
     await navigator.clipboard.writeText(text);
