@@ -612,6 +612,22 @@ const ZONE_KINDS = ["external","perimeter","internal","other"];
 
 const NODE_W = 176, NODE_H = 104;
 
+/* What a node actually DRAWS, as half-extents from its centre - which is not
+   the 176x104 card the group is positioned by. The symbol is a 94-wide shell
+   with its caption beneath it, and a segment has never been card-shaped at
+   all: it is a w x 10 rail. Measuring the card reported overlaps between
+   devices that never touch, and put every device sitting above its own subnet
+   bar into a pile-up STOP - which is what the drawing grammar started
+   producing the moment the prompt learned to draw bars. The grid that places
+   nodes still works in card widths, deliberately: it buys margin. */
+const SYMBOL_W = 94, SYMBOL_H = 104, BAR_H = 10;
+function nodeHalf(node) {
+  return node && node.shape === "segment"
+    ? { x: Math.max(10, (Number(node.width) || 300) / 2), y: BAR_H / 2 }
+    : { x: SYMBOL_W / 2, y: SYMBOL_H / 2 };
+}
+const isSegment = (node) => !!node && node.shape === "segment";
+
 /* The three thresholds the geometry rules grade against, shared by the checker
    (checkMeaning) and the polish pass (polishGeometry) so the two can never
    drift apart. CONTAINED tolerates the shipped NET-OT-001, whose four devices
@@ -1516,10 +1532,17 @@ function freeUnits(devices, units) {
 
 // The documentation shell's own doctrine: the reader must always be able to
 // tell what is known from what is assumed. See docs/document-shell.md.
-function checkShell(data) {
+function checkShell(data, original) {
   const out = [];
   const brand = data.document?.brand;
-  if (brand && typeof brand.logoPath === "string" && brand.logoPath.trim().length < 12) {
+  /* Only a logo that EXISTED can be destroyed. A document branded with an
+     image carries no path, and a document nobody has branded yet carries
+     nothing at all - stopping either one blocks every build on the blank
+     template, which is exactly what shipped in v0.4.1. */
+  const hadPath = typeof original?.document?.brand?.logoPath === "string"
+    && original.document.brand.logoPath.trim().length >= 12;
+  const hasImage = typeof brand?.logoImage === "string" && brand.logoImage.length > 0;
+  if (hadPath && !hasImage && brand && typeof brand.logoPath === "string" && brand.logoPath.trim().length < 12) {
     out.push(problem(true, "The company logo path has been shortened or emptied, which would destroy the logo.",
       "Do not modify document.brand at all. Copy the entire brand object through exactly as you received it."));
   }
@@ -1567,8 +1590,11 @@ function checkShell(data) {
 // Which area holds most of this node's box, and how much of it. One source of
 // truth for the containment maths: the checker grades against it and the
 // polish pass repairs against it, so a fix here is a fix in both.
-function bestZoneCoverage(x, y, zones) {
-  const box = { left: x - NODE_W / 2, right: x + NODE_W / 2, top: y - NODE_H / 2, bottom: y + NODE_H / 2 };
+function bestZoneCoverage(node, zones) {
+  const x = Number(node.x), y = Number(node.y);
+  if (!Number.isFinite(x) || !Number.isFinite(y)) return null;
+  const half = nodeHalf(node);
+  const box = { left: x - half.x, right: x + half.x, top: y - half.y, bottom: y + half.y };
   let best = null;
   for (const zone of zones) {
     const zx = Number(zone.x), zy = Number(zone.y), zw = Number(zone.width), zh = Number(zone.height);
@@ -1576,7 +1602,7 @@ function bestZoneCoverage(x, y, zones) {
     const overlapW = Math.min(box.right, zx + zw) - Math.max(box.left, zx);
     const overlapH = Math.min(box.bottom, zy + zh) - Math.max(box.top, zy);
     if (overlapW <= 0 || overlapH <= 0) continue;
-    const fraction = (overlapW * overlapH) / (NODE_W * NODE_H);
+    const fraction = (overlapW * overlapH) / Math.max(1, (half.x * 2) * (half.y * 2));
     if (!best || fraction > best.fraction) best = { zone, fraction };
   }
   return best;
@@ -1649,9 +1675,8 @@ function checkMeaning(data) {
      is exactly where the renderers diverge. */
   const canvas = data.topology?.canvas || {};
   const width = Number(canvas.width), height = Number(canvas.height);
-  const half = { x: NODE_W / 2, y: NODE_H / 2 };
-
   if (usesCoordinates) for (const node of nodes) {
+    const half = nodeHalf(node);
     const x = Number(node.x), y = Number(node.y);
     if (!Number.isFinite(x) || !Number.isFinite(y)) {
       out.push(problem(true, `"${node.id}" has no usable position on the drawing.`,
@@ -1677,10 +1702,13 @@ function checkMeaning(data) {
   // because two devices in one place is unreadable rather than untidy.
   if (usesCoordinates) for (let a = 0; a < nodes.length; a++) {
     for (let b = a + 1; b < nodes.length; b++) {
+      const ha = nodeHalf(nodes[a]), hb = nodeHalf(nodes[b]);
+      const reachX = ha.x + hb.x, reachY = ha.y + hb.y;
       const dx = Math.abs(Number(nodes[a].x) - Number(nodes[b].x));
       const dy = Math.abs(Number(nodes[a].y) - Number(nodes[b].y));
-      if (!(dx < NODE_W && dy < NODE_H)) continue;
-      const covered = ((NODE_W - dx) * (NODE_H - dy)) / (NODE_W * NODE_H);
+      if (!(dx < reachX && dy < reachY)) continue;
+      const smallest = Math.max(1, Math.min((ha.x * 2) * (ha.y * 2), (hb.x * 2) * (hb.y * 2)));
+      const covered = ((reachX - dx) * (reachY - dy)) / smallest;
       const serious = covered >= PILEUP;
       const extent = covered < 0.01 ? "by a few pixels" : `by ${Math.round(covered * 100)}% of a device box`;
       out.push(problem(serious,
@@ -1714,9 +1742,12 @@ function checkMeaning(data) {
      devices hanging 2px over an edge on purpose, 98% inside, and a rule that
      shouts at the project's own reference drawing is a rule people switch off. */
   if (usesCoordinates) for (const node of nodes) {
+    // A subnet bar is a network, not a device: it spans areas by design, and
+    // asking which one it "belongs to" has no answer worth reporting.
+    if (isSegment(node)) continue;
     const x = Number(node.x), y = Number(node.y);
     if (!Number.isFinite(x) || !Number.isFinite(y)) continue;
-    const best = bestZoneCoverage(x, y, zones);
+    const best = bestZoneCoverage(node, zones);
     if (best && best.fraction >= IGNORE_BELOW && best.fraction < CONTAINED) {
       const label = best.zone.id || best.zone.label || "?";
       out.push(problem(false, `"${node.id}" is drawn half in and half out of the area "${label}" (${Math.round(best.fraction * 100)}% inside), so a reader cannot tell which area it belongs to.`,
@@ -1802,19 +1833,23 @@ function checkMeaning(data) {
 function geometryFaults(nodes, zones, width, height) {
   let stops = 0, warns = 0;
   const keys = new Set();
-  const half = { x: NODE_W / 2, y: NODE_H / 2 };
   for (const node of nodes) {
+    const half = nodeHalf(node);
     const x = Number(node.x), y = Number(node.y);
     if (!Number.isFinite(x) || !Number.isFinite(y)) { stops++; continue; }
     if (x - half.x < 0 || x + half.x > width || y - half.y < 0 || y + half.y > height) stops++;
-    const best = bestZoneCoverage(x, y, zones);
+    if (isSegment(node)) continue;
+    const best = bestZoneCoverage(node, zones);
     if (best && best.fraction >= IGNORE_BELOW && best.fraction < CONTAINED) { warns++; keys.add(`straddle:${node.id}`); }
   }
   for (let a = 0; a < nodes.length; a++) for (let b = a + 1; b < nodes.length; b++) {
+    const ha = nodeHalf(nodes[a]), hb = nodeHalf(nodes[b]);
+    const reachX = ha.x + hb.x, reachY = ha.y + hb.y;
     const dx = Math.abs(Number(nodes[a].x) - Number(nodes[b].x));
     const dy = Math.abs(Number(nodes[a].y) - Number(nodes[b].y));
-    if (!(dx < NODE_W && dy < NODE_H)) continue;
-    const covered = ((NODE_W - dx) * (NODE_H - dy)) / (NODE_W * NODE_H);
+    if (!(dx < reachX && dy < reachY)) continue;
+    const smallest = Math.max(1, Math.min((ha.x * 2) * (ha.y * 2), (hb.x * 2) * (hb.y * 2)));
+    const covered = ((reachX - dx) * (reachY - dy)) / smallest;
     if (covered >= PILEUP) stops++;
     else { warns++; keys.add(`overlap:${[nodes[a].id, nodes[b].id].sort().join("|")}`); }
   }
@@ -1872,8 +1907,8 @@ function polishGeometry(data) {
         if (moves.some((q) => q.node === other)) continue;
         const ox = Number(other.x), oy = Number(other.y);
         if (!Number.isFinite(ox) || !Number.isFinite(oy)) continue;
-        const was = Math.abs(Number(m.node.x) - ox) < NODE_W && Math.abs(Number(m.node.y) - oy) < NODE_H;
-        const now = Math.abs(m.nx - ox) < NODE_W && Math.abs(m.ny - oy) < NODE_H;
+        const was = Math.abs(Number(m.node.x) - ox) < SYMBOL_W && Math.abs(Number(m.node.y) - oy) < SYMBOL_H;
+        const now = Math.abs(m.nx - ox) < SYMBOL_W && Math.abs(m.ny - oy) < SYMBOL_H;
         if (now && !was) moves.push({ node: other, nx: Math.round(ox + mdx), ny: Math.round(oy + mdy), why: "" });
       }
     }
@@ -1891,13 +1926,14 @@ function polishGeometry(data) {
     const seat = (node) => {
       const x = Number(node.x), y = Number(node.y);
       if (!Number.isFinite(x) || !Number.isFinite(y)) return null;
-      const best = bestZoneCoverage(x, y, zones);
+      if (isSegment(node)) return null;   // a rail's span is the drawing's meaning
+      const best = bestZoneCoverage(node, zones);
       if (!best || best.fraction < 0.6 || best.fraction >= CONTAINED) return null;
       const zx = Number(best.zone.x), zy = Number(best.zone.y);
       const zw = Number(best.zone.width), zh = Number(best.zone.height);
-      const INSET = 6;
-      const lo = { x: Math.max(zx + NODE_W / 2 + INSET, NODE_W / 2), y: Math.max(zy + NODE_H / 2 + INSET, NODE_H / 2) };
-      const hi = { x: Math.min(zx + zw - NODE_W / 2 - INSET, width - NODE_W / 2), y: Math.min(zy + zh - NODE_H / 2 - INSET, height - NODE_H / 2) };
+      const INSET = 6, hw = SYMBOL_W / 2, hh = SYMBOL_H / 2;
+      const lo = { x: Math.max(zx + hw + INSET, hw), y: Math.max(zy + hh + INSET, hh) };
+      const hi = { x: Math.min(zx + zw - hw - INSET, width - hw), y: Math.min(zy + zh - hh - INSET, height - hh) };
       if (lo.x > hi.x || lo.y > hi.y) return null; // the area cannot hold the box
       const nx = Math.round(Math.min(Math.max(x, lo.x), hi.x));
       const ny = Math.round(Math.min(Math.max(y, lo.y), hi.y));
@@ -1920,7 +1956,7 @@ function polishGeometry(data) {
         for (const other of nodes) {
           if (group.some((m) => m.node === other)) continue;
           const hit = group.some((m) =>
-            Math.abs(m.nx - Number(other.x)) < NODE_W && Math.abs(m.ny - Number(other.y)) < NODE_H);
+            Math.abs(m.nx - Number(other.x)) < SYMBOL_W && Math.abs(m.ny - Number(other.y)) < SYMBOL_H);
           if (!hit) continue;
           const theirs = seat(other);
           if (!theirs) { sound = false; break; }
@@ -1949,9 +1985,10 @@ function polishGeometry(data) {
       for (const node of nodes) {
         const x = Number(node.x), y = Number(node.y);
         if (!Number.isFinite(x) || !Number.isFinite(y)) continue;
-        const best = bestZoneCoverage(x, y, zones);
+        if (isSegment(node)) continue;
+        const best = bestZoneCoverage(node, zones);
         if (!best || best.zone !== zone || best.fraction < 0.6 || best.fraction >= CONTAINED) continue;
-        const box = { left: x - NODE_W / 2 - 6, right: x + NODE_W / 2 + 6, top: y - NODE_H / 2 - 6, bottom: y + NODE_H / 2 + 6 };
+        const box = { left: x - SYMBOL_W / 2 - 6, right: x + SYMBOL_W / 2 + 6, top: y - SYMBOL_H / 2 - 6, bottom: y + SYMBOL_H / 2 + 6 };
         hull = hull ? {
           left: Math.min(hull.left, box.left), right: Math.max(hull.right, box.right),
           top: Math.min(hull.top, box.top), bottom: Math.max(hull.bottom, box.bottom)
@@ -2003,12 +2040,16 @@ function polishGeometry(data) {
       const na = nodes[a], nb = nodes[b];
       const ax = Number(na.x), ay = Number(na.y), bx = Number(nb.x), by = Number(nb.y);
       if (![ax, ay, bx, by].every(Number.isFinite)) continue;
+      if (isSegment(na) || isSegment(nb)) continue; // a rail is placed, not tidied
+      const ha = nodeHalf(na), hb = nodeHalf(nb);
+      const reachX = ha.x + hb.x, reachY = ha.y + hb.y;
       const dx = Math.abs(ax - bx), dy = Math.abs(ay - by);
-      if (!(dx < NODE_W && dy < NODE_H)) continue;
-      const covered = ((NODE_W - dx) * (NODE_H - dy)) / (NODE_W * NODE_H);
+      if (!(dx < reachX && dy < reachY)) continue;
+      const smallest = Math.max(1, Math.min((ha.x * 2) * (ha.y * 2), (hb.x * 2) * (hb.y * 2)));
+      const covered = ((reachX - dx) * (reachY - dy)) / smallest;
       if (covered >= PILEUP) continue; // a stop: the model must rethink, not be tidied
       const GAP = 8;
-      const needX = NODE_W - dx + GAP, needY = NODE_H - dy + GAP;
+      const needX = reachX - dx + GAP, needY = reachY - dy + GAP;
       const halfX = Math.ceil(needX / 2), halfY = Math.ceil(needY / 2);
       const sx = bx >= ax ? 1 : -1, sy = by >= ay ? 1 : -1;
       const xWays = [[nb, sx * needX, 0], [na, -sx * needX, 0], "splitX"];
@@ -2294,7 +2335,7 @@ function check() {
     .concat(mergeProblems)
     .concat(checkStructure(cleanedText, tidied, name, original))
     .concat(checkAssetStrings(tidied))
-    .concat(checkShell(tidied))
+    .concat(checkShell(tidied, original))
     .concat(checkMeaning(tidied));
   renderProblems(all);
 

@@ -206,7 +206,7 @@ test("geometry: a real pile-up is a stop", () => {
 test("geometry: a corner kiss is a warning, not a stop", () => {
   const data = baseDesign();
   data.topology.nodes[0].x = 200; data.topology.nodes[0].y = 200;
-  data.topology.nodes[1].x = 375; data.topology.nodes[1].y = 303;
+  data.topology.nodes[1].x = 293; data.topology.nodes[1].y = 303;
   const problems = t.checkMeaning(data);
   assert(has(problems, /overlap by a few pixels/, false));
   assert(!has(problems, /overlap/, true), "the corner kiss was wrongly promoted to a stop");
@@ -572,8 +572,8 @@ test("packaging: wrong-format artwork is excluded, not embedded", async () => {
 
 test("polish: a slight overlap is separated, reported, and satisfies the checker", () => {
   const d = baseDesign();
-  // dx = 160 of a 176-wide box: a 9% overlap, the warning band.
-  d.topology.nodes[1].x = 460;
+  // dx = 86 of the 94-wide drawn symbol: an 8.5% overlap, the warning band.
+  d.topology.nodes[1].x = 386;
   const { next, applied } = t.polishGeometry(d);
   assert.strictEqual(applied.length, 1);
   assert(/moved "(edge-fw-01|core-sw-01)" \d+px \w+ to clear "/.test(applied[0]), applied[0]);
@@ -582,8 +582,8 @@ test("polish: a slight overlap is separated, reported, and satisfies the checker
 
 test("polish: a straddler that plainly belongs is seated fully inside", () => {
   const d = baseDesign();
-  // Zone z1 ends at x 1160; a centre at 1120 leaves the box 73% inside.
-  d.topology.nodes[1].x = 1120;
+  // Zone z1 ends at x 1160; a centre at 1138 leaves the symbol 73% inside.
+  d.topology.nodes[1].x = 1138;
   const { next, applied } = t.polishGeometry(d);
   assert.strictEqual(applied.length, 1);
   assert(/to sit fully inside "z1"/.test(applied[0]), applied[0]);
@@ -592,9 +592,9 @@ test("polish: a straddler that plainly belongs is seated fully inside", () => {
 
 test("polish: a genuinely ambiguous straddler is left alone", () => {
   const d = baseDesign();
-  // A centre at 1178 leaves the box 40% inside z1 - which side it belongs on
-  // is a judgement call, so the warning must survive.
-  d.topology.nodes[1].x = 1178;
+  // A centre at 1188 leaves the symbol 40% inside z1 - which side it belongs
+  // on is a judgement call, so the warning must survive.
+  d.topology.nodes[1].x = 1188;
   const { next, applied } = t.polishGeometry(d);
   assert.strictEqual(applied.length, 0);
   assert(has(t.checkMeaning(json(next)), /half in and half out/, false), "the ambiguity was guessed away");
@@ -602,7 +602,7 @@ test("polish: a genuinely ambiguous straddler is left alone", () => {
 
 test("polish: a pile-up is a stop and is never repaired", () => {
   const d = baseDesign();
-  d.topology.nodes[1].x = 320;
+  d.topology.nodes[1].x = 330;
   d.topology.nodes[1].y = 320;
   const { next, applied } = t.polishGeometry(d);
   assert.strictEqual(applied.length, 0);
@@ -614,22 +614,22 @@ test("polish: an area drawn too small for its own device is grown, not guessed",
   // The straddler's inward path is blocked by a fully-seated neighbour that
   // is not itself a straddler, so no node move is sound - the area's right
   // edge grows the 54px that holds the box instead.
-  d.topology.nodes[0].x = 944;
-  d.topology.nodes[1].x = 1120;
+  d.topology.nodes[0].x = 1044;
+  d.topology.nodes[1].x = 1138;
   const { next, applied } = t.polishGeometry(d);
   assert.strictEqual(applied.length, 1);
-  assert(/grew the area "z1" 54px right to hold "edge-fw-01"/.test(applied[0]), applied[0]);
+  assert(/grew the area "z1" 31px right to hold "edge-fw-01"/.test(applied[0]), applied[0]);
   assert(!has(t.checkMeaning(json(next)), /half in and half out/), "the straddle survived the grow");
 });
 
 test("polish: a full row shifts as a chain when one push lands on the next box", () => {
   const d = baseDesign();
-  d.topology.nodes[1].x = 460; // 9% overlap with core-sw-01 at 300
-  d.topology.nodes.push({ id: "srv-x-01", label: "S", icon: "server", x: 640, y: 300 });
+  d.topology.nodes[1].x = 386; // 8.5% overlap with core-sw-01 at 300
+  d.topology.nodes.push({ id: "srv-x-01", label: "S", icon: "server", x: 480, y: 300 });
   const { next, applied } = t.polishGeometry(d);
   assert.strictEqual(applied.length, 2, applied.join("; "));
-  assert(/moved "edge-fw-01" 24px right to clear "core-sw-01"/.test(applied[0]), applied[0]);
-  assert(/moved "srv-x-01" 24px right to make room for "edge-fw-01"/.test(applied[1]), applied[1]);
+  assert(/moved "edge-fw-01" 16px right to clear "core-sw-01"/.test(applied[0]), applied[0]);
+  assert(/moved "srv-x-01" 16px right to make room for "edge-fw-01"/.test(applied[1]), applied[1]);
   assert(!has(t.checkMeaning(json(next)), /overlap/), "an overlap survived the chain");
 });
 
@@ -665,6 +665,79 @@ test("prompt: parts that place nothing carry no grid", () => {
   for (const name of ["links", "rack", "findings", "sections", "document"]) {
     assert.strictEqual(t.layoutRulesFor(name), "", name);
   }
+});
+
+/* ---- what the client's stuck session bought us ---- */
+
+test("brand: a document that never had a logo path is not accused of destroying one", () => {
+  const original = baseDesign();
+  original.document.brand = { name: "", label: "", logoPath: "" };
+  const reply = JSON.parse(JSON.stringify(original));
+  assert.strictEqual(t.checkShell(reply, original).filter((p) => p.stop).length, 0,
+    "the blank template's own brand was treated as a destroyed logo");
+});
+
+test("brand: a real logo path emptied by the model is still a stop", () => {
+  const original = baseDesign();   // ships a genuine logoPath
+  const reply = JSON.parse(JSON.stringify(original));
+  reply.document.brand.logoPath = "";
+  assert(has(t.checkShell(reply, original), /shortened or emptied/, true),
+    "a genuinely destroyed logo slipped through");
+});
+
+test("brand: a staged logo image excuses the missing path", () => {
+  const original = baseDesign();
+  const reply = JSON.parse(JSON.stringify(original));
+  reply.document.brand.logoPath = "";
+  reply.document.brand.logoImage = "data:image/png;base64,iVBORw0KGgo=";
+  assert.strictEqual(t.checkShell(reply, original).filter((p) => p.stop).length, 0,
+    "a document branded with an image was told its logo was destroyed");
+});
+
+/* The drawing measures a 94-wide symbol and a 10-tall rail, not the 176x104
+   card the group is positioned by. Measuring the card put every device drawn
+   above its own subnet bar into a pile-up stop - which is what the prompt
+   started producing the day it learned to draw bars. */
+test("geometry: a device sitting above its own subnet bar is not an overlap", () => {
+  const d = baseDesign();
+  d.topology.nodes.push({ id: "seg-users", label: "USERS", shape: "segment", x: 300, y: 380, width: 700 });
+  d.topology.links.push({ from: "core-sw-01", to: "seg-users", kind: "access" });
+  const problems = t.checkMeaning(d);
+  assert(!has(problems, /overlap|sit on top of each other/),
+    "the bar and its own member were called an overlap: " + problems.map((p) => p.what).join(" | "));
+});
+
+test("geometry: two parallel subnet bars 70px apart do not overlap", () => {
+  const d = baseDesign();
+  d.topology.nodes.push({ id: "seg-a", label: "A", shape: "segment", x: 600, y: 600, width: 900 });
+  d.topology.nodes.push({ id: "seg-b", label: "B", shape: "segment", x: 600, y: 670, width: 740 });
+  assert(!has(t.checkMeaning(d), /overlap|sit on top of each other/),
+    "two rails a comfortable 70px apart were called an overlap");
+});
+
+test("geometry: a subnet bar is never asked which area it belongs to", () => {
+  const d = baseDesign();
+  // A rail deliberately spanning the whole drawing, crossing the zone edge.
+  d.topology.nodes.push({ id: "seg-wide", label: "W", shape: "segment", x: 640, y: 400, width: 1240 });
+  assert(!has(t.checkMeaning(d), /half in and half out/),
+    "a subnet bar was asked to pick an area");
+});
+
+test("geometry: two devices a symbol-width apart are left alone", () => {
+  const d = baseDesign();
+  // 130px apart: the spacing the shipped NET-HQ-002 uses, and it reads fine.
+  d.topology.nodes[0].x = 300;
+  d.topology.nodes[1].x = 430;
+  assert(!has(t.checkMeaning(d), /overlap|sit on top of each other/),
+    "devices that do not touch were reported as overlapping");
+});
+
+test("geometry: a genuine pile-up is still a stop", () => {
+  const d = baseDesign();
+  d.topology.nodes[1].x = 320;
+  d.topology.nodes[1].y = 310;
+  assert(has(t.checkMeaning(d), /sit on top of each other/, true),
+    "the overlap check stopped catching real pile-ups");
 });
 
 /* ---- the optional drawing grammar ---- */

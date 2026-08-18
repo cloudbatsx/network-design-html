@@ -200,7 +200,7 @@ function runCheck(t, raw, original, name = "all") {
     .concat(mergeProblems)
     .concat(t.checkStructure(cleanedText, polished.next, name, original))
     .concat(t.checkAssetStrings(polished.next))
-    .concat(t.checkShell(polished.next))
+    .concat(t.checkShell(polished.next, original))
     .concat(t.checkMeaning(polished.next));
   return { merged: polished.next, problems, applied: applied.concat(polished.applied), truncated: false };
 }

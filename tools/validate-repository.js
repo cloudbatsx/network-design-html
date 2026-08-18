@@ -636,6 +636,59 @@ check("generated files stay in excluded directories", () => {
   assert(binariesOutsidePermitted.length === 0, `raster assets outside assets/: ${binariesOutsidePermitted.join(", ")}`);
 });
 
+/* Every document this repository ships must be one the helper would let you
+   save. It sounds obvious; it was not enforced, and v0.4.1 shipped eleven
+   documents - the blank template among them - that the helper's own checker
+   stopped on sight, because white-labelling the brand emptied a logo path
+   that a stop was written to defend. A whole release was unusable and every
+   other check stayed green. This is that check. */
+check("every shipped document passes the helper's own checkers", () => {
+  const vm = require("vm");
+  const helperSource = read("edit-with-ai.html");
+  const script = helperSource.match(/<script>([\s\S]*)<\/script>/);
+  assert(script, "edit-with-ai.html no longer contains a script block");
+  const stub = () => {
+    const element = {
+      value: "", textContent: "", disabled: false, hidden: false, open: false,
+      className: "", children: [], dataset: {}, style: {},
+      classList: { add() {}, remove() {}, toggle() {}, contains: () => false },
+      addEventListener() {}, removeEventListener() {}, replaceChildren() {},
+      appendChild: (child) => child, append() {}, remove() {}, click() {},
+      setAttribute() {}, querySelector: () => stub(), querySelectorAll: () => []
+    };
+    return element;
+  };
+  const elements = new Map();
+  const sandbox = {
+    document: {
+      getElementById: (id) => { if (!elements.has(id)) elements.set(id, stub()); return elements.get(id); },
+      createElement: () => stub(), createTextNode: (text) => ({ text }),
+      body: stub(), querySelectorAll: () => []
+    },
+    navigator: {}, URL: { createObjectURL: () => "b", revokeObjectURL() {} },
+    Blob, TextDecoder, structuredClone, setTimeout, console, atob, btoa,
+    PACKAGER_CORE: require(path.join(root, "tools", "packager-core.js"))
+  };
+  vm.runInNewContext(script[1] +
+    ";globalThis.__v={checkShell,checkMeaning,checkAssetStrings,loadSource,state:()=>({currentData})};",
+    sandbox, { filename: "edit-with-ai.html <script>" });
+  const helper = sandbox.__v;
+
+  const broken = [];
+  for (const name of fs.readdirSync(path.join(root, "starters")).filter((f) => f.endsWith(".edit.html"))) {
+    helper.loadSource(read(`starters/${name}`), name);
+    const data = helper.state().currentData;
+    assert(data, `${name} does not load in the helper at all`);
+    // Its own brand is its baseline: nothing has been edited yet.
+    const stops = helper.checkShell(data, data)
+      .concat(helper.checkMeaning(data))
+      .concat(helper.checkAssetStrings(data))
+      .filter((problem) => problem.stop);
+    if (stops.length) broken.push(`${name}: ${stops[0].what}`);
+  }
+  assert(broken.length === 0, `the helper stops on documents we ship - ${broken.join(" | ")}`);
+});
+
 for (const label of passes) process.stdout.write(`PASS  ${label}\n`);
 for (const note of notes) process.stdout.write(`NOTE  ${note}\n`);
 for (const failure of failures) process.stderr.write(`FAIL  ${failure}\n`);
