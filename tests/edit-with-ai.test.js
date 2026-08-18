@@ -53,7 +53,7 @@ const sandbox = {
   PACKAGER_CORE: require(path.join(root, "tools", "packager-core.js"))
 };
 
-const shim = ";globalThis.__exports = { parseWithRepair, mergeReply, checkStructure, checkMeaning, checkShell, checkAssetStrings, looksTruncated, safeJson, contextFor, summarizeChange, editableParts, freshRequestText, freshDrawingId, brandedData, EXTRACT_PROMPT, SLICES, polishGeometry, layoutRulesFor, grammarRulesFor, svgLogoFrom };";
+const shim = ";globalThis.__exports = { parseWithRepair, mergeReply, checkStructure, checkMeaning, checkShell, checkAssetStrings, looksTruncated, safeJson, contextFor, summarizeChange, editableParts, freshRequestText, freshDrawingId, brandedData, EXTRACT_PROMPT, SLICES, polishGeometry, layoutRulesFor, grammarRulesFor, svgLogoFrom, fillIdentityFromDrawing };";
 vm.runInNewContext(script[1] + shim, sandbox, { filename: "edit-with-ai.html <script>" });
 const t = sandbox.__exports;
 
@@ -665,6 +665,91 @@ test("prompt: parts that place nothing carry no grid", () => {
   for (const name of ["links", "rack", "findings", "sections", "document"]) {
     assert.strictEqual(t.layoutRulesFor(name), "", name);
   }
+});
+
+/* ---- section 3 restates what the drawing already says ---- */
+
+function addressedDesign() {
+  const d = baseDesign();
+  d.sections.identity = { heading: "Identity & addressing", notes: [], columns: [], rows: [] };
+  d.topology.nodes[0].address = "10.0.0.1/24";
+  d.topology.nodes[0].role = "Core switch";
+  d.topology.nodes[1].address = "10.0.0.2/24";
+  d.topology.nodes[1].role = "Edge firewall";
+  return d;
+}
+
+test("fill: an empty identity table is written from the devices that carry an address", () => {
+  const { next, applied } = t.fillIdentityFromDrawing(addressedDesign(), "all");
+  assert.strictEqual(applied.length, 1, applied.join("; "));
+  assert(/filled the identity table from the 2 devices/.test(applied[0]), applied[0]);
+  assert.deepStrictEqual(json(next.sections.identity.columns), ["Device", "Role", "Address", "Source"]);
+  assert.strictEqual(next.sections.identity.rows.length, 2);
+  assert.deepStrictEqual(json(next.sections.identity.rows[0].cells),
+    ["core-sw-01", "Core switch", "10.0.0.1/24", "From the drawing"]);
+});
+
+test("fill: a table the model wrote itself is never overwritten", () => {
+  const d = addressedDesign();
+  d.sections.identity.columns = ["Function", "VLAN", "Range"];
+  d.sections.identity.rows = [{ cells: ["Users", "10", "10.0.10.0/24"] }];
+  const { next, applied } = t.fillIdentityFromDrawing(d, "all");
+  assert.strictEqual(applied.length, 0, "an authored table was rewritten");
+  assert.deepStrictEqual(json(next.sections.identity.rows), json(d.sections.identity.rows));
+});
+
+test("fill: nothing is invented when the devices carry no addresses", () => {
+  const d = addressedDesign();
+  for (const node of d.topology.nodes) delete node.address;
+  const { applied } = t.fillIdentityFromDrawing(d, "all");
+  assert.strictEqual(applied.length, 0, "addresses were invented from nothing");
+});
+
+test("fill: a subnet bar is not a device and never becomes a row", () => {
+  const d = addressedDesign();
+  d.topology.nodes.push({ id: "seg-users", shape: "segment", x: 400, y: 600, width: 500, address: "10.0.10.0/24" });
+  const { next } = t.fillIdentityFromDrawing(d, "all");
+  assert(!next.sections.identity.rows.some((row) => row.cells[0] === "seg-users"),
+    "a rail was listed as a device");
+});
+
+test("fill: editing one part does not quietly rewrite another", () => {
+  for (const scope of ["nodes", "links", "rack", "findings", "document"]) {
+    assert.strictEqual(t.fillIdentityFromDrawing(addressedDesign(), scope).applied.length, 0, scope);
+  }
+});
+
+test("rack: an empty rack beside mountable devices is named, not filled", () => {
+  const d = addressedDesign();
+  d.rack = { units: 42, devices: [] };
+  const problems = t.checkMeaning(d);
+  assert(has(problems, /The rack is empty, but 2 devices/, false), problems.map((p) => p.what).join(" | "));
+  const advice = problems.find((p) => /rack is empty/.test(p.what));
+  assert(/position, a height and a face code/.test(advice.tell), "the advice does not say what to add");
+  assert(/applicable.*false/.test(advice.tell), "the deliberate-no-rack escape is not offered");
+});
+
+test("rack: a design with nothing mountable is not nagged", () => {
+  const d = addressedDesign();
+  d.rack = { units: 42, devices: [] };
+  d.topology.nodes.forEach((node) => { node.icon = "pc"; });
+  assert(!has(t.checkMeaning(d), /The rack is empty/), "a laptop-and-cloud drawing was told to build a rack");
+});
+
+test("rack: a deliberate no-rack statement is a valid shape, not a missing list", () => {
+  const original = baseDesign();
+  const reply = JSON.parse(JSON.stringify(original));
+  reply.rack = { applicable: false, statement: "Wall-mounted; no rack at this site." };
+  const stops = t.checkStructure("{}", reply, "all", original).filter((p) => p.stop);
+  assert.strictEqual(stops.length, 0,
+    "the escape hatch the prompt teaches and the empty-rack warning recommends was refused: " +
+    stops.map((p) => p.what).join(" | "));
+});
+
+test("rack: a deliberate no-rack statement silences the ask", () => {
+  const d = addressedDesign();
+  d.rack = { applicable: false, statement: "Cloud-hosted; no premises equipment." };
+  assert(!has(t.checkMeaning(d), /The rack is empty/), "a declared absence was still nagged");
 });
 
 /* ---- the three ways a build can start ---- */

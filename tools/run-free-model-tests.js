@@ -88,7 +88,7 @@ function loadHelper() {
   const shim = ";globalThis.__exports = { parseWithRepair, mergeReply, checkStructure, checkMeaning," +
     " checkShell, checkAssetStrings, checkHostileText, looksTruncated, safeJson, freshRequestText," +
     " freshDrawingId, brandedData, EXTRACT_PROMPT, SLICES, pathLabel, buildPrompt, loadSource," +
-    " FORBIDDEN_IN_DATA, countOf, polishGeometry," +
+    " FORBIDDEN_IN_DATA, countOf, polishGeometry, fillIdentityFromDrawing," +
     " state: () => ({ source, payloadStart, payloadEnd, currentData })," +
     " setRequest: (text) => { document.getElementById('request').value = text; }," +
     " setSlice: (name) => { document.getElementById('slice').value = name; } };";
@@ -194,7 +194,9 @@ function runCheck(t, raw, original, name = "all") {
   // The helper tidies arithmetic-band geometry before grading - same call,
   // same order as check(). Its moves land in the applied list, so run-log.json
   // records them beside the text repairs.
-  const polished = t.polishGeometry(merged);
+  const geometry = t.polishGeometry(merged);
+  const filled = t.fillIdentityFromDrawing(geometry.next, name);
+  const polished = { next: filled.next, applied: geometry.applied.concat(filled.applied) };
 
   const problems = hostile
     .concat(mergeProblems)

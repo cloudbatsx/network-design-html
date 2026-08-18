@@ -186,12 +186,12 @@
 
   .shell { display:flex; max-width:1540px; margin:0 auto; }
   .sidebar { width:var(--sidebar-w); flex-shrink:0; position:sticky; top:0; align-self:flex-start; height:100vh; overflow-y:auto; padding:28px 20px 40px 28px; border-right:1px solid var(--border); }
-  .sidebar .brand { display:flex; align-items:center; gap:10px; margin-bottom:22px; }
+  .sidebar .brand { display:flex; align-items:center; gap:10px; margin-bottom:12px; }
   .sidebar .brand svg { width:28px; height:28px; min-width:0; flex-shrink:0; }
   .sidebar .brand.brand-logo { display:block; }
-  .sidebar .brand.brand-logo svg { width:100%; height:auto; max-height:76px; }
+  .sidebar .brand.brand-logo svg { width:100%; height:auto; max-height:60px; }
   .sidebar .brand span { font-family:'Sora',sans-serif; font-weight:700; font-size:17px; letter-spacing:-.02em; }
-  .sidebar .doclabel { font-size:11px; line-height:1.45; text-transform:uppercase; letter-spacing:.08em; color:var(--slate-500); font-weight:600; margin:0 0 18px; padding-bottom:14px; border-bottom:1px solid var(--border); }
+  .sidebar .doclabel { display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; font-size:11px; line-height:1.45; text-transform:uppercase; letter-spacing:.08em; color:var(--slate-500); font-weight:600; margin:0 0 18px; padding-bottom:14px; border-bottom:1px solid var(--border); }
   .toc { list-style:none; margin:0; padding:0; font-size:13.5px; }
   .toc > li { margin:0 0 2px; }
   .toc a { display:block; color:var(--slate-600); text-decoration:none; padding:6px 10px; border-radius:6px; font-weight:500; }
@@ -2140,7 +2140,10 @@ if (typeof module !== "undefined" && module.exports) module.exports = RACK_FACE_
        nothing here, never the no-value dash a missing data field earns. */
     const nameNode=el("brand-name"),labelNode=el("brand-doclabel");
     if(nameNode)nameNode.textContent=hasLogo?"":name;
-    if(labelNode)labelNode.textContent=brand.label||"";
+    /* Whoever owns the document may name this line; when they have not, the
+       document names itself, so a reader flipping through a stack always
+       knows which one is open. */
+    if(labelNode)labelNode.textContent=brand.label||data.document?.title||"";
   }
   function renderHeader(){
     const doc=data.document||{};
