@@ -53,7 +53,10 @@ const sandbox = {
   PACKAGER_CORE: require(path.join(root, "tools", "packager-core.js"))
 };
 
-const shim = ";globalThis.__exports = { parseWithRepair, mergeReply, checkStructure, checkMeaning, checkShell, checkAssetStrings, looksTruncated, safeJson, contextFor, summarizeChange, editableParts, freshRequestText, freshDrawingId, brandedData, EXTRACT_PROMPT, SLICES, polishGeometry, layoutRulesFor, grammarRulesFor, svgLogoFrom, fillIdentityFromDrawing };";
+const shim = ";globalThis.__exports = { parseWithRepair, mergeReply, checkStructure, checkMeaning, checkShell, checkAssetStrings, looksTruncated, safeJson, contextFor, summarizeChange, editableParts, freshRequestText, freshDrawingId, brandedData, EXTRACT_PROMPT, SLICES, polishGeometry, layoutRulesFor, grammarRulesFor, svgLogoFrom, fillIdentityFromDrawing, buildPrompt," +
+  " setData: (d) => { currentData = d; }," +
+  " setRequest: (text) => { document.getElementById('request').value = text; }," +
+  " setSlice: (name) => { document.getElementById('slice').value = name; } };";
 vm.runInNewContext(script[1] + shim, sandbox, { filename: "edit-with-ai.html <script>" });
 const t = sandbox.__exports;
 
@@ -941,6 +944,28 @@ test("grammar: the SHAPE rule points at the exceptions instead of forbidding the
   const built = t.grammarRulesFor("all");
   assert(/OPTIONAL GRAMMAR/.test(built), "the section never names itself");
   assert(/none is required/.test(built), "the grammar never says it is optional");
+});
+
+/* ---- the prompt carries every byte ---- */
+
+/* A replacement string hands $$, $&, $` and $' to String.replace as
+   substitution patterns. A note reading "in $'000" used to splice the
+   prompt's own tail into the JSON the model was shown, and "costs $$"
+   silently became "costs $" - which the model then echoed back, and every
+   checker accepted. The fix is function replacers; this pins it. */
+test("prompt: text that looks like a replacement pattern travels byte-for-byte", () => {
+  const design = baseDesign();
+  design.topology.nodes[0].notes = "budget in $'000, cost $$, match $&, col $`";
+  t.setData(design);
+  t.setSlice("nodes");
+  t.setRequest("the PSU option costs $& and $$ installed");
+  const prompt = t.buildPrompt();
+  assert(prompt.includes("budget in $'000, cost $$, match $&, col $`"),
+    "a note with dollar sequences must reach the model unaltered");
+  assert(prompt.includes("the PSU option costs $& and $$ installed"),
+    "a request with dollar sequences must reach the model unaltered");
+  assert(!prompt.includes("<<<"),
+    "no placeholder token may survive substitution or leak in via a $-pattern");
 });
 
 /* ---- the inventory gate and artifact rotation (the free-model runner) ---- */

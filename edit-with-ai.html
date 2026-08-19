@@ -1284,16 +1284,21 @@ finish the part that matters.`;
     ? `- The canvas is ${cw} x ${ch}. Keep every node centre between x ${NODE_W / 2} and ${cw - NODE_W / 2}, and y ${NODE_H / 2} and ${ch - NODE_H / 2}, or part of the device hangs off the page.${layout ? " If you raise the canvas height, these limits grow with it." : ""}`
     : `- Keep every node inside the canvas, or part of the device hangs off the page.`;
 
+  /* Function replacers, never bare strings. A bare replacement string treats
+     $$, $& $` and $' as substitution patterns, so a note reading "in $'000"
+     would splice the prompt's own tail into the JSON the model is shown, and
+     "costs $$" would silently become "costs $" - a corruption every checker
+     then waves through, because the model faithfully echoes what it was shown. */
   return PROMPT
-    .replace("<<<BOUNDS>>>", bounds)
-    .replace("<<<GRAMMAR>>>\n", grammarRulesFor(name))
-    .replace("<<<LAYOUT>>>\n", layout)
-    .replace("<<<SCOPE>>>", scope)
-    .replace("<<<PART_UPPER>>>", (name === "all" ? "design" : slice.noun.replace(/^the /, "")).toUpperCase())
-    .replace("<<<CURRENT_JSON>>>", shape)
-    .replace("<<<CONTEXT>>>", contextFor(currentData, name))
-    .replace("<<<USER_REQUEST>>>", request || "(describe your change here)")
-    .replace("<<<SCOPE_REMINDER>>>", name === "all" ? "" : `Only ${shown}.`);
+    .replace("<<<BOUNDS>>>", () => bounds)
+    .replace("<<<GRAMMAR>>>\n", () => grammarRulesFor(name))
+    .replace("<<<LAYOUT>>>\n", () => layout)
+    .replace("<<<SCOPE>>>", () => scope)
+    .replace("<<<PART_UPPER>>>", () => (name === "all" ? "design" : slice.noun.replace(/^the /, "")).toUpperCase())
+    .replace("<<<CURRENT_JSON>>>", () => shape)
+    .replace("<<<CONTEXT>>>", () => contextFor(currentData, name))
+    .replace("<<<USER_REQUEST>>>", () => request || "(describe your change here)")
+    .replace("<<<SCOPE_REMINDER>>>", () => name === "all" ? "" : `Only ${shown}.`);
 }
 
 function describeSlice() {
