@@ -1087,7 +1087,7 @@ test("style: a leaf fan becomes one bar with the taught arithmetic", () => {
   assert(/was not surveyed/.test(bar.notes), "the bar does not confess it was derived, not surveyed");
 });
 
-test("style: diagonals in one corridor take lanes 18 apart; drops and pairs stay direct", () => {
+test("style: diagonals sharing ground take separate lanes; drops and pairs stay direct", () => {
   const design = baseDesign();
   design.topology.zones = [];
   design.topology.nodes = [
@@ -1104,10 +1104,49 @@ test("style: diagonals in one corridor take lanes 18 apart; drops and pairs stay
   const { next, counts } = t.restyleTopology(design, "sheet");
   const [e1, e2] = next.topology.links.filter((l) => l.route === "elbow");
   assert.strictEqual(counts.lanes, 2, "exactly the two diagonals take lanes");
-  assert.strictEqual(Math.abs(e1.elbowAt - e2.elbowAt), 18, "lanes are not one step apart");
-  assert.strictEqual((e1.elbowAt + e2.elbowAt) / 2, 350, "the fan is not centred on the corridor midpoint");
+  assert(Math.abs(e1.elbowAt - e2.elbowAt) >= 16, "overlapping lanes are not kept apart");
+  for (const lane of [e1.elbowAt, e2.elbowAt]) {
+    assert(lane > 270 && lane < 430, `lane ${lane} left the corridor between the rows`);
+  }
   const drop = next.topology.links.find((l) => l.from === "c1");
   assert.strictEqual(drop.route, undefined, "a straight vertical drop was given a pointless elbow");
+});
+
+/* The two failure modes the archived free-model runs exposed: a corridor
+   midpoint that lands ON an intermediate device row, and a corridor so
+   congested no lane passes clear at all. The first must dodge; the second
+   must refuse - a lane through a symbol is worse than a diagonal. */
+test("style: a lane dodges a device sitting on the corridor midpoint", () => {
+  const design = baseDesign();
+  design.topology.zones = [];
+  design.topology.nodes = [
+    { id: "s", icon: "router", x: 200, y: 200 },
+    { id: "t", icon: "server", x: 600, y: 760 },
+    { id: "mid-row", icon: "pc", x: 400, y: 480 }
+  ];
+  design.topology.links = [{ from: "s", to: "t", kind: "l3" }];
+  design.sections = { findings: { items: [{ title: "T", detail: "D" }] } };
+  const { next } = t.restyleTopology(design, "sheet");
+  const link = next.topology.links[0];
+  assert.strictEqual(link.route, "elbow", "a clean dodge existed and was not taken");
+  assert(Math.abs(link.elbowAt - 480) >= 60, `lane ${link.elbowAt} runs through the device on the midpoint`);
+});
+
+test("style: a congested corridor refuses the elbow and says so", () => {
+  const design = baseDesign();
+  design.topology.zones = [];
+  design.topology.nodes = [
+    { id: "s", icon: "router", x: 200, y: 200 },
+    { id: "t", icon: "server", x: 260, y: 760 },
+    { id: "block-1", icon: "pc", x: 230, y: 340 },
+    { id: "block-2", icon: "pc", x: 230, y: 480 },
+    { id: "block-3", icon: "pc", x: 230, y: 620 }
+  ];
+  design.topology.links = [{ from: "s", to: "t", kind: "l3" }];
+  design.sections = { findings: { items: [{ title: "T", detail: "D" }] } };
+  const { next, skipped } = t.restyleTopology(design, "sheet");
+  assert.strictEqual(next.topology.links[0].route, undefined, "an elbow was forced through a wall of devices");
+  assert(skipped.some((line) => /direct/.test(line)), "the refusal was silent");
 });
 
 test("style: an ha pair is captioned outward", () => {
@@ -1197,6 +1236,10 @@ test("style: no shipped starter is broken by either conversion", () => {
     for (const target of ["sheet", "grid"]) {
       const { next } = t.restyleTopology(data, target);
       assert(stopsOf(next) <= before, `${name}: converting to ${target} minted a new stop`);
+      // Pressing the same button twice must find nothing left to do.
+      const twice = t.restyleTopology(next, target);
+      assert.strictEqual(twice.applied.length, 0,
+        `${name}: converting to ${target} twice applied again: ${twice.applied[0] || ""}`);
     }
   }
 });

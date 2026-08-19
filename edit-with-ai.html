@@ -59,7 +59,10 @@
     .pick{display:flex;gap:9px;align-items:flex-start;margin:7px 0;font-size:.92rem;cursor:pointer}
     .pick input{margin-top:3px;flex-shrink:0}
     .pick span b{font-weight:700}
-    .style-note{display:block;margin-top:2px;color:var(--blue2);font-weight:400;font-size:.82rem}
+    .style-choice{display:flex;align-items:flex-start;gap:12px;margin:10px 0}
+    .style-choice>.button{flex-shrink:0;min-width:238px;text-align:left}
+    .style-blurb{padding-top:6px;font-size:.9rem}
+    .style-note{display:block;margin-top:3px;color:var(--blue2);font-weight:650;font-size:.82rem}
     .branch{display:none;margin:10px 0 0;padding:10px 12px;border-left:3px solid #9fc0cd;background:#fbfdfe}
     .branch.on{display:block}
     #network-description{width:100%;margin:0;min-height:76px}
@@ -262,20 +265,22 @@
 
     <section class="step" id="step-style" hidden>
       <h2><span class="n">4</span>Drawing style <span style="font-weight:400;color:var(--muted);font-size:.85rem">— optional · no AI involved</span></h2>
-      <p class="hint">The same facts can be drawn two ways. Converting between them is pure
-      arithmetic — the engine changes nothing it cannot prove safe, lists every change under
-      Save before you commit to it, and whatever it cannot convert honestly it leaves alone
-      and says so below.</p>
-      <label class="pick"><input type="radio" name="drawing-style" value="keep" checked>
-        <span><b>Keep the drawing as it is</b></span></label>
-      <label class="pick"><input type="radio" name="drawing-style" value="sheet">
-        <span><b>Engineering sheet</b> — shared subnets become coloured bars, long diagonals run
-        through cable lanes, paired devices carry side captions<span class="style-note" id="style-note-sheet"></span></span></label>
-      <label class="pick"><input type="radio" name="drawing-style" value="grid">
-        <span><b>Clean grid</b> — straight lines and captions below the symbols; a bar unfolds
-        back into fan lines where its hub is unmistakable<span class="style-note" id="style-note-grid"></span></span></label>
+      <p class="hint">The same facts can be drawn two ways, and this step is a one-click
+      conversion, not a setting: press a style to redraw, press nothing and your drawing stays
+      exactly as it is. Converting is pure arithmetic — no AI involved, every change listed
+      under Save before you commit, and whatever cannot convert honestly is left alone and
+      named below.</p>
+      <div class="style-choice">
+        <button class="button" id="style-sheet" type="button">Redraw as an engineering sheet</button>
+        <span class="style-blurb">Shared subnets become coloured bars, long diagonals run through
+        cable lanes, paired devices carry side captions.<span class="style-note" id="style-note-sheet"></span></span>
+      </div>
+      <div class="style-choice">
+        <button class="button" id="style-grid" type="button">Redraw as a clean grid</button>
+        <span class="style-blurb">Straight lines and captions below the symbols; a bar unfolds
+        back into fan lines where its hub is unmistakable.<span class="style-note" id="style-note-grid"></span></span>
+      </div>
       <div class="row gap">
-        <button class="button primary" id="style-apply" type="button">Apply the style</button>
         <button class="button" id="style-restore" type="button" hidden>Restore the drawing I started with</button>
         <span class="file-name" id="style-state"></span>
       </div>
@@ -1142,8 +1147,6 @@ function loadSource(text, name) {
     $("brand-image-clear").disabled = true; $("brand-state").textContent = "";
     // A fresh file is its own baseline; anything staged for the old one is gone.
     styleBaseline = null;
-    const keepStyle = document.querySelector('input[name="drawing-style"][value="keep"]');
-    if (keepStyle) keepStyle.checked = true;
     $("style-state").textContent = ""; note("style-message", null);
     $("style-report").replaceChildren();
     refreshStylePanel();
@@ -2352,11 +2355,55 @@ function restyleTopology(base, target) {
       applied.push(`drew "${bar.label}" as a subnet bar with ${spokes.length + 1} taps, replacing the ${spokes.length}-line fan into "${hubId}"`);
     }
 
-    /* Lanes. A genuine diagonal becomes an elbow; every elbow crossing the
-       same corridor steps ${LANE_STEP}px from the corridor's midpoint - the
-       taught arithmetic. Short drops, pairs and anything touching a bar stay
-       direct: an elbow on a straight run only adds corners. */
-    const corridors = new Map();
+    /* Lanes, clearance-first. Batch-testing the taught midpoint arithmetic
+       against all twenty-five archived free-model runs put 28 lanes and 27
+       elbow stubs straight through device symbols - a corridor midpoint on a
+       tall grid lands ON an intermediate row, and a stub snaps onto a grid
+       column other devices occupy. So a diagonal becomes an elbow ONLY when
+       a lane exists where all three segments - both stubs and the run - pass
+       clear of every symbol and every bar, and parallel lanes sharing ground
+       keep ${LANE_STEP}px apart. No clear lane, no elbow: the link stays
+       direct and the panel says so. Zero through-symbol crossings, by
+       construction. */
+    const solids = nodes.filter((node) => !isSegment(node) && Number.isFinite(Number(node.x)) && Number.isFinite(Number(node.y)));
+    const rails = nodes.filter((node) => isSegment(node) && Number.isFinite(Number(node.x)) && Number.isFinite(Number(node.y)));
+    const BAND = SYMBOL_H / 2 + 8;
+    const pathClear = (s, e, lane) => {
+      const sx = Number(s.x), ex = Number(e.x);
+      const lo = Math.min(sx, ex), hi = Math.max(sx, ex);
+      for (const node of solids) {
+        if (node === s || node === e) continue;
+        const nx = Number(node.x), ny = Number(node.y);
+        if (Math.abs(lane - ny) < BAND && nx > lo + 10 && nx < hi - 10
+          && Math.abs(nx - sx) > SYMBOL_W / 2 && Math.abs(nx - ex) > SYMBOL_W / 2) return false;
+        for (const [vx, vy] of [[sx, Number(s.y)], [ex, Number(e.y)]]) {
+          const yLo = Math.min(vy, lane), yHi = Math.max(vy, lane);
+          if (Math.abs(vx - nx) < SYMBOL_W / 2 + 8 && ny > yLo + 10 && ny < yHi - 10) return false;
+        }
+      }
+      for (const bar of rails) {
+        const by = Number(bar.y), half = (Number(bar.width) || 300) / 2;
+        const left = Number(bar.x) - half, right = Number(bar.x) + half;
+        if (lane > by - 20 && lane < by + 52 && right > lo + 10 && left < hi - 10) return false;
+        for (const [vx, vy] of [[sx, Number(s.y)], [ex, Number(e.y)]]) {
+          const yLo = Math.min(vy, lane), yHi = Math.max(vy, lane);
+          if (vx > left && vx < right && by > yLo + 10 && by < yHi - 10) return false;
+        }
+      }
+      return true;
+    };
+    /* Lanes already on the drawing - authored, or placed by an earlier
+       conversion - claim their ground first, so pressing the button twice
+       can never stack a new lane onto an occupied one. */
+    const taken = [];
+    for (const link of links) {
+      if (link.route !== "elbow" || !Number.isFinite(Number(link.elbowAt))) continue;
+      const a = byId.get(link.from), b = byId.get(link.to);
+      if (!a || !b) continue;
+      taken.push({ lane: Number(link.elbowAt), lo: Math.min(Number(a.x), Number(b.x)), hi: Math.max(Number(a.x), Number(b.x)) });
+    }
+    const laneFree = (lane, lo, hi) => taken.every((slot) => slot.hi < lo || slot.lo > hi || Math.abs(slot.lane - lane) >= LANE_STEP - 2);
+    const candidates = [];
     for (const link of links) {
       if ((link.via && link.via.length) || link.route !== undefined) continue;
       const a = byId.get(link.from), b = byId.get(link.to);
@@ -2364,23 +2411,35 @@ function restyleTopology(base, target) {
       if ((link.kind || "l3") === "ha") continue;
       const dx = Math.abs(Number(a.x) - Number(b.x)), dy = Math.abs(Number(a.y) - Number(b.y));
       if (dx < 60 || dy < 120) continue;
-      const mid = (Number(a.y) + Number(b.y)) / 2;
-      const key = Math.round(mid / 80);
-      if (!corridors.has(key)) corridors.set(key, []);
-      corridors.get(key).push({ link, mid, left: Math.min(Number(a.x), Number(b.x)) });
+      candidates.push({ link, a, b, lo: Math.min(Number(a.x), Number(b.x)), hi: Math.max(Number(a.x), Number(b.x)) });
     }
+    // Longest span first: the hardest links pick their lanes while there is room.
+    candidates.sort((p, q) => (q.hi - q.lo) - (p.hi - p.lo) || p.lo - q.lo || String(p.link.from).localeCompare(String(q.link.from)));
     const laneYs = [];
-    for (const group of corridors.values()) {
-      const centre = group.reduce((sum, entry) => sum + entry.mid, 0) / group.length;
-      group.sort((p, q) => p.left - q.left);
-      group.forEach((entry, index) => {
-        const lane = Math.round(centre + (index - (group.length - 1) / 2) * LANE_STEP);
-        entry.link.route = "elbow"; entry.link.elbowAt = lane;
-        counts.lanes++; laneYs.push(lane);
-      });
+    let leftDirect = 0;
+    for (const c of candidates) {
+      const sy = Number(c.a.y), ey = Number(c.b.y);
+      const mid = (sy + ey) / 2;
+      const yLo = Math.min(sy, ey) + 70, yHi = Math.max(sy, ey) - 70;
+      let chosen = null;
+      for (let off = 0; off <= yHi - yLo && chosen === null; off += 6) {
+        for (const lane of off ? [mid - off, mid + off] : [mid]) {
+          if (lane < yLo || lane > yHi) continue;
+          if (!laneFree(lane, c.lo, c.hi)) continue;
+          if (!pathClear(c.a, c.b, lane)) continue;
+          chosen = Math.round(lane); break;
+        }
+      }
+      if (chosen === null) { leftDirect++; continue; }
+      c.link.route = "elbow"; c.link.elbowAt = chosen;
+      taken.push({ lane: chosen, lo: c.lo, hi: c.hi });
+      counts.lanes++; laneYs.push(chosen);
     }
     if (counts.lanes) {
-      applied.push(`routed ${counts.lanes} link${counts.lanes === 1 ? "" : "s"} through ${corridors.size} cable corridor${corridors.size === 1 ? "" : "s"} (lanes at y ${laneYs.slice(0, 4).join(", ")}${laneYs.length > 4 ? ", …" : ""})`);
+      applied.push(`routed ${counts.lanes} link${counts.lanes === 1 ? "" : "s"} through cable lanes that pass clear of every device (at y ${laneYs.slice(0, 4).join(", ")}${laneYs.length > 4 ? ", …" : ""})`);
+    }
+    if (leftDirect) {
+      skipped.push(`left ${leftDirect} diagonal link${leftDirect === 1 ? "" : "s"} direct - no lane between ${leftDirect === 1 ? "its" : "their"} rows passes clear of the devices in between`);
     }
 
     /* Side captions. An ha pair sits shoulder to shoulder; captions turned
@@ -3030,9 +3089,14 @@ function refreshStylePanel() {
     }
     return parts.length ? `Would ${parts.join(", ")}.` : "Nothing to convert — the drawing already reads this way.";
   };
-  const sheet = $("style-note-sheet"), grid = $("style-note-grid");
-  if (sheet) sheet.textContent = phrase(restyleTopology(base, "sheet").counts, "sheet");
-  if (grid) grid.textContent = phrase(restyleTopology(base, "grid").counts, "grid");
+  /* A button with nothing to do says so and stays unpressable - a click that
+     would change nothing teaches a person to distrust the ones that would. */
+  for (const [target, buttonId, noteId] of [["sheet", "style-sheet", "style-note-sheet"], ["grid", "style-grid", "style-note-grid"]]) {
+    const text = phrase(restyleTopology(base, target).counts, target);
+    const noteHost = $(noteId), button = $(buttonId);
+    if (noteHost) noteHost.textContent = text;
+    if (button) button.disabled = !text.startsWith("Would");
+  }
   const restore = $("style-restore");
   if (restore) restore.hidden = !styleBaseline;
 }
@@ -3050,16 +3114,8 @@ function renderStyleReport(skipped) {
   }
 }
 
-$("style-apply").addEventListener("click", () => {
+function applyStyle(target) {
   if (!currentData) { $("style-state").textContent = "Load a design file first."; return; }
-  const picked = [...document.querySelectorAll('input[name="drawing-style"]')].find((radio) => radio.checked);
-  const target = picked ? picked.value : "keep";
-  if (target === "keep") {
-    renderStyleReport([]);
-    note("style-message", null);
-    $("style-state").textContent = "Left as it is.";
-    return;
-  }
   const before = accepted || currentData;
   const { next, applied, skipped } = restyleTopology(before, target);
   renderStyleReport(skipped);
@@ -3078,7 +3134,9 @@ $("style-apply").addEventListener("click", () => {
     ` ${applied.join("; ")}.${skipped.length ? " What was left alone is listed below." : ""} Review the change list under Save.`);
   refreshStylePanel();
   setStage("brand", "review the change list under Save - or set your branding in step 5 first.");
-});
+}
+$("style-sheet").addEventListener("click", () => applyStyle("sheet"));
+$("style-grid").addEventListener("click", () => applyStyle("grid"));
 
 $("style-restore").addEventListener("click", () => {
   if (!styleBaseline || !currentData) return;
