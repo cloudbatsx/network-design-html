@@ -151,9 +151,9 @@ they hide and reveal with the Key gaps control, so mark anything unverified.
 
 > **The helper teaches this grammar too.** The built-in prompt in
 > `edit-with-ai.html` carries the drawing grammar below — caption sides,
-> subnet bars, elbow lanes, section tables, the deliberate no-rack
-> statement — scoped to the part being edited, so a prompt about the rack
-> never carries rules about cable lanes. All of it is optional: a design
+> subnet bars, elbow lanes, section tables, the hostname anatomy, the
+> deliberate no-rack statement — scoped to the part being edited, so a
+> prompt about the rack never carries rules about cable lanes. All of it is optional: a design
 > that uses none of it is still correct. The geometry entries state
 > arithmetic rather than intent, for the reason the placement grid does —
 > a model estimating pixels lands just over the line, and a model following
@@ -196,6 +196,31 @@ section's `tables` list. Rows use the identity-row grammar, including
 `{ "cells": [], "layer": "gap" }` for unverified rows. The `tables` list is
 optional and empty by default; use it for schedules and registers that need
 their own columns — a link schedule, a release audit, a risk register.
+
+`sections.identity.naming` draws the **hostname-anatomy figure**: one worked
+device name split into coloured monospace segments, each with a label and a
+short slate note beneath it, plus an optional footnote.
+
+```json
+"naming": {
+  "parts": [
+    { "text": "sjc1", "label": "Site", "note": "San Jose campus 1" },
+    { "text": "fw",   "label": "Role", "note": "edge firewall" },
+    { "text": "01",   "label": "Unit", "note": "01 = first of the HA pair" }
+  ],
+  "separator": "-",
+  "note": "an optional footnote under the figure"
+}
+```
+
+The block is optional and off by default. It needs at least two usable parts
+(each with `text` and `label`) or nothing is drawn — the helper warns at edit
+time. `separator` defaults to `-`. Colours are engine-owned and cycle; the
+data never picks them. Build the anatomy only from names actually on the
+drawing — the parts joined by the separator must spell out a real device
+name's pattern — and leave the block out if the names follow no visible
+convention: a documented convention the drawing does not follow is the drawing
+saying something untrue.
 
 `findings.flavour` is `gaps` (what is missing), `patterns` (what worked), or
 `gains` (what this buys you). Pick the one that matches the document.

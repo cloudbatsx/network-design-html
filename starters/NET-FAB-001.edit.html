@@ -42,6 +42,8 @@
   /* -- figures: the only sanctioned way to place a diagram -- */
   .figwrap { margin:10px 0 6px; }
   .figwrap svg { width:100%; height:auto; display:block; }
+  .naming-fig { margin:14px 0 6px; }
+  .naming-fig svg { width:100%; height:auto; display:block; }
   .caption { font-size:8.2pt; color:#64748b; font-style:italic; margin:2px 0 4px; }
   .legend { font-size:8.2pt; color:#475569; margin:4px 0 14px; }
   .legend b { color:#14324e; }
@@ -626,6 +628,12 @@
         <p class="kicker">Section 3</p>
         <h2 id="identity-heading">Identity &amp; addressing</h2>
         <div class="note"><ul class="notes" id="identity-notes"></ul></div>
+        <!-- The hostname-anatomy figure. Drawn from sections.identity.naming
+             when it carries at least two usable parts; hidden otherwise. -->
+        <figure class="naming-fig" id="naming-anatomy" hidden>
+          <svg id="naming-svg" role="img" aria-label="Hostname anatomy"></svg>
+          <p class="caption" id="naming-caption"></p>
+        </figure>
         <table class="data-table" id="identity-table">
           <thead><tr id="identity-head"></tr></thead>
           <tbody id="identity-body"></tbody>
@@ -2570,7 +2578,7 @@ if (typeof module !== "undefined" && module.exports) module.exports = RACK_FACE_
     fillNotes("change-notes",s.change?.notes,[{lead:"Change record",text:"Describe how this design is versioned, reviewed and rolled back."}]);
     if(s.operations?.heading)setText("operations-heading",s.operations.heading);
     fillNotes("operations-notes",s.operations?.notes,[{lead:"Operations",text:"Describe monitoring, alerting and the operational owner."}]);
-    renderIdentityTable(s.identity);renderSectionTables();renderHistory()
+    renderIdentityTable(s.identity);renderNamingAnatomy(s.identity);renderSectionTables();renderHistory()
   }
   /* The revision history renders from document.history, newest entry FIRST -
      the top row is the revision the document claims to be, and the repository
@@ -2631,6 +2639,63 @@ if (typeof module !== "undefined" && module.exports) module.exports = RACK_FACE_
       body.appendChild(tr)
     })
   }
+  /* The hostname-anatomy figure - the naming-convention visual from the Wisk
+     lineage documents, rendered from data: one worked device name split into
+     coloured monospace segments, each dropping a leader line to a label and a
+     slate note, staggered at two depths so neighbours never collide. Colours
+     are engine-owned and cycle; the data never picks them. Tolerant the way
+     renderSectionTables is: fewer than two usable parts draws nothing (the
+     helper's checker warns at edit time, where warnings belong). */
+  function renderNamingAnatomy(identity){
+    const host=el("naming-anatomy"),svg=el("naming-svg");if(!host||!svg)return;
+    const naming=identity?.naming;
+    const parts=(Array.isArray(naming?.parts)?naming.parts:[]).filter(part=>part&&typeof part.text==="string"&&part.text.trim()&&typeof part.label==="string"&&part.label.trim());
+    svg.replaceChildren();
+    if(parts.length<2){host.hidden=true;setText("naming-caption","");return}
+    host.hidden=false;
+    const PALETTE=["#0e7490","#b45309","#6d28d9","#9a3412","#0f766e"];
+    const MONO='Consolas,"Courier New",monospace';
+    const sep=typeof naming.separator==="string"&&naming.separator?naming.separator:"-";
+    const footnote=typeof naming.note==="string"?naming.note.trim():"";
+    const CH=18,SEG_Y=56,LEAD_TOP=68,LABEL_TOP=142,LANE_STEP=42;
+    let x=24;
+    const spans=parts.map((part,index)=>{
+      const text=part.text.trim(),width=text.length*CH;
+      const span={x,width,text,color:PALETTE[index%PALETTE.length],label:part.label.trim(),note:typeof part.note==="string"?part.note.trim():"",sepX:0};
+      x+=width;
+      if(index<parts.length-1){span.sepX=x+6;x+=sep.length*CH+12}
+      return span;
+    });
+    /* Labels take the shallowest lane whose previous occupant they clear, so
+       two long notes can never sit on top of each other - a fixed two-depth
+       stagger collided as soon as a note outgrew its segment. Leaders are
+       drawn first and the text carries a white halo, the zone-title recipe,
+       so a line passing a deeper label's column never strikes through it. */
+    const labelWidth=(span)=>Math.max(span.label.length*9.2,span.note.length*7.2)+8;
+    const laneEnds=[];
+    spans.forEach(span=>{
+      let lane=0;
+      while(lane<laneEnds.length&&laneEnds[lane]>span.x-14)lane++;
+      laneEnds[lane]=span.x+labelWidth(span);
+      span.labelY=LABEL_TOP+lane*LANE_STEP;
+    });
+    const viewW=Math.max(700,x+24,...spans.map(span=>span.x+labelWidth(span)+16));
+    const H=LABEL_TOP+(laneEnds.length-1)*LANE_STEP+17+(footnote?40:18);
+    svg.setAttribute("viewBox",`0 0 ${viewW} ${H}`);
+    spans.forEach(span=>{
+      svg.appendChild(svgEl("line",{x1:span.x+span.width/2,y1:LEAD_TOP,x2:span.x+span.width/2,y2:span.labelY-14,stroke:span.color,"stroke-width":1.6}));
+    });
+    const HALO="paint-order:stroke;stroke:#fff;stroke-width:4;stroke-linejoin:round";
+    spans.forEach(span=>{
+      svg.appendChild(svgEl("text",{x:span.x,y:SEG_Y,fill:span.color,style:`font:700 30px ${MONO}`},span.text));
+      if(span.sepX)svg.appendChild(svgEl("text",{x:span.sepX,y:SEG_Y,fill:"#334155",style:`font:700 30px ${MONO}`},sep));
+      svg.appendChild(svgEl("text",{x:span.x,y:span.labelY,fill:span.color,style:`font:700 15px 'Segoe UI',Arial,sans-serif;${HALO}`},span.label));
+      if(span.note)svg.appendChild(svgEl("text",{x:span.x,y:span.labelY+17,fill:"#64748b",style:`font:12.5px 'Segoe UI',Arial,sans-serif;${HALO}`},span.note));
+    });
+    if(footnote)svg.appendChild(svgEl("text",{x:24,y:H-12,fill:"#94a3b8",style:"font:italic 13px 'Segoe UI',Arial,sans-serif"},footnote));
+    setText("naming-caption",`Hostname anatomy — worked example: ${spans.map(span=>span.text).join(sep)}.`)
+  }
+
   /* Draws the numbered markers onto the topology. Anchors are node ids and zone ids,
      never coordinates, so a marker cannot drift when the layout moves, and the number
      is the item's position in the list, so the picture and the list cannot disagree. */

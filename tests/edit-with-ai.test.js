@@ -996,6 +996,31 @@ test("grammar: the SHAPE rule points at the exceptions instead of forbidding the
   assert(/none is required/.test(built), "the grammar never says it is optional");
 });
 
+test("grammar: the write-up parts teach the hostname anatomy, honestly scoped", () => {
+  for (const name of ["sections", "all"]) {
+    const rules = t.grammarRulesFor(name);
+    assert(/identity\.naming/.test(rules), `${name} never mentions the anatomy`);
+    assert(/ONLY from names actually on the drawing/.test(rules),
+      `${name} teaches the figure without the honesty rule`);
+    assert(/leave it out/.test(rules), `${name} never says the block is skippable`);
+  }
+  assert(!/identity\.naming/.test(t.grammarRulesFor("rack")),
+    "the rack part carries anatomy rules it cannot use");
+});
+
+test("shell: a hostname anatomy too thin to draw is warned, never stopped", () => {
+  const design = baseDesign();
+  design.sections.identity = { naming: { parts: [{ text: "fw" }] } };
+  const problems = t.checkShell(design, design);
+  assert(has(problems, /fewer than two usable parts/, false),
+    "an undrawable naming block earned no warning");
+  design.sections.identity.naming.parts = [
+    { text: "fw", label: "Role" }, { text: "01", label: "Unit" }
+  ];
+  assert(!has(t.checkShell(design, design), /fewer than two usable parts/),
+    "a drawable naming block was warned anyway");
+});
+
 /* ---- the prompt carries every byte ---- */
 
 /* A replacement string hands $$, $&, $` and $' to String.replace as
