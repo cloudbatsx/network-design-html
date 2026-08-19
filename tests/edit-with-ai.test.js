@@ -1191,6 +1191,19 @@ test("style: a bar with two possible hubs is left alone and said so", () => {
   assert(skipped.some((line) => /could be its hub/.test(line)), "the refusal was silent");
 });
 
+test("style: an external network is never absorbed into a subnet bar", () => {
+  const design = fanDesign();
+  design.topology.nodes.push({ id: "carrier-ring", icon: "cloud", x: 1000, y: 400 });
+  design.topology.links.push({ from: "core", to: "carrier-ring", kind: "l3" });
+  const { next } = t.restyleTopology(design, "sheet");
+  const bar = next.topology.nodes.find((n) => n.shape === "segment");
+  assert(bar, "the four real endpoints still deserve their bar");
+  const cloudLink = next.topology.links.find((l) => l.to === "carrier-ring" || l.from === "carrier-ring");
+  assert(cloudLink.from === "core" || cloudLink.to === "core",
+    "a carrier ring was drawn as a host on the LAN segment");
+  assert.strictEqual(bar.width, (880 - 400) + 120, "the bar sized itself around the cloud");
+});
+
 test("style: hand-routed via links are untouchable in both directions", () => {
   const design = fanDesign();
   design.topology.links[3].via = [[880, 300]];   // pc-4's spoke is hand-routed

@@ -2311,6 +2311,10 @@ function restyleTopology(base, target) {
        is the taught bar case: one bar, one tap per device, one tap for the
        hub. Only degree-1 leaves are absorbed - a dual-homed server keeps both
        of its lines, because erasing one would redraw a fact. */
+    /* An external network is not a device on a subnet: a cloud or a branch
+       site tapping a LAN bar would draw a fact nobody surveyed - found live
+       in test15, where two carrier rings joined the core voice segment. */
+    const EXTERNAL_ICONS = ["cloud", "branch-office"];
     const spokesOf = new Map();
     for (const link of links) {
       if (link.via && link.via.length) continue;
@@ -2318,6 +2322,7 @@ function restyleTopology(base, target) {
       if (!a || !b || isSegment(a) || isSegment(b)) continue;
       for (const [hub, leaf] of [[a, b], [b, a]]) {
         if ((degree.get(leaf.id) || 0) !== 1) continue;
+        if (EXTERNAL_ICONS.includes(leaf.icon)) continue;
         if (!(Number(leaf.y) > Number(hub.y) + 60)) continue;
         if (!spokesOf.has(hub.id)) spokesOf.set(hub.id, []);
         spokesOf.get(hub.id).push({ link, leaf });
