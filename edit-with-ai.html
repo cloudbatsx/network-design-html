@@ -59,6 +59,7 @@
     .pick{display:flex;gap:9px;align-items:flex-start;margin:7px 0;font-size:.92rem;cursor:pointer}
     .pick input{margin-top:3px;flex-shrink:0}
     .pick span b{font-weight:700}
+    .style-note{display:block;margin-top:2px;color:var(--blue2);font-weight:400;font-size:.82rem}
     .branch{display:none;margin:10px 0 0;padding:10px 12px;border-left:3px solid #9fc0cd;background:#fbfdfe}
     .branch.on{display:block}
     #network-description{width:100%;margin:0;min-height:76px}
@@ -110,11 +111,13 @@
     <span class="rail-arrow">→</span>
     <span class="rail-step" data-stage="check"><span class="dot">3</span>Check</span>
     <span class="rail-arrow">→</span>
-    <span class="rail-step" data-stage="brand"><span class="dot">4</span>Brand</span>
+    <span class="rail-step" data-stage="style"><span class="dot">4</span>Style</span>
     <span class="rail-arrow">→</span>
-    <span class="rail-step" data-stage="save"><span class="dot">5</span>Save</span>
+    <span class="rail-step" data-stage="brand"><span class="dot">5</span>Brand</span>
     <span class="rail-arrow">→</span>
-    <span class="rail-step" data-stage="package"><span class="dot">6</span>Package</span>
+    <span class="rail-step" data-stage="save"><span class="dot">6</span>Save</span>
+    <span class="rail-arrow">→</span>
+    <span class="rail-step" data-stage="package"><span class="dot">7</span>Package</span>
     <p class="rail-now" id="rail-now"><b>Now: </b>start a new design, or open one of yours.</p>
   </div>
 
@@ -257,8 +260,31 @@
       <ul class="problems" id="problems"></ul>
     </section>
 
+    <section class="step" id="step-style" hidden>
+      <h2><span class="n">4</span>Drawing style <span style="font-weight:400;color:var(--muted);font-size:.85rem">— optional · no AI involved</span></h2>
+      <p class="hint">The same facts can be drawn two ways. Converting between them is pure
+      arithmetic — the engine changes nothing it cannot prove safe, lists every change under
+      Save before you commit to it, and whatever it cannot convert honestly it leaves alone
+      and says so below.</p>
+      <label class="pick"><input type="radio" name="drawing-style" value="keep" checked>
+        <span><b>Keep the drawing as it is</b></span></label>
+      <label class="pick"><input type="radio" name="drawing-style" value="sheet">
+        <span><b>Engineering sheet</b> — shared subnets become coloured bars, long diagonals run
+        through cable lanes, paired devices carry side captions<span class="style-note" id="style-note-sheet"></span></span></label>
+      <label class="pick"><input type="radio" name="drawing-style" value="grid">
+        <span><b>Clean grid</b> — straight lines and captions below the symbols; a bar unfolds
+        back into fan lines where its hub is unmistakable<span class="style-note" id="style-note-grid"></span></span></label>
+      <div class="row gap">
+        <button class="button primary" id="style-apply" type="button">Apply the style</button>
+        <button class="button" id="style-restore" type="button" hidden>Restore the drawing I started with</button>
+        <span class="file-name" id="style-state"></span>
+      </div>
+      <div id="style-message"></div>
+      <ul class="problems" id="style-report"></ul>
+    </section>
+
     <section class="step" id="step-brand" hidden>
-      <h2><span class="n">4</span>Your branding <span style="font-weight:400;color:var(--muted);font-size:.85rem">— optional · no AI involved</span></h2>
+      <h2><span class="n">5</span>Your branding <span style="font-weight:400;color:var(--muted);font-size:.85rem">— optional · no AI involved</span></h2>
       <p class="hint">The brand is the one part the AI is never allowed to touch, so it is edited
       here directly — same checks, same byte-exact save. Empty fields keep what the file
       already has; skip this step entirely and nothing changes.</p>
@@ -285,7 +311,7 @@
     </section>
 
     <section class="step" id="step-4" hidden>
-      <h2><span class="n">5</span>Save your new file</h2>
+      <h2><span class="n">6</span>Save your new file</h2>
       <p class="hint">Everything outside the diagram data is copied through unchanged. Save it, then double-click it to see your change.</p>
       <div id="changes"></div>
       <div class="row">
@@ -984,7 +1010,7 @@ const countOf = (text, token) => text.split(token).length - 1;
 /* The progress rail. One current stage, everything before it done, and a
    single "Now:" instruction - the page holds the map so the person never
    has to. */
-const RAIL_ORDER = ["start", "build", "check", "brand", "save", "package"];
+const RAIL_ORDER = ["start", "build", "check", "style", "brand", "save", "package"];
 function setStage(stage, nowText) {
   const at = RAIL_ORDER.indexOf(stage);
   document.querySelectorAll("#rail .rail-step").forEach((step) => {
@@ -1072,7 +1098,7 @@ async function loadFile(file) {
   } catch {
     sourceName = file.name; $("file-name").textContent = file.name;
     source = ""; accepted = null;
-    $("step-2").hidden = true; $("step-3").hidden = true; $("step-brand").hidden = true; $("step-4").hidden = true;
+    $("step-2").hidden = true; $("step-3").hidden = true; $("step-style").hidden = true; $("step-brand").hidden = true; $("step-4").hidden = true;
     note("load-message", "error", "Cannot use this file.", " It is not valid UTF-8 text, so it is probably not a design file at all.");
     return;
   }
@@ -1096,7 +1122,7 @@ function loadSource(text, name) {
     const parts = editableParts(parsed);
     if (parts && !parts.length) {
       source = ""; accepted = null; currentData = null;
-      $("step-2").hidden = true; $("step-3").hidden = true; $("step-brand").hidden = true; $("step-4").hidden = true;
+      $("step-2").hidden = true; $("step-3").hidden = true; $("step-style").hidden = true; $("step-brand").hidden = true; $("step-4").hidden = true;
       note("load-message", "warning", "AI editing is not supported for this file.",
         " This is a retired engineering-sheet edition - hand-tuned SVG geometry carried inside the data. Every current starter, including NET-ENT-002, NET-HQ-002, NET-LAB-003 and NET-RH-001, has been regenerated through the coordinate engine and is fully editable. Re-download the current copy from the repository, or start from the template.");
       return;
@@ -1114,8 +1140,15 @@ function loadSource(text, name) {
     stagedLogoImage = null; stagedLogoViewBox = "";
     $("brand-image").value = ""; $("brand-image-state").textContent = "No image staged";
     $("brand-image-clear").disabled = true; $("brand-state").textContent = "";
+    // A fresh file is its own baseline; anything staged for the old one is gone.
+    styleBaseline = null;
+    const keepStyle = document.querySelector('input[name="drawing-style"][value="keep"]');
+    if (keepStyle) keepStyle.checked = true;
+    $("style-state").textContent = ""; note("style-message", null);
+    $("style-report").replaceChildren();
+    refreshStylePanel();
     setStage("build", "pick the part that is changing, describe the change, then press Copy prompt.");
-    $("step-2").hidden = false; $("step-3").hidden = false; $("step-brand").hidden = false;
+    $("step-2").hidden = false; $("step-3").hidden = false; $("step-style").hidden = false; $("step-brand").hidden = false;
     $("step-4").hidden = false; $("save").disabled = true;
     $("save-state").textContent = ""; note("save-message", null);
     $("next-step").hidden = true;
@@ -1126,7 +1159,7 @@ function loadSource(text, name) {
     note("check-message", null);
   } catch (error) {
     source = ""; accepted = null;
-    $("step-2").hidden = true; $("step-3").hidden = true; $("step-brand").hidden = true; $("step-4").hidden = true;
+    $("step-2").hidden = true; $("step-3").hidden = true; $("step-style").hidden = true; $("step-brand").hidden = true; $("step-4").hidden = true;
     const why = error instanceof SyntaxError
       ? "The diagram data in this file is not valid JSON, so it was probably damaged by an earlier edit."
       : error.message;
@@ -2233,6 +2266,196 @@ function polishGeometry(data) {
   return { next, applied };
 }
 
+/* ---------- 3c. The style converter ----------
+ *
+ * The same facts can be drawn two ways: the clean grid most starters use, and
+ * the engineering-sheet idiom NET-ENT-002 uses - shared subnets as bars, long
+ * diagonals through cable lanes, paired devices captioned to the side. The
+ * grammar teaches a model to build either; this converts between them after
+ * the fact, deterministically, with no AI in the loop and no quota spent.
+ *
+ * The rules it holds itself to: everything is arithmetic (the taught bar and
+ * lane formulas, verbatim); hand-routed "via" waypoints are never touched;
+ * anything it cannot convert honestly - a bar whose hub is ambiguous, a fan
+ * with no room for a bar, a bar a gap marker points at - is left alone and
+ * said out loud; and a conversion that would mint a single new checker stop
+ * is abandoned whole. Every change lands in the change list like any other.
+ */
+
+const BAR_COLORS = ["#2458b3", "#1d7a4f", "#c2661d", "#7c51b3", "#0e7490"];
+/* The device classes that can plausibly BE a shared segment's hub - switching
+   and routing gear, never endpoints. Used only to break the island tie when
+   no member has links beyond the bar. */
+const HUB_ICONS = ["router", "core-switch", "access-switch", "dc-switch", "firewall", "wlan-controller", "wireless-router", "vpn-headend"];
+
+function restyleTopology(base, target) {
+  const empty = { next: base, applied: [], skipped: [], counts: { bars: 0, lanes: 0, captioned: 0, straightened: 0, uncaptioned: 0, dissolved: 0 } };
+  if (!usesCoordinateGrammar(base)) return empty;
+  const next = structuredClone(base);
+  const nodes = next.topology.nodes || [], links = next.topology.links || [];
+  const applied = [], skipped = [];
+  const counts = { bars: 0, lanes: 0, captioned: 0, straightened: 0, uncaptioned: 0, dissolved: 0 };
+  const byId = new Map(nodes.filter((node) => node.id).map((node) => [node.id, node]));
+  const degree = new Map();
+  for (const link of links) for (const end of [link.from, link.to]) degree.set(end, (degree.get(end) || 0) + 1);
+  const uniqueId = (want) => { let id = want, n = 2; while (byId.has(id)) id = `${want}-${n++}`; return id; };
+  // A bar a finding points at must keep existing exactly as it is.
+  const anchored = new Set((next.sections?.findings?.items || []).flatMap((item) =>
+    item?.at == null ? [] : (Array.isArray(item.at) ? item.at : [item.at])));
+
+  if (target === "sheet") {
+    /* Bars. A hub with three or more single-homed devices fanning in below it
+       is the taught bar case: one bar, one tap per device, one tap for the
+       hub. Only degree-1 leaves are absorbed - a dual-homed server keeps both
+       of its lines, because erasing one would redraw a fact. */
+    const spokesOf = new Map();
+    for (const link of links) {
+      if (link.via && link.via.length) continue;
+      const a = byId.get(link.from), b = byId.get(link.to);
+      if (!a || !b || isSegment(a) || isSegment(b)) continue;
+      for (const [hub, leaf] of [[a, b], [b, a]]) {
+        if ((degree.get(leaf.id) || 0) !== 1) continue;
+        if (!(Number(leaf.y) > Number(hub.y) + 60)) continue;
+        if (!spokesOf.has(hub.id)) spokesOf.set(hub.id, []);
+        spokesOf.get(hub.id).push({ link, leaf });
+        break;
+      }
+    }
+    let barIndex = nodes.filter(isSegment).length;
+    for (const [hubId, spokes] of spokesOf) {
+      if (spokes.length < 3) continue;
+      const hub = byId.get(hubId);
+      const xs = spokes.map((spoke) => Number(spoke.leaf.x));
+      const minX = Math.min(...xs), maxX = Math.max(...xs);
+      const topLeafY = Math.min(...spokes.map((spoke) => Number(spoke.leaf.y)));
+      if (topLeafY - Number(hub.y) < 130) {
+        skipped.push(`left the ${spokes.length}-line fan into "${hubId}" alone - there is not enough room between it and its devices for a bar`);
+        continue;
+      }
+      const kindVotes = {};
+      for (const spoke of spokes) { const kind = spoke.link.kind || "l3"; kindVotes[kind] = (kindVotes[kind] || 0) + 1; }
+      const hubKind = Object.entries(kindVotes).sort((p, q) => q[1] - p[1])[0][0];
+      const bar = {
+        id: uniqueId(`seg-${hubId}`),
+        label: `Shared segment · ${hub.label || hub.id}`,
+        shape: "segment",
+        x: Math.round((minX + maxX) / 2),
+        y: Math.round((Number(hub.y) + topLeafY) / 2),
+        width: (maxX - minX) + 120,
+        color: BAR_COLORS[barIndex++ % BAR_COLORS.length],
+        notes: `Drawn by the style converter from the ${spokes.length} devices fanning into ${hub.id}; the segment itself was not surveyed.`
+      };
+      nodes.push(bar); byId.set(bar.id, bar);
+      for (const { link } of spokes) { if (link.from === hubId) link.from = bar.id; else link.to = bar.id; }
+      links.push({ from: hubId, to: bar.id, kind: hubKind });
+      counts.bars++;
+      applied.push(`drew "${bar.label}" as a subnet bar with ${spokes.length + 1} taps, replacing the ${spokes.length}-line fan into "${hubId}"`);
+    }
+
+    /* Lanes. A genuine diagonal becomes an elbow; every elbow crossing the
+       same corridor steps ${LANE_STEP}px from the corridor's midpoint - the
+       taught arithmetic. Short drops, pairs and anything touching a bar stay
+       direct: an elbow on a straight run only adds corners. */
+    const corridors = new Map();
+    for (const link of links) {
+      if ((link.via && link.via.length) || link.route !== undefined) continue;
+      const a = byId.get(link.from), b = byId.get(link.to);
+      if (!a || !b || isSegment(a) || isSegment(b)) continue;
+      if ((link.kind || "l3") === "ha") continue;
+      const dx = Math.abs(Number(a.x) - Number(b.x)), dy = Math.abs(Number(a.y) - Number(b.y));
+      if (dx < 60 || dy < 120) continue;
+      const mid = (Number(a.y) + Number(b.y)) / 2;
+      const key = Math.round(mid / 80);
+      if (!corridors.has(key)) corridors.set(key, []);
+      corridors.get(key).push({ link, mid, left: Math.min(Number(a.x), Number(b.x)) });
+    }
+    const laneYs = [];
+    for (const group of corridors.values()) {
+      const centre = group.reduce((sum, entry) => sum + entry.mid, 0) / group.length;
+      group.sort((p, q) => p.left - q.left);
+      group.forEach((entry, index) => {
+        const lane = Math.round(centre + (index - (group.length - 1) / 2) * LANE_STEP);
+        entry.link.route = "elbow"; entry.link.elbowAt = lane;
+        counts.lanes++; laneYs.push(lane);
+      });
+    }
+    if (counts.lanes) {
+      applied.push(`routed ${counts.lanes} link${counts.lanes === 1 ? "" : "s"} through ${corridors.size} cable corridor${corridors.size === 1 ? "" : "s"} (lanes at y ${laneYs.slice(0, 4).join(", ")}${laneYs.length > 4 ? ", …" : ""})`);
+    }
+
+    /* Side captions. An ha pair sits shoulder to shoulder; captions turned
+       outward keep the lane between them clear, and reveal the address line. */
+    for (const link of links) {
+      if (link.kind !== "ha") continue;
+      const a = byId.get(link.from), b = byId.get(link.to);
+      if (!a || !b || isSegment(a) || isSegment(b)) continue;
+      if (Math.abs(Number(a.y) - Number(b.y)) > 20) continue;
+      const [left, right] = Number(a.x) <= Number(b.x) ? [a, b] : [b, a];
+      if (left.labelSide !== "left") { left.labelSide = "left"; counts.captioned++; }
+      if (right.labelSide !== "right") { right.labelSide = "right"; counts.captioned++; }
+    }
+    if (counts.captioned) applied.push(`side-captioned ${counts.captioned} paired device${counts.captioned === 1 ? "" : "s"} so the lane between each pair stays clear`);
+  } else {
+    /* Back to the grid. Elbows straighten, captions return below, and a bar
+       unfolds only when its hub is unmistakable: exactly one of its members
+       has any life beyond the bar. Anything else would be a guess. */
+    for (const link of links) {
+      if (link.route === "elbow" || link.elbowAt !== undefined) { delete link.route; delete link.elbowAt; counts.straightened++; }
+    }
+    if (counts.straightened) applied.push(`straightened ${counts.straightened} elbow link${counts.straightened === 1 ? "" : "s"} back to direct runs`);
+    for (const node of nodes) {
+      if (!isSegment(node) && node.labelSide !== undefined) { delete node.labelSide; counts.uncaptioned++; }
+    }
+    if (counts.uncaptioned) applied.push(`returned ${counts.uncaptioned} caption${counts.uncaptioned === 1 ? "" : "s"} below their symbols`);
+    for (const bar of [...nodes].filter(isSegment)) {
+      if (anchored.has(bar.id)) {
+        skipped.push(`left the bar "${bar.label || bar.id}" alone - a gap marker points at it`);
+        continue;
+      }
+      const memberLinks = links.filter((link) => link.from === bar.id || link.to === bar.id);
+      const members = [...new Set(memberLinks.map((link) => byId.get(link.from === bar.id ? link.to : link.from)).filter(Boolean))];
+      /* Two tiers of certainty, both deterministic. Topology first: the one
+         member with any life beyond the bar. On an island - a fan whose hub
+         was wholly absorbed - fall back to device class: the one member that
+         is switching gear among endpoints. Two candidates on either tier is
+         real ambiguity, and real ambiguity is a refusal. */
+      const linked = members.filter((member) =>
+        links.some((link) => link.from !== bar.id && link.to !== bar.id && (link.from === member.id || link.to === member.id)));
+      let hub = null;
+      if (linked.length === 1) hub = linked[0];
+      else if (linked.length === 0) {
+        const infra = members.filter((member) => HUB_ICONS.includes(member.icon));
+        if (infra.length === 1) hub = infra[0];
+      }
+      if (!hub) {
+        skipped.push(`left the bar "${bar.label || bar.id}" alone - ${linked.length ? `${linked.length} of its devices could be its hub` : "no single device is unmistakably its hub"}, and guessing is how a drawing starts lying`);
+        continue;
+      }
+      for (let i = links.length - 1; i >= 0; i--) {
+        const link = links[i];
+        if ((link.from === bar.id && link.to === hub.id) || (link.to === bar.id && link.from === hub.id)) links.splice(i, 1);
+      }
+      for (const link of links) {
+        if (link.from === bar.id) link.from = hub.id;
+        else if (link.to === bar.id) link.to = hub.id;
+      }
+      nodes.splice(nodes.indexOf(bar), 1); byId.delete(bar.id);
+      counts.dissolved++;
+      applied.push(`unfolded the bar "${bar.label || bar.id}" back into ${members.length - 1} fan line${members.length === 2 ? "" : "s"} into "${hub.id}"`);
+    }
+  }
+
+  if (!applied.length) return { ...empty, skipped };
+
+  /* The abandonment rule: a conversion that would create a single new stop is
+     not a conversion, it is damage - the polish pass's contract, held here. */
+  const stopsOf = (data) => checkMeaning(data).concat(checkShell(data, base)).filter((item) => item.stop).length;
+  if (stopsOf(next) > stopsOf(base)) {
+    return { ...empty, skipped: [...skipped, "abandoned the whole conversion - it would have created a problem the checker stops on, so nothing was changed"] };
+  }
+  return { next, applied, skipped, counts };
+}
+
 /* ---------- What actually changed ----------
  *
  * Everything above proves the new data is not broken. None of it proves the AI
@@ -2515,7 +2738,8 @@ function check() {
   } else {
     note("check-message", "ok", "No problems found.", ` The diagram data is complete and consistent.${kept}${cleaned}${tidiedNote}`);
   }
-  setStage("brand", "optional: set your branding in step 4 - or go straight to Save.");
+  refreshStylePanel();
+  setStage("style", "optional: pick a drawing style in step 4 or branding in step 5 - or go straight to Save.");
 }
 
 /* ---------- 4. Splice and save ---------- */
@@ -2597,6 +2821,10 @@ function save() {
     $("payload").value = JSON.stringify(currentData, null, 2);
     $("payload-size").textContent = `${injected.trim().length.toLocaleString()} characters of diagram data, out of ${out.length.toLocaleString()} in the whole file.`;
     describeSlice();
+    // The saved drawing is the new starting point; restoring past it would
+    // silently unpick a file the person already has on disk.
+    styleBaseline = null;
+    refreshStylePanel();
     $("reply").value = "";
     $("copy-state").textContent = "";
     $("problems").replaceChildren();
@@ -2779,6 +3007,94 @@ $("brand-apply").addEventListener("click", () => {
   $("brand-state").textContent = "Staged. Review the change list below, then save.";
   setStage("save", "review the change list, then press Save new design file.");
 });
+/* ---------- the style panel: deterministic, like branding ---------- */
+
+let styleBaseline = null;   // the topology as this session first had it, so a restyle can always be undone
+
+/* Dry-runs both conversions against the live design so each option says what
+   it would actually do - "would draw 2 subnet bars" - or admits it has
+   nothing to convert. The choice is informed before it is made. */
+function refreshStylePanel() {
+  if (!currentData) return;
+  const base = accepted || currentData;
+  const phrase = (counts, target) => {
+    const parts = [];
+    if (target === "sheet") {
+      if (counts.bars) parts.push(`draw ${counts.bars} subnet bar${counts.bars === 1 ? "" : "s"}`);
+      if (counts.lanes) parts.push(`lane-route ${counts.lanes} link${counts.lanes === 1 ? "" : "s"}`);
+      if (counts.captioned) parts.push(`side-caption ${counts.captioned} device${counts.captioned === 1 ? "" : "s"}`);
+    } else {
+      if (counts.straightened) parts.push(`straighten ${counts.straightened} link${counts.straightened === 1 ? "" : "s"}`);
+      if (counts.uncaptioned) parts.push(`return ${counts.uncaptioned} caption${counts.uncaptioned === 1 ? "" : "s"} below`);
+      if (counts.dissolved) parts.push(`unfold ${counts.dissolved} bar${counts.dissolved === 1 ? "" : "s"}`);
+    }
+    return parts.length ? `Would ${parts.join(", ")}.` : "Nothing to convert — the drawing already reads this way.";
+  };
+  const sheet = $("style-note-sheet"), grid = $("style-note-grid");
+  if (sheet) sheet.textContent = phrase(restyleTopology(base, "sheet").counts, "sheet");
+  if (grid) grid.textContent = phrase(restyleTopology(base, "grid").counts, "grid");
+  const restore = $("style-restore");
+  if (restore) restore.hidden = !styleBaseline;
+}
+
+function renderStyleReport(skipped) {
+  const host = $("style-report");
+  host.replaceChildren();
+  for (const line of skipped) {
+    const li = document.createElement("li");
+    const what = document.createElement("span");
+    what.className = "what";
+    what.textContent = line;
+    li.appendChild(what);
+    host.appendChild(li);
+  }
+}
+
+$("style-apply").addEventListener("click", () => {
+  if (!currentData) { $("style-state").textContent = "Load a design file first."; return; }
+  const picked = [...document.querySelectorAll('input[name="drawing-style"]')].find((radio) => radio.checked);
+  const target = picked ? picked.value : "keep";
+  if (target === "keep") {
+    renderStyleReport([]);
+    note("style-message", null);
+    $("style-state").textContent = "Left as it is.";
+    return;
+  }
+  const before = accepted || currentData;
+  const { next, applied, skipped } = restyleTopology(before, target);
+  renderStyleReport(skipped);
+  $("style-state").textContent = "";
+  if (!applied.length) {
+    note("style-message", skipped.length ? "warning" : "ok", "Nothing converted.",
+      skipped.length ? " What was left alone, and why, is listed below." : " The drawing already reads this way.");
+    return;
+  }
+  if (!styleBaseline) styleBaseline = structuredClone(before.topology);
+  currentData = next;
+  accepted = next;
+  renderChanges(before, next);
+  $("save").disabled = false;
+  note("style-message", "ok", `Converted — ${applied.length} change${applied.length === 1 ? "" : "s"}.`,
+    ` ${applied.join("; ")}.${skipped.length ? " What was left alone is listed below." : ""} Review the change list under Save.`);
+  refreshStylePanel();
+  setStage("brand", "review the change list under Save - or set your branding in step 5 first.");
+});
+
+$("style-restore").addEventListener("click", () => {
+  if (!styleBaseline || !currentData) return;
+  const before = accepted || currentData;
+  const next = structuredClone(before);
+  next.topology = styleBaseline;
+  styleBaseline = null;
+  currentData = next;
+  accepted = next;
+  renderChanges(before, next);
+  $("save").disabled = false;
+  renderStyleReport([]);
+  note("style-message", "ok", "Restored.", " The drawing is back to the one this session started with. Review the change list under Save.");
+  refreshStylePanel();
+});
+
 $("slice").addEventListener("change", () => {
   describeSlice();
   $("copy-state").textContent = "";

@@ -53,7 +53,7 @@ const sandbox = {
   PACKAGER_CORE: require(path.join(root, "tools", "packager-core.js"))
 };
 
-const shim = ";globalThis.__exports = { parseWithRepair, mergeReply, checkStructure, checkMeaning, checkShell, checkAssetStrings, looksTruncated, safeJson, contextFor, summarizeChange, editableParts, freshRequestText, freshDrawingId, brandedData, EXTRACT_PROMPT, SLICES, polishGeometry, layoutRulesFor, grammarRulesFor, svgLogoFrom, fillIdentityFromDrawing, buildPrompt," +
+const shim = ";globalThis.__exports = { parseWithRepair, mergeReply, checkStructure, checkMeaning, checkShell, checkAssetStrings, looksTruncated, safeJson, contextFor, summarizeChange, editableParts, freshRequestText, freshDrawingId, brandedData, EXTRACT_PROMPT, SLICES, polishGeometry, layoutRulesFor, grammarRulesFor, svgLogoFrom, fillIdentityFromDrawing, buildPrompt, restyleTopology," +
   " setData: (d) => { currentData = d; }," +
   " setRequest: (text) => { document.getElementById('request').value = text; }," +
   " setSlice: (name) => { document.getElementById('slice').value = name; } };";
@@ -1041,6 +1041,164 @@ test("prompt: text that looks like a replacement pattern travels byte-for-byte",
     "a request with dollar sequences must reach the model unaltered");
   assert(!prompt.includes("<<<"),
     "no placeholder token may survive substitution or leak in via a $-pattern");
+});
+
+/* ---- the style converter ---- */
+
+/* A hub with four single-homed devices fanning in below it - the taught
+   subnet-bar case, with one spoke deliberately reversed and one labelled. */
+function fanDesign() {
+  const design = baseDesign();
+  design.topology.zones = [];
+  design.topology.nodes = [
+    { id: "core", label: "Core", icon: "core-switch", x: 640, y: 200 },
+    { id: "pc-1", icon: "pc", x: 400, y: 400 },
+    { id: "pc-2", icon: "pc", x: 560, y: 400 },
+    { id: "pc-3", icon: "pc", x: 720, y: 400 },
+    { id: "pc-4", icon: "pc", x: 880, y: 400 }
+  ];
+  design.topology.links = [
+    { from: "core", to: "pc-1", kind: "access" },
+    { from: "core", to: "pc-2", kind: "access" },
+    { from: "pc-3", to: "core", kind: "access" },
+    { from: "core", to: "pc-4", kind: "access", label: "Gi0/4" }
+  ];
+  design.sections = { findings: { items: [{ title: "T", detail: "D" }] } };
+  return design;
+}
+
+const linkShape = (links) => JSON.stringify(links.map((l) => [l.from, l.to, l.kind || "", l.label || ""]).sort());
+
+test("style: a leaf fan becomes one bar with the taught arithmetic", () => {
+  const { next, applied, counts } = t.restyleTopology(fanDesign(), "sheet");
+  assert.strictEqual(counts.bars, 1, "one fan, one bar");
+  const bar = next.topology.nodes.find((node) => node.shape === "segment");
+  assert(bar, "no bar was drawn");
+  assert.strictEqual(bar.width, (880 - 400) + 120, "width is not (spread + 120)");
+  assert.strictEqual(bar.x, 640, "x is not halfway between the outer members");
+  assert.strictEqual(bar.y, 300, "y is not between the hub and its devices");
+  const barLinks = next.topology.links.filter((l) => l.from === bar.id || l.to === bar.id);
+  assert.strictEqual(barLinks.length, 5, "four taps plus the hub");
+  const labelled = barLinks.find((l) => l.label === "Gi0/4");
+  assert(labelled, "a spoke's label was lost in the conversion");
+  assert(barLinks.every((l) => (l.kind || "l3") === "access"), "spoke kinds were not preserved");
+  assert.strictEqual(t.checkMeaning(next).filter((p) => p.stop).length, 0);
+  assert.strictEqual(applied.length, 1);
+  assert(/was not surveyed/.test(bar.notes), "the bar does not confess it was derived, not surveyed");
+});
+
+test("style: diagonals in one corridor take lanes 18 apart; drops and pairs stay direct", () => {
+  const design = baseDesign();
+  design.topology.zones = [];
+  design.topology.nodes = [
+    { id: "a1", icon: "router", x: 200, y: 200 }, { id: "b1", icon: "server", x: 600, y: 500 },
+    { id: "a2", icon: "router", x: 400, y: 200 }, { id: "b2", icon: "server", x: 900, y: 500 },
+    { id: "c1", icon: "firewall", x: 1100, y: 200 }, { id: "c2", icon: "firewall", x: 1100, y: 500 }
+  ];
+  design.topology.links = [
+    { from: "a1", to: "b1", kind: "l3" },
+    { from: "a2", to: "b2", kind: "l3" },
+    { from: "c1", to: "c2", kind: "l3" }
+  ];
+  design.sections = { findings: { items: [{ title: "T", detail: "D" }] } };
+  const { next, counts } = t.restyleTopology(design, "sheet");
+  const [e1, e2] = next.topology.links.filter((l) => l.route === "elbow");
+  assert.strictEqual(counts.lanes, 2, "exactly the two diagonals take lanes");
+  assert.strictEqual(Math.abs(e1.elbowAt - e2.elbowAt), 18, "lanes are not one step apart");
+  assert.strictEqual((e1.elbowAt + e2.elbowAt) / 2, 350, "the fan is not centred on the corridor midpoint");
+  const drop = next.topology.links.find((l) => l.from === "c1");
+  assert.strictEqual(drop.route, undefined, "a straight vertical drop was given a pointless elbow");
+});
+
+test("style: an ha pair is captioned outward", () => {
+  const design = baseDesign();
+  design.topology.links[0].kind = "ha";
+  const { next, counts } = t.restyleTopology(design, "sheet");
+  const left = next.topology.nodes.find((n) => n.id === "core-sw-01");
+  const right = next.topology.nodes.find((n) => n.id === "edge-fw-01");
+  assert.strictEqual(counts.captioned, 2);
+  assert.strictEqual(left.labelSide, "left");
+  assert.strictEqual(right.labelSide, "right");
+});
+
+test("style: sheet then grid is a round trip - the fan comes back exactly", () => {
+  const original = fanDesign();
+  const sheet = t.restyleTopology(original, "sheet").next;
+  const { next, counts } = t.restyleTopology(sheet, "grid");
+  assert.strictEqual(counts.dissolved, 1);
+  assert(!next.topology.nodes.some((n) => n.shape === "segment"), "the bar survived its own dissolution");
+  assert.strictEqual(linkShape(next.topology.links), linkShape(original.topology.links),
+    "the fan did not come back as it was - direction, kind or label drifted");
+  assert.strictEqual(t.checkMeaning(next).filter((p) => p.stop).length, 0);
+});
+
+test("style: a bar with two possible hubs is left alone and said so", () => {
+  const design = baseDesign();
+  design.topology.zones = [];
+  design.topology.nodes = [
+    { id: "fw-a", icon: "firewall", x: 500, y: 200 }, { id: "fw-b", icon: "firewall", x: 800, y: 200 },
+    { id: "web-1", icon: "server", x: 500, y: 500 }, { id: "web-2", icon: "server", x: 800, y: 500 },
+    { id: "dmz", label: "DMZ", shape: "segment", x: 650, y: 350, width: 500, color: "#c2661d" }
+  ];
+  design.topology.links = [
+    { from: "fw-a", to: "fw-b", kind: "ha" },
+    { from: "fw-a", to: "dmz", kind: "l3" }, { from: "fw-b", to: "dmz", kind: "l3" },
+    { from: "web-1", to: "dmz", kind: "access" }, { from: "web-2", to: "dmz", kind: "access" }
+  ];
+  design.sections = { findings: { items: [{ title: "T", detail: "D" }] } };
+  const { next, skipped, counts } = t.restyleTopology(design, "grid");
+  assert.strictEqual(counts.dissolved, 0);
+  assert(next.topology.nodes.some((n) => n.id === "dmz"), "an authored bar was destroyed on a guess");
+  assert(skipped.some((line) => /could be its hub/.test(line)), "the refusal was silent");
+});
+
+test("style: hand-routed via links are untouchable in both directions", () => {
+  const design = fanDesign();
+  design.topology.links[3].via = [[880, 300]];   // pc-4's spoke is hand-routed
+  const { next } = t.restyleTopology(design, "sheet");
+  const viaLink = next.topology.links.find((l) => l.via);
+  assert(viaLink && viaLink.from === "core" && viaLink.to === "pc-4",
+    "a hand-routed spoke was absorbed into a bar");
+  assert.strictEqual(viaLink.route, undefined, "a via link was given an elbow on top of its waypoints");
+  const bar = next.topology.nodes.find((n) => n.shape === "segment");
+  assert(bar, "three clean spokes still deserve their bar");
+  assert.strictEqual(next.topology.links.filter((l) => l.from === bar.id || l.to === bar.id).length, 4,
+    "the bar took more or fewer taps than the three clean spokes plus the hub");
+});
+
+test("style: a bar a gap marker points at is never dissolved", () => {
+  const original = fanDesign();
+  const sheet = t.restyleTopology(original, "sheet").next;
+  const bar = sheet.topology.nodes.find((n) => n.shape === "segment");
+  sheet.sections.findings.items.push({ title: "Unverified segment", detail: "D", at: bar.id });
+  const { next, skipped, counts } = t.restyleTopology(sheet, "grid");
+  assert.strictEqual(counts.dissolved, 0);
+  assert(next.topology.nodes.some((n) => n.shape === "segment"), "an anchored bar was dissolved");
+  assert(skipped.some((line) => /gap marker/.test(line)), "the refusal was silent");
+});
+
+test("style: converting never touches the rack, the write-up or the cover", () => {
+  const original = fanDesign();
+  const { next } = t.restyleTopology(original, "sheet");
+  assert.deepStrictEqual(json(next.rack), json(original.rack));
+  assert.deepStrictEqual(json(next.sections), json(original.sections));
+  assert.deepStrictEqual(json(next.document), json(original.document));
+});
+
+test("style: no shipped starter is broken by either conversion", () => {
+  const startersDir = path.join(root, "starters");
+  const OPEN = '<script id="proof-data"';
+  for (const name of fs.readdirSync(startersDir).filter((f) => f.endsWith(".edit.html"))) {
+    const text = fs.readFileSync(path.join(startersDir, name), "utf8");
+    const tagEnd = text.indexOf(">", text.indexOf(OPEN));
+    const data = JSON.parse(text.slice(tagEnd + 1, text.indexOf("</" + "script>", tagEnd)));
+    const stopsOf = (d) => t.checkMeaning(d).concat(t.checkShell(d, data)).filter((p) => p.stop).length;
+    const before = stopsOf(data);
+    for (const target of ["sheet", "grid"]) {
+      const { next } = t.restyleTopology(data, target);
+      assert(stopsOf(next) <= before, `${name}: converting to ${target} minted a new stop`);
+    }
+  }
 });
 
 /* ---- the inventory gate and artifact rotation (the free-model runner) ---- */

@@ -164,6 +164,7 @@ is a valid package. Nothing fails silently, and nothing missing vetoes a build.
 | ✂️ **Part-based editing** | The helper sends the AI one part — devices, connections, the rack — so a free model writes 80–90% less and stops getting cut off. |
 | ✅ **It checks itself** | Catches rack overlaps, dangling links, duplicate IDs, unknown icons and kinds, face-height mismatches, broken JSON — loudly, in the file itself. |
 | 🖨️ **Prints properly** | Letter-size PDF with the sidebar dropped, printing exactly the layers you have on screen. |
+| 📐 **Two drawing styles** | The helper's Style panel converts a finished drawing between a clean grid and an engineering sheet — subnet bars, cable lanes, side captions — deterministically, no AI and no quota. Each option says up front what it would do; what can't convert honestly is left alone and named. |
 | 🎨 **Your branding** | Name, colours and logo staged in the helper's Branding panel — the one edit no AI ever touches. |
 | 📦 **Zero dependencies** | No CDN, no fonts, no build step, no server. Works on a plane. |
 
