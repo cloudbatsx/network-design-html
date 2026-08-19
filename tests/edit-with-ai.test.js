@@ -181,6 +181,39 @@ test("merge: a shape mismatch is rejected outright", () => {
   assert(has(problems, /does not contain/, true));
 });
 
+/* Replacing an object part wholesale is the merge contract, but a part sent
+   back smaller than it was is a deletion nothing downstream can see:
+   sections answered with only its overview used to wipe the findings with
+   zero warnings. Arrays are exempt - removing a device is honest editing
+   the change list already shows. */
+test("merge: a reply that quietly drops whole keys from a part is named", () => {
+  const original = baseDesign();
+  original.sections.overview = { heading: "Overview", notes: ["Old."] };
+  const reply = { sections: { overview: { heading: "Overview", notes: ["Rewritten."] } } };
+  const { merged, problems } = t.mergeReply(reply, original, "sections");
+  assert(has(problems, /no longer contains findings/, false),
+    "wiping the findings by omission earned no warning");
+  assert.strictEqual(problems.filter((p) => p.stop).length, 0,
+    "the deletion notice must warn, not stop - it may be exactly what was asked for");
+  assert.strictEqual(Object.keys(merged.sections).length, 1);
+});
+
+test("merge: the taught no-rack form replaces the schedule without complaint", () => {
+  const original = baseDesign();
+  const reply = { rack: { applicable: false, statement: "Logical view only." } };
+  const { problems } = t.mergeReply(reply, original, "rack");
+  assert(!has(problems, /no longer contains/),
+    "the recommended no-rack form was scolded for dropping the schedule");
+});
+
+test("merge: removing a device from a list is editing, not deletion", () => {
+  const original = baseDesign();
+  const reply = { topology: { nodes: [original.topology.nodes[0]] } };
+  const { problems } = t.mergeReply(reply, original, "nodes");
+  assert(!has(problems, /no longer contains/),
+    "an array shrink was reported as a key deletion");
+});
+
 /* ---- the whole design is validated after merging ---- */
 
 test("whole-design: a gap pinned to a device the reply removed is caught", () => {
@@ -810,6 +843,23 @@ test("brand: a staged logo image excuses the missing path", () => {
   reply.document.brand.logoImage = "data:image/png;base64,iVBORw0KGgo=";
   assert.strictEqual(t.checkShell(reply, original).filter((p) => p.stop).length, 0,
     "a document branded with an image was told its logo was destroyed");
+});
+
+test("brand: a brand deleted whole is a destroyed logo, not a free pass", () => {
+  const original = baseDesign();   // ships a genuine logoPath
+  const reply = JSON.parse(JSON.stringify(original));
+  delete reply.document.brand;
+  assert(has(t.checkShell(reply, original), /removed, shortened or emptied/, true),
+    "deleting document.brand outright slipped past the logo guard");
+});
+
+test("brand: an image-branded document is protected like a path-branded one", () => {
+  const original = baseDesign();
+  original.document.brand = { name: "Client", logoImage: "data:image/png;base64,iVBORw0KGgo=" };
+  const reply = JSON.parse(JSON.stringify(original));
+  reply.document.brand = { name: "Client" };
+  assert(has(t.checkShell(reply, original), /removed, shortened or emptied/, true),
+    "dropping logoImage from an image-branded document went unnoticed");
 });
 
 /* The drawing measures a 94-wide symbol and a 10-tall rail, not the 176x104

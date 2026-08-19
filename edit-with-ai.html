@@ -1462,6 +1462,27 @@ function mergeReply(parsed, original, name) {
       `Include ${missing.join(" and ")} as well, or say that you left ${missing.length === 1 ? "it" : "them"} alone on purpose.`));
   }
 
+  /* A part sent back smaller than it was is a deletion no later check can
+     see: sections answered with only its overview wipes the findings, and a
+     document without its brand has destroyed the logo. Arrays shrink by
+     honest editing - removing a device is a change the list shows - but a
+     missing OBJECT key is a whole piece of the design gone, so it is named.
+     The one taught exception: a rack declared deliberately absent replaces
+     its schedule on purpose. */
+  for (const path of slice.paths) {
+    if (!applied.includes(pathLabel(path))) continue;
+    const before = readPath(original, path);
+    const after = readPath(merged, path);
+    if (!before || !after || typeof before !== "object" || typeof after !== "object") continue;
+    if (Array.isArray(before) || Array.isArray(after)) continue;
+    if (path[0] === "rack" && after.applicable === false) continue;
+    const gone = Object.keys(before).filter((key) => !(key in after));
+    if (gone.length) {
+      out.push(problem(false, `The reply's ${pathLabel(path)} no longer contains ${gone.join(", ")}. ${gone.length === 1 ? "That part of the design is" : "Those parts of the design are"} deleted if you save.`,
+        `Your reply left ${gone.join(", ")} out of ${pathLabel(path)}. Send ${pathLabel(path)} again with every field you were given, or say that you removed ${gone.length === 1 ? "it" : "them"} on purpose.`));
+    }
+  }
+
   // Anything outside the requested part is dropped rather than applied: it was
   // never reviewed against the request. Skipped when the wrapper was inferred,
   // because then the whole reply IS the part - on an array, its "keys" are 0,1,2.
@@ -1593,15 +1614,19 @@ function freeUnits(devices, units) {
 function checkShell(data, original) {
   const out = [];
   const brand = data.document?.brand;
-  /* Only a logo that EXISTED can be destroyed. A document branded with an
-     image carries no path, and a document nobody has branded yet carries
-     nothing at all - stopping either one blocks every build on the blank
-     template, which is exactly what shipped in v0.4.1. */
-  const hadPath = typeof original?.document?.brand?.logoPath === "string"
-    && original.document.brand.logoPath.trim().length >= 12;
+  /* Only a logo that EXISTED can be destroyed - a document nobody has
+     branded yet must not stop every build on the blank template, which is
+     exactly what shipped in v0.4.1. And destruction is judged on the
+     outcome, not on any one field: a brand object deleted whole, a path
+     emptied, or an image dropped all leave the document logoless. */
+  const hadLogo = (typeof original?.document?.brand?.logoPath === "string"
+      && original.document.brand.logoPath.trim().length >= 12)
+    || (typeof original?.document?.brand?.logoImage === "string"
+      && original.document.brand.logoImage.length > 0);
   const hasImage = typeof brand?.logoImage === "string" && brand.logoImage.length > 0;
-  if (hadPath && !hasImage && brand && typeof brand.logoPath === "string" && brand.logoPath.trim().length < 12) {
-    out.push(problem(true, "The company logo path has been shortened or emptied, which would destroy the logo.",
+  const hasPath = typeof brand?.logoPath === "string" && brand.logoPath.trim().length >= 12;
+  if (hadLogo && !hasImage && !hasPath) {
+    out.push(problem(true, "The company logo has been removed, shortened or emptied, which would destroy it.",
       "Do not modify document.brand at all. Copy the entire brand object through exactly as you received it."));
   }
   const colors = ["purple","red","green","amber","teal"];
