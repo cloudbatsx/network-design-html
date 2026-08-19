@@ -271,6 +271,15 @@
   body.no-rack #physical-view #rack-legend,
   body.no-rack #physical-view .rack-inspector,
   body.no-rack #physical-view .inventory { display:none; }
+  /* Deliberately omitted sections, set from document.omit. The classes are
+     un-scoped - the no-rack recipe - so the printed PDF always matches the
+     eye. Only these four sections may go: the overview carries the status
+     pill and the provenance, the figure carries the gap pins, and the gaps
+     list is the candour doctrine - those three never leave. */
+  body.omit-identity #identity-addressing, body.omit-identity #identity-addressing + .rule,
+  body.omit-change #change-management, body.omit-change #change-management + .rule,
+  body.omit-operations #operations-observability, body.omit-operations #operations-observability + .rule,
+  body.omit-equipment #equipment-exhibit { display:none !important; }
   @media (max-width:700px) { .document-meta { grid-template-columns:repeat(2,minmax(0,1fr)); } }
   .figwrap { max-width:100%; overflow-x:auto; overscroll-behavior-inline:contain; }
   .status-pill { display:inline-flex; align-items:center; gap:7px; margin:4px 0 0; padding:6px 12px; border-radius:999px; color:#fff; background:var(--green); font-size:13px; font-weight:700; }
@@ -3539,7 +3548,7 @@ if (typeof module !== "undefined" && module.exports) module.exports = RACK_FACE_
     function revealHashTarget(){
       const id=decodeURIComponent(window.location.hash.slice(1));let target=null;
       if(id===slotAId){setGapVisibility(true);target=el(id)}
-      else if(id==="equipment-exhibit"){setEquipVisibility(true);target=el(id)}
+      else if(id==="equipment-exhibit"&&!document.body.classList.contains("omit-equipment")){setEquipVisibility(true);target=el(id)}
       if(target)window.requestAnimationFrame(()=>target.scrollIntoView())
     }
     gapButton.addEventListener("click",()=>setGapVisibility(!body.classList.contains("show-gaps")));
@@ -3551,6 +3560,41 @@ if (typeof module !== "undefined" && module.exports) module.exports = RACK_FACE_
     setGapVisibility(data.document?.layers?.findings!==false);
     setEquipVisibility(data.document?.layers?.equipment===true);
     revealHashTarget()
+  }
+
+  /* Deliberately omitted sections. document.omit lists section keys the
+     owner chose to leave out; the section, its sidebar entry and its trailing
+     rule disappear on screen and in print alike, and the numbering follows
+     the eye - Section 4 is always the fourth section a reader can see. Only
+     four sections may go. A key that is not omittable is a data error, said
+     loudly: a document quietly ignoring its own instructions is the exact
+     failure this file exists to prevent. */
+  const OMITTABLE=Object.freeze({identity:"identity-addressing",change:"change-management",operations:"operations-observability",equipment:"equipment-exhibit"});
+  function renderLayout(){
+    const raw=data.document?.omit;
+    if(raw!==undefined&&!Array.isArray(raw)){topologyErrors.push("document.omit is not a list, so it was ignored.");showErrors("topology-errors",topologyErrors);return}
+    const omit=Array.isArray(raw)?raw:[];
+    for(const key of omit){
+      if(!Object.prototype.hasOwnProperty.call(OMITTABLE,key)){topologyErrors.push(`document.omit lists "${key}", which is not a section that can be left out; it stays in the document.`);continue}
+      document.body.classList.add(`omit-${key}`);
+      const link=document.querySelector(`.sidebar-nav .toc a[href="#${OMITTABLE[key]}"]`);
+      const item=link&&link.closest("li");
+      if(item)item.hidden=true;
+    }
+    let number=0;
+    document.querySelectorAll("main .content > section").forEach(section=>{
+      const kicker=section.querySelector(":scope > p.kicker");
+      if(!kicker||!/^Section /.test(kicker.textContent))return;
+      const omitted=Object.entries(OMITTABLE).some(([key,id])=>section.id===id&&document.body.classList.contains(`omit-${key}`));
+      if(!omitted)kicker.textContent=`Section ${number++}`;
+    });
+    let tocNumber=0;
+    document.querySelectorAll(".sidebar-nav .toc > li").forEach(item=>{
+      if(item.hidden)return;
+      const num=item.querySelector(".num");
+      if(num&&/^[0-9]+$/.test(num.textContent))num.textContent=String(tocNumber++);
+    });
+    showErrors("topology-errors",topologyErrors)
   }
 
   /* The renderers are forgiving on purpose: a half-usable document should
@@ -3569,7 +3613,7 @@ if (typeof module !== "undefined" && module.exports) module.exports = RACK_FACE_
   }
 
   try{
-    data=parseData();checkShape();renderBrand();renderHeader();renderSections();renderTopology();renderRack();renderFindings();renderEquipment();updateProofStatus();setupControls();updatePackagingCopy();setupEditableExport();renderFooter();setupLayers()
+    data=parseData();checkShape();renderBrand();renderHeader();renderSections();renderTopology();renderRack();renderFindings();renderEquipment();renderLayout();updateProofStatus();setupControls();updatePackagingCopy();setupEditableExport();renderFooter();setupLayers()
   }catch(error){
     /* Nothing below this line may fail silently. A truncated AI reply pasted
        over the data block used to leave a blank page and a pill stuck on

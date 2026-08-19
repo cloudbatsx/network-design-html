@@ -115,6 +115,7 @@ invent new ones.
     "history": [ { "revision": "", "date": "", "author": "", "summary": "" } ],
     "brand": { "name": "", "label": "", "logoViewBox": "", "logoFill": "", "logoPath": "" },
     "layers": { "findings": true, "equipment": false },
+    "omit": ["operations"],
     "footer": { "author": "", "originalDate": "", "edition": "", "changed": "", "detail": "", "caveat": "", "redaction": "" }
   },
   "topology": {
@@ -142,6 +143,16 @@ invent new ones.
   }
 }
 ```
+
+`document.omit` is the **section chooser**: a list of sections the document's
+owner chose to leave out — the section, its sidebar entry and its trailing
+rule disappear on screen and in print alike, and the visible sections renumber
+so "Section 4" is always the fourth section a reader can see. Only `identity`,
+`change`, `operations` and `equipment` may be omitted; the overview, the
+figure and the gaps list never leave — they carry the status pill, the gap
+pins and the candour doctrine. Any other key is a data error the document
+reports loudly. This is the owner's presentation choice, set in the helper's
+branding step — like `brand`, it is not yours to write.
 
 A **note** is either a plain string or `{ "lead": "bold part", "text": "rest" }`.
 

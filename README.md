@@ -166,6 +166,7 @@ is a valid package. Nothing fails silently, and nothing missing vetoes a build.
 | 🖨️ **Prints properly** | Letter-size PDF with the sidebar dropped, printing exactly the layers you have on screen. |
 | 📐 **Two drawing styles** | The helper's Style panel converts a finished drawing between a clean grid and an engineering sheet — subnet bars, cable lanes, side captions — deterministically, no AI and no quota. Each option says up front what it would do; what can't convert honestly is left alone and named. |
 | 🎨 **Your branding** | Name, colours and logo staged in the helper's Branding panel — the one edit no AI ever touches. |
+| 🗂️ **Sections you choose** | Leave out identity, change, operations or the equipment appendix; the document renumbers itself and the printed PDF follows. The overview, the figure and the gaps list never leave — they carry the checks and the honesty. |
 | 📦 **Zero dependencies** | No CDN, no fonts, no build step, no server. Works on a plane. |
 
 ## Starter kits

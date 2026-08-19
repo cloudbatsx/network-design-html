@@ -53,7 +53,7 @@ const sandbox = {
   PACKAGER_CORE: require(path.join(root, "tools", "packager-core.js"))
 };
 
-const shim = ";globalThis.__exports = { parseWithRepair, mergeReply, checkStructure, checkMeaning, checkShell, checkAssetStrings, looksTruncated, safeJson, contextFor, summarizeChange, editableParts, freshRequestText, freshDrawingId, brandedData, EXTRACT_PROMPT, SLICES, polishGeometry, layoutRulesFor, grammarRulesFor, svgLogoFrom, fillIdentityFromDrawing, buildPrompt, restyleTopology," +
+const shim = ";globalThis.__exports = { parseWithRepair, mergeReply, checkStructure, checkMeaning, checkShell, checkAssetStrings, looksTruncated, safeJson, contextFor, summarizeChange, editableParts, freshRequestText, freshDrawingId, brandedData, EXTRACT_PROMPT, SLICES, polishGeometry, layoutRulesFor, grammarRulesFor, svgLogoFrom, fillIdentityFromDrawing, buildPrompt, restyleTopology, sectionedData," +
   " setData: (d) => { currentData = d; }," +
   " setRequest: (text) => { document.getElementById('request').value = text; }," +
   " setSlice: (name) => { document.getElementById('slice').value = name; } };";
@@ -1041,6 +1041,33 @@ test("prompt: text that looks like a replacement pattern travels byte-for-byte",
     "a request with dollar sequences must reach the model unaltered");
   assert(!prompt.includes("<<<"),
     "no placeholder token may survive substitution or leak in via a $-pattern");
+});
+
+/* ---- the section chooser ---- */
+
+test("sections: the chooser writes and clears document.omit, and filters nonsense", () => {
+  const base = baseDesign();
+  const next = t.sectionedData(base, ["operations", "equipment", "overview", "bogus"]);
+  assert.deepStrictEqual(json(next.document.omit), ["operations", "equipment"],
+    "locked or unknown keys crept into document.omit");
+  const cleared = t.sectionedData(next, []);
+  assert.strictEqual(cleared.document.omit, undefined, "an empty choice must remove the key");
+});
+
+test("sections: the shell check holds the omit contract", () => {
+  const design = baseDesign();
+  design.document.omit = ["operations", "overview"];
+  const problems = t.checkShell(design, design);
+  assert(has(problems, /"overview", which is not a section that can be left out/, false),
+    "omitting a locked section earned no warning");
+  assert.strictEqual(problems.filter((p) => p.stop).length, 0,
+    "a bad omit key must warn, not stop");
+  design.document.omit = ["identity", "change", "operations", "equipment"];
+  assert(!has(t.checkShell(design, design), /left out/),
+    "the four omittable sections were scolded");
+  design.document.omit = "operations";
+  assert(has(t.checkShell(design, design), /not a list/, false),
+    "a non-list omit slipped through");
 });
 
 /* ---- the style converter ---- */

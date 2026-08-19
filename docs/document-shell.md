@@ -45,6 +45,16 @@ overview · logical-topology · [Slot A] · identity-addressing
 
 Labels may be abbreviated in the sidebar; the `id` may not change.
 
+The spine may be *shortened*, never reordered: `document.omit` lets the
+owner leave out `identity`, `change`, `operations` and the `equipment`
+appendix — the section, its sidebar entry and its trailing rule go together,
+print follows the same choice by construction (the `body.omit-*` rules are
+un-scoped, the `no-rack` recipe), and the visible sections renumber so the
+numbering always matches the eye. The other three never leave: the overview
+carries the status pill and the provenance, the figure carries the gap pins,
+and Slot A is the candour doctrine. An unomittable key in `document.omit` is
+a data error the document reports loudly.
+
 **Exactly two toggleable layers.** Not one, not three.
 
 - **Slot A** is the *candour layer* — the document's own weak evidence, made
