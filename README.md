@@ -330,7 +330,7 @@ dist/                    build output, untracked
 
 ## Status and license
 
-Pre-release. The workflow is complete, machine-checked on every commit — 36
+Pre-release. The workflow is complete, machine-checked on every commit — 37
 repository checks plus a 124-test behaviour suite — and validated on both
 paths. Fresh-build: one live session and twenty-two automated runs, each
 building a complete document from a different diagram image with free Gemini,

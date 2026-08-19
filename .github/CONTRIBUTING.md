@@ -40,3 +40,11 @@ altered file fails the build.
 
 Do not commit generated portable HTML, Base64 raster payloads, or anything built
 into `dist/`.
+
+## Cutting a release
+
+`npm run build:release` builds `dist/network-design-html-<version>.zip` from
+the recipe pinned in [`tools/build-release.js`](../tools/build-release.js) —
+the version comes from `package.json`, and the repository validator holds the
+recipe complete on every commit. Bump the version, commit, push, then publish
+the ZIP with `gh release create` and a `--notes-file`.

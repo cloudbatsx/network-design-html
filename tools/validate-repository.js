@@ -689,6 +689,25 @@ check("every shipped document passes the helper's own checkers", () => {
   assert(broken.length === 0, `the helper stops on documents we ship - ${broken.join(" | ")}`);
 });
 
+check("the release recipe resolves to a complete kit", () => {
+  const release = require(path.join(root, "tools", "build-release.js"));
+  const files = release.releaseFiles();
+  const missing = files.filter((rel) => !fs.existsSync(path.join(root, rel)));
+  assert(missing.length === 0, `the release recipe names files that do not exist: ${missing.slice(0, 3).join(", ")}`);
+  const starters = files.filter((f) => f.startsWith("starters/") && f.endsWith(".edit.html"));
+  const onDisk = fs.readdirSync(path.join(root, "starters")).filter((f) => f.endsWith(".edit.html"));
+  assert(starters.length === onDisk.length,
+    `the recipe ships ${starters.length} starters but the repository has ${onDisk.length}`);
+  for (const want of ["edit-with-ai.html", "packager.html", "start-here.html", "README.md",
+    "LICENSE", "THIRD_PARTY_NOTICES.md", "docs/ai-json-rules.md", "tools/cisco-icon-catalog.html"]) {
+    assert(files.includes(want), `the release kit is missing ${want}`);
+  }
+  assert(files.filter((f) => f.startsWith("assets/icons/cisco-pms3015/")).length >= 290,
+    "the official icon set in the kit is short");
+  assert(files.filter((f) => f.startsWith("assets/rack-assets/")).length >= 10,
+    "the rack faces in the kit are short");
+});
+
 for (const label of passes) process.stdout.write(`PASS  ${label}\n`);
 for (const note of notes) process.stdout.write(`NOTE  ${note}\n`);
 for (const failure of failures) process.stderr.write(`FAIL  ${failure}\n`);

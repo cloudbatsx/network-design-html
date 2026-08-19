@@ -8,6 +8,7 @@
     "build:rack-faces": "node tools/build-rack-faces.js",
     "build:helper": "node tools/build-helper.js",
     "build:packager": "node tools/build-packager.js",
+    "build:release": "node tools/build-release.js",
     "verify:packager": "node tools/verify-packager.js",
     "test": "npm run validate && node tests/edit-with-ai.test.js"
   }
