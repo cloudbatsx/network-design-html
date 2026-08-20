@@ -512,3 +512,105 @@ TRUE-GAP, zero noise.**
 
 Rate so far: 11 of 11 observations useful, none inapplicable — consistent
 with the calibration bar (zero observations on the eleven shipped starters).
+
+## 2026-08-20 — the v0.6.0 full-corpus round (in progress)
+
+The release round: every archived test re-run live on `gemini-3.6-flash`
+against v0.6.0, each produced document archived beside the runner's normal
+artifacts as `<slug>__v0.6.0.edit.html`, and each folder now also carries its
+git-history vintages (`__v0.4.0`, and `__bb28853` for the two guardrails
+probes) so a folder shows the app's evolution at a glance. Every finished
+test was judged three ways: the runner's own record (gate, round trips,
+warnings), the helper's review re-run over the saved document, and a
+vision audit — an agent reading the *source image* against the document and
+the observations.
+
+**Vintage note.** Tests 18, 3, 4, 5, 6, 7, 8, 9 rode pristine v0.6.0
+(tag 35a8301). The round's findings were then fixed forward (commits
+3ecb727, b71525e, e3cc8ae below), so every later test rides
+v0.6.0 + those fixes — deliberately: the remaining runs double as the
+fixes' live validation.
+
+### The scoreboard so far
+
+| test | verdict | RT | gate | review obs | vision audit |
+|---|---|---|---|---|---|
+| 18 | PASS | 1 | met 6=6 | 1 | 6/6 exact (two-panel image de-duplicated); unjoined-pair TRUE-GAP |
+| 3 | PASS | 1 | met 31=31 | 2 | both TRUE-GAP; extract merged 2 appliance pairs the image draws separate |
+| 4 | PASS | 1 | met 19=19 | 1 | TRUE-GAP; extract normalised a drawn PC daisy-chain to a star, moved the printer behind the scanner |
+| 5 | PASS | 1 | met 20→23 | 1 | TRUE-GAP; extract padded 2 drawn server groups to 3, dropped the 4th SAN array; image's drawn router interconnect omitted |
+| 6 | PASS | 1 | met 12→14 | 3 | 14/14 exact, firewall inline, perimeter drawn — the round's best evolution arc (v0.4.0 no perimeter → bb28853 upside-down → today near-perfect) |
+| 7 | PASS | 1+warn | met 21=21 | 4 | right total, wrong composition (SmartShunts + bus bars dropped, clouds invented); the review's questions pointed exactly at the inventions |
+| 8 | PASS | 1 | met 15=15 | 0→1 | 15/15 exact; review falsely quiet — wall jack wearing the network-management icon (fixed, see below) |
+| 9 | PASS | 1 | met 8→9 | 1 | 9/9 exact, hardware names read out of the stock photos; TRUE-GAP |
+| 10 | ERROR | — | — | — | daily quota exhausted mid-build; honest ERROR rotated in, re-run pending |
+
+Eight for eight on the round-trip record: every completed test saved clean
+in **one round trip**, zero truncation, zero checker stops, 29/29 packaged.
+The engine's only narrated intervention all round: one 10px column snap
+(test3). The version-suffixed documents confirm engine stability — old and
+new docs differ in model choices (ids, zone names, wiring variance), never
+in renderer behaviour.
+
+### What the vision audits established
+
+Review observations across the eight audited tests: **zero noise**, again.
+Nine TRUE-GAPs, and a new category this round: on test7 the review's
+undefended-edge and exposed-service questions pointed at content the model
+had *invented* (cloud shapes the power diagram never draws) — the
+walkthrough's "look at the picture again" would have removed the invention.
+An observation can catch an extraction miss, name an honest absence, or
+catch an invention; all three happened this round.
+
+The round's real finding is one level down, and it has a name:
+**the model normalises.** Where the old runs were faithful, the new runs
+preferred pattern over evidence —
+
+- test3 merged separately-drawn appliances onto shared lines (Barracuda +
+  BlackBerry became one `srv-06`; the image draws two boxes; the legend
+  itself disagrees with the drawing, 8 towers vs counts summing 9);
+- test4 redrew a drawn PC daisy-chain as the conventional star and moved
+  the printer behind the scanner (the old run had both right — pure
+  run-to-run vision variance);
+- test5 padded two drawn server groups to a uniform three, dropped the
+  fourth SAN array, and turned the remote storage array into a third
+  "server";
+- test7 dropped the two bus bars the image literally draws (the segment
+  grammar exists for exactly that shape) and invented clouds.
+
+None of this is catchable after the fact — a normalised extraction is
+internally consistent, and the count gate cannot see merges baked into the
+stated count. The only lever the app owns is teaching, and the count-first
+lesson of 2026-08-15 (which fixed repetition-condensation for good — the
+14-IDF test3 extract has been exact ever since) says teaching works.
+
+### The fixes the round earned (all shipped, suite 37 + 176)
+
+- **3ecb727** — exposed-service walks each cloud separately and names the
+  entry whose walk reached the servers ("from Access Network", not a
+  generic "from the internet" — test6's audit caveat). And no-management's
+  icon leg refuses passive plant: test8's run had given the unlabeled
+  wall-jack rectangle the `network-management` icon, silencing the rule.
+  Calibration before/after: starters zero both sides; the only fire-rate
+  change is test8's honest +1 (corpus 35 → 36).
+- **b71525e** — the extraction prompt teaches that the diagram outranks
+  convention: copy repetition exactly, never add an undrawn device, never
+  merge labelled boxes, reconcile against a drawn legend line by line, and
+  a cable's endpoints are facts. The count line now states that clouds
+  count — test5's and test6's placed-over-promised gaps were exactly the
+  clouds their extracts had excluded.
+- **e3cc8ae** — the runner records `gate: "over"` when placed exceeds
+  promised (padding used to hide inside "met") and stamps fresh builds
+  with the browser save()'s own versionStamp — every harness artifact
+  until today carried the template's stale change-record date.
+
+### Still open in this round
+
+Tests 10–17 and 19–24 plus the editing matrix await quota (a paced
+prober is draining the free tier's drip; the midnight-PT reset restores
+throughput). test1/test2 — the two pre-harness manual folders — now carry
+authored logos so the harness can run them for the first time; their
+historical hand-run documents stay untouched beside the new slugs. Design
+question parked, not lost: the review's security vocabulary reads odd on
+non-network diagrams (test7's fuses and battery banks); a domain
+stand-down is speculative and waits for evidence.
