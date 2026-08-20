@@ -1177,6 +1177,7 @@ function loadSource(text, name) {
     $("brand-image-clear").disabled = true; $("brand-state").textContent = "";
     // A fresh file is its own baseline; anything staged for the old one is gone.
     styleBaseline = null;
+    aiSummary = ""; panelSummary = [];
     $("style-state").textContent = ""; note("style-message", null);
     $("style-report").replaceChildren();
     refreshStylePanel();
@@ -2770,7 +2771,10 @@ function renderProblems(list) {
 function check() {
   const raw = $("reply").value;
   const name = currentSliceName();
-  accepted = null; $("save").disabled = true; $("save-state").textContent = "";
+  // A check rebuilds from the file, so anything the panels staged is gone -
+  // their summary lines must not survive into a save they are no part of.
+  accepted = null; aiSummary = ""; panelSummary = [];
+  $("save").disabled = true; $("save-state").textContent = "";
   note("save-message", null);
   $("changes").replaceChildren();   // covers every early return below
   if (!raw.trim()) {
@@ -2840,6 +2844,10 @@ function check() {
   }
 
   accepted = tidied;
+  const requestText = $("request").value.trim().replace(/\s+/g, " ");
+  aiSummary = requestText
+    ? (requestText.length > 160 ? requestText.slice(0, 159) + "…" : requestText)
+    : `Edited ${SLICES[name].noun} with the AI helper`;
   renderChanges(currentData, tidied);
   $("save").disabled = false;
   const kept = name === "all" ? "" : ` Only ${SLICES[name].noun} changed; the rest of your file is untouched.`;
@@ -2879,9 +2887,88 @@ function outputName() {
   return (slug || "network-design") + ".edit.html";
 }
 
+/* ---------- 4b. the version stamp ----------
+ *
+ * Version control nobody has to remember. Every save of an edit bumps
+ * document.revision and prepends the change-record row - engine-owned, dated
+ * by the machine's own clock (the model has none: the editing matrix watched
+ * it write "today" as a date seven months gone), summarised from the person's
+ * own request. The revision lives in the record and the document-control
+ * panel, never in the filename. A fresh build's first save is v1.0's
+ * creation, not a change: its initial row is re-dated instead. And an edit
+ * that already moved the revision itself - someone asked the AI to - is
+ * respected: no second bump, but the row's date is still corrected. */
+
+function nextRevision(revision) {
+  const text = typeof revision === "string" ? revision.trim() : "";
+  const dotted = /^(.*\.)(\d+)$/s.exec(text);
+  if (dotted) return dotted[1] + (Number(dotted[2]) + 1);
+  if (/^(.*?)(\d+)$/s.test(text)) return text + ".1";
+  return null;   // nothing countable - the caller says so
+}
+
+function localToday() {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+}
+
+function versionStamp(base, summaryParts, fresh, prior) {
+  const next = structuredClone(base);
+  next.document = next.document && typeof next.document === "object" ? next.document : {};
+  const doc = next.document;
+  if (!Array.isArray(doc.history)) doc.history = [];
+  const today = localToday();
+  const author = (typeof doc.author === "string" && doc.author.trim()) || "Not assigned";
+  const summary = summaryParts.length ? summaryParts.join("; ") : "Edited with the AI helper.";
+
+  if (fresh) {
+    doc.date = today;
+    if (doc.history.length) doc.history[0].date = today;
+    else doc.history.unshift({ revision: doc.revision || "v1.0", date: today, author, summary: "Initial issue - built with the AI helper." });
+    return { next, note: ` The change record's first row is dated today (${today}).` };
+  }
+
+  const priorRevision = typeof prior?.revision === "string" ? prior.revision : "";
+  const current = (typeof doc.revision === "string" && doc.revision.trim()) ? doc.revision.trim() : "v1.0";
+  if (priorRevision && current !== priorRevision.trim()) {
+    // The edit already moved the revision on purpose. Keep it; true the row.
+    doc.date = today;
+    if (doc.history[0] && doc.history[0].revision === doc.revision) doc.history[0].date = today;
+    else doc.history.unshift({ revision: doc.revision, date: today, author, summary });
+    return { next, note: ` This edit already moved the revision to ${doc.revision}, so it was kept; the change record's row is dated today.` };
+  }
+
+  const bumped = nextRevision(current);
+  doc.revision = bumped || current;
+  doc.date = today;
+  doc.history.unshift({ revision: doc.revision, date: today, author, summary });
+  return {
+    next,
+    note: bumped
+      ? ` Revision ${current} → ${bumped}; the change record gained today's row.`
+      : ` The change record gained today's row; the revision "${current}" carries no number to count, so it was left alone.`
+  };
+}
+
+/* What one save is about, in the person's own words. The AI part is the last
+   accepted request - a re-check rebuilds from the file, so earlier attempts
+   never survive into the save - and the no-AI panels add their own lines. */
+let aiSummary = "";
+let panelSummary = [];
+
 function save() {
   try {
-    const injected = "\n" + safeJson(accepted) + "\n";
+    /* Stamp the version before a single byte is spliced. A save that changes
+       nothing mints no revision - agreeing with yourself is not a change.
+       The baseline is the FILE's own payload: the panels advance currentData
+       the moment they stage, so it cannot tell a real edit from a no-op. */
+    const fresh = buildMode;
+    const savedData = JSON.parse(source.slice(payloadStart, payloadEnd));
+    const unchanged = !fresh && JSON.stringify(accepted) === JSON.stringify(savedData);
+    const { next: stamped, note: versionNote } = unchanged
+      ? { next: accepted, note: "" }
+      : versionStamp(accepted, [aiSummary, ...panelSummary].filter(Boolean), fresh, savedData?.document);
+    const injected = "\n" + safeJson(stamped) + "\n";
     const out = source.slice(0, payloadStart) + injected + source.slice(payloadEnd);
 
     // Refuse rather than hand over a damaged file.
@@ -2900,7 +2987,7 @@ function save() {
     // The one raster an editable file may carry is the staged brand logo,
     // inside the data block only. Anything else - and anything outside the
     // block - is still refused outright.
-    const allowedImages = accepted?.document?.brand?.logoImage ? 1 : 0;
+    const allowedImages = stamped?.document?.brand?.logoImage ? 1 : 0;
     if (countOf(out, "data:image/") !== allowedImages
       || countOf(out.slice(0, payloadStart), "data:image/") !== 0
       || countOf(out.slice(suffixStart), "data:image/") !== 0) throw new Error("an embedded image appeared outside the brand logo");
@@ -2917,14 +3004,16 @@ function save() {
     $("save-state").textContent = `Saved as ${name}`;
     $("next-step").hidden = false;
     setStage("package", "your document is in Downloads - double-click it. Want official Cisco artwork inside? The link below opens the packager.");
-    note("save-message", "ok", "Saved.", ` Everything outside the diagram data is identical to ${sourceName}. Double-click the new file to see your change. This tool is now editing from the design you just saved, so your next change builds on this one.`);
+    note("save-message", "ok", "Saved.", ` Everything outside the diagram data is identical to ${sourceName}. Double-click the new file to see your change. This tool is now editing from the design you just saved, so your next change builds on this one.${versionNote}`);
     // Roll the session forward to the file just written. Without this, a
     // second edit in the same session is built against the pre-save design,
     // and saving it silently throws the first edit away.
     source = out;
     payloadEnd = payloadStart + injected.length;
-    currentData = accepted;
+    currentData = stamped;
     accepted = null;
+    aiSummary = "";
+    panelSummary = [];
     sourceName = name;
     // A design that has been built and saved is a design you edit from here.
     if (buildMode) setStepMode(false);
@@ -3113,6 +3202,7 @@ $("brand-apply").addEventListener("click", () => {
   const before = currentData;
   currentData = next;
   accepted = next;
+  if (!panelSummary.includes("Branding updated")) panelSummary.push("Branding updated");
   renderChanges(before, next);
   $("save").disabled = false;
   $("brand-state").textContent = "Staged. Review the change list below, then save.";
@@ -3180,6 +3270,7 @@ function applyStyle(target) {
   if (!styleBaseline) styleBaseline = structuredClone(before.topology);
   currentData = next;
   accepted = next;
+  panelSummary.push(target === "sheet" ? "Redrawn as an engineering sheet" : "Redrawn as a clean grid");
   renderChanges(before, next);
   $("save").disabled = false;
   note("style-message", "ok", `Converted — ${applied.length} change${applied.length === 1 ? "" : "s"}.`,
@@ -3216,6 +3307,7 @@ $("sections-apply").addEventListener("click", () => {
   }
   currentData = next;
   accepted = next;
+  if (!panelSummary.includes("Section selection changed")) panelSummary.push("Section selection changed");
   renderChanges(before, next);
   $("save").disabled = false;
   $("sections-state").textContent = "Staged. Review the change list below, then save.";
@@ -3230,6 +3322,7 @@ $("style-restore").addEventListener("click", () => {
   styleBaseline = null;
   currentData = next;
   accepted = next;
+  panelSummary.push("Drawing restored to the loaded style");
   renderChanges(before, next);
   $("save").disabled = false;
   renderStyleReport([]);
@@ -3242,7 +3335,8 @@ $("slice").addEventListener("change", () => {
   $("copy-state").textContent = "";
   // Problems found against a different part are meaningless now.
   if (accepted || $("problems").children.length) {
-    accepted = null; $("save").disabled = true;
+    accepted = null; aiSummary = ""; panelSummary = [];
+    $("save").disabled = true;
     $("problems").replaceChildren(); $("changes").replaceChildren();
     $("copy-problems").disabled = true;
     note("check-message", null);

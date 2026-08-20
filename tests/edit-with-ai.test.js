@@ -53,7 +53,7 @@ const sandbox = {
   PACKAGER_CORE: require(path.join(root, "tools", "packager-core.js"))
 };
 
-const shim = ";globalThis.__exports = { parseWithRepair, mergeReply, checkStructure, checkMeaning, checkShell, checkAssetStrings, looksTruncated, safeJson, contextFor, summarizeChange, editableParts, freshRequestText, freshDrawingId, brandedData, EXTRACT_PROMPT, SLICES, polishGeometry, layoutRulesFor, grammarRulesFor, svgLogoFrom, fillIdentityFromDrawing, buildPrompt, restyleTopology, sectionedData," +
+const shim = ";globalThis.__exports = { parseWithRepair, mergeReply, checkStructure, checkMeaning, checkShell, checkAssetStrings, looksTruncated, safeJson, contextFor, summarizeChange, editableParts, freshRequestText, freshDrawingId, brandedData, EXTRACT_PROMPT, SLICES, polishGeometry, layoutRulesFor, grammarRulesFor, svgLogoFrom, fillIdentityFromDrawing, buildPrompt, restyleTopology, sectionedData, nextRevision, versionStamp," +
   " setData: (d) => { currentData = d; }," +
   " setRequest: (text) => { document.getElementById('request').value = text; }," +
   " setSlice: (name) => { document.getElementById('slice').value = name; } };";
@@ -1068,6 +1068,76 @@ test("sections: the shell check holds the omit contract", () => {
   design.document.omit = "operations";
   assert(has(t.checkShell(design, design), /not a list/, false),
     "a non-list omit slipped through");
+});
+
+/* ---- the version stamp ---- */
+
+const isoToday = () => {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+};
+
+test("version: the revision arithmetic counts every format it meets", () => {
+  assert.strictEqual(t.nextRevision("v1.0"), "v1.1");
+  assert.strictEqual(t.nextRevision("2.4"), "2.5");
+  assert.strictEqual(t.nextRevision("1.11"), "1.12");
+  assert.strictEqual(t.nextRevision("v2"), "v2.1");
+  assert.strictEqual(t.nextRevision("draft"), null);
+  assert.strictEqual(t.nextRevision(""), null);
+  assert.strictEqual(t.nextRevision(undefined), null);
+});
+
+test("version: a save of an edit bumps, dates and records in the person's words", () => {
+  const base = baseDesign();
+  base.document.revision = "v1.0";
+  base.document.date = "2026-08-13";
+  base.document.history = [{ revision: "v1.0", date: "2026-08-13", author: "A", summary: "Initial issue." }];
+  const { next, note } = t.versionStamp(base, ["Add a WLC and wire it to both cores"], false, base.document);
+  assert.strictEqual(next.document.revision, "v1.1");
+  assert.strictEqual(next.document.date, isoToday());
+  assert.strictEqual(next.document.history.length, 2);
+  assert.deepStrictEqual(json(next.document.history[0]),
+    { revision: "v1.1", date: isoToday(), author: "Not assigned", summary: "Add a WLC and wire it to both cores" });
+  assert(/v1\.0 → v1\.1/.test(note), "the stamp did not say what it did");
+});
+
+test("version: a revision with no number is left alone, and said so", () => {
+  const base = baseDesign();
+  base.document.revision = "Working sample";
+  const { next, note } = t.versionStamp(base, [], false, base.document);
+  assert.strictEqual(next.document.revision, "Working sample");
+  assert.strictEqual(next.document.history[0].revision, "Working sample");
+  assert.strictEqual(next.document.history[0].summary, "Edited with the AI helper.");
+  assert(/no number to count/.test(note), "the refusal to count was silent");
+});
+
+test("version: a fresh build's first save is dated, never bumped", () => {
+  const base = baseDesign();
+  base.document.revision = "v1.0";
+  base.document.history = [{ revision: "v1.0", date: "2026-08-13", author: "A", summary: "Initial issue." }];
+  const { next } = t.versionStamp(base, [], true, null);
+  assert.strictEqual(next.document.revision, "v1.0", "a first save minted a revision");
+  assert.strictEqual(next.document.history.length, 1);
+  assert.strictEqual(next.document.history[0].date, isoToday(), "the template's stale date survived");
+  delete base.document.history;
+  const seeded = t.versionStamp(base, [], true, null).next;
+  assert.strictEqual(seeded.document.history.length, 1, "a build that dropped its history got no initial row");
+  assert(/Initial issue/.test(seeded.document.history[0].summary));
+});
+
+test("version: an edit that already moved the revision is respected, its date corrected", () => {
+  const prior = { revision: "v1.0" };
+  const base = baseDesign();
+  base.document.revision = "v2.0";
+  base.document.history = [{ revision: "v2.0", date: "2025-05-18", author: "A", summary: "Major rework." }];
+  const { next, note } = t.versionStamp(base, ["Bump to v2.0"], false, prior);
+  assert.strictEqual(next.document.revision, "v2.0", "the asked-for revision was overridden");
+  assert.strictEqual(next.document.history.length, 1, "a duplicate row was minted");
+  assert.strictEqual(next.document.history[0].date, isoToday(), "the model's clockless date survived");
+  assert(/already moved/.test(note));
+  base.document.history = [];
+  const added = t.versionStamp(base, ["Bump to v2.0"], false, prior).next;
+  assert.strictEqual(added.document.history[0].revision, "v2.0", "a missing row for the moved revision was not added");
 });
 
 /* ---- the style converter ---- */

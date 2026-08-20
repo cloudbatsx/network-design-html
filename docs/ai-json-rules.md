@@ -202,6 +202,13 @@ row must state the same revision as `document.revision`; the repository
 validator holds the two to each other. Append a new first entry when the
 revision changes; never rewrite old entries.
 
+Nobody has to remember any of that: on every save of an edit the helper bumps
+`document.revision` and prepends the row itself — dated by the machine's own
+clock (a model has none), summarised from the person's request. An edit that
+already moved the revision on purpose is respected; only its row's date is
+corrected. A fresh build's first save re-dates the initial row instead of
+bumping.
+
 A section **table** is `{ "caption": "", "columns": [], "rows": [] }` inside a
 section's `tables` list. Rows use the identity-row grammar, including
 `{ "cells": [], "layer": "gap" }` for unverified rows. The `tables` list is
