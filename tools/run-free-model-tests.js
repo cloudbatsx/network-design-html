@@ -306,7 +306,10 @@ function confessesCondensation(data) {
 
 function inventoryShortfall(extractText, data) {
   const promised = statedDeviceCount(extractText);
-  const placed = (data.topology?.nodes || []).length;
+  // Segment bars are drawing grammar (a subnet rail), not inventory - the
+  // first build that ever used them (test10 on gemini-2.5-flash) read as
+  // "over" purely because its four VLAN rails counted as devices.
+  const placed = (data.topology?.nodes || []).filter((n) => n.shape !== "segment").length;
   if (promised === null) return { gate: "no-count-found", promised: null, placed, short: false };
   if (placed === promised) return { gate: "met", promised, placed, short: false };
   // More placed than promised is not a shortfall, but it is not nothing:

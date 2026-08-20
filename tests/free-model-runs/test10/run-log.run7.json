@@ -1,0 +1,101 @@
+{
+  "test": "test10",
+  "title": "Cedarview Clinic Network",
+  "organisation": "Cedarview Clinic",
+  "topologyImage": "0c4e45b159c3bf1627f7497f81205111807d3a7e.png",
+  "logoImage": "logo-cedarview-clinic.png",
+  "model": "gemini-2.5-flash",
+  "surface": "API (Google AI free tier)",
+  "date": "2026-08-20T15:57:48.987Z",
+  "rounds": [
+    {
+      "round": 1,
+      "finishReason": "STOP",
+      "chars": 18019,
+      "usage": {
+        "prompt": 12336,
+        "output": 5978,
+        "thoughts": 13155
+      },
+      "repairsApplied": [
+        "moved \"r2-rtr-01\" 23px down to sit fully inside \"internal\"",
+        "moved \"r1-rtr-01\" 23px down to sit fully inside \"internal\"",
+        "moved \"utm-01\" 12px down to clear \"wan-sw-01\""
+      ],
+      "truncated": false,
+      "stops": [
+        "data.topology.links[8].label contains an invisible control character.",
+        "data.topology.links[9].label contains an invisible control character.",
+        "\"ap-01b\" and \"pc-01\" sit on top of each other by 47% of a device box.",
+        "\"ap-01b\" and \"printer-01\" sit on top of each other by 47% of a device box.",
+        "Rack device \"core-sw-01\" is 2U tall but its face \"generic-chassis-switch-4u\" draws 4U."
+      ],
+      "warnings": 1,
+      "warningTexts": [
+        "\"wan-rtr-01\" is drawn half in and half out of the area \"external\" (74% inside), so a reader cannot tell which area it belongs to."
+      ]
+    },
+    {
+      "round": 2,
+      "finishReason": "STOP",
+      "chars": 18004,
+      "usage": {
+        "prompt": 18719,
+        "output": 5973,
+        "thoughts": 4047
+      },
+      "repairsApplied": [
+        "moved \"r2-rtr-01\" 23px down to sit fully inside \"internal\"",
+        "moved \"r1-rtr-01\" 23px down to sit fully inside \"internal\"",
+        "moved \"isp-circuit-01\" 11px up to clear \"wan-rtr-01\"",
+        "moved \"wan-rtr-01\" 11px down to clear \"isp-circuit-01\"",
+        "moved \"utm-01\" 12px down to clear \"wan-sw-01\"",
+        "moved \"pc-01\" 12px up to clear \"printer-01\""
+      ],
+      "truncated": false,
+      "stops": [
+        "data.topology.links[8].label contains an invisible control character.",
+        "data.topology.links[9].label contains an invisible control character.",
+        "\"printer-01\" is drawn off the bottom edge of the page."
+      ],
+      "warnings": 1,
+      "warningTexts": [
+        "The area \"internal\" runs past the edge of the page."
+      ]
+    },
+    {
+      "round": 3,
+      "finishReason": "STOP",
+      "chars": 18001,
+      "usage": {
+        "prompt": 24908,
+        "output": 5966,
+        "thoughts": 1112
+      },
+      "repairsApplied": [
+        "moved \"r2-rtr-01\" 23px down to sit fully inside \"internal\"",
+        "moved \"r1-rtr-01\" 23px down to sit fully inside \"internal\"",
+        "moved \"isp-circuit-01\" 11px up to clear \"wan-rtr-01\"",
+        "moved \"wan-rtr-01\" 11px down to clear \"isp-circuit-01\"",
+        "moved \"utm-01\" 12px down to clear \"wan-sw-01\""
+      ],
+      "truncated": false,
+      "stops": [
+        "\"pc-01\" and \"printer-01\" sit on top of each other by 33% of a device box."
+      ],
+      "warnings": 0,
+      "warningTexts": []
+    }
+  ],
+  "verdict": "FAIL - no clean reply within 3 round trips",
+  "modelVersion": "gemini-2.5-flash",
+  "extract": {
+    "finishReason": "STOP",
+    "chars": 6119,
+    "usage": {
+      "prompt": 696,
+      "output": 2510,
+      "thoughts": 5413
+    }
+  }
+}

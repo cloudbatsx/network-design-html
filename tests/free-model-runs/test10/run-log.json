@@ -1,6 +1,86 @@
 {
   "test": "test10",
-  "model": "gemini-3.6-flash",
-  "date": "2026-08-20T15:06:43.291Z",
-  "verdict": "ERROR - HTTP 429 RESOURCE_EXHAUSTED: You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usa"
+  "title": "Cedarview Clinic Network",
+  "organisation": "Cedarview Clinic",
+  "topologyImage": "0c4e45b159c3bf1627f7497f81205111807d3a7e.png",
+  "logoImage": "logo-cedarview-clinic.png",
+  "model": "gemini-2.5-flash",
+  "surface": "API (Google AI free tier)",
+  "date": "2026-08-20T15:59:54.574Z",
+  "rounds": [
+    {
+      "round": 1,
+      "finishReason": "STOP",
+      "chars": 25604,
+      "usage": {
+        "prompt": 12582,
+        "output": 8665,
+        "thoughts": 13265
+      },
+      "repairsApplied": [
+        "removed a code fence",
+        "moved \"remote-dc-01\" 102px right to clear \"mpls-cloud-01\""
+      ],
+      "truncated": false,
+      "stops": [
+        "\"seg-vlan21\" and \"l2-sw-bl-01\" sit on top of each other by 78% of a device box.",
+        "\"seg-vlan21\" and \"l2-sw-br-01\" sit on top of each other by 78% of a device box."
+      ],
+      "warnings": 2,
+      "warningTexts": [
+        "\"seg-vlan19\" and \"l2-sw-bl-01\" overlap by 15% of a device box.",
+        "\"seg-vlan19\" and \"l2-sw-br-01\" overlap by 15% of a device box."
+      ]
+    },
+    {
+      "round": 2,
+      "finishReason": "STOP",
+      "chars": 25602,
+      "usage": {
+        "prompt": 21583,
+        "output": 8666,
+        "thoughts": 7740
+      },
+      "repairsApplied": [
+        "removed a code fence",
+        "moved \"remote-dc-01\" 102px right to clear \"mpls-cloud-01\""
+      ],
+      "truncated": false,
+      "stops": [],
+      "warnings": 1,
+      "warningTexts": [
+        "The area \"internal\" runs past the edge of the page."
+      ],
+      "inventoryGate": {
+        "gate": "over",
+        "promised": 21,
+        "placed": 25,
+        "short": false
+      }
+    }
+  ],
+  "verdict": "PASS - clean save in 2 round trips with 1 warning(s) - note: 25 placed vs 21 promised (over-count is where padded inventions hide)",
+  "modelVersion": "gemini-2.5-flash",
+  "extract": {
+    "finishReason": "STOP",
+    "chars": 6877,
+    "usage": {
+      "prompt": 696,
+      "output": 2756,
+      "thoughts": 5283
+    }
+  },
+  "roundTrips": 2,
+  "branding": {
+    "applied": "name+image",
+    "note": "raster logo: 1563 bytes"
+  },
+  "drawingId": "CCN-NET-001",
+  "saved": "ccn-net-001.edit.html",
+  "packaged": "ccn-net-001.portable.html",
+  "packaging": {
+    "embedded": 29,
+    "embeddedBytes": 2963196,
+    "skipped": []
+  }
 }

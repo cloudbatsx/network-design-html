@@ -1969,6 +1969,15 @@ test("gate: more placed than promised reads over, not met", () => {
   assert.strictEqual(exact.gate, "met");
 });
 
+test("gate: segment bars are grammar, never inventory", () => {
+  /* test10 on gemini-2.5-flash - the first fresh build to use subnet bars -
+     read "over" because its four VLAN rails counted as placed devices. */
+  const gate = gateTools.inventoryShortfall("Total device count: 2",
+    { topology: { nodes: [{}, {}, { shape: "segment" }, { shape: "segment" }] } });
+  assert.strictEqual(gate.gate, "met", "a drawn rail was counted as a device");
+  assert.strictEqual(gate.placed, 2);
+});
+
 test("provider: the OpenAI-protocol converter keeps every part and role honest", () => {
   /* One converter covers Groq, OpenRouter, Mistral and OpenAI - the free
      vendors beyond Google. Roles map user/model -> user/assistant; text
