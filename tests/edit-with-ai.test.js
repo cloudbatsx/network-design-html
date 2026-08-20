@@ -1991,6 +1991,24 @@ test("gate: the prompts demand the exact count line and numbered confessions", (
   assert(/stating both numbers/.test(text), "the confession no longer has to state the numbers");
 });
 
+test("gate: the extraction teaches evidence over convention", () => {
+  /* The v0.6.0 validation round's pathology, named: the model normalises.
+     It merged separately-drawn appliances (test3), redrew a PC daisy-chain
+     as a star and moved a printer behind a scanner (test4), and padded two
+     drawn server groups to a uniform three (test5). Each rule below answers
+     one of those field cases. */
+  assert(/Clouds and external networks .* count as devices/.test(t.EXTRACT_PROMPT),
+    "the cloud-counting convention is unstated, so placed-vs-promised stays ambiguous");
+  assert(/never add a device the picture does not draw/.test(t.EXTRACT_PROMPT),
+    "nothing forbids padding to a pattern");
+  assert(/never merge two labelled boxes into one line/.test(t.EXTRACT_PROMPT),
+    "nothing forbids merging separately-drawn appliances");
+  assert(/reconcile your list against it line by line/.test(t.EXTRACT_PROMPT),
+    "a drawn legend is not reconciled against the count");
+  assert(/a cable's endpoints are facts/.test(t.EXTRACT_PROMPT),
+    "nothing forbids normalising unconventional wiring");
+});
+
 test("matrix: the nine documented edits target real parts and stand alone", () => {
   const matrix = gateTools.EDIT_MATRIX;
   assert.strictEqual(matrix.length, 9, "the protocol has nine runs");
