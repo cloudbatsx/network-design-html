@@ -686,6 +686,61 @@ test("polish: the engineering-sheet grammar is never touched", () => {
   assert.deepStrictEqual(json(next), json(d));
 });
 
+/* ---- column alignment: prettify, never restructure ---- */
+
+function crookedDesign(offset) {
+  const design = baseDesign();
+  design.topology.zones = [];
+  design.topology.nodes = [
+    { id: "hub", label: "Hub", icon: "core-switch", x: 640, y: 200 },
+    { id: "leaf", label: "Leaf", icon: "server", x: 640 + offset, y: 500 },
+    { id: "other", label: "Other", icon: "pc", x: 200, y: 500 }
+  ];
+  design.topology.links = [
+    { from: "hub", to: "leaf", kind: "l3" },
+    { from: "hub", to: "other", kind: "access" }
+  ];
+  design.sections = { findings: { items: [{ title: "T", detail: "D" }] } };
+  return design;
+}
+
+test("align: a crooked near-vertical cable snaps straight, and says so", () => {
+  const { next, applied } = t.polishGeometry(crookedDesign(14));
+  const leaf = next.topology.nodes.find((n) => n.id === "leaf");
+  assert.strictEqual(leaf.x, 640, "the leaf did not snap under its hub");
+  assert(applied.some((line) => /aligned "leaf" with "hub"/.test(line)), "the snap was silent");
+});
+
+test("align: a deliberate column offset is not a crooked cable", () => {
+  const { next } = t.polishGeometry(crookedDesign(80));
+  assert.strictEqual(next.topology.nodes.find((n) => n.id === "leaf").x, 720,
+    "an 80px offset was treated as a near-miss and restructured");
+});
+
+test("align: the hub keeps its column - the lighter end moves", () => {
+  const { next } = t.polishGeometry(crookedDesign(14));
+  assert.strictEqual(next.topology.nodes.find((n) => n.id === "hub").x, 640,
+    "the two-link hub was dragged to the one-link leaf");
+});
+
+test("align: hand-routed via links are never straightened", () => {
+  const design = crookedDesign(14);
+  design.topology.links[0].via = [[650, 350]];
+  const { next } = t.polishGeometry(design);
+  assert.strictEqual(next.topology.nodes.find((n) => n.id === "leaf").x, 654,
+    "a hand-routed run was realigned");
+});
+
+test("align: a snap that would create a fault reverts without a trace", () => {
+  const design = crookedDesign(14);
+  // clear of the leaf now, but overlapping where the snap would land it
+  design.topology.nodes.push({ id: "blocker", icon: "pc", x: 560, y: 500 });
+  const { next, applied } = t.polishGeometry(design);
+  assert.strictEqual(next.topology.nodes.find((n) => n.id === "leaf").x, 654,
+    "the snap went through a device");
+  assert(!applied.some((line) => /aligned "leaf"/.test(line)), "a reverted snap was narrated");
+});
+
 /* ---- the layout construction rules ---- */
 
 test("prompt: parts that place devices carry the construction grid", () => {

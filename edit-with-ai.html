@@ -1407,6 +1407,9 @@ function layoutRulesFor(name) {
   overlap and never straddle an edge.
 - Size each area for what it holds, before placing: width at least its
   columns x ${GRID_COL} + 20, height at least its rows x ${GRID_ROW} + 20.
+- Keep columns straight across the whole page: a device wired to the device
+  above it sits at the SAME x, even across areas - straight vertical cables
+  read best.
 - If the areas will not fit, raise topology.canvas.height - 48 x the device
   count is a safe height, and the page scrolls. Never tighten the grid to
   make things fit.
@@ -2407,6 +2410,50 @@ function polishGeometry(data) {
     }
 
     if (!moved) break;
+  }
+
+  /* Column alignment - the cosmetic pass, field-requested. A link that is
+     ALMOST vertical (one end a dozen pixels off the other) reads as a crooked
+     cable; snapping the lighter end to the heavier one's column makes the run
+     straight. Only near-misses move (24px or less), only when the page's
+     faults stay exactly as they were, and hand-routed via links are never
+     touched: this pass may prettify, never restructure. */
+  const linksAll = next.topology?.links || [];
+  const degreeOf = new Map();
+  for (const link of linksAll) for (const end of [link.from, link.to]) degreeOf.set(end, (degreeOf.get(end) || 0) + 1);
+  const nodeById = new Map(nodes.filter((node) => node.id).map((node) => [node.id, node]));
+  const attemptAlign = (node, nx) => {
+    const before = geometryFaults(nodes, zones, width, height);
+    const old = node.x;
+    node.x = nx;
+    const after = geometryFaults(nodes, zones, width, height);
+    if (after.stops <= before.stops && after.warns <= before.warns
+      && [...after.keys].every((key) => before.keys.has(key))) return true;
+    node.x = old;
+    return false;
+  };
+  for (let pass = 0; pass < 2; pass++) {
+    let alignedAny = false;
+    const candidates = linksAll
+      .filter((link) => !(link.via && link.via.length))
+      .map((link) => ({ a: nodeById.get(link.from), b: nodeById.get(link.to) }))
+      .filter(({ a, b }) => a && b && !isSegment(a) && !isSegment(b)
+        && [a.x, a.y, b.x, b.y].every((v) => Number.isFinite(Number(v))))
+      .map(({ a, b }) => ({ a, b, dx: Math.abs(Number(a.x) - Number(b.x)), dy: Math.abs(Number(a.y) - Number(b.y)) }))
+      .filter(({ dx, dy }) => dx > 0 && dx <= 24 && dy >= 100)
+      .sort((p, q) => p.dx - q.dx || String(p.a.id).localeCompare(String(q.a.id)));
+    for (const { a, b } of candidates) {
+      if (Number(a.x) === Number(b.x)) continue;   // an earlier snap already fixed it
+      const [anchor, mover] = (degreeOf.get(a.id) || 0) > (degreeOf.get(b.id) || 0) ? [a, b]
+        : (degreeOf.get(b.id) || 0) > (degreeOf.get(a.id) || 0) ? [b, a]
+        : Number(a.y) <= Number(b.y) ? [a, b] : [b, a];
+      const from = Number(mover.x);
+      if (attemptAlign(mover, Number(anchor.x))) {
+        applied.push(`aligned "${mover.id}" with "${anchor.id}" (${stepText(Number(anchor.x) - from, 0)}) so the cable runs straight`);
+        alignedAny = true;
+      }
+    }
+    if (!alignedAny) break;
   }
   return { next, applied };
 }
