@@ -527,8 +527,8 @@ the observations.
 
 **Vintage note.** Tests 18, 3, 4, 5, 6, 7, 8, 9 rode pristine v0.6.0
 (tag 35a8301). The round's findings were then fixed forward (commits
-3ecb727, b71525e, e3cc8ae below), so every later test rides
-v0.6.0 + those fixes — deliberately: the remaining runs double as the
+3ecb727, b71525e, e3cc8ae below) and released as **v0.6.1**, so every
+later test rides v0.6.1 — deliberately: the remaining runs double as the
 fixes' live validation.
 
 ### The scoreboard so far
