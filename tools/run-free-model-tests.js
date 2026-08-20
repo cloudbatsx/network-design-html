@@ -445,6 +445,20 @@ async function packageEditable(editText, artwork) {
 // the count, so the one-round-trip record stays a measurement, not a cap.
 const MAX_ROUND_TRIPS = 4;
 
+// The cap is policy; progress is physics. The third gpt-5.4-mini attempt
+// halved its stops every round (24 -> 21 -> 11 -> 5) and died at the fixed
+// cap anyway - so a fresh build now keeps earning rounds while every round
+// STRICTLY improves on the one before, up to a hard ceiling. A regression
+// (the second attempt's 1 -> 28) or a plateau ends the loop at once.
+const MAX_ROUNDS_CONVERGING = 8;
+function grantAnotherRound(round, stopCounts) {
+  if (round < MAX_ROUND_TRIPS) return true;
+  if (round >= MAX_ROUNDS_CONVERGING) return false;
+  const last = stopCounts[stopCounts.length - 1];
+  const prev = stopCounts[stopCounts.length - 2];
+  return Number.isFinite(prev) && last > 0 && last < prev;
+}
+
 async function runTest(t, test, options, log) {
   const record = {
     test: path.basename(test.dir), title: test.title, organisation: test.org,
@@ -490,13 +504,16 @@ async function runTest(t, test, options, log) {
   // BUILD + CHECK round trips, same conversation, the helper's own messages.
   contents.push({ role: "user", parts: [{ text: buildRequest }] });
   let accepted = null;
-  for (let round = 1; round <= MAX_ROUND_TRIPS; round++) {
+  const stopCounts = [];
+  for (let round = 1; ; round++) {
     await sleep(options.delayMs);
     log(`  BUILD round ${round}...`);
     const reply = await callModel(options, contents, log);
     const checked = runCheck(t, reply.text, state.currentData);
     const stops = checked.problems.filter((p) => p.stop);
     const warnings = checked.problems.length - stops.length;
+    stopCounts.push(stops.length);
+    const lastRound = !grantAnotherRound(round, stopCounts);
     record.rounds.push({
       round, finishReason: reply.finishReason, chars: reply.text.length, usage: reply.usage,
       repairsApplied: checked.applied, truncated: checked.truncated,
@@ -515,7 +532,7 @@ async function runTest(t, test, options, log) {
         transcript.rounds.push({ reply: reply.text });
         accepted = checked.merged; record.roundTrips = round; break;
       }
-      if (round === MAX_ROUND_TRIPS) {
+      if (lastRound) {
         // Out of retries: keep the design, and let the verdict tell the truth.
         transcript.rounds.push({ reply: reply.text });
         accepted = checked.merged; record.roundTrips = round;
@@ -529,6 +546,10 @@ async function runTest(t, test, options, log) {
       contents.push({ role: "user", parts: [{ text: countMessage }] });
       continue;
     }
+    if (lastRound) {
+      transcript.rounds.push({ reply: reply.text });
+      break;
+    }
     const retryMessage = problemsMessage(checked.problems);
     transcript.rounds.push({ reply: reply.text, problemsMessage: retryMessage });
     contents.push({ role: "model", parts: [{ text: reply.text }] });
@@ -539,7 +560,8 @@ async function runTest(t, test, options, log) {
     fs.writeFileSync(path.join(test.dir, "run-transcript.json"), JSON.stringify(transcript, null, 2) + "\n", "utf8");
   }
   if (!accepted) {
-    record.verdict = `FAIL - no clean reply within ${MAX_ROUND_TRIPS} round trips`;
+    record.verdict = `FAIL - no clean reply within ${stopCounts.length} round trips` +
+      (stopCounts.length > MAX_ROUND_TRIPS ? ` (extended while converging: ${stopCounts.join(" -> ")} stops)` : "");
     return record;
   }
 
@@ -817,4 +839,4 @@ if (require.main === module) (async () => {
 
 // The gate and the rotation are graded by the behaviour suite; requiring
 // this file runs nothing.
-module.exports = { statedDeviceCount, confessesCondensation, inventoryShortfall, rotateArtifact, EDIT_MATRIX, toOpenAiMessages, OPENAI_FINISH, parseArgs, problemsMessage };
+module.exports = { statedDeviceCount, confessesCondensation, inventoryShortfall, rotateArtifact, EDIT_MATRIX, toOpenAiMessages, OPENAI_FINISH, parseArgs, problemsMessage, grantAnotherRound };

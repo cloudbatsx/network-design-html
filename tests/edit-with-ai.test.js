@@ -2055,6 +2055,19 @@ test("retry: stops outrank warnings, and a cut-off fresh build is asked for the 
   }
 });
 
+test("retry: rounds are earned by progress - converging continues, regression and plateau stop", () => {
+  /* The third gpt-5.4-mini attempt halved its stops every round and died at
+     the fixed cap; the second regressed 1 -> 28 and deserved to stop. */
+  const grant = gateTools.grantAnotherRound;
+  assert.strictEqual(grant(1, [24]), true, "early rounds are guaranteed");
+  assert.strictEqual(grant(3, [24, 21, 11]), true);
+  assert.strictEqual(grant(4, [24, 21, 11, 5]), true, "a converging fourth round earns a fifth");
+  assert.strictEqual(grant(4, [6, 3, 1, 28]), false, "a regression must end the loop");
+  assert.strictEqual(grant(4, [9, 7, 5, 5]), false, "a plateau must end the loop");
+  assert.strictEqual(grant(8, [24, 21, 11, 9, 8, 7, 6, 5]), false, "the ceiling is hard even while converging");
+  assert.strictEqual(grant(5, [24, 21, 11, 5, 2]), true, "still converging under the ceiling continues");
+});
+
 test("provider: the openai provider demands a base url and unknown providers are refused", () => {
   const base = ["node", "runner", "--tests-dir", "x", "--tests", "3"];
   const google = gateTools.parseArgs(base);
