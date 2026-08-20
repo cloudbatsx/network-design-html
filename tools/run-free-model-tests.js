@@ -88,7 +88,7 @@ function loadHelper() {
   const shim = ";globalThis.__exports = { parseWithRepair, mergeReply, checkStructure, checkMeaning," +
     " checkShell, checkAssetStrings, checkHostileText, looksTruncated, safeJson, freshRequestText," +
     " freshDrawingId, brandedData, EXTRACT_PROMPT, SLICES, pathLabel, buildPrompt, loadSource," +
-    " FORBIDDEN_IN_DATA, countOf, polishGeometry, fillIdentityFromDrawing," +
+    " FORBIDDEN_IN_DATA, countOf, polishGeometry, fillIdentityFromDrawing, versionStamp," +
     " state: () => ({ source, payloadStart, payloadEnd, currentData })," +
     " setRequest: (text) => { document.getElementById('request').value = text; }," +
     " setSlice: (name) => { document.getElementById('slice').value = name; } };";
@@ -254,7 +254,11 @@ function inventoryShortfall(extractText, data) {
   const promised = statedDeviceCount(extractText);
   const placed = (data.topology?.nodes || []).length;
   if (promised === null) return { gate: "no-count-found", promised: null, placed, short: false };
-  if (placed >= promised) return { gate: "met", promised, placed, short: false };
+  if (placed === promised) return { gate: "met", promised, placed, short: false };
+  // More placed than promised is not a shortfall, but it is not nothing:
+  // the v0.6.0 round's padded inventions (a third blade server nobody drew)
+  // hid inside "met". Record the direction so the verdict can carry it.
+  if (placed > promised) return { gate: "over", promised, placed, short: false };
   if (confessesCondensation(data)) return { gate: "confessed", promised, placed, short: false };
   return { gate: "shortfall", promised, placed, short: true };
 }
@@ -484,7 +488,11 @@ async function runTest(t, test, options, log) {
   }
   log(`  BRAND: ${record.branding.applied} (${note})${branded.problem ? ` - refused: ${branded.problem}` : ""}`);
 
-  // SAVE - the byte-exact splice with save()'s guards.
+  // SAVE - the byte-exact splice with save()'s guards. Fresh builds are
+  // stamped the way the browser's save() stamps them - dated today, revision
+  // untouched; harness artifacts used to skip this and kept the template's
+  // stale date.
+  accepted = t.versionStamp(accepted, [], true, null).next;
   const editText = spliceAndGuard(t, state.source, state.payloadStart, state.payloadEnd, accepted);
   const slug = outputSlug(accepted);
   record.drawingId = accepted.document?.drawing || "";
@@ -500,8 +508,12 @@ async function runTest(t, test, options, log) {
   log(`  PACKAGE: ${report.embedded} embedded, ${report.skipped.length} skipped`);
 
   const warned = record.rounds[record.roundTrips - 1].warnings;
+  const finalGate = record.rounds[record.roundTrips - 1].inventoryGate;
   record.verdict = `PASS - clean save in ${record.roundTrips} round trip${record.roundTrips === 1 ? "" : "s"}` +
     (warned ? ` with ${warned} warning(s)` : "") +
+    (finalGate && finalGate.gate === "over"
+      ? ` - note: ${finalGate.placed} placed vs ${finalGate.promised} promised (over-count is where padded inventions hide)`
+      : "") +
     (record.inventoryShortfall
       ? ` - BUT the extract promised ${record.inventoryShortfall.promised} devices and only ${record.inventoryShortfall.placed} are placed, unrecorded`
       : "");

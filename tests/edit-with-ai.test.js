@@ -1956,6 +1956,33 @@ test("gate: a missing count is reported, never waved through", () => {
   assert.strictEqual(gate.short, false);
 });
 
+test("gate: more placed than promised reads over, not met", () => {
+  /* The v0.6.0 round: test5 promised 20 and placed 23 - two fabric clouds
+     by counting convention, plus a third blade server nobody drew. "met"
+     hid all three; the direction is now recorded, still never a failure. */
+  const gate = gateTools.inventoryShortfall("Total device count: 3", { topology: { nodes: [{}, {}, {}, {}, {}] } });
+  assert.strictEqual(gate.gate, "over");
+  assert.strictEqual(gate.promised, 3);
+  assert.strictEqual(gate.placed, 5);
+  assert.strictEqual(gate.short, false, "over-count must never block a save");
+  const exact = gateTools.inventoryShortfall("Total device count: 5", { topology: { nodes: [{}, {}, {}, {}, {}] } });
+  assert.strictEqual(exact.gate, "met");
+});
+
+test("gate: the harness save stamps a fresh build the way the browser save does", () => {
+  /* Harness artifacts used to skip versionStamp and carry the template's
+     stale date; the runner now stamps before the splice. Source-level pin:
+     the stamp call must sit before spliceAndGuard in the save section. */
+  const source = fs.readFileSync(path.join(root, "tools", "run-free-model-tests.js"), "utf8");
+  const stampAt = source.indexOf("t.versionStamp(accepted, [], true, null)");
+  const spliceAt = source.indexOf("const editText = spliceAndGuard(");
+  assert(stampAt !== -1, "the runner no longer stamps fresh builds");
+  assert(spliceAt !== -1 && stampAt < spliceAt, "the stamp must land before the splice");
+  assert(/versionStamp,/.test(source.slice(0, source.indexOf("globalThis.__exports") + 400)) ||
+    /versionStamp/.test(source.match(/__exports = \{[\s\S]*?\};/)[0]),
+    "the runner's helper shim does not export versionStamp");
+});
+
 test("gate: an unrelated 'omitted' finding is not a confession", () => {
   const data = { topology: { nodes: [{}, {}] }, sections: { findings: { items: [
     { title: "Firmware & Serial Numbers Omitted", detail: "Software versions, OS releases, and device serial numbers are unrecorded." }
