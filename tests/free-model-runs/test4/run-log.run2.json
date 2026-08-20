@@ -6,39 +6,33 @@
   "logoImage": "logo-northwind-office.jpg",
   "model": "gemini-3.6-flash",
   "surface": "API (Google AI free tier)",
-  "date": "2026-08-20T14:46:37.850Z",
+  "date": "2026-08-16T05:41:03.926Z",
   "rounds": [
     {
       "round": 1,
       "finishReason": "STOP",
-      "chars": 15517,
+      "chars": 15242,
       "usage": {
-        "prompt": 11864,
-        "output": 5248,
-        "thoughts": 4843
+        "prompt": 10605,
+        "output": 5243,
+        "thoughts": 4245
       },
       "repairsApplied": [],
       "truncated": false,
       "stops": [],
       "warnings": 0,
-      "warningTexts": [],
-      "inventoryGate": {
-        "gate": "met",
-        "promised": 19,
-        "placed": 19,
-        "short": false
-      }
+      "warningTexts": []
     }
   ],
   "verdict": "PASS - clean save in 1 round trip",
   "modelVersion": "gemini-3.6-flash",
   "extract": {
     "finishReason": "STOP",
-    "chars": 2632,
+    "chars": 3909,
     "usage": {
-      "prompt": 1410,
-      "output": 1324,
-      "thoughts": 2468
+      "prompt": 1336,
+      "output": 1567,
+      "thoughts": 2788
     }
   },
   "roundTrips": 1,

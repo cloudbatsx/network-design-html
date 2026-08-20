@@ -6,16 +6,16 @@
   "logoImage": "logo-summit-academy.png",
   "model": "gemini-3.6-flash",
   "surface": "API (Google AI free tier)",
-  "date": "2026-08-20T02:33:43.215Z",
+  "date": "2026-08-20T14:52:55.979Z",
   "rounds": [
     {
       "round": 1,
       "finishReason": "STOP",
-      "chars": 9573,
+      "chars": 9463,
       "usage": {
-        "prompt": 11183,
-        "output": 3014,
-        "thoughts": 3536
+        "prompt": 11555,
+        "output": 2899,
+        "thoughts": 3931
       },
       "repairsApplied": [],
       "truncated": false,
@@ -34,11 +34,11 @@
   "modelVersion": "gemini-3.6-flash",
   "extract": {
     "finishReason": "STOP",
-    "chars": 2147,
+    "chars": 2853,
     "usage": {
-      "prompt": 1380,
-      "output": 841,
-      "thoughts": 3410
+      "prompt": 1405,
+      "output": 1021,
+      "thoughts": 2471
     }
   },
   "roundTrips": 1,

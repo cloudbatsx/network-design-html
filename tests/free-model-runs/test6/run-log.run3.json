@@ -1,21 +1,21 @@
 {
-  "test": "test5",
-  "title": "Meridian DC Network",
-  "organisation": "Meridian DC",
-  "topologyImage": "images.jpg",
-  "logoImage": "logo-meridian-dc.svg",
+  "test": "test6",
+  "title": "Summit Academy Network",
+  "organisation": "Summit Academy",
+  "topologyImage": "images (1).jpg",
+  "logoImage": "logo-summit-academy.png",
   "model": "gemini-3.6-flash",
   "surface": "API (Google AI free tier)",
-  "date": "2026-08-20T14:50:24.045Z",
+  "date": "2026-08-20T02:33:43.215Z",
   "rounds": [
     {
       "round": 1,
       "finishReason": "STOP",
-      "chars": 24302,
+      "chars": 9573,
       "usage": {
-        "prompt": 11962,
-        "output": 7727,
-        "thoughts": 5873
+        "prompt": 11183,
+        "output": 3014,
+        "thoughts": 3536
       },
       "repairsApplied": [],
       "truncated": false,
@@ -24,8 +24,8 @@
       "warningTexts": [],
       "inventoryGate": {
         "gate": "met",
-        "promised": 20,
-        "placed": 23,
+        "promised": 12,
+        "placed": 14,
         "short": false
       }
     }
@@ -34,21 +34,21 @@
   "modelVersion": "gemini-3.6-flash",
   "extract": {
     "finishReason": "STOP",
-    "chars": 4900,
+    "chars": 2147,
     "usage": {
-      "prompt": 1395,
-      "output": 1436,
-      "thoughts": 1587
+      "prompt": 1380,
+      "output": 841,
+      "thoughts": 3410
     }
   },
   "roundTrips": 1,
   "branding": {
-    "applied": "name+path+viewBox+fill",
-    "note": "SVG logo: 1 path(s) extracted"
+    "applied": "name+image",
+    "note": "raster logo: 3991 bytes"
   },
-  "drawingId": "MDN-NET-001",
-  "saved": "mdn-net-001.edit.html",
-  "packaged": "mdn-net-001.portable.html",
+  "drawingId": "SAN-NET-001",
+  "saved": "san-net-001.edit.html",
+  "packaged": "san-net-001.portable.html",
   "packaging": {
     "embedded": 29,
     "embeddedBytes": 2963196,
