@@ -614,3 +614,42 @@ historical hand-run documents stay untouched beside the new slugs. Design
 question parked, not lost: the review's security vocabulary reads odd on
 non-network diagrams (test7's fuses and battery banks); a domain
 stand-down is speculative and waits for evidence.
+
+### test10 — the first gemini-2.5-flash build, and what a weaker model teaches · 2026-08-20
+
+3.7-flash burned its bucket in a 503 storm, so test10 became the round's
+first `gemini-2.5-flash` build — a tier below anything tested before, riding
+the fresh v0.6.1 prompts. The mechanics held: round 1 piled two segment bars
+onto switches (two stops), the copy-problems loop fixed everything in round
+2, clean save, zero truncation, 29/29 packaged.
+
+What it drew is the surprise. The *weaker* model reached for the *richer*
+grammar — four VLAN rails (the first fresh build ever to use segment bars
+unprompted), 37 links, ten findings including an honest "No Management
+Network Documented" (the review's management rule stood down on the
+confession, exactly as designed) and a confession of the five written VLANs
+its rails don't cover.
+
+The vision audit then took most of the shine off, and the lesson is worth
+the shine. The image draws **two** Sophos UTMs joined by an `eth3
+HA/Cluster` interconnect; the archived 3.6-flash run extracted both, this
+run merged them into one node named after the second box's callout — and
+the review's *single-point* observation fired on precisely that node: the
+round's **second AI-MISS caught by the review**. The image draws ~16
+equipment icons; this run placed 21, inventing a server no image shows, a
+third access point, and a device made out of the "ISP Circuit" link label —
+straight through the new never-add-an-undrawn-device teaching. And the
+VLAN rails render genuinely-written numbers as a shared-bus abstraction the
+image never draws.
+
+Two harness truths came out of the same run: segment bars counted as
+placed devices (the "over" note read 25 vs 21 for four rails), so
+`inventoryShortfall` now counts only real inventory; and the model-ladder
+scripts learned to rotate away from a storming bucket instead of hammering
+it.
+
+Standing verdict on the model comparison so far: **richer grammar, weaker
+fidelity.** Teaching moved 3.6-flash from condensation to exactness in one
+round; 2.5-flash invents through the same teaching. The review caught the
+merge; nothing yet catches an invention the model also counts — that
+remains the extraction-fidelity frontier.
