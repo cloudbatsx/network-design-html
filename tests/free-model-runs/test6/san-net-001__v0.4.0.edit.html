@@ -1,0 +1,2673 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="CloudBats standard documentation shell: data-driven logical topology and rack elevation with editable and portable modes.">
+  <title>Network design &mdash; editable source</title>
+  <style>
+/* ============================================================================
+   CloudBats standard documentation shell (v1) — data-driven edition
+   ----------------------------------------------------------------------------
+   The stylesheet is TWO STACKED LAYERS. Do not merge them — the ordering is the
+   mechanism that makes one file both a screen document and a Letter PDF.
+
+     LAYER 1  "print/legacy"  — pt units, @page Letter, hex colours. Defines every
+                                CONTENT PRIMITIVE (notes, figures, tables, racks,
+                                topology). This is what survives to PDF.
+     LAYER 2  "shell"         — px units, :root vars, flex sidebar. Overrides
+                                Layer 1 typography for screen and adds the chrome
+                                (sidebar, TOC, badges, toggles). Its @media print
+                                block hands control back to Layer 1.
+
+   DELIBERATE DEVIATION FROM THE SHELL STANDARD: no Google Fonts <link>.
+   This repository guarantees that the editable file works with no server, CDN or
+   font service, and docs/gemini-editing-rules.md forbids CDNs outright. The font
+   STACK is kept, so the document is typographically identical wherever Sora /
+   Inter / JetBrains Mono are installed, and degrades to system-ui elsewhere.
+   ========================================================================= */
+
+/* ===== LAYER 1 — PRINT / LEGACY BASE ===================================== */
+
+  @page { size: Letter; margin: 14mm; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { font-family:'Segoe UI','Helvetica Neue',Arial,sans-serif; font-size:10.2pt; line-height:1.5; color:#1e293b; }
+  h2 { font-size:12.5pt; color:#14324e; margin:22px 0 8px; border-left:4px solid #0e7490; padding-left:8px; }
+  h3 { font-size:10.6pt; color:#0e7490; margin:14px 0 6px; }
+  p { margin:6px 0; } ul { margin:6px 0; padding-left:20px; } li { margin:5px 0; }
+  button,input,textarea,select { font:inherit; }
+  code { font-family:Consolas,'Courier New',monospace; }
+
+  /* -- figures: the only sanctioned way to place a diagram -- */
+  .figwrap { margin:10px 0 6px; }
+  .figwrap svg { width:100%; height:auto; display:block; }
+  .caption { font-size:8.2pt; color:#64748b; font-style:italic; margin:2px 0 4px; }
+  .legend { font-size:8.2pt; color:#475569; margin:4px 0 14px; }
+  .legend b { color:#14324e; }
+
+  /* -- the shared Figure 1 legend contract: the engineering-sheet kits'
+        three-column aside, adapted to this shell's palette. The renderer
+        fills it with only what the drawing actually uses. -- */
+  .figure-legend { display:grid; grid-template-columns:1.25fr 1.15fr .8fr; gap:14px 26px; margin:4px 0 14px; padding:14px; border:1px solid var(--border); border-radius:8px; background:#fff; color:#475569; font-size:12px; line-height:1.45; }
+  .figure-legend > h3 { grid-column:1/-1; margin:0; color:#14324e; font-size:13px; }
+  .figure-legend h4 { margin:0 0 7px; color:#14324e; font-size:12.5px; }
+  .figure-legend ul { list-style:none; margin:0; padding:0; }
+  .figure-legend li { display:flex; align-items:center; gap:8px; margin:0; padding:2px 0; min-width:0; }
+  .figure-legend svg { display:block; flex:0 0 auto; }
+  .figure-legend .legend-device-icon { width:30px; height:21px; }
+  .figure-legend .device-list { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:0 14px; }
+  .figure-legend .line-key,.figure-legend .zone-key { width:34px; height:14px; }
+  .figure-legend .legend-note { grid-column:1/-1; margin:0; padding-top:8px; border-top:1px solid var(--border); font-size:11.5px; }
+  @media (max-width:900px) { .figure-legend { grid-template-columns:1fr; } }
+  @media (max-width:520px) { .figure-legend .device-list { grid-template-columns:1fr; } }
+  @media print { .figure-legend { break-inside:avoid; gap:8px 14px; padding:10px; font-size:8pt; } .figure-legend > h3 { font-size:9pt; } .figure-legend h4 { font-size:8.5pt; } .figure-legend .legend-device-icon { width:20px; height:14px; } .figure-legend .legend-note { padding-top:5px; font-size:7.5pt; } }
+
+  /* -- the shared hover-detail contract, from NET-RH-001: a black glance
+        box on every device, and connections that swell under the pointer
+        so one cable can be followed through the mess. The invisible
+        .link-hit stroke makes thin lines easy to catch. -- */
+  .figwrap { position:relative; }
+  .hover-label { position:absolute; z-index:20; display:none; width:225px; padding:9px 11px; border-radius:7px; color:#fff; background:rgba(17,31,39,.97); box-shadow:0 5px 16px rgba(0,0,0,.24); font-size:12px; line-height:1.4; pointer-events:none; }
+  .hover-label.visible { display:block; }
+  .hover-label strong { display:block; font-size:13px; margin-bottom:2px; color:#fff; }
+  .hover-label .detail { color:#c3d0d7; }
+  .link-group { outline:none; }
+  .link-group .link { transition:stroke-width .14s ease, filter .14s ease; }
+  .link-hit { fill:none; stroke:#fff; stroke-opacity:0; stroke-width:14; pointer-events:stroke; }
+  .link-group:hover .link, .link-group:focus .link { filter:drop-shadow(0 0 2px rgba(0,102,135,.75)); }
+  .link-group:hover .link.l3, .link-group:focus .link.l3 { stroke-width:4.5; }
+  .link-group:hover .link.aggregate, .link-group:focus .link.aggregate { stroke-width:7; }
+  .link-group:hover .link.ha, .link-group:focus .link.ha { stroke-width:4.5; }
+  .link-group:hover .link.access, .link-group:focus .link.access { stroke-width:4; }
+  .link-group:hover .link.backup, .link-group:focus .link.backup { stroke-width:3.5; }
+  @media print { .hover-label { display:none !important; } }
+
+  /* -- callout boxes: semantic, NOT decorative -- */
+  .note { background:#f0f9ff; border:1px solid #bae6fd; border-left:4px solid #0e7490; padding:8px 12px; font-size:9.4pt; margin:8px 0 16px; border-radius:4px; }
+  .warn { background:#fffbeb; border:1px solid #fde68a; border-left:4px solid #b45309; padding:8px 12px; font-size:9.4pt; margin:8px 0 16px; border-radius:4px; }
+  .notes { list-style:disc; } .notes li { margin:4px 0; }
+
+  /* -- tables -- */
+  .data-table { width:100%; border-collapse:collapse; font-size:8.8pt; margin:10px 0 12px; }
+  .data-table th,.data-table td { border:1px solid #dbe4ee; padding:6px 7px; vertical-align:top; text-align:left; }
+  .data-table th { background:#14324e; color:#fff; font-weight:700; }
+  .data-table tr:nth-child(even) td { background:#f8fafc; }
+  .data-table code,p code,li code { font-family:Consolas,'Courier New',monospace; font-size:8.6pt; background:#eef2f7; border-radius:3px; padding:0 4px; color:#0f172a; white-space:nowrap; }
+  .doc-control { width:100%; border-collapse:collapse; font-size:8.2pt; margin:8px 0 4px; }
+  .doc-control th,.doc-control td { border:1px solid #dbe4ee; padding:3px 7px; text-align:left; vertical-align:top; color:#334155; }
+  .doc-control th { background:#f8fafc; color:#14324e; white-space:nowrap; width:1%; }
+
+  /* -- series strip: the fixed document breadcrumb -- */
+  .series-strip { font-size:8.8pt; color:#475569; background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; padding:7px 12px; margin:0 0 14px; }
+  .series-strip .ss-here { color:#0e7490; font-weight:700; }
+  .series-strip .ss-arrow { color:#94a3b8; padding:0 5px; }
+
+  /* ==== TOGGLEABLE LAYERS — exactly two, no more, no fewer ================
+     Slot A = the candour layer (section 2). Slot B = the equipment exhibit.
+     @media print force-reveals both so the PDF is always complete. ======== */
+  body:not(.show-gaps) .gap-layer { display:none !important; }
+  body:not(.show-equip) .equip-layer { display:none !important; }
+
+  /* -- numbered finding list. One flavour per document. -- */
+  .gaps,.patterns,.gains { list-style:none; padding-left:0; margin:10px 0; }
+  .gaps li,.patterns li,.gains li { display:flex; gap:10px; align-items:flex-start; margin:8px 0; padding:8px 10px; border-radius:4px; }
+  .gapnum,.patnum,.gainnum { flex:0 0 auto; display:inline-flex; align-items:center; justify-content:center; color:#fff; font-weight:700; font-size:10pt; border-radius:50%; width:22px; height:22px; }
+  .gaps li { background:#fef2f2; border-left:3px solid #dc2626; } .gapnum { background:#dc2626; } .gaps b { color:#7f1d1d; }
+  /* -- the gap overlay: markers drawn onto the topology, numbered from the findings
+        list so a reader can point at the picture and read the finding. Carries
+        .gap-layer so one control governs the diagram, the tables and the list. -- */
+  .gap-pin { cursor:pointer; }
+  .gap-pin circle { fill:#dc2626; stroke:#fff; stroke-width:2; }
+  .gap-pin text { fill:#fff; font-size:13px; font-weight:700; text-anchor:middle; pointer-events:none; }
+  .gap-pin:hover circle, .gap-pin:focus circle { fill:#7f1d1d; }
+  .gap-region { fill:none; stroke:#dc2626; stroke-width:2; stroke-dasharray:7 4; }
+  .gaps li:target { outline:3px solid #dc2626; outline-offset:3px; }
+  .patterns li { background:#f0fdfa; border-left:3px solid #0f766e; } .patnum { background:#0f766e; } .patterns b { color:#134e4a; }
+  .gains li { background:#eff6ff; border-left:3px solid #0e7490; } .gainnum { background:#0e7490; } .gains b { color:#0c4a6e; }
+
+  /* -- Slot B: equipment exhibit cards + cost table -- */
+  .equip-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:12px; margin:12px 0 14px; }
+  .equip-card { border:1px solid #e2e8f0; border-radius:6px; background:#fff; overflow:hidden; display:flex; flex-direction:column; }
+  .equip-body { padding:9px 10px 10px; display:flex; flex-direction:column; gap:5px; flex:1; }
+  .equip-card h3 { margin:0; font-size:9.8pt; color:#14324e; }
+  .u-badge { align-self:flex-start; display:inline-block; background:#14324e; color:#fff; font-size:7.7pt; font-weight:800; border-radius:999px; padding:2px 8px; }
+  .price { font-weight:800; color:#0f766e; font-size:10.6pt; }
+  .why { font-size:8.5pt; color:#475569; }
+  .equip-face { height:110px; border-bottom:1px solid #e2e8f0; }
+  .cost-table { width:100%; border-collapse:collapse; font-size:8.8pt; margin:10px 0 12px; }
+  .cost-table th,.cost-table td { border:1px solid #dbe4ee; padding:6px 7px; vertical-align:top; }
+  .cost-table th { background:#14324e; color:#fff; text-align:left; font-weight:700; }
+  .cost-table .money { text-align:right; white-space:nowrap; }
+  .cost-table tfoot td { background:#ecfeff; font-weight:800; color:#14324e; }
+
+  /* -- topology primitives -- */
+  .diagram-scroll{overflow:auto;border:1px solid #e2e8f0;background:#fff}#topology{display:block;width:100%;min-width:980px;height:auto;transition:width .15s ease}
+  .zone{stroke-width:1.2;stroke-dasharray:7 5}.zone.external{fill:#f7f9fa;stroke:#a5b4bc}.zone.perimeter{fill:#fff8f4;stroke:#d5a585}.zone.internal{fill:#f2fafb;stroke:#8eb8c2}.zone.other{fill:#f8f8fb;stroke:#aaa9bb}
+  .zone-label{fill:#627580;font-size:13px;font-weight:700;letter-spacing:.08em}.link{fill:none;stroke-linecap:round;stroke-linejoin:round}.link.l3{stroke:#006687;stroke-width:2.5}.link.aggregate{stroke:#167a74;stroke-width:5}.link.ha{stroke:#9a3b70;stroke-width:2.5;stroke-dasharray:8 6}.link.access{stroke:#526b78;stroke-width:2}.link.backup{stroke:#7c929e;stroke-width:1.8;stroke-dasharray:5 5}
+  .link-label-bg{fill:#fff;fill-opacity:.94;stroke:#d8e1e6}.link-label{fill:#42545e;font-size:11px;font-weight:600;text-anchor:middle}.node{cursor:pointer;outline:none;--symbol-main:#007fa8;--symbol-dark:#006687;--symbol-light:#51bde6;--symbol-detail:#fff}.node-shell{fill:#fff;stroke:#aebec7;stroke-width:1.4}.node:hover .node-shell,.node:focus .node-shell,.node.selected .node-shell{stroke:#006687;stroke-width:3;filter:url(#node-shadow)}.node-name{fill:#14242f;font-size:13px;font-weight:700;text-anchor:middle}.node-role{fill:#5d707c;font-size:11px;text-anchor:middle}.node-warning{fill:#a02d2d;font-size:10px;font-weight:700;text-anchor:middle}.node-generic{fill:#f4f8fa;stroke:#7c929e;stroke-width:1.5;stroke-dasharray:4 3}.node-generic-label{fill:#526b78;font-size:8px;font-weight:700;text-anchor:middle;letter-spacing:.06em}.topology-vector-icon{pointer-events:none}
+  #network-vector-symbols{position:absolute;width:0;height:0;overflow:hidden;pointer-events:none}.sym-primary{fill:var(--symbol-main,#007fa8)}.sym-dark{fill:var(--symbol-dark,#006687)}.sym-light{fill:var(--symbol-light,#51bde6)}.sym-detail{fill:var(--symbol-detail,#fff)}.sym-outline{fill:#fff;stroke:var(--symbol-main,#007fa8);stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}.sym-detail-stroke{fill:none;stroke:var(--symbol-detail,#fff);stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+  .inspector{display:grid;grid-template-columns:150px 1fr;gap:7px 15px;margin-top:13px;padding:15px 17px;border-left:4px solid #0891b2;background:#f6fafb}.inspector h3{grid-column:1/-1;margin:0 0 4px}.inspector .label{color:#64748b;font-size:.79rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+  .errors{display:none;margin:12px 0;padding:10px 12px;border-left:4px solid #dc2626;color:#762121;background:#fff3f3}.errors.visible{display:block}
+
+  /* -- rack primitives -- */
+  .rack-grid{display:grid;grid-template-columns:repeat(2,minmax(430px,1fr));gap:28px;align-items:start}.rack-figure{margin:0}.rack-figure figcaption{margin-bottom:8px;text-align:center;font-weight:700}
+  .rack-wrap{position:relative;display:grid;grid-template-columns:48px var(--rack-width) 48px;justify-content:center;align-items:start;isolation:isolate}.ruler{position:relative;height:calc(42 * var(--u));background:#f8fafb}.u-mark{position:absolute;left:0;width:100%;height:var(--u);padding-top:1px;color:#496170;font:10px/1 Consolas,monospace;text-align:center;border-top:1px solid #c8d3d9}
+  .rack-bay{position:relative;width:var(--rack-width);height:calc(42 * var(--u));overflow:visible;border-width:0 10px;border-style:solid;border-color:#697a84;background:repeating-linear-gradient(to bottom,#eef3f6 0 calc(var(--u) - 1px),#b7c4cb calc(var(--u) - 1px) var(--u));box-shadow:inset 3px 0 #aebbc2,inset -3px 0 #aebbc2}
+  .device-face,.reserved-slot{position:absolute;left:7px;right:7px;z-index:2}.device-face{display:block;padding:0;border:0;background:#fff;cursor:pointer;outline:none}.device-face:hover,.device-face:focus,.device-face.selected{z-index:4;outline:3px solid #e69320;outline-offset:1px}.device-face img,.device-face svg{display:block;width:100%;height:100%;object-fit:fill;pointer-events:none}
+  .rack-placeholder{display:grid;grid-template-columns:52px minmax(0,1fr) 52px;align-items:center;width:100%;height:100%;padding:0 7px;overflow:hidden;color:#e8f7fb;background:linear-gradient(180deg,#244857,#132e39);font:700 8px/1 Consolas,monospace;letter-spacing:.04em;pointer-events:none}.rack-placeholder::before,.rack-placeholder::after{content:"";height:min(8px,55%);border:1px solid #7fa2b1;background:repeating-linear-gradient(90deg,#8fb2bf 0 2px,transparent 2px 5px)}.rack-placeholder span{padding:0 5px;overflow:hidden;text-align:center;text-overflow:ellipsis;white-space:nowrap}.rack-placeholder-rear{background:linear-gradient(180deg,#3b4750,#202b32)}
+  .reserved-slot{display:grid;place-items:center;z-index:1;border:2px dashed #9bafb9;color:#496170;background:repeating-linear-gradient(135deg,#dce7ec 0 8px,#f8fafb 8px 16px);font-size:10px;font-weight:700;text-align:center;text-transform:uppercase}
+  .rack-tooltip{position:absolute;z-index:20;display:none;width:280px;padding:12px 15px;border-radius:9px;color:#fff;background:#18282f;box-shadow:0 8px 22px rgba(20,36,47,.28);font-size:.84rem;line-height:1.45;pointer-events:none}.rack-tooltip.visible{display:block}.rack-tooltip strong,.rack-tooltip span{display:block}.rack-tooltip .tooltip-role{color:#dce8ed}
+  .inventory{width:100%;margin-top:20px;border-collapse:collapse;font-size:8.8pt}.inventory caption{padding:0 0 7px;text-align:left;font-weight:700}.inventory th,.inventory td{padding:7px 9px;border-bottom:1px solid #dbe4ee;text-align:left;vertical-align:top}.inventory th{color:#475569;background:#f7f9fa;font-size:.75rem;text-transform:uppercase}.inventory tr.selected{background:#eaf6fa}
+
+/* ===== LAYER 2 — CLOUDBATS STANDARD DOCUMENTATION SHELL ================== */
+
+  :root {
+    --navy:#0f172a; --navy-2:#1e293b;
+    --slate-600:#475569; --slate-500:#64748b; --slate-300:#cbd5e1;
+    --slate-100:#f1f5f9; --slate-50:#f8fafc;
+    --teal:#06b6d4; --teal-dark:#0891b2;
+    --amber:#d97706; --amber-bg:#fffbeb; --amber-bd:#fde68a;
+    --purple:#7c3aed; --purple-bg:#f5f3ff; --purple-bd:#ddd6fe;
+    --red:#dc2626; --red-bg:#fef2f2; --red-bd:#fecaca;
+    --green:#0f766e; --green-bg:#ecfdf5; --green-bd:#a7f3d0;
+    --border:#e2e8f0;
+    --maxw:1160px; --sidebar-w:272px;
+    --u:18px; --rack-width:360px;
+    color-scheme:light;
+  }
+  html { scroll-behavior:smooth; }
+  body { max-width:none; margin:0; padding:0; font-family:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif; font-size:16px; line-height:1.65; color:var(--navy); background:var(--slate-50); }
+  h1,h2,h3,h4 { font-family:'Sora',system-ui,sans-serif; line-height:1.25; }
+  code,pre,.mono { font-family:'JetBrains Mono',ui-monospace,Consolas,monospace; }
+  a { color:var(--teal-dark); }
+  a:focus-visible,button:focus-visible { outline:3px solid rgba(6,182,212,.35); outline-offset:2px; }
+
+  .shell { display:flex; max-width:1540px; margin:0 auto; }
+  .sidebar { width:var(--sidebar-w); flex-shrink:0; position:sticky; top:0; align-self:flex-start; height:100vh; overflow-y:auto; padding:28px 20px 40px 28px; border-right:1px solid var(--border); }
+  .sidebar .brand { display:flex; align-items:center; gap:10px; margin-bottom:22px; }
+  .sidebar .brand svg { width:28px; height:28px; min-width:0; flex-shrink:0; }
+  .sidebar .brand span { font-family:'Sora',sans-serif; font-weight:700; font-size:17px; letter-spacing:-.02em; }
+  .sidebar .doclabel { font-size:11px; line-height:1.45; text-transform:uppercase; letter-spacing:.08em; color:var(--slate-500); font-weight:600; margin:0 0 18px; padding-bottom:14px; border-bottom:1px solid var(--border); }
+  .toc { list-style:none; margin:0; padding:0; font-size:13.5px; }
+  .toc > li { margin:0 0 2px; }
+  .toc a { display:block; color:var(--slate-600); text-decoration:none; padding:6px 10px; border-radius:6px; font-weight:500; }
+  .toc a:hover { background:var(--slate-100); color:var(--navy); }
+  .toc .num { color:var(--teal-dark); font-weight:700; margin-right:6px; }
+  .toc-control { margin:2px 0 0; }
+  .sidebar-control { display:grid; grid-template-columns:minmax(0,1fr) 40px; align-items:center; gap:6px; min-height:44px; }
+  .sidebar-control > a { min-width:0; padding:6px 10px; border-radius:6px; color:var(--slate-600); font-size:13.5px; line-height:1.35; font-weight:500; text-decoration:none; }
+  .sidebar-control > a:hover { background:var(--slate-100); color:var(--navy); }
+  .sidebar-control .num { color:var(--teal-dark); font-weight:700; margin-right:6px; }
+  .visibility-toggle { width:40px; height:40px; display:grid; place-items:center; padding:0; border:1px solid transparent; border-radius:7px; background:transparent; color:var(--slate-500); cursor:pointer; }
+  .visibility-toggle:hover { background:var(--slate-100); color:var(--navy); }
+  .visibility-toggle svg { width:19px; height:19px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+  .visibility-toggle .eye-slash { display:none; }
+  .visibility-toggle[aria-pressed="false"] .eye-slash { display:block; }
+  #gapToggle[aria-pressed="true"] { color:var(--red); background:var(--red-bg); border-color:var(--red-bd); }
+  #equipToggle[aria-pressed="true"] { color:var(--amber); background:var(--amber-bg); border-color:var(--amber-bd); }
+  .sidebar-tools { margin-top:22px; padding-top:16px; border-top:1px solid var(--border); display:flex; flex-direction:column; gap:6px; }
+  .sidebar-tools button { padding:7px 10px; border:1px solid var(--border); border-radius:6px; background:#fff; color:var(--slate-600); font-size:13px; font-weight:600; text-align:left; cursor:pointer; }
+  .sidebar-tools button:hover { background:var(--slate-100); color:var(--navy); }
+
+  main { flex:1; min-width:0; padding:44px 48px 100px; }
+  .content { max-width:var(--maxw); }
+  .doc-header { border:0; padding:0; margin:0 0 8px; }
+  .doc-header h1 { font-family:'Sora',system-ui,sans-serif; font-size:34px; color:var(--navy); margin:14px 0 6px; letter-spacing:-.02em; }
+  .doc-header .tagline { font-size:16.5px; line-height:1.6; color:var(--slate-600); font-weight:400; margin:0 0 18px; max-width:900px; }
+  .meta-row { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:6px; }
+  .badge { display:inline-flex; align-items:center; gap:5px; font-size:12px; line-height:1.4; font-weight:600; padding:4px 10px; border-radius:999px; background:var(--slate-100); color:var(--slate-600); border:1px solid var(--border); }
+  .badge.navy { background:var(--navy); color:#fff; border-color:var(--navy); }
+  .badge.teal { background:#ecfeff; color:var(--teal-dark); border-color:#a5f3fc; }
+  .badge.amber { background:var(--amber-bg); color:var(--amber); border-color:var(--amber-bd); }
+  .badge.purple { background:var(--purple-bg); color:var(--purple); border-color:var(--purple-bd); }
+  .badge.red { background:var(--red-bg); color:var(--red); border-color:var(--red-bd); }
+  .badge.green { background:var(--green-bg); color:var(--green); border-color:var(--green-bd); }
+
+  hr.rule { border:0; border-top:1px solid var(--border); margin:36px 0; }
+  section { scroll-margin-top:20px; margin-bottom:52px; }
+  .kicker { font-size:12px; line-height:1.4; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:var(--teal-dark); margin:0 0 6px; }
+  section > h2 { font-size:26px; color:var(--navy); margin:0 0 14px; border:0; padding:0; }
+  section > h3,.gap-layer > h3,.equip-layer > h3 { font-size:19px; color:var(--navy); margin:30px 0 10px; }
+  .section-tools { display:flex; flex-wrap:wrap; gap:6px; margin:0 0 10px; }
+  .section-tools button { min-width:38px; padding:6px 11px; border:1px solid var(--border); border-radius:6px; color:var(--navy); background:#fff; font-size:13px; font-weight:600; cursor:pointer; }
+  .section-tools button:hover { background:var(--slate-100); }
+
+  .series-strip { font-size:13px; line-height:1.55; margin:0 0 30px; padding:9px 12px; }
+  .note,.warn { font-size:14px; line-height:1.55; }
+  .gaps,.patterns,.gains { font-size:14px; }
+  .caption { font-size:12.5px; line-height:1.5; margin:5px 0 14px; }
+  .data-table,.cost-table,.inventory { font-size:13px; }
+  .doc-control { font-size:12px; } .legend { font-size:12px; }
+  .figwrap { max-width:100%; overflow-x:auto; overscroll-behavior-inline:contain; }
+  .status-pill { display:inline-flex; align-items:center; gap:7px; margin:4px 0 0; padding:6px 12px; border-radius:999px; color:#fff; background:var(--green); font-size:13px; font-weight:700; }
+  .status-pill.fail { background:var(--red); }
+  footer.doc-footer { border-top:1px solid var(--border); margin-top:60px; padding-top:22px; font-size:12.5px; line-height:1.6; color:var(--slate-500); }
+
+  @media (max-width:980px) {
+    .shell { display:block; }
+    .sidebar { display:block; position:static; width:auto; height:auto; overflow:visible; padding:12px 20px; border-right:0; border-bottom:1px solid var(--border); background:#fff; }
+    .sidebar > .brand,.sidebar > .doclabel { display:none; }
+    .sidebar-nav { display:block; }
+    .sidebar-nav .toc { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+    .sidebar-nav .toc > li:not(.toc-control) { display:none; }
+    .toc-control { margin:0; }
+    .sidebar-control { border:1px solid var(--border); border-radius:8px; background:var(--slate-50); padding-left:2px; }
+    .sidebar-tools { flex-direction:row; margin-top:10px; padding-top:10px; }
+    main { padding:32px 20px 80px; }
+    .doc-header h1 { font-size:30px; }
+    .rack-grid { grid-template-columns:1fr; gap:38px; }
+    .rack-wrap { transform:scale(.82); transform-origin:top center; margin-bottom:calc(-.18 * 42 * var(--u)); }
+    table.data-table,table.cost-table,table.inventory { display:block; max-width:100%; overflow-x:auto; }
+  }
+  @media (max-width:560px) { .doc-header h1 { font-size:27px; } .sidebar-nav .toc { grid-template-columns:1fr; } .inspector { grid-template-columns:1fr; } }
+
+  /* -- print: drop the chrome, hand typography back to Layer 1, and
+        FORCE-REVEAL the hidden layers so the PDF is the complete document -- */
+  @media print {
+    body { background:#fff; font-size:9.5pt; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+    .sidebar { display:none !important; }
+    .shell { display:block; max-width:none; }
+    main { padding:0; } .content { max-width:none; }
+    .doc-header h1 { font-size:20pt; } .doc-header .tagline { font-size:10pt; }
+    section { margin-bottom:24px; break-inside:auto; }
+    .section-tools { display:none; }
+    .figwrap { overflow:visible; }
+    .diagram-scroll { overflow:visible; } #topology { min-width:0; width:100% !important; }
+    .rack-grid { grid-template-columns:repeat(2,1fr); gap:10px; }
+    .rack-wrap { transform:scale(.72); transform-origin:top center; margin-bottom:calc(-.28 * 42 * var(--u)); }
+    body:not(.show-gaps) .gap-layer { display:revert !important; }
+    body:not(.show-equip) .equip-layer { display:revert !important; }
+  }
+  </style>
+</head>
+<!-- BODY CLASS = default visibility of the two toggleable layers. Slot A is ON
+     by default; Slot B is OFF unless the equipment exhibit is the deliverable.
+     document.layers in the diagram data overrides both at load. -->
+<body class="show-gaps">
+<svg id="network-vector-symbols" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+<defs id="vector-symbol-library">
+            <filter id="card-shadow" x="-25%" y="-25%" width="150%" height="165%">
+              <feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#26485c" flood-opacity=".12"/>
+            </filter>
+
+            <!--
+              Shared switch-top glyph: four parallel arrows, alternating two
+              right and two left, as shown by the Cisco workgroup-switch and
+              WLAN-controller references. The rows are staggered to follow the
+              isometric top plane without crossing or touching.
+            -->
+            <g id="nd-switch-arrow-glyph" class="sym-detail">
+              <path data-direction="right" d="M63 14h28v-2.8l10 3.8-10 3.8V16H63Z"/>
+              <path data-direction="left" d="M75 18.8H45V16l-10 3.8 10 3.8v-2.8h30Z"/>
+              <path data-direction="right" d="M49 23.3h30v-2.8l10 3.8-10 3.8v-2.8H49Z"/>
+              <path data-direction="left" d="M61 27.5H32v-2.8l-10 3.8 10 3.8v-2.8h29Z"/>
+            </g>
+
+            <!-- Seven symbols carried forward from experiment 01. -->
+            <symbol id="nd-cloud" viewBox="0 0 150 88">
+              <title>Network cloud</title>
+              <path class="sym-outline" stroke-width="2.4" d="M26 72C14 72 6 64 6 54c0-9 6-17 16-20 3-13 15-22 30-22 8 0 15 2 21 7 6-5 14-7 23-7 15 0 27 8 30 20 10 2 17 10 17 20 0 11-9 20-22 20H26Z"/>
+            </symbol>
+
+            <symbol id="nd-firewall" viewBox="0 0 86 108">
+              <title>Firewall</title>
+              <polygon class="sym-light" points="15,22 29,10 74,10 60,22"/>
+              <polygon class="sym-dark" points="60,22 74,10 74,82 60,94"/>
+              <rect class="sym-primary" x="15" y="22" width="45" height="72"/>
+              <g class="sym-detail-stroke" stroke-width="2">
+                <path d="M15 40H60M15 58H60M15 76H60"/>
+                <path d="M29 22V40M47 22V40M23 40V58M41 40V58M29 58V76M47 58V76M23 76V94M41 76V94"/>
+                <path d="M60 40 74 28M60 58 74 46M60 76 74 64"/>
+              </g>
+            </symbol>
+
+            <symbol id="nd-router" viewBox="0 0 120 88">
+              <title>Router</title>
+              <path class="sym-dark" d="M12 36v22c0 12 21 21 48 21s48-9 48-21V36c-8 9-26 15-48 15S20 45 12 36Z"/>
+              <ellipse class="sym-primary" cx="60" cy="35" rx="48" ry="20"/>
+              <path class="sym-light" d="M18 30c7-8 23-13 42-13 21 0 38 6 44 15-10-6-25-9-42-9-19 0-35 3-44 7Z" opacity=".75"/>
+              <g class="sym-detail"><path d="M60 18 70 27h-7v10h-7V27h-7Z"/><path d="m60 52-10-9h7V33h7v10h7Z"/><path d="m32 35 10-9v6h13v6H42v6Z"/><path d="m88 35-10 9v-6H65v-6h13v-6Z"/></g>
+            </symbol>
+
+            <symbol id="nd-l3-switch" viewBox="0 0 106 106">
+              <title>Layer 3 switch</title>
+              <polygon class="sym-light" points="14,26 28,14 91,14 77,26"/>
+              <polygon class="sym-dark" points="77,26 91,14 91,78 77,92"/>
+              <rect class="sym-primary" x="14" y="26" width="63" height="66"/>
+              <circle class="sym-detail" cx="45.5" cy="59" r="9"/>
+              <g class="sym-detail" transform="translate(45.5 59)">
+                <path id="l3-arrow" d="M-3-12v-13h-5l8-9 8 9H3v13Z"/>
+                <use href="#l3-arrow" transform="rotate(45)"/><use href="#l3-arrow" transform="rotate(90)"/><use href="#l3-arrow" transform="rotate(135)"/><use href="#l3-arrow" transform="rotate(180)"/><use href="#l3-arrow" transform="rotate(225)"/><use href="#l3-arrow" transform="rotate(270)"/><use href="#l3-arrow" transform="rotate(315)"/>
+              </g>
+            </symbol>
+
+            <symbol id="nd-server" viewBox="0 0 92 108">
+              <title>Server</title>
+              <polygon class="sym-light" points="14,20 27,9 75,9 62,20"/>
+              <polygon class="sym-dark" points="62,20 75,9 75,88 62,99"/>
+              <rect class="sym-primary" x="14" y="20" width="48" height="79"/>
+              <g class="sym-detail-stroke" stroke-width="2"><rect x="20" y="29" width="14" height="12" rx="1"/><rect x="41" y="29" width="14" height="12" rx="1"/><rect x="20" y="50" width="14" height="14" rx="1"/><rect x="41" y="50" width="14" height="14" rx="1"/><rect x="20" y="73" width="14" height="17" rx="1"/><rect x="41" y="73" width="14" height="17" rx="1"/></g>
+            </symbol>
+
+            <symbol id="nd-access-point" viewBox="0 0 120 76">
+              <title>Wireless access point</title>
+              <polygon class="sym-light" points="12,28 30,13 108,13 90,28"/><polygon class="sym-dark" points="90,28 108,13 108,51 90,66"/><polygon class="sym-primary" points="12,28 90,28 90,66 12,66"/>
+              <g class="sym-detail-stroke" stroke-width="2.6"><circle cx="27" cy="47" r="7"/><circle cx="42" cy="47" r="7"/><circle cx="57" cy="47" r="7"/><circle cx="72" cy="47" r="7"/></g><circle class="sym-detail" cx="82" cy="47" r="2.6"/>
+            </symbol>
+
+            <symbol id="nd-workstation" viewBox="0 0 126 104">
+              <title>Workstation</title>
+              <polygon class="sym-dark" points="25,12 92,12 84,62 18,62"/><polygon class="sym-primary" points="29,16 88,16 81,57 22,57"/><polygon class="sym-light" points="33,20 83,20 78,52 27,52" opacity=".38"/>
+              <path class="sym-primary" d="M45 62h15l3 10h16l7 7H31l8-7h8Z"/><polygon class="sym-dark" points="24,80 89,80 105,94 9,94"/><polygon class="sym-light" points="28,83 86,83 96,91 18,91"/><path class="sym-primary" d="M104 78c10 0 15 5 15 10s-4 9-10 9c-5 0-8-3-8-7 0-3 2-6 6-7-3-1-6-1-9 0l-2-3c3-1 5-2 8-2Z"/>
+            </symbol>
+
+            <!-- Twelve new clean-vector interpretations for experiment 02. -->
+            <symbol id="nd-access-switch" viewBox="0 0 120 72">
+              <title>Access switch</title>
+              <polygon class="sym-light" points="10,33 34,11 110,11 86,33"/><polygon class="sym-dark" points="86,33 110,11 110,37 86,59"/><polygon class="sym-primary" points="10,33 86,33 86,59 10,59"/>
+              <use href="#nd-switch-arrow-glyph"/>
+            </symbol>
+
+            <symbol id="nd-wlan-controller" viewBox="0 0 120 76">
+              <title>Wireless LAN controller</title>
+              <polygon class="sym-light" points="10,33 34,11 110,11 86,33"/><polygon class="sym-dark" points="86,33 110,11 110,43 86,65"/><polygon class="sym-primary" points="10,33 86,33 86,65 10,65"/>
+              <use href="#nd-switch-arrow-glyph"/>
+              <g class="sym-detail-stroke" stroke-width="2.2"><circle cx="21" cy="49" r="6.5"/><circle cx="34.5" cy="49" r="6.5"/><circle cx="48" cy="49" r="6.5"/><circle cx="61.5" cy="49" r="6.5"/><circle cx="75" cy="49" r="6.5"/></g>
+            </symbol>
+
+            <symbol id="nd-vpn-headend" viewBox="0 0 100 106">
+              <title>VPN headend</title>
+              <polygon class="sym-light" points="14,20 27,9 82,9 69,20"/><polygon class="sym-dark" points="69,20 82,9 82,91 69,102"/><rect class="sym-primary" x="14" y="20" width="55" height="82" rx="2"/>
+              <g class="sym-detail-stroke" stroke-width="2"><rect x="20" y="31" width="42" height="22" rx="2"/><rect x="20" y="65" width="42" height="22" rx="2"/></g>
+              <g class="sym-detail"><path d="M26 38h22v-5l10 9-10 9v-5H26Z"/><path d="M56 72H34v-5l-10 9 10 9v-5h22Z"/></g>
+              <g class="sym-detail-stroke" stroke-width="1.8"><ellipse cx="75.5" cy="43" rx="3" ry="7"/><ellipse cx="75.5" cy="77" rx="3" ry="7"/></g>
+            </symbol>
+
+            <symbol id="nd-dc-switch" viewBox="0 0 104 104">
+              <title>Data-center server-access switch</title>
+              <polygon class="sym-light" points="13,26 28,12 91,12 76,26"/><polygon class="sym-dark" points="76,26 91,12 91,77 76,91"/><rect class="sym-primary" x="13" y="26" width="63" height="65"/>
+              <g class="sym-detail-stroke" stroke-width="1.8"><path d="M28 42H61M28 58H61M28 74H61M28 42V74M44.5 42V74M61 42V74"/></g>
+              <g class="sym-detail"><circle cx="28" cy="42" r="4"/><circle cx="44.5" cy="42" r="4"/><circle cx="61" cy="42" r="4"/><circle cx="28" cy="58" r="4"/><circle cx="44.5" cy="58" r="4"/><circle cx="61" cy="58" r="4"/><circle cx="28" cy="74" r="4"/><circle cx="44.5" cy="74" r="4"/><circle cx="61" cy="74" r="4"/></g>
+            </symbol>
+
+            <symbol id="nd-ip-phone" viewBox="0 0 126 88">
+              <title>IP phone</title>
+              <polygon class="sym-primary" points="21,38 101,38 116,70 8,70"/><polygon class="sym-light" points="31,25 92,25 101,38 21,38"/><polygon class="sym-dark" points="101,38 116,70 106,80 99,53"/>
+              <polygon class="sym-detail" points="66,42 94,42 99,53 69,53"/><polygon class="sym-light" points="69,44 91,44 94,50 71,50"/>
+              <g class="sym-detail"><circle cx="45" cy="49" r="2.2"/><circle cx="52" cy="49" r="2.2"/><circle cx="59" cy="49" r="2.2"/><circle cx="45" cy="56" r="2.2"/><circle cx="52" cy="56" r="2.2"/><circle cx="59" cy="56" r="2.2"/><circle cx="45" cy="63" r="2.2"/><circle cx="52" cy="63" r="2.2"/><circle cx="59" cy="63" r="2.2"/></g>
+              <path class="sym-primary" d="M20 19c6-7 14-11 23-11l11 8-10 14-10-5c-3 4-5 8-6 13l-13-2c0-7 2-12 5-17Z"/><path class="sym-detail-stroke" stroke-width="2" d="m22 22 12 5M39 12l8 8"/>
+            </symbol>
+
+            <symbol id="nd-laptop" viewBox="0 0 126 96">
+              <title>Laptop</title>
+              <polygon class="sym-dark" points="31,10 104,10 91,62 19,62"/><polygon class="sym-primary" points="34,14 99,14 88,57 24,57"/><polygon class="sym-light" points="39,19 94,19 85,52 30,52" opacity=".4"/>
+              <polygon class="sym-primary" points="19,63 91,63 117,87 5,87"/><polygon class="sym-light" points="24,66 87,66 105,82 13,82"/>
+              <g class="sym-detail-stroke" stroke-width="1.2" opacity=".9"><path d="M31 69h53M25 73h66M19 77h80"/></g>
+            </symbol>
+
+            <symbol id="nd-printer" viewBox="0 0 126 82">
+              <title>Printer</title>
+              <polygon class="sym-light" points="12,24 28,10 96,10 80,24"/><polygon class="sym-dark" points="80,24 96,10 96,61 80,75"/><rect class="sym-primary" x="12" y="24" width="68" height="51"/>
+              <path class="sym-detail-stroke" stroke-width="2" d="M18 48H74"/><polygon class="sym-primary" points="96,43 120,35 111,49 96,56"/><polygon class="sym-light" points="98,42 116,36 108,43 98,48"/>
+            </symbol>
+
+            <symbol id="nd-database" viewBox="0 0 110 90">
+              <title>Relational database</title>
+              <path class="sym-dark" d="M13 30v33c0 12 19 21 42 21s42-9 42-21V30c-8 9-23 14-42 14S21 39 13 30Z"/><rect class="sym-primary" x="13" y="27" width="84" height="36"/><ellipse class="sym-primary" cx="55" cy="28" rx="42" ry="18"/><ellipse class="sym-light" cx="55" cy="25" rx="35" ry="11" opacity=".25"/>
+            </symbol>
+
+            <symbol id="nd-storage-array" viewBox="0 0 126 98">
+              <title>Storage array</title>
+              <polygon class="sym-light" points="10,26 27,10 113,10 96,26"/><polygon class="sym-dark" points="96,26 113,10 113,76 96,92"/><rect class="sym-primary" x="10" y="26" width="86" height="66"/>
+              <g class="sym-detail-stroke" stroke-width="2"><ellipse cx="29" cy="49" rx="10" ry="5"/><path d="M19 49v21c0 3 4 5 10 5s10-2 10-5V49"/><ellipse cx="54" cy="49" rx="10" ry="5"/><path d="M44 49v21c0 3 4 5 10 5s10-2 10-5V49"/><ellipse cx="79" cy="49" rx="10" ry="5"/><path d="M69 49v21c0 3 4 5 10 5s10-2 10-5V49"/></g>
+            </symbol>
+
+            <symbol id="nd-nms" viewBox="0 0 108 106">
+              <title>Network management system</title>
+              <polygon class="sym-light" points="13,25 28,11 94,11 79,25"/><polygon class="sym-dark" points="79,25 94,11 94,78 79,92"/><rect class="sym-primary" x="13" y="25" width="66" height="67"/>
+              <rect class="sym-detail-stroke" stroke-width="2" x="27" y="37" width="38" height="33" rx="2"/><circle class="sym-detail-stroke" stroke-width="4" cx="48" cy="52" r="11"/><path class="sym-detail-stroke" stroke-width="5" d="m40 61-16 17"/>
+            </symbol>
+
+            <symbol id="nd-branch-office" viewBox="0 0 90 114">
+              <title>Branch office</title>
+              <polygon class="sym-light" points="14,23 28,10 76,10 62,23"/><polygon class="sym-dark" points="62,23 76,10 76,96 62,108"/><rect class="sym-primary" x="14" y="23" width="48" height="85"/>
+              <g class="sym-detail"><rect x="20" y="31" width="5" height="8"/><rect x="31" y="31" width="5" height="8"/><rect x="42" y="31" width="5" height="8"/><rect x="53" y="31" width="5" height="8"/><rect x="20" y="47" width="5" height="8"/><rect x="31" y="47" width="5" height="8"/><rect x="42" y="47" width="5" height="8"/><rect x="53" y="47" width="5" height="8"/><rect x="20" y="63" width="5" height="8"/><rect x="31" y="63" width="5" height="8"/><rect x="42" y="63" width="5" height="8"/><rect x="53" y="63" width="5" height="8"/><rect x="20" y="79" width="5" height="8"/><rect x="31" y="79" width="5" height="8"/><rect x="42" y="79" width="5" height="8"/><rect x="53" y="79" width="5" height="8"/></g>
+            </symbol>
+
+            <symbol id="nd-wireless-router" viewBox="0 0 120 110">
+              <title>Wireless router</title>
+              <g class="sym-detail-stroke" stroke="var(--symbol-main, #0076a8)" stroke-width="4"><path d="M26 28V5M94 28V5"/></g><g class="sym-primary"><rect x="22" y="3" width="8" height="5"/><rect x="90" y="3" width="8" height="5"/></g>
+              <path class="sym-dark" d="M12 54v22c0 12 21 21 48 21s48-9 48-21V54c-8 9-26 15-48 15S20 63 12 54Z"/><ellipse class="sym-primary" cx="60" cy="53" rx="48" ry="20"/>
+              <g class="sym-detail"><path d="M60 36 70 45h-7v10h-7V45h-7Z"/><path d="m60 70-10-9h7V51h7v10h7Z"/><path d="m32 53 10-9v6h13v6H42v6Z"/><path d="m88 53-10 9v-6H65v-6h13v-6Z"/></g>
+            </symbol>
+          </defs>
+</svg>
+<div class="shell">
+
+  <!-- ================= SIDEBAR =================
+       BRAND IS REPLACEABLE. The mark, the wordmark and the document label all
+       come from document.brand in the diagram data. Swap in your own company
+       logo by replacing brand.logoPath (SVG path data) and brand.name — no code
+       change, and nothing else in the document depends on it. -->
+  <aside class="sidebar" aria-label="Document sidebar">
+    <div class="brand">
+      <svg id="brand-mark" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><path id="brand-path" fill-rule="evenodd" fill="#0F172A" d=""></path></svg>
+      <span id="brand-name"></span>
+    </div>
+    <p class="doclabel" id="brand-doclabel"></p>
+
+    <nav class="sidebar-nav" aria-label="Document sections">
+      <ul class="toc">
+        <!-- SECTIONS 0-5 ARE THE FIXED SPINE. Same ids, same order, every document. -->
+        <li><a href="#overview"><span class="num">0</span>Overview</a></li>
+        <li><a href="#logical-topology"><span class="num">1</span>Logical topology</a></li>
+        <!-- Section 2 is ALWAYS the Slot-A candour layer, always a toc-control. -->
+        <li class="toc-control">
+          <div class="sidebar-control">
+            <a id="gapLink" href="#gaps"><span class="num">2</span><span id="gap-label">Gaps &amp; open items</span></a>
+            <button class="visibility-toggle" id="gapToggle" type="button" aria-labelledby="gapLink" aria-controls="gaps" aria-pressed="true" title="Hide gaps and open items">
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path d="M2.3 12s3.4-5.5 9.7-5.5 9.7 5.5 9.7 5.5-3.4 5.5-9.7 5.5S2.3 12 2.3 12Z"/>
+                <circle cx="12" cy="12" r="3"/>
+                <path class="eye-slash" d="M4 4l16 16"/>
+              </svg>
+            </button>
+          </div>
+        </li>
+        <li><a href="#identity-addressing"><span class="num">3</span>Identity &amp; addressing</a></li>
+        <li><a href="#physical-view"><span class="num">4</span>Physical view</a></li>
+        <li><a href="#change-management"><span class="num">5</span>Change management</a></li>
+        <li><a href="#operations-observability"><span class="num">6</span>Operations &amp; observability</a></li>
+
+
+        <!-- Slot B is ALWAYS last and ALWAYS lettered A (appendix), never numbered. -->
+        <li class="toc-control">
+          <div class="sidebar-control">
+            <a id="equipmentExhibitLink" href="#equipment-exhibit"><span class="num">A</span>Equipment exhibit</a>
+            <button class="visibility-toggle" id="equipToggle" type="button" aria-labelledby="equipmentExhibitLink" aria-controls="equipment-exhibit" aria-pressed="false" title="Show equipment exhibit">
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path d="M2.3 12s3.4-5.5 9.7-5.5 9.7 5.5 9.7 5.5-3.4 5.5-9.7 5.5S2.3 12 2.3 12Z"/>
+                <circle cx="12" cy="12" r="3"/>
+                <path class="eye-slash" d="M4 4l16 16"/>
+              </svg>
+            </button>
+          </div>
+        </li>
+      </ul>
+
+      <div class="sidebar-tools">
+        <button type="button" onclick="window.print()">Print / Save PDF</button>
+        <button type="button" id="export-editable" hidden>Export editable source</button>
+      </div>
+    </nav>
+  </aside>
+
+  <!-- ================= MAIN ================= -->
+  <main>
+    <div class="content">
+
+      <!-- DOC HEADER — exactly four badges, in this order, always. -->
+      <header class="doc-header">
+        <div class="meta-row">
+          <span class="badge navy">Network &amp; Security</span>
+          <span class="badge teal" id="badge-subject"></span>
+          <span class="badge" id="badge-version"></span>
+          <span class="badge" id="badge-evidence"></span>
+        </div>
+        <h1 id="page-title"></h1>
+        <p class="tagline" id="page-subtitle"></p>
+      </header>
+
+      <div class="series-strip" id="series-strip" hidden></div>
+
+      <!-- ============ SECTION 0 — what this document is ============ -->
+      <section id="overview">
+        <p class="kicker">Section 0</p>
+        <h2 id="overview-heading">What this document is</h2>
+        <div class="note"><ul class="notes" id="overview-notes"></ul></div>
+        <div class="warn"><ul class="notes" id="overview-provenance"></ul></div>
+        <table class="doc-control">
+          <tbody>
+            <tr><th>Drawing</th><td id="meta-drawing"></td><th>Revision</th><td id="meta-revision"></td></tr>
+            <tr><th>Status</th><td id="meta-status"></td><th>As of</th><td id="meta-date"></td></tr>
+          </tbody>
+        </table>
+        <div class="status-pill" id="proof-status">Running data checks&hellip;</div>
+      </section>
+
+      <hr class="rule">
+
+      <!-- ============ SECTION 1 — logical topology ============ -->
+      <section id="logical-topology">
+        <p class="kicker">Section 1</p>
+        <h2 id="logical-heading">Logical topology</h2>
+        <div class="note"><ul class="notes" id="logical-notes"></ul></div>
+        <div class="section-tools" aria-label="Topology zoom">
+          <button type="button" data-zoom="out">&minus;</button>
+          <button type="button" data-zoom="fit">Fit</button>
+          <button type="button" data-zoom="in">+</button>
+        </div>
+        <div class="figwrap">
+          <div class="diagram-scroll"><svg id="topology" role="img" aria-labelledby="svg-title svg-desc"></svg></div>
+          <div class="hover-label" id="topology-hover" role="status" aria-live="polite"></div>
+        </div>
+        <p class="caption" id="topology-caption"></p>
+        <aside class="figure-legend" id="topology-legend" aria-labelledby="logical-legend-title" hidden></aside>
+        <div class="errors" id="topology-errors" role="alert"></div>
+        <section class="inspector" id="topology-inspector" aria-live="polite">
+          <h3>Select a topology device</h3>
+          <span class="label">Proof</span>
+          <span>Nodes, links, labels and metadata are rendered from the diagram data block.</span>
+        </section>
+      </section>
+
+      <hr class="rule">
+
+      <!-- ============ SECTION 2 — identity &amp; addressing ============ -->
+      <section id="gaps" class="gap-layer">
+        <p class="kicker">Section 2</p>
+        <h2 id="findings-heading">Gaps and open items</h2>
+        <ul class="gaps" id="findings-list"></ul>
+      </section>
+
+      <section id="identity-addressing">
+        <p class="kicker">Section 3</p>
+        <h2 id="identity-heading">Identity &amp; addressing</h2>
+        <div class="note"><ul class="notes" id="identity-notes"></ul></div>
+        <table class="data-table" id="identity-table">
+          <thead><tr id="identity-head"></tr></thead>
+          <tbody id="identity-body"></tbody>
+        </table>
+      </section>
+
+      <hr class="rule">
+
+      <!-- ============ SECTION 3 — physical view ============ -->
+      <section id="physical-view">
+        <p class="kicker">Section 4</p>
+        <h2 id="rack-heading">Physical view</h2>
+        <div class="note"><ul class="notes" id="physical-notes"></ul></div>
+        <div class="section-tools">
+          <button type="button" id="rack-compact">Compact</button>
+          <button type="button" id="rack-full">Full size</button>
+        </div>
+        <div class="figwrap">
+          <div class="rack-grid">
+            <figure class="rack-figure"><figcaption id="rack-front-caption">Front elevation</figcaption><div class="rack-wrap" id="rack-front-wrap"><div class="ruler left"></div><div class="rack-bay" id="rack-front" role="img" aria-label="Front rack elevation"></div><div class="ruler right"></div></div></figure>
+            <figure class="rack-figure"><figcaption id="rack-rear-caption">Rear elevation</figcaption><div class="rack-wrap" id="rack-rear-wrap"><div class="ruler left"></div><div class="rack-bay" id="rack-rear" role="img" aria-label="Rear rack elevation"></div><div class="ruler right"></div></div></figure>
+          </div>
+        </div>
+        <p class="caption" id="rack-caption"></p>
+        <p class="legend" id="rack-legend"></p>
+        <div class="errors" id="rack-errors" role="alert"></div>
+        <section class="inspector rack-inspector" id="rack-inspector" aria-live="polite">
+          <h3>Select rack equipment</h3>
+          <span class="label">Proof</span>
+          <span>Click either face or a schedule row; front and rear instances share one device record.</span>
+        </section>
+        <table class="inventory">
+          <caption>Installed equipment schedule</caption>
+          <thead><tr><th>Rack position</th><th>Device ID</th><th>Manufacturer / model</th><th>Role</th><th>Face</th></tr></thead>
+          <tbody id="inventory-body"></tbody>
+        </table>
+      </section>
+
+      <hr class="rule">
+
+      <!-- ============ SECTION 4 — change management ============ -->
+      <section id="change-management">
+        <p class="kicker">Section 5</p>
+        <h2 id="change-heading">Change management</h2>
+        <div class="note"><ul class="notes" id="change-notes"></ul></div>
+      </section>
+
+      <hr class="rule">
+
+      <!-- ============ SECTION 5 — operations &amp; observability ============ -->
+      <section id="operations-observability">
+        <p class="kicker">Section 6</p>
+        <h2 id="operations-heading">Operations &amp; observability</h2>
+        <div class="note"><ul class="notes" id="operations-notes"></ul></div>
+      </section>
+
+      <hr class="rule">
+
+      <!-- ============ SECTION 6 — SLOT A: the toggleable candour layer ============
+           The whole point is that the document can be shown with its own
+           weaknesses visible or hidden. Print force-reveals it regardless. -->
+
+      <hr class="rule">
+
+      <!-- ============ APPENDIX A — SLOT B: equipment exhibit ============
+           Always last, always id="equipment-exhibit", always class="equip-layer". -->
+      <section id="equipment-exhibit" class="equip-layer">
+        <p class="kicker">Appendix A</p>
+        <h2>Equipment exhibit</h2>
+        <div class="equip-grid" id="equipment-grid"></div>
+        <table class="cost-table" id="cost-table" hidden>
+          <thead><tr><th>Role</th><th>Model</th><th>Qty</th><th class="money">Unit</th><th class="money">Extended</th></tr></thead>
+          <tbody id="cost-body"></tbody>
+          <tfoot><tr><td colspan="4">Total &mdash; planning prices, not quotes</td><td class="money" id="cost-total"></td></tr></tfoot>
+        </table>
+      </section>
+
+      <!-- ================= FOOTER =================
+           Fixed grammar, middot-separated, in order: author, original date,
+           edition, version + what changed + date, where the working detail
+           lives, EPISTEMIC CAVEAT, REDACTION STATEMENT. The last two are
+           mandatory. Never ship without them. -->
+      <footer class="doc-footer">
+        <p id="doc-footer"></p>
+        <p>Topology symbols are experimental interpretations informed by Cisco reference silhouettes, not official Cisco-distributed SVG files. Optional official artwork: <a href="https://www.cisco.com/c/en/us/about/brand-center/network-topology-icons.html">Cisco Network Topology Icons</a>. This document is independent and is not affiliated with or endorsed by Cisco.</p>
+      </footer>
+
+    </div>
+  </main>
+</div>
+
+<!--
+AI EDITING CONTRACT
+Edit only the JSON between PROOF-DATA:BEGIN and PROOF-DATA:END.
+Topology node ids and rack device ids are intentionally shared.
+Do not rewrite the renderers, inline vector library, or stable official-asset mappings.
+-->
+
+<!-- PROOF-DATA:BEGIN -->
+<script id="proof-data" type="application/json">
+{
+  "document": {
+    "title": "Summit Academy Network",
+    "subtitle": "Interpreting a Network Diagram — Logical Topology and Equipment Specifications",
+    "drawing": "SAN-NET-001",
+    "revision": "v1.0",
+    "status": "Working sample",
+    "date": "2026-08-13",
+    "docClass": "Reference design",
+    "subject": "Campus Network",
+    "evidence": {
+      "text": "Assumptions · validation required",
+      "color": "red"
+    },
+    "brand": {
+      "name": "Summit Academy",
+      "label": "Systems · Network Design — Internal Reference",
+      "logoViewBox": "0 0 512 512",
+      "logoFill": "#0F172A",
+      "logoPath": "M112 72 H400 V352 Q400 400 376 424 Q356 440 336 424 Q316 400 296 400 H216 Q196 400 176 424 Q156 440 136 424 Q112 400 112 352 Z M312 136 A40 40 0 0 1 352 176 V304 A40 40 0 0 1 312 344 A40 40 0 0 1 272 304 V176 A40 40 0 0 1 312 136 Z",
+      "logoImage": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAUAAAAFACAYAAADNkKWqAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAA8sSURBVHhe7dxvq3RVHQbgvlUQBBJEkYhSZIZhWZEYRmEa0h+lQixFsX+EJEVZFAhF74Je9Cp6FSRGHyDqc5xYT4yeZ83MWmvvWTOz1/pdN1wEOrOfx4lzn71nz9zvuRERCZr35P9ARCRKFKCIhI0CFJGwUYAiEjYKUETCRgGKSNgoQBEJGwUoImGjAEUkbBSgiISNAhSRsFGAIhI2ClBEwkYBikjYKEARCRsFKCJhowBFJGwUoIiEjQIUkbBRgCISNgpQRMJGAYpI2ChAEQkbBSgiYaMARSRsFKCIhI0CFJGwUYAiEjYKUETC5moF+Pe33r752Ru/BbjTB9fI1Qow/Ue/90P3A9zpg2tEAQJXpwCBsBQgEJYCBMJSgEBYChAISwECYSlAICwFCISlAIGwFCAQlgIEwlKAQFgKEAhLAQJhKUAgLAUIhKUAgbAUIBCWAgTCUoBAWAoQCEsBAmEpQCAsBQiEpQCBsBQgEJYCBMJSgIR0z/0P7f0z4lGAhJPK7/nXfnXzwQcf2ft3xKIACefJ51++efXXv7/5+ss/3ft3xKIACeWBR794p/x2PvWlr+09hjgUIGG87yMfvfne67+5qwBf/PnvvB8YmAIkjCeefeGu8tt56oUf7D2WGBQgIdz78Of3iu+2B7/wlb3nMD8FyPTSpe93f/KLvdK7LV0av/++j+89l7kpQKb3uaef3Su8Q778nZf2nsvcFCBT+/AnH7155Zdv7pXdMfc98tjeMZiXAmRq33r1tb2SK0kfkE6XzPlxmJMCZFqPfOWZvYJr8dgz3947FnNSgEzpAx97eNGlby5dOufHZD4KkCk98+KP9kptied++LpL4QAUINN56ItP7hXaGo9+9Zt7x2YuCpCppK+15V93WytdQluMmZsCZCq7pZdeLMbMTQEyjXzppReLMfNSgEzh0NJLLxZj5qUAmcKxpZdeLMbMSQEyvNrSSy8WY+ajABlay9JLLxZj5qMAGVrr0ksvFmPmogAZ1tKll14sxsxDATKspUsvvViMmYcCZEhrl156sRgzBwXIcE5deunFYsz4FCDDOXXppReLMeNTgAyl19JLLxZjxqYAGUbPpZdeLMaMTQEyjN5LL71YjBmXAmQI51p66cVizJgUIJt3zqWXXizGjEkBsnnnXnrpxWLMeBQgm3appZdeLMaMRQGyWZdceunFYsxYFCCbdemll14sxoxDAbJJ11p66cVizBgUIJt0raWXXizGjEEBsjnXXnrpxWLM9ilANmUrSy+9WIzZNgXIpmxl6aUXizHbpgDZjK0tvfRiMWa7FCCbsMWll14sxmyXAmQTtrr00ovFmG1SgFzd1pdeerEYsz0KkKsaYemlF4sx26MAuapRll56sRizLQqQqxlt6aUXizHboQC5ihGXXnqxGLMdCpCrGHXppReLMdugALm40ZdeerEYc30KkIsbfemlF4sx16cAuahZll56sRhzXQqQi5lt6aUXizHXowC5mNmWXnqxGHM9CpCLmHXppReLMdehADm7mZdeerEYcx0KkLObfemlF4sxl6cAOasoSy+9WIy5LAXI2URaeunFYsxlKUDOJtrSSy8WYy5HAXIWUZdeerEYcxkKkO4iL730YjHmMhQg3UVfeunFYsz5KUC6svTSl8WY81KAdGXppS+LMeelAOnG0st5WIw5HwVIF5ZezstizHkoQLqw9HJeFmPOQwFyMksvl2Expj8FyEksvVyOxZj+FCAnsfRyWRZj+lKArGbp5TosxvSjAFnF0sv1WIzpRwGyiqWX67IY04cCZDFLL9tgMeZ0CpBFLL1sh8WY0ylAFrH0si0WY06jAGlm6WWbLMaspwBpZullmyzGrKcAaWLpZdssxqyjAKmy9DIGizHLKUCqLL2MwWLMcgqQIksvY7EYs4wC5ChLL+OxGLOMAuQoSy9jshjTTgFykKWXsVmMaaMA2WPpZXwWY9ooQPZYepmDxZg6BchdLL3MxWJMmQLkHZZe5mMxpkwB8g5LL3OyGHOcAuQOSy9zsxhzmALkDksvc7MYc5gCxNJLEBZj9inA4Cy9xGIx5m4KMDhLL7FYjLmbAgzM0ktMFmPepQCDsvQSl8WYdynAoCy9xGYx5v8UYECWXkgsxijAcCy9sGMxRgGGY+mF26IvxijAQCy9cEjkxRgFGISlF46JvBijAIOw9EJJ1MUYBRiApRdaRFyMUYABWHqhRcTFGAU4OUsvLBFtMUYBTszSC2tEWoxRgBOz9MIakRZjFOCkLL1wiiiLMQpwQpZeOFWUxRgFOCFLL/QQYTFGAU7G0gs9zb4YowAnYumF3mZfjFGAE7H0wjnMvBijACdh6YVzmnUxRgFOwNIL5zbrYowCnIClFy5hxsUYBTg4Sy9c0myLMQpwcJZeuKTZFmMU4MAsvXANMy3GKMBBWXrhmmZZjFGAg7L0wjXNshijAAdk6YUtmGExRgEOxtILWzHDYowCHIylF7Zk9MUYBTgQSy9s0ciLMQpwEJZe2KqRF2MU4CAsvbBloy7GKMABWHphBCMuxijAjbP0wihGXIxRgBtn6YWRjLYYowA3zNILIxppMUYBbpilF0Y00mKMAtwoSy+MbJTFGAW4QZZemMEIizEKcIMsvTCDERZjFODGpE/Upzu/MIOtjyUoQCAsBQiEpQCBsBQgEJYCBMJSgEBYChAISwECYSlAICwFCISlAIGwFCAQlgIEwlKAQFgKEAhLAQJhKUC6ePzpb9y89OPXbv7y17/d/Ps//81f9jtJ/+6Pf/rzncd9/LOP7x0DLk0Bsto9D3zi5qe/eCN/iZuTijKVYTpOfuyaUlLR5o9fopT8sWukXwKteeq55/eeTz8KkFXSD2avpCL89BNP7v0ZJbWcUhyl5I9dKpX9kqSyzI9BPwqQxX795h/yl7VLlpRWS9acWdaOnT92qTW/OO795Gf2jkMfCpBFnvv+K/lL2jXpvcT8zzykJenyPH9ei1Lyxy6VLs+XJr3m+XHoQwHSLN24uERaztxas/TSunbs/LFLpDO5NUlvEeTHog8FSLOWN+/T5XEqnbzE0j9LZzLH7hDfTjpG/mfnWvOPf/5r77k1peSPXeKUs2d3zc9DAdKkdvaSiqblvapUjC2Xgfnzckuy9BKylPyxS6TX6Fhqv1zWXs5TpgBpUjt7yc/4StJja2eCtUvXpVny9yslf2yr2i+QdIZXKsiU/JicTgHSpPR5vzWfu6sVavp8YP6c25ZmycdJSskf26r0+u3e46u9Jq03iGinAGlSumxdU4C1Gyq9CzCldlbZcuz8sa1KZ7y7y9vaWWLLe6MsowBpUirAlCWXmD2sSevd1FLyx7aolf3tGxxbe51npwBpUrqES0mXmJf84Vyb2pll7dj5Y1uUPjiel3Ltg9JLPixOnQKkSe0HMyX9MF/qB/SU1O5Wl5I/tkUp+d3d2lfl1rzdwHEKkCa196fypB/sc352rZTS+20ptRsipeSPrUk3Lko59BrVPhJTK3DaKUCalS7ljiWVUXpeKoKel8iltJytlu6olpI/tqb0muWXvzu1v//SzzVynAKk2dKzwENJl3DpB/jUs5hSdt86KSWVz7FCLiV/bEntcja//G193rHiZDkFyCK1s5MlSZd6pTOxklJ2H3epfbD42A2RUvLHltReq0OXvzu1y+DSc2mnAFms9oO9NOmMZmkRlrIrwPS/tRw6Ey0lf2xJqcRqZ3G11/jY2SPLKEBWqf2ArsmSj9KUcvsDz7WP7xy6q1pK/thjapextQKrPT8lfw7LKUBWSz+kpTf51yRdtraUYCm3C7ClSPKP7pSS/z2Oqb0H2XIJWzqDTFl61sw+BcjJ0mVkej+t9vGT1tQ+ppKUkn/lreVs9XbplpL/PY4pvf9Yu/zdqf29W14nyhQgXaWzknRWeGoZ5mdluVLyAkxqXzG7fUlaSn7cQ2p3y2uXvzstZ68tZ8scpwA5m3SZly4FS2dDx1I7SyrlUAHWSilld1laSn7cQ9LZcCktl787tcvg2i8KyhQgF5EKaGkZloqilEMFmNSKabceXUp+zENOPftdkjWL17xLAXJxqaBql6Qpxz6nl5RyrADT5WKtnGo3L/Jj5mrLL+fIoY/y0EYBcjW1y7vSm/ylHCvApOWzgaXkx8vVPnZzjpR+UVCmAKlKZ06pONINjvTDlm5y7M7gTnkPqva+3KHP6O2UUirApFa8peTHytXOMM+R2vulHKcAqSrl1JXiUs5VgLXiLSU/1m215ZdzpvR+KccpQKpqZzWnfBSjlHMVYFK7IXIs+XFu6/2h8CU59RdRVAqQqtoP9tr3oGpnTKXjltJSgMmSO9K75Mdo/Tul5I9fouXmSv4c6hQgVbWiSll6CdZyR7b0Va9SWgtwzQ2R/Bg7tW9t9DhDO+X14jAFSJPaD19K6w9geg+u5ewrf95tpbQWYFI7u82TP3+ndmOl9bUpqV22l+6ac5gCpEntDGeX9L5demx+RphKb/c1uZaULn+TUpYUYMvXzW4nf37rMfLnrNFy8+aU92MjUoA0azlr65GWbzeUsqQAk9ZyT8mf2/L8Hpe/O7X/D075WFJECpBmLWcgPZKfPR5SytICTFq+mZKSP6/luT0uf3dq31Rp+eXBuxQgi6Ryank/cG1ayi8pZU0BttxlTcmf1/JLIX/OKVr+PF+Na6cAWSy9z1R7039p0lnUkh/cUtYUYFK7yZCSP6d2Rtbz8nendhncOreFAuQEqWhab2ocSyq+NYVVyprjJS0fzcmfUyujnpe/O7XS9dW4dgqQk6Xi2H1POBXasVJIP5jp36czlPRm/ZIzPjgHBQiEpQCBsBQgEJYCBMJSgEBYChAISwECYSlAICwFCISlAIGwFCAQlgIEwlKAQFgKEAhLAQJhKUAgLAUIhKUAgbAUIBCWAgTCUoBAWAoQCEsBAmEpQCAsBQiEpQCBsBQgEJYCBMJSgEBYChAISwECYSlAICwFCIQVrgD//tbbd/6jAVIfXCNXK0ARkWtHAYpI2ChAEQkbBSgiYaMARSRsFKCIhI0CFJGwUYAiEjYKUETCRgGKSNgoQBEJGwUoImGjAEUkbBSgiISNAhSRsFGAIhI2ClBEwkYBikjYKEARCRsFKCJhowBFJGwUoIiEjQIUkbBRgCISNgpQRMJGAYpI2ChAEQkbBSgiYaMARSRs/gddbzDNnKX3kwAAAABJRU5ErkJggg=="
+    },
+    "layers": {
+      "findings": true,
+      "equipment": false
+    },
+    "footer": {
+      "author": "Prepared by Summit Academy Network Engineering",
+      "originalDate": "2026-08-13",
+      "edition": "Presentation edition",
+      "changed": "Interpreting Network Diagram conversion",
+      "detail": "Interpreting Network Diagram reference architecture",
+      "caveat": "Every element in this sample is an assumption to validate, not a recorded fact",
+      "redaction": "Facility identifiers at pattern level; personal identifiers redacted"
+    }
+  },
+  "topology": {
+    "canvas": {
+      "width": 1280,
+      "height": 930
+    },
+    "zones": [
+      {
+        "id": "external",
+        "label": "EXTERNAL / UNTRUSTED NETWORK",
+        "kind": "external",
+        "x": 25,
+        "y": 25,
+        "width": 1230,
+        "height": 180
+      },
+      {
+        "id": "internal",
+        "label": "INTERNAL / ENTERPRISE BOUNDARY",
+        "kind": "internal",
+        "x": 25,
+        "y": 220,
+        "width": 1230,
+        "height": 685
+      }
+    ],
+    "nodes": [
+      {
+        "id": "cloud-internet",
+        "label": "Internet Cloud",
+        "role": "Public Network",
+        "icon": "cloud",
+        "x": 1050,
+        "y": 110,
+        "address": "Public WAN",
+        "notes": "Untrusted external network connection."
+      },
+      {
+        "id": "pc-access",
+        "label": "Access PC",
+        "role": "Remote Client",
+        "icon": "pc",
+        "x": 100,
+        "y": 300,
+        "address": "Access Subnet",
+        "notes": "Workstation on external access network."
+      },
+      {
+        "id": "cloud-access",
+        "label": "Access Network",
+        "role": "Access Network Cloud",
+        "icon": "cloud",
+        "x": 300,
+        "y": 300,
+        "address": "Access Subnet",
+        "notes": "Access network cloud interconnect."
+      },
+      {
+        "id": "rtr-01",
+        "label": "Access Router",
+        "role": "Access Network Router",
+        "icon": "router",
+        "x": 520,
+        "y": 300,
+        "address": "Unspecified",
+        "notes": "Router connecting Access Network to core fabric."
+      },
+      {
+        "id": "fw-01",
+        "label": "Firewall",
+        "role": "Perimeter Security",
+        "icon": "firewall",
+        "x": 800,
+        "y": 300,
+        "address": "Perimeter",
+        "notes": "Perimeter firewall between edge router and Internet."
+      },
+      {
+        "id": "rtr-02",
+        "label": "Main Router",
+        "role": "Core/Edge Router",
+        "icon": "router",
+        "x": 1020,
+        "y": 300,
+        "address": "192.168.1.2/24",
+        "notes": "Interfaces: Gi0/0 (.2), Gi0/1, S0/0."
+      },
+      {
+        "id": "ap-01",
+        "label": "Access Point",
+        "role": "Wireless AP",
+        "icon": "access-point",
+        "x": 150,
+        "y": 520,
+        "address": "Unspecified",
+        "notes": "Provides wireless connection to laptops."
+      },
+      {
+        "id": "sw-01",
+        "label": "Central Switch",
+        "role": "Access / Distribution Switch",
+        "icon": "access-switch",
+        "x": 520,
+        "y": 520,
+        "address": "192.168.1.1/24",
+        "notes": "Interfaces: Fa0/3, Fa0/6, Fa0/7, Fa0/11, Fa0/12, Gi0/1 (.1)."
+      },
+      {
+        "id": "rtr-03",
+        "label": "Remote Router",
+        "role": "Branch / Serial Endpoint",
+        "icon": "router",
+        "x": 1020,
+        "y": 520,
+        "address": "Unspecified",
+        "notes": "Serial connection (S0/1) to Main Router."
+      },
+      {
+        "id": "laptop-01",
+        "label": "Laptop Client",
+        "role": "Wireless Client",
+        "icon": "laptop",
+        "x": 150,
+        "y": 740,
+        "address": "DHCP / Unspecified",
+        "notes": "Connected via wireless link to AP."
+      },
+      {
+        "id": "phone-01",
+        "label": "IP Phone",
+        "role": "Voice Endpoint",
+        "icon": "ip-phone",
+        "x": 330,
+        "y": 740,
+        "address": "Unspecified",
+        "notes": "Connected to Switch port Fa0/6."
+      },
+      {
+        "id": "pc-01",
+        "label": "Local PC",
+        "role": "Desktop Workstation",
+        "icon": "pc",
+        "x": 510,
+        "y": 740,
+        "address": "Unspecified",
+        "notes": "Connected to Switch port Fa0/7."
+      },
+      {
+        "id": "srv-01",
+        "label": "Local Server",
+        "role": "Application Server",
+        "icon": "server",
+        "x": 690,
+        "y": 740,
+        "address": "Unspecified",
+        "notes": "Connected to Switch port Fa0/11."
+      },
+      {
+        "id": "wlc-01",
+        "label": "WLAN Controller",
+        "role": "Wireless Controller",
+        "icon": "wlan-controller",
+        "x": 870,
+        "y": 740,
+        "address": "Unspecified",
+        "notes": "Connected to Switch port Fa0/12."
+      }
+    ],
+    "links": [
+      {
+        "from": "pc-access",
+        "to": "cloud-access",
+        "kind": "access"
+      },
+      {
+        "from": "cloud-access",
+        "to": "rtr-01",
+        "kind": "l3"
+      },
+      {
+        "from": "rtr-01",
+        "to": "sw-01",
+        "kind": "l3"
+      },
+      {
+        "from": "rtr-01",
+        "to": "rtr-02",
+        "kind": "l3"
+      },
+      {
+        "from": "sw-01",
+        "to": "ap-01",
+        "kind": "access",
+        "label": "Fa0/3"
+      },
+      {
+        "from": "ap-01",
+        "to": "laptop-01",
+        "kind": "access",
+        "label": "Wireless Link"
+      },
+      {
+        "from": "sw-01",
+        "to": "phone-01",
+        "kind": "access",
+        "label": "Fa0/6"
+      },
+      {
+        "from": "sw-01",
+        "to": "pc-01",
+        "kind": "access",
+        "label": "Fa0/7"
+      },
+      {
+        "from": "sw-01",
+        "to": "srv-01",
+        "kind": "access",
+        "label": "Fa0/11"
+      },
+      {
+        "from": "sw-01",
+        "to": "wlc-01",
+        "kind": "access",
+        "label": "Fa0/12"
+      },
+      {
+        "from": "sw-01",
+        "to": "rtr-02",
+        "kind": "l3",
+        "label": "192.168.1.0/24 (Gi0/1 to Gi0/0)"
+      },
+      {
+        "from": "rtr-02",
+        "to": "fw-01",
+        "kind": "l3",
+        "label": "Gi0/1"
+      },
+      {
+        "from": "fw-01",
+        "to": "cloud-internet",
+        "kind": "l3"
+      },
+      {
+        "from": "rtr-02",
+        "to": "rtr-03",
+        "kind": "backup",
+        "label": "Serial S0/0 to S0/1"
+      }
+    ]
+  },
+  "rack": {
+    "id": "RACK-01",
+    "location": "MDF",
+    "units": 42,
+    "frontAisle": "cold aisle",
+    "rearAisle": "hot aisle",
+    "reserved": [],
+    "devices": [
+      {
+        "id": "fw-01",
+        "model": "Generic Firewall 1U",
+        "role": "Perimeter Security",
+        "position": 42,
+        "height": 1,
+        "asset": "generic-firewall-1u"
+      },
+      {
+        "id": "rtr-01",
+        "model": "Generic Router 1U",
+        "role": "Access Router",
+        "position": 40,
+        "height": 1,
+        "asset": "generic-router-1u"
+      },
+      {
+        "id": "rtr-02",
+        "model": "Generic Router 1U",
+        "role": "Main Router",
+        "position": 39,
+        "height": 1,
+        "asset": "generic-router-1u"
+      },
+      {
+        "id": "rtr-03",
+        "model": "Generic Router 1U",
+        "role": "Branch Router",
+        "position": 38,
+        "height": 1,
+        "asset": "generic-router-1u"
+      },
+      {
+        "id": "wlc-01",
+        "model": "Generic WLAN Controller 1U",
+        "role": "WLAN Controller",
+        "position": 35,
+        "height": 1,
+        "asset": "generic-wlan-controller-1u"
+      },
+      {
+        "id": "sw-01",
+        "model": "Generic Switch 24P 1U",
+        "role": "Central Switch",
+        "position": 32,
+        "height": 1,
+        "asset": "generic-switch-24p-1u"
+      },
+      {
+        "id": "srv-01",
+        "model": "Generic Server 1U",
+        "role": "Application Server",
+        "position": 28,
+        "height": 1,
+        "asset": "generic-server-1u"
+      }
+    ]
+  },
+  "sections": {
+    "overview": {
+      "heading": "Network Overview \u0026 Diagram Interpretation",
+      "notes": [
+        {
+          "lead": "Interpreting Network Diagram Sample",
+          "text": "Logical connectivity mapping showing campus components, access infrastructure, perimeter firewall, and internet connectivity."
+        },
+        {
+          "lead": "Enterprise Boundary",
+          "text": "Internal assets are contained within the enterprise network boundary, with single firewall transit to the untrusted Internet."
+        }
+      ],
+      "provenance": [
+        {
+          "lead": "Source Material",
+          "text": "Extracted directly from 'Interpreting a Network Diagram' presentation graphic."
+        }
+      ]
+    },
+    "logical": {
+      "heading": "Logical Topology \u0026 Connections",
+      "notes": [
+        {
+          "lead": "Core Interconnect",
+          "text": "Central switch sw-01 connects via interface Gi0/1 (host .1) to main router rtr-02 interface Gi0/0 (host .2) over subnet 192.168.1.0/24."
+        },
+        {
+          "lead": "Access Endpoints",
+          "text": "FastEthernet ports Fa0/3, Fa0/6, Fa0/7, Fa0/11, and Fa0/12 connect AP, IP Phone, PC, Server, and WLAN Controller respectively."
+        }
+      ]
+    },
+    "identity": {
+      "heading": "Addressing \u0026 Subnet Summary",
+      "notes": [
+        {
+          "lead": "Recorded Subnets",
+          "text": "Subnet 192.168.1.0/24 is explicitly documented between central switch sw-01 and edge router rtr-02."
+        }
+      ],
+      "columns": [
+        "Link / Segment",
+        "Interface Details",
+        "Subnet / IP Range",
+        "Provenance"
+      ],
+      "rows": [
+        {
+          "cells": [
+            "sw-01 \u003c-\u003e rtr-02",
+            "Gi0/1 (.1) to Gi0/0 (.2)",
+            "192.168.1.0/24",
+            "Recorded"
+          ],
+          "layer": "equipment"
+        },
+        {
+          "cells": [
+            "rtr-02 \u003c-\u003e rtr-03",
+            "Serial S0/0 to S0/1",
+            "Unspecified",
+            "Assumed"
+          ],
+          "layer": "gap"
+        },
+        {
+          "cells": [
+            "sw-01 Access Ports",
+            "Fa0/3, Fa0/6, Fa0/7, Fa0/11, Fa0/12",
+            "Unspecified",
+            "Assumed"
+          ],
+          "layer": "gap"
+        }
+      ]
+    },
+    "physical": {
+      "heading": "Physical Rack Placement",
+      "notes": [
+        {
+          "lead": "1U Rack Elevation",
+          "text": "Standard 1U generic equipment placements modeled from logical topology items."
+        }
+      ]
+    },
+    "change": {
+      "heading": "Revision Control",
+      "notes": [
+        {
+          "lead": "Document History",
+          "text": "Version v1.0 initial transcription of network interpretation diagram."
+        }
+      ]
+    },
+    "operations": {
+      "heading": "Operational Considerations",
+      "notes": [
+        {
+          "lead": "Monitoring Points",
+          "text": "Monitor GigabitEthernet link between sw-01 and rtr-02 as main enterprise egress path."
+        }
+      ]
+    },
+    "findings": {
+      "id": "gaps",
+      "label": "Gaps \u0026 open items",
+      "noun": "gaps and open items",
+      "heading": "Gaps and open items — what this document does not know",
+      "flavour": "gaps",
+      "items": [
+        {
+          "title": "Hardware model numbers missing",
+          "detail": "Specific hardware models for switch, routers, firewall, server, AP, and WLAN controller are not specified in the diagram.",
+          "atZone": "internal"
+        },
+        {
+          "title": "Software versions and licenses unverified",
+          "detail": "Operating system releases, feature sets, and licensing statuses are not documented.",
+          "atZone": "internal"
+        },
+        {
+          "title": "Addressing details incomplete",
+          "detail": "Only subnet 192.168.1.0/24 between sw-01 and rtr-02 is explicitly documented on the diagram.",
+          "at": [
+            "sw-01",
+            "rtr-02"
+          ]
+        }
+      ]
+    },
+    "equipment": {
+      "cards": [
+        {
+          "model": "Generic Switch 24P",
+          "u": "1U",
+          "why": "Central switch interconnecting access layer nodes and core router.",
+          "asset": "generic-switch-24p-1u"
+        },
+        {
+          "model": "Generic Router",
+          "u": "1U",
+          "why": "Core edge router providing WAN/Internet connectivity.",
+          "asset": "generic-router-1u"
+        },
+        {
+          "model": "Generic Firewall",
+          "u": "1U",
+          "why": "Perimeter security appliance.",
+          "asset": "generic-firewall-1u"
+        }
+      ],
+      "costs": []
+    }
+  }
+}
+</script>
+<!-- PROOF-DATA:END -->
+
+<!-- NETWORK-PACKAGER-CONTRACT:BEGIN -->
+<script id="network-packager-contract" type="application/json">
+{
+  "schema": "network-design-package/v2",
+  "assetReferences": "asset-uri/v1",
+  "assetUriSchemes": {
+    "cisco": "icons/cisco-pms3015/",
+    "rack": "rack-assets/"
+  }
+}
+</script>
+<!-- NETWORK-PACKAGER-CONTRACT:END -->
+
+<!-- NETWORK-ASSET-VAULT:BEGIN -->
+<script id="network-asset-vault" type="application/json">
+{}
+</script>
+<!-- NETWORK-ASSET-VAULT:END -->
+
+<!-- EDITABLE-SOURCE-CAPSULE:BEGIN -->
+<script id="editable-source-capsule" type="application/octet-stream">
+
+</script>
+<!-- EDITABLE-SOURCE-CAPSULE:END -->
+
+<!-- RACK-FACE-LIBRARY:BEGIN -->
+<style id="rack-face-style">
+      :root{
+        --rf-ear:#78848c; --rf-body:#c2ccd2; --rf-metal:#3d454c; --rf-hole:#12171b;
+      }
+      .rf-ear{fill:var(--rf-ear)}
+      .rf-ear-hole{fill:#39424a}
+      .rf-body{fill:var(--rf-body)}
+      .rf-body--light{fill:var(--rf-body)}
+      .rf-body--light-rear{fill:#aab5bc}
+      .rf-body--dark{fill:#33393e}
+      .rf-body--dark-rear{fill:#2b3136}
+      .rf-body--black{fill:#24272a}
+      .rf-body--black-rear{fill:#1d2023}
+      .rf-body-hi{fill:#fff;opacity:.35}
+      .rf-body-lo{fill:#000;opacity:.18}
+      .rf-cage{fill:var(--rf-metal)}
+      .rf-cage-latch{fill:#78848c}
+      .rf-port-hole{fill:var(--rf-hole)}
+      .rf-port-tab{fill:#6d7a84}
+      .rf-plate{fill:#e9eef1;opacity:.5}
+      .rf-seam{fill:#000;opacity:.22}
+      .rf-vent{fill:#6f7b83;opacity:.75}
+      .rf-module{fill:#96a2aa}
+      .rf-handle{fill:#5d6871}
+      .rf-drive-face{fill:#b9c3ca}
+      .rf-duct-finger{fill:#5d6871}
+      .rf-bristle{fill:#7c878f;opacity:.9}
+      .rf-ground{fill:#8b959c}
+      .rf-inlet-pin{fill:#8b959c}
+      .rf-button{fill:#5d6871}
+      .rf-screen{fill:#16323b}
+      .rf-screen-line{fill:#54c8b8;opacity:.85}
+      .rf-fan-ring{fill:#5d6871}
+      .rf-fan-blade{fill:#9aa5ad}
+      .rf-fan-hub{fill:#39424a}
+      .rf-led{fill:#6d777f}
+      .rf-led--green{fill:#4fd07a}
+      .rf-led--amber{fill:#f0a33a}
+      .rf-led--off{fill:#6d777f}
+</style>
+<script id="rack-face-core">
+"use strict";
+
+// The rack faceplate drawing core. Shared, verbatim, by three consumers:
+//
+//   * tools/build-rack-faces.js, which expands it into an SVG sprite
+//   * examples/rack-face-preview.html, the review page
+//   * the design documents themselves, which inline this whole file and call
+//     faceMarkup() at render time
+//
+// That last one is why the artwork is generated rather than stored: the
+// expanded sprite is over 400 KB, and a document has to carry the entire
+// catalogue so the data block can name any device without a download. The
+// generator is 25 KB and draws the same picture.
+//
+// A rack elevation squeezes a faceplate hard: a 1U face lands in roughly
+// 346 x 18 CSS pixels, so the artwork is stretched to about 45% horizontally
+// and 26% vertically. Every shape here is therefore drawn coarse on purpose —
+// fine detail survives neither the squeeze nor a 300dpi print. For the same
+// reason no faceplate carries text: a glyph stretched like that is unreadable,
+// so device names stay in the document data and are drawn by the page.
+//
+// Native geometry follows EIA-310: 19 inches wide, 1.75 inches per rack unit.
+// 760 x 70 per U keeps that exact ratio, and lands on a tidy 40px per inch —
+// so every port below is sized from its real-world dimension.
+//
+// The vendor-shaped faces reproduce port layout and chassis proportion, which
+// is what makes a model recognisable in an elevation. They carry no logo, no
+// wordmark and no vendor colour scheme, and they are named by family and role
+// rather than by model number.
+//
+// This file must run unchanged in Node and in a browser: no require, no fs, no
+// optional chaining on globals. Rebuild everything after editing it:
+//
+//   node tools/build-rack-faces.js
+
+var RACK_FACE_CORE = (function () {
+  "use strict";
+
+  /* -- geometry ------------------------------------------------------------ */
+
+  const W = 760;          // 19 inches
+  const U = 70;           // 1.75 inches per rack unit
+  const PPI = 40;         // pixels per inch — every port below is sized from this
+  const EAR = 30;         // rack ear width
+  const BODY_X = EAR;
+  const BODY_W = W - EAR * 2;
+
+  /* -- primitives ---------------------------------------------------------- */
+
+  const n = value => (Math.round(value * 100) / 100).toString();
+
+  function tag(name, attributes, children) {
+    const parts = Object.entries(attributes)
+      .filter(([, value]) => value !== undefined && value !== null && value !== "")
+      .map(([key, value]) => ` ${key}="${value}"`)
+      .join("");
+    if (!children || !children.length) return `<${name}${parts}/>`;
+    return `<${name}${parts}>${children.join("")}</${name}>`;
+  }
+
+  const rect = (x, y, w, h, cls, rx) =>
+    tag("rect", { class: cls, x: n(x), y: n(y), width: n(w), height: n(h), rx: rx ? n(rx) : undefined });
+
+  const circle = (cx, cy, r, cls) =>
+    tag("circle", { class: cls, cx: n(cx), cy: n(cy), r: n(r) });
+
+  const path2 = (d, cls) => tag("path", { class: cls, d });
+
+  const group = (cls, children) => tag("g", { class: cls }, children);
+
+  /* -- chassis ------------------------------------------------------------- */
+
+  // Mounting ears. Two oblong holes per U, which is what a real panel has.
+  function ears(units) {
+    const height = U * units;
+    const shapes = [rect(0, 0, EAR, height, "rf-ear"), rect(W - EAR, 0, EAR, height, "rf-ear")];
+    for (let u = 0; u < units; u++) {
+      const base = u * U;
+      [base + 20, base + 50].forEach(y => {
+        shapes.push(rect(9, y - 3, 12, 6, "rf-ear-hole", 3));
+        shapes.push(rect(W - 21, y - 3, 12, 6, "rf-ear-hole", 3));
+      });
+    }
+    return group("rf-ears", shapes);
+  }
+
+  function body(units, tone = "light", view = "front") {
+    const height = U * units;
+    return group("rf-chassis", [
+      rect(BODY_X, 0, BODY_W, height, `rf-body rf-body--${tone}${view === "rear" ? "-rear" : ""}`),
+      rect(BODY_X, 0, BODY_W, 2.5, "rf-body-hi"),
+      rect(BODY_X, height - 2.5, BODY_W, 2.5, "rf-body-lo")
+    ]);
+  }
+
+  /* -- ports --------------------------------------------------------------- */
+
+  // RJ45 jack, 0.45in x 0.53in. `flip` puts the retention-clip slot at the
+  // bottom, the way the lower row of a two-row bank is always mounted.
+  function rj45(x, y, w = 16, h = 21, flip = false) {
+    const tabW = w * 0.34;
+    const tabH = h * 0.22;
+    return group("rf-jack", [
+      rect(x, y, w, h, "rf-cage", 1.5),
+      rect(x + 1.8, y + 1.8, w - 3.6, h - 3.6, "rf-port-hole", 1),
+      rect(x + (w - tabW) / 2, flip ? y + h - 1.8 - tabH : y + 1.8, tabW, tabH, "rf-port-tab")
+    ]);
+  }
+
+  function rj45Bank({ x, y, w = 16, h = 21, rows = 2, cols, pitch = 19, rowGap = 6, groupOf = 6, groupGap = 5 }) {
+    const shapes = [];
+    for (let row = 0; row < rows; row++) {
+      const rowY = y + row * (h + rowGap);
+      for (let col = 0; col < cols; col++) {
+        shapes.push(rj45(x + col * pitch + Math.floor(col / groupOf) * groupGap, rowY, w, h, row % 2 === 1));
+      }
+    }
+    return group("rf-bank", shapes);
+  }
+
+  // Pluggable optic cage. SFP is 0.55in wide, QSFP 0.72in — the width difference
+  // is the only thing that tells a 10G port from a 40/100G one at a glance, so
+  // it is drawn to scale.
+  function cage(x, y, w, h, wide) {
+    const inset = wide ? 2.6 : 2.2;
+    return group("rf-optic", [
+      rect(x, y, w, h, "rf-cage", 1.5),
+      rect(x + inset, y + inset, w - inset * 2, h - inset * 2, "rf-port-hole", 1),
+      rect(x + inset + 1.5, y + h / 2 - 1, w * 0.2, 2, "rf-cage-latch")
+    ]);
+  }
+
+  function cageBank({ x, y, w, h, rows = 1, cols, pitch, rowGap = 6, wide = false }) {
+    const cw = w !== undefined ? w : (wide ? 29 : 22);
+    const ch = h !== undefined ? h : (wide ? 22 : 20);
+    const cp = pitch !== undefined ? pitch : cw + 3;
+    const shapes = [];
+    for (let row = 0; row < rows; row++) {
+      for (let col = 0; col < cols; col++) {
+        shapes.push(cage(x + col * cp, y + row * (ch + rowGap), cw, ch, wide));
+      }
+    }
+    return group("rf-optics", shapes);
+  }
+
+  // Serial console, USB, and the small D-sub video connector on a server.
+  const miniPort = (x, y, w = 20, h = 13) => group("rf-mini", [
+    rect(x, y, w, h, "rf-cage", 2),
+    rect(x + 2.5, y + 2.5, w - 5, h - 5, "rf-port-hole", 1)
+  ]);
+
+  const usbPort = (x, y) => group("rf-usb", [
+    rect(x, y, 15, 8, "rf-cage", 1),
+    rect(x + 2, y + 2, 11, 4, "rf-port-hole")
+  ]);
+
+  /* -- indicators ---------------------------------------------------------- */
+
+  function ledColumn(x, y, states, size = 5, gap = 3) {
+    return group("rf-leds", states.map((state, index) =>
+      rect(x, y + index * (size + gap), size, size, `rf-led rf-led--${state}`, 1)));
+  }
+
+  function ledRow(x, y, states, size = 5, gap = 4) {
+    return group("rf-leds", states.map((state, index) =>
+      rect(x + index * (size + gap), y, size, size, `rf-led rf-led--${state}`, 1)));
+  }
+
+  // A blank nameplate — the vendor badge area, deliberately left empty.
+  const nameplate = (x, y, w, h) => rect(x, y, w, h, "rf-plate", 2);
+
+  // Status display. Two bars stand in for content: anything finer disappears.
+  const lcd = (x, y, w, h) => group("rf-lcd", [
+    rect(x, y, w, h, "rf-cage", 2),
+    rect(x + 3, y + 3, w - 6, h - 6, "rf-screen", 1),
+    rect(x + 8, y + 8, (w - 16) * 0.7, Math.max(3, h * 0.14), "rf-screen-line"),
+    rect(x + 8, y + 8 + h * 0.3, (w - 16) * 0.45, Math.max(3, h * 0.14), "rf-screen-line")
+  ]);
+
+  const button = (x, y, r = 4) => circle(x, y, r, "rf-button");
+
+  /* -- panels and modules -------------------------------------------------- */
+
+  function vent({ x, y, w, h, cols = 8, rows = 3 }) {
+    const shapes = [];
+    const slotW = w / cols * 0.62;
+    const slotH = h / rows * 0.55;
+    for (let row = 0; row < rows; row++) {
+      for (let col = 0; col < cols; col++) {
+        shapes.push(rect(x + col * (w / cols), y + row * (h / rows), slotW, slotH, "rf-vent", slotH / 2));
+      }
+    }
+    return group("rf-vents", shapes);
+  }
+
+  // Fan module: a hub, a ring and six blades.
+  function fan(cx, cy, r) {
+    const blades = [];
+    for (let i = 0; i < 6; i++) {
+      const a1 = (i * 60 + 8) * Math.PI / 180;
+      const a2 = (i * 60 + 52) * Math.PI / 180;
+      blades.push(path2(
+        `M${n(cx + Math.cos(a1) * r * 0.34)} ${n(cy + Math.sin(a1) * r * 0.34)}` +
+        `L${n(cx + Math.cos(a1) * r * 0.9)} ${n(cy + Math.sin(a1) * r * 0.9)}` +
+        `L${n(cx + Math.cos(a2) * r * 0.9)} ${n(cy + Math.sin(a2) * r * 0.9)}` +
+        `L${n(cx + Math.cos(a2) * r * 0.34)} ${n(cy + Math.sin(a2) * r * 0.34)}Z`, "rf-fan-blade"));
+    }
+    return group("rf-fan", [circle(cx, cy, r, "rf-fan-ring"), ...blades, circle(cx, cy, r * 0.3, "rf-fan-hub")]);
+  }
+
+  // IEC C14 appliance inlet.
+  function iecInlet(x, y, w = 30, h = 20) {
+    return group("rf-inlet", [
+      rect(x, y, w, h, "rf-cage", 2),
+      rect(x + 3, y + 3, w - 6, h - 6, "rf-port-hole", 1.5),
+      rect(x + 6.5, y + 7, 4, 6, "rf-inlet-pin"),
+      rect(x + w / 2 - 2, y + 6, 4, 4, "rf-inlet-pin"),
+      rect(x + w - 10.5, y + 7, 4, 6, "rf-inlet-pin")
+    ]);
+  }
+
+  // Hot-swap power supply bay: handle, latch LED, inlet, exhaust.
+  function psuBay({ x, y, w, h, inlet = true }) {
+    const shapes = [
+      rect(x, y, w, h, "rf-module", 2),
+      rect(x + 3, y + 3, 8, h - 6, "rf-handle", 2),
+      ledColumn(x + 14, y + h / 2 - 2.5, ["green"], 5, 3)
+    ];
+    if (inlet) shapes.push(iecInlet(x + 22, y + h / 2 - 10));
+    shapes.push(vent({ x: x + 58, y: y + 4, w: Math.max(12, w - 62), h: h - 8, cols: 6, rows: 3 }));
+    return group("rf-psu", shapes);
+  }
+
+  // A line-card / supervisor / uplink slot. `filled` draws ports into it;
+  // otherwise it is a blank slot cover, which is what half a chassis usually is.
+  function moduleSlot({ x, y, w, h, contents = [] }) {
+    return group("rf-slot", [
+      rect(x, y, w, h, "rf-module", 2),
+      rect(x + 3, y + 3, 7, h - 6, "rf-handle", 2),
+      rect(x + w - 10, y + 3, 7, h - 6, "rf-handle", 2),
+      ...contents
+    ]);
+  }
+
+  // PCIe expansion bracket on a server rear.
+  const pcieBracket = (x, y, w, h) => group("rf-pcie", [
+    rect(x, y, w, h, "rf-module", 1.5),
+    vent({ x: x + 4, y: y + 4, w: w - 8, h: h - 8, cols: 5, rows: 3 })
+  ]);
+
+  // Hot-swap drive carrier: latch, handle, activity LEDs.
+  const driveBay = (x, y, w, h) => group("rf-drive", [
+    rect(x, y, w, h, "rf-module", 1.5),
+    rect(x + 2, y + 2, w * 0.28, h - 4, "rf-handle", 1),
+    rect(x + w * 0.42, y + 3, w * 0.42, h - 6, "rf-drive-face", 1),
+    rect(x + w * 0.46, y + h - 9, w * 0.14, 4, "rf-led rf-led--green", 1)
+  ]);
+
+  function driveGrid({ x, y, w, h, cols, rows = 1, pitchX, pitchY }) {
+    const px = pitchX !== undefined ? pitchX : w + 2;
+    const py = pitchY !== undefined ? pitchY : h + 3;
+    const shapes = [];
+    for (let row = 0; row < rows; row++) {
+      for (let col = 0; col < cols; col++) shapes.push(driveBay(x + col * px, y + row * py, w, h));
+    }
+    return group("rf-drives", shapes);
+  }
+
+  // Panel-mounted keystone jack — a patch panel port, framed by its bezel.
+  const keystone = (x, y, w = 22, h = 26) => group("rf-keystone", [
+    rect(x, y, w, h, "rf-module", 1.5),
+    rect(x + 2.5, y + 2.5, w - 5, h - 5, "rf-cage", 1),
+    rect(x + 4.5, y + 4.5, w - 9, h - 9, "rf-port-hole", 1),
+    rect(x + w / 2 - 3, y + 4.5, 6, 4, "rf-port-tab")
+  ]);
+
+  function keystoneBank({ x, y, w = 22, h = 26, rows = 1, cols, pitch = 25, rowGap = 8, groupOf = 6, groupGap = 6 }) {
+    const shapes = [];
+    for (let row = 0; row < rows; row++) {
+      for (let col = 0; col < cols; col++) {
+        shapes.push(keystone(x + col * pitch + Math.floor(col / groupOf) * groupGap, y + row * (h + rowGap), w, h));
+      }
+    }
+    return group("rf-keystones", shapes);
+  }
+
+  // Duplex LC fibre adapter.
+  const lcDuplex = (x, y, w = 22, h = 14) => group("rf-lc", [
+    rect(x, y, w, h, "rf-module", 1.5),
+    rect(x + 2, y + 2.5, w / 2 - 3.5, h - 5, "rf-port-hole", 1),
+    rect(x + w / 2 + 1.5, y + 2.5, w / 2 - 3.5, h - 5, "rf-port-hole", 1)
+  ]);
+
+  // A fibre cassette: the removable module a patch panel is loaded with.
+  function fibreCassette({ x, y, w, h, adapters = 6 }) {
+    const pitch = (w - 16) / adapters;
+    const shapes = [rect(x, y, w, h, "rf-module", 2), rect(x + 3, y + 3, 6, h - 6, "rf-handle", 1.5)];
+    for (let i = 0; i < adapters; i++) shapes.push(lcDuplex(x + 12 + i * pitch, y + h / 2 - 7, pitch - 3));
+    return group("rf-cassette", shapes);
+  }
+
+  // NEMA 5-15R outlet, 1.3in across.
+  const outlet = (x, y, w = 48, h = 44) => group("rf-outlet", [
+    rect(x, y, w, h, "rf-module", 3),
+    rect(x + w * 0.24, y + h * 0.18, w * 0.1, h * 0.32, "rf-port-hole", 1),
+    rect(x + w * 0.66, y + h * 0.18, w * 0.1, h * 0.32, "rf-port-hole", 1),
+    circle(x + w / 2, y + h * 0.72, w * 0.09, "rf-port-hole")
+  ]);
+
+  function outletBank({ x, y, w = 48, h = 44, rows = 1, cols, pitch = 55, rowGap = 8 }) {
+    const shapes = [];
+    for (let row = 0; row < rows; row++) {
+      for (let col = 0; col < cols; col++) shapes.push(outlet(x + col * pitch, y + row * (h + rowGap), w, h));
+    }
+    return group("rf-outlets", shapes);
+  }
+
+  const breaker = (x, y, w = 20, h = 30) => group("rf-breaker", [
+    rect(x, y, w, h, "rf-module", 2),
+    rect(x + 4, y + 5, w - 8, h * 0.45, "rf-port-hole", 1.5)
+  ]);
+
+  const groundLug = (x, y) => group("rf-ground-lug", [
+    rect(x, y, 22, 18, "rf-ground", 2),
+    circle(x + 5.5, y + 9, 2.6, "rf-port-hole"),
+    circle(x + 16.5, y + 9, 2.6, "rf-port-hole")
+  ]);
+
+  // Cable-manager finger duct. The fingers are tall and squared off — rounding
+  // them to their own width turns the whole panel into a row of buttons.
+  function fingerDuct({ x, y, w, h, fingers = 8 }) {
+    const pitch = w / fingers;
+    const shapes = [rect(x, y, w, h, "rf-module", 2)];
+    for (let i = 0; i < fingers; i++) {
+      shapes.push(rect(x + i * pitch + pitch * 0.28, y + 3, pitch * 0.44, h - 6, "rf-duct-finger", 3));
+    }
+    return group("rf-duct", shapes);
+  }
+
+  // Brush grommet — the cable pass-through on the back of a fibre panel. Drawn
+  // as bristles rather than a hole, because an unbroken black slab at rack scale
+  // reads as a missing device rather than an opening.
+  function brushGrommet(x, y, w, h, strips = 14) {
+    const pitch = (w - 8) / strips;
+    const bristles = [];
+    for (let i = 0; i < strips; i++) {
+      bristles.push(rect(x + 4 + i * pitch, y + 4, pitch * 0.55, h - 8, "rf-bristle", 1));
+    }
+    return group("rf-grommet", [
+      rect(x, y, w, h, "rf-cage", 3),
+      rect(x + 3, y + 3, w - 6, h - 6, "rf-port-hole", 2),
+      ...bristles
+    ]);
+  }
+
+  // A stacking-bus connector: the wide, shallow back-panel socket that marks a
+  // stackable switch.
+  const stackPort = (x, y, w, h) => group("rf-stack", [
+    rect(x, y, w, h, "rf-module", 3),
+    rect(x + 6, y + (h - 16) / 2, w - 12, 16, "rf-cage", 2),
+    rect(x + 9, y + (h - 16) / 2 + 3, w - 18, 10, "rf-port-hole", 1),
+    rect(x + w / 2 - 1.5, y + (h - 16) / 2 + 3, 3, 10, "rf-module")
+  ]);
+
+  // Drawer latch on a console / KVM tray.
+  const drawerLatch = (x, y, w = 26, h = 34) => group("rf-latch", [
+    rect(x, y, w, h, "rf-module", 2),
+    rect(x + 5, y + h * 0.3, w - 10, h * 0.4, "rf-port-hole", 2)
+  ]);
+
+  /* -- device schedule ----------------------------------------------------- */
+  //
+  // Two families. `generic` is house artwork with no vendor in mind — reach for
+  // these first. The vendor-shaped entries exist because port layout is what an
+  // engineer actually recognises in an elevation; they carry no branding.
+
+  const DEVICES = [
+
+    /* ---- generic: switching and routing ---- */
+    {
+      key: "generic-switch-48p-1u",
+      label: "Generic 48-port access switch",
+      family: "generic", role: "access-switch", units: 1, tone: "light",
+      front: () => [
+        body(1), nameplate(40, 18, 78, 34), ledColumn(46, 22, ["green", "green", "amber", "off"]),
+        rj45Bank({ x: 128, y: 11, rows: 2, cols: 24, pitch: 19 }),
+        cageBank({ x: 612, y: 25, cols: 4, pitch: 25 }),
+        vent({ x: 716, y: 14, w: 12, h: 42, cols: 2, rows: 6 })
+      ],
+      rear: () => [
+        body(1, "light", "rear"),
+        psuBay({ x: 40, y: 12, w: 170, h: 46 }), psuBay({ x: 218, y: 12, w: 170, h: 46 }),
+        fan(430, 35, 22), fan(486, 35, 22), fan(542, 35, 22),
+        rj45(600, 24), miniPort(626, 28), groundLug(672, 26)
+      ]
+    },
+    {
+      key: "generic-switch-24p-1u",
+      label: "Generic 24-port access switch",
+      family: "generic", role: "access-switch", units: 1, tone: "light",
+      front: () => [
+        body(1), nameplate(40, 18, 78, 34), ledColumn(46, 22, ["green", "green", "off", "off"]),
+        rj45Bank({ x: 132, y: 11, rows: 2, cols: 12, pitch: 21 }),
+        cageBank({ x: 420, y: 25, cols: 4, pitch: 25 }),
+        vent({ x: 540, y: 14, w: 188, h: 42, cols: 12, rows: 4 })
+      ],
+      rear: () => [
+        body(1, "light", "rear"),
+        vent({ x: 40, y: 12, w: 260, h: 46, cols: 14, rows: 4 }),
+        fan(340, 35, 22), fan(396, 35, 22),
+        iecInlet(440, 25, 34, 22), rj45(500, 24), miniPort(526, 28), groundLug(580, 26)
+      ]
+    },
+    {
+      key: "generic-router-1u",
+      label: "Generic WAN router",
+      family: "generic", role: "router", units: 1, tone: "light",
+      front: () => [
+        body(1), nameplate(40, 18, 64, 34), ledColumn(46, 22, ["green", "amber", "off", "off"]),
+        rj45Bank({ x: 116, y: 24, rows: 1, cols: 4, pitch: 20, groupOf: 4 }),
+        cageBank({ x: 204, y: 25, cols: 2, pitch: 25 }),
+        miniPort(262, 28), usbPort(288, 31),
+        moduleSlot({ x: 318, y: 12, w: 196, h: 46, contents: [rj45Bank({ x: 336, y: 24, rows: 1, cols: 4, pitch: 20, groupOf: 4 })] }),
+        moduleSlot({ x: 522, y: 12, w: 196, h: 46, contents: [vent({ x: 542, y: 20, w: 156, h: 30, cols: 8, rows: 2 })] })
+      ],
+      rear: () => [
+        body(1, "light", "rear"),
+        vent({ x: 40, y: 12, w: 300, h: 46, cols: 16, rows: 4 }),
+        fan(380, 35, 22), fan(436, 35, 22),
+        iecInlet(480, 25, 34, 22), miniPort(540, 28), groundLug(590, 26)
+      ]
+    },
+    {
+      key: "generic-firewall-1u",
+      label: "Generic 1U firewall",
+      family: "generic", role: "firewall", units: 1, tone: "light",
+      front: () => [
+        body(1), nameplate(40, 18, 66, 34), ledColumn(46, 22, ["green", "green", "amber", "off"]),
+        rj45Bank({ x: 122, y: 11, rows: 2, cols: 8, pitch: 19, groupOf: 4 }),
+        cageBank({ x: 292, y: 11, rows: 2, cols: 4, pitch: 25 }),
+        miniPort(404, 28), usbPort(434, 31),
+        vent({ x: 466, y: 12, w: 260, h: 46, cols: 14, rows: 4 })
+      ],
+      rear: () => [
+        body(1, "light", "rear"),
+        vent({ x: 40, y: 12, w: 300, h: 46, cols: 16, rows: 4 }),
+        fan(378, 35, 23), fan(434, 35, 23),
+        psuBay({ x: 470, y: 12, w: 124, h: 46 }), psuBay({ x: 600, y: 12, w: 124, h: 46 })
+      ]
+    },
+    {
+      key: "generic-security-appliance-3u",
+      label: "Generic 3U security appliance",
+      family: "generic", role: "firewall", units: 3, tone: "light",
+      front: () => [
+        body(3),
+        // Supervisor strip: management, status, and the two system SSDs.
+        nameplate(40, 16, 68, 36), lcd(122, 14, 118, 40),
+        ledColumn(254, 18, ["green", "green", "amber", "off"]),
+        rj45(284, 22), miniPort(310, 26), usbPort(340, 29),
+        driveGrid({ x: 370, y: 12, w: 46, h: 44, cols: 2, pitchX: 52 }),
+        vent({ x: 486, y: 14, w: 236, h: 40, cols: 12, rows: 3 }),
+        // Two loaded network module bays over one blank.
+        moduleSlot({ x: 38, y: 70, w: 340, h: 58, contents: [cageBank({ x: 60, y: 89, cols: 8, pitch: 25 })] }),
+        moduleSlot({ x: 386, y: 70, w: 336, h: 58, contents: [cageBank({ x: 408, y: 88, cols: 4, pitch: 34, wide: true })] }),
+        moduleSlot({ x: 38, y: 138, w: 340, h: 58, contents: [vent({ x: 60, y: 150, w: 296, h: 34, cols: 14, rows: 2 })] }),
+        vent({ x: 386, y: 140, w: 336, h: 54, cols: 16, rows: 4 })
+      ],
+      rear: () => [
+        body(3, "light", "rear"),
+        psuBay({ x: 38, y: 12, w: 330, h: 56 }), psuBay({ x: 386, y: 12, w: 330, h: 56 }),
+        fan(90, 118, 32), fan(170, 118, 32), fan(250, 118, 32),
+        fan(330, 118, 32), fan(410, 118, 32), fan(490, 118, 32),
+        vent({ x: 38, y: 158, w: 620, h: 44, cols: 24, rows: 3 }), groundLug(680, 172)
+      ]
+    },
+    {
+      key: "generic-chassis-switch-4u",
+      label: "Generic modular chassis switch",
+      family: "generic", role: "core-switch", units: 4, tone: "light",
+      front: () => {
+        const slots = [];
+        const contentFor = index => {
+          if (index === 0) return [vent({ x: 60, y: 10, w: 640, h: 22, cols: 22, rows: 2 })];
+          if (index === 1 || index === 2) {
+            return [nameplate(60, 12, 60, 18), miniPort(132, 15), usbPort(162, 17),
+              cageBank({ x: 196, y: 11, cols: 4, pitch: 25 }), ledRow(310, 16, ["green", "amber", "off"])];
+          }
+          return [rj45Bank({ x: 60, y: 8, rows: 1, cols: 24, pitch: 25, h: 22 })];
+        };
+        for (let i = 0; i < 6; i++) {
+          const y = 6 + i * 45;
+          const raw = contentFor(i);
+          slots.push(moduleSlot({
+            x: 38, y, w: 684, h: 40,
+            contents: raw.map(shape => tag("g", { transform: `translate(0 ${n(y)})` }, [shape]))
+          }));
+        }
+        return [body(4), ...slots];
+      },
+      rear: () => [
+        body(4, "light", "rear"),
+        psuBay({ x: 40, y: 10, w: 330, h: 60 }), psuBay({ x: 384, y: 10, w: 330, h: 60 }),
+        psuBay({ x: 40, y: 78, w: 330, h: 60 }), psuBay({ x: 384, y: 78, w: 330, h: 60 }),
+        vent({ x: 40, y: 150, w: 674, h: 60, cols: 24, rows: 4 }),
+        fan(120, 240, 30), fan(200, 240, 30), fan(280, 240, 30), fan(360, 240, 30),
+        fan(440, 240, 30), fan(520, 240, 30), groundLug(660, 232)
+      ]
+    },
+    {
+      key: "generic-wlan-controller-1u",
+      label: "Generic wireless LAN controller",
+      family: "generic", role: "wlan-controller", units: 1, tone: "light",
+      front: () => [
+        body(1), nameplate(40, 18, 58, 34), lcd(110, 16, 120, 38),
+        ledColumn(244, 20, ["green", "green", "amber", "off"]),
+        cageBank({ x: 276, y: 25, cols: 8, pitch: 25 }),
+        rj45(490, 24), miniPort(516, 28), usbPort(546, 31),
+        vent({ x: 580, y: 14, w: 148, h: 42, cols: 9, rows: 4 })
+      ],
+      rear: () => [
+        body(1, "light", "rear"),
+        psuBay({ x: 40, y: 12, w: 190, h: 46 }), psuBay({ x: 238, y: 12, w: 190, h: 46 }),
+        fan(470, 35, 22), fan(526, 35, 22), fan(582, 35, 22), groundLug(660, 26)
+      ]
+    },
+
+    /* ---- generic: compute and storage ---- */
+    {
+      key: "generic-server-1u",
+      label: "Generic 1U rack server",
+      family: "generic", role: "server", units: 1, tone: "light",
+      front: () => [
+        body(1),
+        driveGrid({ x: 46, y: 6, w: 24, h: 58, cols: 10, pitchX: 26 }),
+        vent({ x: 326, y: 10, w: 300, h: 50, cols: 16, rows: 4 }),
+        nameplate(640, 12, 42, 46),
+        button(700, 22, 7), usbPort(692, 38), ledRow(692, 52, ["green", "amber"])
+      ],
+      rear: () => [
+        body(1, "light", "rear"),
+        psuBay({ x: 40, y: 12, w: 150, h: 46 }), psuBay({ x: 198, y: 12, w: 150, h: 46 }),
+        pcieBracket(360, 12, 110, 46), pcieBracket(478, 12, 110, 46),
+        rj45Bank({ x: 598, y: 24, rows: 1, cols: 4, pitch: 19, groupOf: 4 }),
+        miniPort(682, 28), usbPort(682, 46), rj45(706, 8, 14, 18)
+      ]
+    },
+    {
+      key: "generic-server-2u",
+      label: "Generic 2U rack server",
+      family: "generic", role: "server", units: 2, tone: "light",
+      front: () => [
+        body(2),
+        driveGrid({ x: 46, y: 20, w: 24, h: 100, cols: 24, pitchX: 26 }),
+        nameplate(676, 26, 34, 88),
+        button(693, 40, 8), usbPort(686, 62), ledRow(686, 82, ["green", "amber"])
+      ],
+      rear: () => [
+        body(2, "light", "rear"),
+        psuBay({ x: 40, y: 14, w: 200, h: 52 }), psuBay({ x: 248, y: 14, w: 200, h: 52 }),
+        pcieBracket(470, 14, 120, 52), pcieBracket(598, 14, 120, 52),
+        pcieBracket(40, 76, 120, 52), pcieBracket(168, 76, 120, 52),
+        rj45Bank({ x: 306, y: 90, rows: 1, cols: 4, pitch: 19, groupOf: 4 }),
+        cageBank({ x: 392, y: 91, cols: 2, pitch: 25 }),
+        miniPort(452, 94), usbPort(482, 96), rj45(510, 88, 14, 18), groundLug(560, 92)
+      ]
+    },
+    {
+      key: "generic-storage-array-2u",
+      label: "Generic 12-bay storage array",
+      family: "generic", role: "storage-array", units: 2, tone: "light",
+      front: () => [
+        body(2),
+        driveGrid({ x: 38, y: 6, w: 160, h: 40, cols: 4, rows: 3, pitchX: 168, pitchY: 44 }),
+        ledColumn(716, 46, ["green", "green", "amber"])
+      ],
+      rear: () => [
+        body(2, "light", "rear"),
+        moduleSlot({
+          x: 38, y: 8, w: 340, h: 60, contents: [
+            cageBank({ x: 60, y: 26, cols: 4, pitch: 25 }), rj45(180, 26), miniPort(208, 30),
+            ledColumn(240, 24, ["green", "amber"])]
+        }),
+        moduleSlot({
+          x: 386, y: 8, w: 336, h: 60, contents: [
+            cageBank({ x: 408, y: 26, cols: 4, pitch: 25 }), rj45(528, 26), miniPort(556, 30),
+            ledColumn(588, 24, ["green", "amber"])]
+        }),
+        psuBay({ x: 38, y: 76, w: 330, h: 56 }), psuBay({ x: 386, y: 76, w: 330, h: 56 })
+      ]
+    },
+    {
+      key: "generic-kvm-console-1u",
+      label: "Generic KVM console drawer",
+      family: "generic", role: "console", units: 1, tone: "light",
+      front: () => [
+        body(1),
+        drawerLatch(40, 18), drawerLatch(694, 18),
+        rect(76, 30, 612, 4, "rf-seam", 2),
+        rect(76, 12, 612, 14, "rf-plate", 2),
+        ledRow(360, 44, ["green", "off"]),
+        button(410, 46.5, 5)
+      ],
+      rear: () => [
+        body(1, "light", "rear"),
+        vent({ x: 40, y: 12, w: 400, h: 46, cols: 20, rows: 4 }),
+        miniPort(470, 28, 26, 16), usbPort(510, 31), usbPort(532, 31),
+        rj45(566, 24), iecInlet(610, 25, 34, 22), groundLug(676, 26)
+      ]
+    },
+
+    /* ---- generic: passive and power ---- */
+    {
+      key: "generic-patch-panel-24-1u",
+      label: "Generic 24-port copper patch panel",
+      family: "generic", role: "patch-panel", units: 1, tone: "light",
+      front: () => [
+        body(1),
+        rect(38, 6, 684, 9, "rf-plate", 1.5),
+        keystoneBank({ x: 42, y: 20, cols: 24, pitch: 25 }),
+        rect(38, 56, 684, 8, "rf-plate", 1.5)
+      ],
+      rear: () => [
+        body(1, "light", "rear"),
+        rect(42, 14, 676, 42, "rf-module", 2),
+        vent({ x: 52, y: 20, w: 656, h: 30, cols: 24, rows: 2 })
+      ]
+    },
+    {
+      key: "generic-patch-panel-48-2u",
+      label: "Generic 48-port copper patch panel",
+      family: "generic", role: "patch-panel", units: 2, tone: "light",
+      front: () => [
+        body(2),
+        rect(38, 8, 684, 9, "rf-plate", 1.5),
+        keystoneBank({ x: 42, y: 22, rows: 2, cols: 24, pitch: 25, rowGap: 26 }),
+        rect(38, 124, 684, 9, "rf-plate", 1.5)
+      ],
+      rear: () => [
+        body(2, "light", "rear"),
+        rect(42, 16, 676, 50, "rf-module", 2), vent({ x: 52, y: 24, w: 656, h: 34, cols: 24, rows: 2 }),
+        rect(42, 76, 676, 50, "rf-module", 2), vent({ x: 52, y: 84, w: 656, h: 34, cols: 24, rows: 2 })
+      ]
+    },
+    {
+      key: "generic-fibre-panel-1u",
+      label: "Generic 4-cassette fibre panel",
+      family: "generic", role: "patch-panel", units: 1, tone: "light",
+      front: () => [
+        body(1),
+        fibreCassette({ x: 38, y: 12, w: 166, h: 46 }),
+        fibreCassette({ x: 212, y: 12, w: 166, h: 46 }),
+        fibreCassette({ x: 386, y: 12, w: 166, h: 46 }),
+        fibreCassette({ x: 560, y: 12, w: 162, h: 46 })
+      ],
+      rear: () => [
+        body(1, "light", "rear"),
+        rect(42, 12, 676, 46, "rf-module", 2),
+        brushGrommet(60, 20, 180, 30), brushGrommet(280, 20, 180, 30), brushGrommet(500, 20, 180, 30)
+      ]
+    },
+    {
+      key: "generic-blanking-panel-1u",
+      label: "Generic blanking panel",
+      family: "generic", role: "blank", units: 1, tone: "light",
+      front: () => [body(1), rect(38, 32, 684, 5, "rf-seam", 2)],
+      rear: () => [body(1, "light", "rear"), rect(38, 32, 684, 5, "rf-seam", 2)]
+    },
+    {
+      key: "generic-cable-manager-1u",
+      label: "Generic horizontal cable manager",
+      family: "generic", role: "cable-management", units: 1, tone: "light",
+      front: () => [body(1), fingerDuct({ x: 38, y: 10, w: 684, h: 50, fingers: 10 })],
+      rear: () => [body(1, "light", "rear"), fingerDuct({ x: 38, y: 10, w: 684, h: 50, fingers: 10 })]
+    },
+    {
+      key: "generic-pdu-1u",
+      label: "Generic 8-outlet rack PDU",
+      family: "generic", role: "pdu", units: 1, tone: "light",
+      front: () => [
+        body(1), breaker(40, 20), ledColumn(70, 24, ["green", "off"]),
+        outletBank({ x: 96, y: 13, cols: 8, pitch: 72, w: 60, h: 44 }),
+        rect(682, 20, 36, 30, "rf-module", 3), circle(700, 35, 8, "rf-port-hole")
+      ],
+      rear: () => [
+        body(1, "light", "rear"),
+        vent({ x: 40, y: 16, w: 600, h: 38, cols: 26, rows: 3 }),
+        rect(660, 20, 58, 30, "rf-module", 3), circle(689, 35, 9, "rf-port-hole")
+      ]
+    },
+    {
+      key: "generic-ups-2u",
+      label: "Generic 2U rack UPS",
+      family: "generic", role: "ups", units: 2, tone: "light",
+      front: () => [
+        body(2), lcd(40, 26, 168, 88),
+        ledColumn(224, 34, ["green", "green", "amber", "off"], 8, 8),
+        button(258, 40, 8), button(258, 70, 8), button(258, 100, 8),
+        nameplate(292, 30, 96, 80),
+        vent({ x: 404, y: 20, w: 318, h: 100, cols: 14, rows: 6 })
+      ],
+      rear: () => [
+        body(2, "light", "rear"),
+        outletBank({ x: 40, y: 14, rows: 2, cols: 4, pitch: 66, w: 56, h: 50, rowGap: 12 }),
+        breaker(320, 30, 26, 40),
+        rect(360, 22, 40, 26, "rf-module", 3), circle(380, 35, 9, "rf-port-hole"),
+        moduleSlot({ x: 430, y: 14, w: 150, h: 50, contents: [rj45(470, 30), miniPort(500, 34)] }),
+        fan(630, 40, 30), fan(630, 104, 30), groundLug(690, 96)
+      ]
+    },
+
+    /* ---- vendor-shaped: Cisco ---- */
+    {
+      key: "cisco-catalyst-48p-1u",
+      label: "Cisco-style stackable 48-port switch",
+      family: "cisco", role: "access-switch", units: 1, tone: "light",
+      front: () => [
+        body(1), ledColumn(40, 14, ["green", "green", "amber", "off", "off"], 5, 4),
+        button(56, 52, 5), nameplate(52, 12, 30, 32),
+        rj45Bank({ x: 92, y: 11, rows: 2, cols: 24, pitch: 19 }),
+        moduleSlot({
+          x: 570, y: 10, w: 140, h: 50,
+          contents: [cageBank({ x: 590, y: 25, cols: 4, pitch: 25 })]
+        }),
+        vent({ x: 714, y: 14, w: 12, h: 42, cols: 2, rows: 6 })
+      ],
+      rear: () => [
+        body(1, "light", "rear"),
+        psuBay({ x: 38, y: 12, w: 150, h: 46 }), psuBay({ x: 196, y: 12, w: 150, h: 46 }),
+        // The pair of wide stacking-bus connectors that identify this family.
+        stackPort(360, 16, 116, 38), stackPort(486, 16, 116, 38),
+        fan(628, 35, 20), fan(674, 35, 20), miniPort(706, 28, 16, 14)
+      ]
+    },
+    {
+      key: "cisco-isr-router-1u",
+      label: "Cisco-style modular branch router",
+      family: "cisco", role: "router", units: 1, tone: "light",
+      front: () => [
+        body(1), nameplate(38, 16, 34, 38), ledColumn(80, 16, ["green", "amber", "off", "off"]),
+        rj45Bank({ x: 104, y: 24, rows: 1, cols: 3, pitch: 20, groupOf: 3 }),
+        cageBank({ x: 168, y: 25, cols: 2, pitch: 25 }),
+        miniPort(224, 28), usbPort(250, 31), usbPort(250, 43),
+        moduleSlot({ x: 280, y: 10, w: 216, h: 50, contents: [rj45Bank({ x: 300, y: 24, rows: 1, cols: 4, pitch: 20, groupOf: 4 })] }),
+        moduleSlot({ x: 504, y: 10, w: 214, h: 50, contents: [cageBank({ x: 524, y: 25, cols: 4, pitch: 25 })] })
+      ],
+      rear: () => [
+        body(1, "light", "rear"),
+        psuBay({ x: 38, y: 12, w: 190, h: 46 }), psuBay({ x: 236, y: 12, w: 190, h: 46 }),
+        fan(470, 35, 22), fan(526, 35, 22),
+        usbPort(570, 31), miniPort(600, 28), groundLug(660, 26)
+      ]
+    },
+    {
+      key: "cisco-nexus-48sfp-1u",
+      label: "Cisco-style 48-port SFP28 data-centre switch",
+      family: "cisco", role: "dc-switch", units: 1, tone: "light",
+      front: () => [
+        body(1), ledColumn(40, 16, ["green", "green", "amber"]),
+        cageBank({ x: 60, y: 11, rows: 2, cols: 24, w: 18, h: 20, pitch: 20, rowGap: 8 }),
+        cageBank({ x: 548, y: 24, cols: 6, w: 27, h: 22, pitch: 30, wide: true })
+      ],
+      rear: () => [
+        body(1, "light", "rear"),
+        psuBay({ x: 38, y: 12, w: 150, h: 46 }), psuBay({ x: 196, y: 12, w: 150, h: 46 }),
+        // Management and console live on the back of this family, not the front.
+        rj45(360, 24), miniPort(386, 28), usbPort(416, 31),
+        fan(470, 35, 21), fan(516, 35, 21), fan(562, 35, 21), fan(608, 35, 21),
+        groundLug(660, 26)
+      ]
+    },
+
+    /* ---- vendor-shaped: Juniper ---- */
+    {
+      key: "juniper-ex-48p-1u",
+      label: "Juniper-style 48-port access switch",
+      family: "juniper", role: "access-switch", units: 1, tone: "dark",
+      front: () => [
+        body(1, "dark"), nameplate(38, 18, 46, 34),
+        ledColumn(94, 16, ["green", "green", "amber", "off"]),
+        rj45(114, 24), miniPort(140, 28), usbPort(168, 31),
+        rj45Bank({ x: 198, y: 11, rows: 2, cols: 24, pitch: 21 }),
+        vent({ x: 716, y: 14, w: 12, h: 42, cols: 2, rows: 6 })
+      ],
+      rear: () => [
+        body(1, "dark", "rear"),
+        // The uplinks are a rear module on this family — that is the tell.
+        moduleSlot({ x: 38, y: 10, w: 190, h: 50, contents: [cageBank({ x: 58, y: 24, cols: 4, w: 29, h: 22, pitch: 32, wide: true })] }),
+        psuBay({ x: 238, y: 12, w: 160, h: 46 }), psuBay({ x: 406, y: 12, w: 160, h: 46 }),
+        fan(600, 35, 21), fan(646, 35, 21), groundLug(690, 26)
+      ]
+    },
+    {
+      key: "juniper-srx-firewall-1u",
+      label: "Juniper-style services gateway",
+      family: "juniper", role: "firewall", units: 1, tone: "dark",
+      front: () => [
+        body(1, "dark"), nameplate(38, 18, 46, 34),
+        ledColumn(94, 16, ["green", "amber", "off", "off"]),
+        rj45(114, 24), miniPort(140, 28), usbPort(168, 31),
+        rj45Bank({ x: 198, y: 11, rows: 2, cols: 8, pitch: 21, groupOf: 4 }),
+        cageBank({ x: 388, y: 11, rows: 2, cols: 4, pitch: 25 }),
+        vent({ x: 500, y: 12, w: 226, h: 46, cols: 12, rows: 4 })
+      ],
+      rear: () => [
+        body(1, "dark", "rear"),
+        vent({ x: 38, y: 12, w: 300, h: 46, cols: 16, rows: 4 }),
+        fan(376, 35, 22), fan(432, 35, 22),
+        psuBay({ x: 470, y: 12, w: 124, h: 46 }), psuBay({ x: 600, y: 12, w: 124, h: 46 })
+      ]
+    },
+
+    /* ---- vendor-shaped: Palo Alto, Fortinet, Arista ---- */
+    {
+      key: "palo-alto-ngfw-1u",
+      label: "Palo Alto style next-generation firewall",
+      family: "palo-alto", role: "firewall", units: 1, tone: "dark",
+      front: () => [
+        body(1, "dark"), nameplate(40, 20, 62, 30), ledRow(46, 54, ["green", "green", "amber", "off"], 5, 6),
+        rj45(112, 24), rj45(134, 24), miniPort(158, 28, 16, 14),
+        rj45Bank({ x: 186, y: 11, rows: 2, cols: 8, pitch: 19, groupOf: 4 }),
+        cageBank({ x: 356, y: 11, cols: 4, pitch: 25 }),
+        cageBank({ x: 356, y: 38, cols: 4, w: 29, h: 22, pitch: 32, wide: true }),
+        vent({ x: 500, y: 12, w: 226, h: 46, cols: 12, rows: 4 })
+      ],
+      rear: () => [
+        body(1, "dark", "rear"),
+        vent({ x: 40, y: 12, w: 300, h: 46, cols: 16, rows: 4 }),
+        fan(378, 35, 23), fan(434, 35, 23),
+        psuBay({ x: 470, y: 12, w: 124, h: 46 }), psuBay({ x: 600, y: 12, w: 124, h: 46 })
+      ]
+    },
+    {
+      key: "fortinet-ngfw-1u",
+      label: "Fortinet-style next-generation firewall",
+      family: "fortinet", role: "firewall", units: 1, tone: "light",
+      front: () => [
+        body(1), lcd(38, 16, 110, 38),
+        button(162, 24, 5), button(162, 46, 5), button(180, 35, 5), button(144, 35, 5),
+        ledColumn(198, 18, ["green", "green", "amber", "off"]),
+        rj45Bank({ x: 220, y: 11, rows: 2, cols: 8, pitch: 19, groupOf: 4 }),
+        cageBank({ x: 390, y: 11, rows: 2, cols: 4, pitch: 25 }),
+        cageBank({ x: 502, y: 24, cols: 4, w: 29, h: 22, pitch: 32, wide: true }),
+        miniPort(640, 28), usbPort(670, 31),
+        vent({ x: 698, y: 14, w: 26, h: 42, cols: 3, rows: 6 })
+      ],
+      rear: () => [
+        body(1, "light", "rear"),
+        vent({ x: 40, y: 12, w: 320, h: 46, cols: 18, rows: 4 }),
+        fan(398, 35, 23), fan(454, 35, 23),
+        psuBay({ x: 492, y: 12, w: 110, h: 46 }), psuBay({ x: 610, y: 12, w: 110, h: 46 })
+      ]
+    },
+    {
+      key: "arista-32qsfp-1u",
+      label: "Arista-style 32-port QSFP28 spine switch",
+      family: "arista", role: "dc-switch", units: 1, tone: "black",
+      front: () => [
+        body(1, "black"), ledColumn(38, 16, ["green", "green", "amber"]),
+        cageBank({ x: 56, y: 10, rows: 2, cols: 16, w: 27, h: 22, pitch: 29, rowGap: 6, wide: true }),
+        rj45(540, 24), miniPort(566, 28), usbPort(596, 31),
+        vent({ x: 626, y: 12, w: 100, h: 46, cols: 6, rows: 4 })
+      ],
+      rear: () => [
+        body(1, "black", "rear"),
+        psuBay({ x: 38, y: 12, w: 160, h: 46 }), psuBay({ x: 206, y: 12, w: 160, h: 46 }),
+        fan(410, 35, 21), fan(456, 35, 21), fan(502, 35, 21), fan(548, 35, 21),
+        vent({ x: 590, y: 14, w: 90, h: 42, cols: 5, rows: 4 }), groundLug(694, 26)
+      ]
+    }
+  ];
+
+  /* -- public interface ---------------------------------------------------- */
+
+  const BY_KEY = new Map(DEVICES.map(device => [device.key, device]));
+
+  // The shapes of one face, as SVG markup with no wrapper. Callers supply the
+  // <symbol> or <svg> around it, because the sprite and the live document need
+  // different wrappers around identical contents.
+  function faceMarkup(key, view) {
+    const device = BY_KEY.get(key);
+    if (!device || (view !== "front" && view !== "rear")) return null;
+    return [...device[view](), ears(device.units)].join("");
+  }
+
+  function faceInfo(key) {
+    const device = BY_KEY.get(key);
+    if (!device) return null;
+  return { key: device.key, label: device.label, family: device.family, role: device.role, units: device.units };
+  }
+
+  const viewBoxFor = key => {
+    const device = BY_KEY.get(key);
+    return device ? `0 0 ${W} ${U * device.units}` : null;
+  };
+
+  const STYLE = `
+      :root{
+        --rf-ear:#78848c; --rf-body:#c2ccd2; --rf-metal:#3d454c; --rf-hole:#12171b;
+      }
+      .rf-ear{fill:var(--rf-ear)}
+      .rf-ear-hole{fill:#39424a}
+      .rf-body{fill:var(--rf-body)}
+      .rf-body--light{fill:var(--rf-body)}
+      .rf-body--light-rear{fill:#aab5bc}
+      .rf-body--dark{fill:#33393e}
+      .rf-body--dark-rear{fill:#2b3136}
+      .rf-body--black{fill:#24272a}
+      .rf-body--black-rear{fill:#1d2023}
+      .rf-body-hi{fill:#fff;opacity:.35}
+      .rf-body-lo{fill:#000;opacity:.18}
+      .rf-cage{fill:var(--rf-metal)}
+      .rf-cage-latch{fill:#78848c}
+      .rf-port-hole{fill:var(--rf-hole)}
+      .rf-port-tab{fill:#6d7a84}
+      .rf-plate{fill:#e9eef1;opacity:.5}
+      .rf-seam{fill:#000;opacity:.22}
+      .rf-vent{fill:#6f7b83;opacity:.75}
+      .rf-module{fill:#96a2aa}
+      .rf-handle{fill:#5d6871}
+      .rf-drive-face{fill:#b9c3ca}
+      .rf-duct-finger{fill:#5d6871}
+      .rf-bristle{fill:#7c878f;opacity:.9}
+      .rf-ground{fill:#8b959c}
+      .rf-inlet-pin{fill:#8b959c}
+      .rf-button{fill:#5d6871}
+      .rf-screen{fill:#16323b}
+      .rf-screen-line{fill:#54c8b8;opacity:.85}
+      .rf-fan-ring{fill:#5d6871}
+      .rf-fan-blade{fill:#9aa5ad}
+      .rf-fan-hub{fill:#39424a}
+      .rf-led{fill:#6d777f}
+      .rf-led--green{fill:#4fd07a}
+      .rf-led--amber{fill:#f0a33a}
+      .rf-led--off{fill:#6d777f}`;
+
+  return { W, U, PPI, STYLE, DEVICES, faceMarkup, faceInfo, viewBoxFor, has: key => BY_KEY.has(key), keys: () => DEVICES.map(device => device.key) };
+})();
+
+if (typeof module !== "undefined" && module.exports) module.exports = RACK_FACE_CORE;
+</script>
+<!-- RACK-FACE-LIBRARY:END -->
+
+
+<script>
+  "use strict";
+  /* Registered before anything that can throw. If the file is structurally
+     damaged - a truncation that severed a script tag, a block overwritten by
+     hand - the constants below fail before the render pipeline's own guard
+     exists, and without this the page sits blank behind a pill stuck on
+     "Running data checks". The guards keep it from repainting the better
+     message the pipeline's catch writes for data-level failures. */
+  window.addEventListener("error",()=>{
+    const status=document.getElementById("proof-status");
+    if(status&&!status.classList.contains("fail")){status.textContent="FAIL · this file is damaged and could not render";status.classList.add("fail")}
+    document.querySelectorAll(".errors").forEach(box=>{if(!box.classList.contains("visible")){box.textContent="Rendering stopped because this file is damaged - part of it is missing or was overwritten. Restore your last saved copy, or start again from the kit you copied.";box.classList.add("visible")}})
+  });
+  const ASSET_CONTRACT=JSON.parse(document.getElementById("network-packager-contract").textContent);
+  const PORTABLE_VAULT=JSON.parse(document.getElementById("network-asset-vault").textContent);
+  const PORTABLE_MODE=PORTABLE_VAULT?.schema==="network-asset-vault/v2";
+  const ASSET_URL_CACHE=new Map();
+  const ICONS=Object.freeze({
+    "cloud":{vector:"nd-cloud",official:"asset:cisco/cloud.jpg"},
+    "router":{vector:"nd-router",official:"asset:cisco/router.jpg"},
+    "firewall":{vector:"nd-firewall",official:"asset:cisco/firewall.jpg"},
+    "core-switch":{vector:"nd-l3-switch",official:"asset:cisco/layer 3 switch.jpg"},
+    "access-switch":{vector:"nd-access-switch",official:"asset:cisco/workgroup switch.jpg"},
+    "access-point":{vector:"nd-access-point",official:"asset:cisco/lightweight ap.jpg"},
+    "server":{vector:"nd-server",official:"asset:cisco/fileserver.jpg"},
+    "pc":{vector:"nd-workstation",official:"asset:cisco/pc.jpg"},
+    "workstation":{vector:"nd-workstation",official:"asset:cisco/pc.jpg"},
+    "wlan-controller":{vector:"nd-wlan-controller",official:"asset:cisco/wlan controller.jpg"},
+    "vpn-headend":{vector:"nd-vpn-headend",official:"asset:cisco/vpn concentrator.jpg"},
+    "dc-switch":{vector:"nd-dc-switch",official:"asset:cisco/server switch.jpg"},
+    "ip-phone":{vector:"nd-ip-phone",official:"asset:cisco/ip phone.jpg"},
+    "laptop":{vector:"nd-laptop",official:"asset:cisco/laptop.jpg"},
+    "printer":{vector:"nd-printer",official:"asset:cisco/printer.jpg"},
+    "database":{vector:"nd-database",official:"asset:cisco/relational database.jpg"},
+    "storage-array":{vector:"nd-storage-array",official:"asset:cisco/fc storage.jpg"},
+    "network-management":{vector:"nd-nms",official:"asset:cisco/network management.jpg"},
+    "branch-office":{vector:"nd-branch-office",official:"asset:cisco/branch office.jpg"},
+    "wireless-router":{vector:"nd-wireless-router",official:"asset:cisco/wireless router.jpg"}
+  });
+  // `vector` names the built-in faceplate to draw before the document is
+  // packaged. It is the nearest face in the library, not a portrait of the
+  // model: the official photograph replaces it in portable mode.
+  const RACK_ASSETS=Object.freeze({
+    "c9500":{"front":"asset:rack/cisco-c9500x-28c8d.front.png","rear":"asset:rack/cisco-c9500x-28c8d.rear.png",vector:"cisco-nexus-48sfp-1u"},
+    "c9300":{"front":"asset:rack/cisco-c9300-48p.front.png","rear":"asset:rack/cisco-c9300-48p.rear.png",vector:"cisco-catalyst-48p-1u"},
+    "fpr4215":{"front":"asset:rack/cisco-fpr4215-ngfw-k9.front.png","rear":"asset:rack/cisco-fpr4215-ngfw-k9.rear.png",vector:{1:"generic-firewall-1u",3:"generic-security-appliance-3u"}},
+    "r750":{"front":"asset:rack/dell-poweredge-r750.front.png","rear":"asset:rack/dell-poweredge-r750.rear.png",vector:"generic-server-2u"},
+    "ups":{"front":"asset:rack/apc-smt3000rmi2uc.front.png","rear":"asset:rack/apc-smt3000rmi2uc.rear.png",vector:"generic-ups-2u"}
+  });
+  const SVG_NS="http://www.w3.org/2000/svg",NODE_W=176,NODE_H=104;
+  // The same closed lists the stylesheet draws from (.link.* / .zone.* rules)
+  // and docs/ai-json-rules.md documents. An unlisted value still renders the
+  // documented way - invisible line, black rectangle - but now says so in the
+  // error box instead of failing silently.
+  const LINK_KINDS=Object.freeze(["l3","aggregate","ha","access","backup"]);
+  const ZONE_KINDS=Object.freeze(["external","perimeter","internal","other"]);
+  // One human name per closed link kind, shared by the Figure 1 legend and
+  // the hover glance box so the two can never disagree.
+  const KIND_LABELS=Object.freeze({l3:"Routed / Layer 3",aggregate:"Port-channel or aggregate",ha:"HA or peer link",access:"Access link",backup:"Backup or summarized path"});
+  const DEFAULT_BRAND_PATH="M112 72 H400 V352 Q400 400 376 424 Q356 440 336 424 Q316 400 296 400 H216 Q196 400 176 424 Q156 440 136 424 Q112 400 112 352 Z M312 136 A40 40 0 0 1 352 176 V304 A40 40 0 0 1 312 344 A40 40 0 0 1 272 304 V176 A40 40 0 0 1 312 136 Z";
+  const FINDING_FLAVOURS=Object.freeze({gaps:["gaps","gapnum"],patterns:["patterns","patnum"],gains:["gains","gainnum"]});
+  let data,topologyErrors=[],rackErrors=[],slotAId="gaps";
+
+  function svgEl(name,attrs={},text=""){const node=document.createElementNS(SVG_NS,name);Object.entries(attrs).forEach(([key,value])=>node.setAttribute(key,String(value)));if(text)node.textContent=text;return node}
+  function assetUrl(assetId){
+    if(!PORTABLE_MODE){const match=/^asset:(cisco|rack)\/([^/]+)$/.exec(assetId),base=match&&ASSET_CONTRACT.assetUriSchemes[match[1]];return match&&base?base+match[2]:""}
+    const hash=PORTABLE_VAULT.keys?.[assetId],blob=hash&&PORTABLE_VAULT.blobs?.[hash];
+    if(!blob){console.error(`Portable asset is missing: ${assetId}`);return ""}
+    if(!ASSET_URL_CACHE.has(hash))ASSET_URL_CACHE.set(hash,`data:${blob.mime};base64,${blob.base64}`);
+    return ASSET_URL_CACHE.get(hash)
+  }
+  function el(id){return document.getElementById(id)}
+  function setText(id,value){const node=el(id);if(node)node.textContent=value||"—"}
+  function range(device){return device.height===1?`U${device.position}`:`U${device.position}–U${device.position+device.height-1}`}
+  function midpoint(points){const lengths=[];let total=0;for(let i=1;i<points.length;i++){const length=Math.hypot(points[i][0]-points[i-1][0],points[i][1]-points[i-1][1]);lengths.push(length);total+=length}let target=total/2;for(let i=0;i<lengths.length;i++){if(target<=lengths[i]){const ratio=lengths[i]?target/lengths[i]:0;return[points[i][0]+(points[i+1][0]-points[i][0])*ratio,points[i][1]+(points[i+1][1]-points[i][1])*ratio]}target-=lengths[i]}return points.at(-1)}
+  function makeInspector(id,title,fields){const box=el(id);box.replaceChildren();box.appendChild(Object.assign(document.createElement("h3"),{textContent:title}));fields.forEach(([label,value])=>{box.appendChild(Object.assign(document.createElement("span"),{className:"label",textContent:label}));box.appendChild(Object.assign(document.createElement("span"),{textContent:value||"—"}))})}
+  function showErrors(id,errors){const box=el(id);if(!box)return;if(!errors.length){box.textContent="";box.classList.remove("visible");return}box.textContent=errors.join(" ");box.classList.add("visible")}
+
+  /* A note item is either a plain string or {lead,text}. Both render as one
+     bullet; the lead is bolded. Never innerHTML - values are document data. */
+  function fillNotes(id,items,fallback){
+    const host=el(id);if(!host)return;host.replaceChildren();
+    const list=(Array.isArray(items)&&items.length?items:(fallback||[]));
+    list.forEach(item=>{
+      const li=document.createElement("li");
+      if(item&&typeof item==="object"){
+        if(item.lead){const b=document.createElement("b");b.textContent=item.lead;li.appendChild(b);li.appendChild(document.createTextNode(item.text?` — ${item.text}`:""))}
+        else li.textContent=item.text||"";
+      }else li.textContent=String(item??"");
+      host.appendChild(li)
+    });
+    const section=host.closest("div.note,div.warn");
+    if(section)section.hidden=host.children.length===0;
+  }
+
+  function parseData(){try{return JSON.parse(el("proof-data").textContent)}catch(error){const message=`Invalid diagram JSON: ${error.message}`;document.querySelectorAll(".errors").forEach(box=>{box.textContent=message;box.classList.add("visible")});throw error}}
+
+  /* ---- shell chrome: brand, badges, series strip, footer ---- */
+  function renderBrand(){
+    const brand=data.document?.brand||{};
+    const mark=el("brand-mark"),path=el("brand-path");
+    mark.setAttribute("viewBox",brand.logoViewBox||"0 0 512 512");
+    mark.querySelectorAll("image").forEach(old=>old.remove());
+    /* brand.logoImage is the one raster an editable file may carry: a small
+       PNG or JPG logo staged by the helper's branding step, size-capped and
+       format-checked there. Everything else in these files stays vector. */
+    if(brand.logoImage&&/^data:image\/(png|jpeg);base64,/.test(brand.logoImage)){
+      path.setAttribute("d","");
+      const box=(brand.logoViewBox||"0 0 512 512").split(/\s+/).map(Number);
+      const image=svgEl("image",{href:brand.logoImage,x:box[0]||0,y:box[1]||0,width:box[2]||512,height:box[3]||512,preserveAspectRatio:"xMidYMid meet"});
+      mark.appendChild(image);
+    }else{
+      path.setAttribute("d",brand.logoPath||DEFAULT_BRAND_PATH);
+      path.setAttribute("fill",brand.logoFill||"#0F172A");
+    }
+    setText("brand-name",brand.name||"cloudbats");
+    setText("brand-doclabel",brand.label||"Systems · Network Design");
+  }
+  function renderHeader(){
+    const doc=data.document||{};
+    document.title=`${doc.brand?.name||"cloudbats"} — ${doc.title||"Network design"}`;
+    setText("page-title",doc.title);setText("page-subtitle",doc.subtitle);
+    setText("badge-subject",`${doc.docClass||"Network design"} · ${doc.subject||doc.drawing||"Untitled"}`);
+    setText("badge-version",`${doc.revision||"v1"} · ${doc.date||""}`.trim());
+    const evidence=doc.evidence||{};
+    const badge=el("badge-evidence");
+    badge.className=`badge ${["purple","red","green","amber","teal"].includes(evidence.color)?evidence.color:"purple"}`;
+    badge.textContent=evidence.text||"Assumptions · validation required";
+    setText("meta-drawing",doc.drawing);setText("meta-revision",doc.revision);
+    setText("meta-status",doc.status);setText("meta-date",doc.date);
+    const strip=el("series-strip"),series=Array.isArray(doc.series)?doc.series:[];
+    strip.replaceChildren();
+    if(!series.length){strip.hidden=true;return}
+    strip.hidden=false;
+    const lead=document.createElement("b");lead.textContent="Presentation set";
+    strip.append(lead,document.createTextNode(" —  "));
+    series.forEach((entry,index)=>{
+      if(index){const arrow=document.createElement("span");arrow.className="ss-arrow";arrow.textContent="→";strip.appendChild(arrow)}
+      const item=document.createElement("span");
+      if(entry&&entry.here)item.className="ss-here";
+      item.textContent=`${index+1} · ${(entry&&entry.label)||""}${entry&&entry.here?" — this document":""}`;
+      strip.appendChild(item)
+    })
+  }
+  function renderFooter(){
+    const f=data.document?.footer||{},doc=data.document||{};
+    const parts=[f.author,f.originalDate||doc.date,f.edition||"Presentation edition",
+      f.changed?`${doc.revision||""} ${f.changed}`.trim():null,f.detail,
+      f.caveat||"Every element is a documentation claim to validate, not a recorded fact",
+      f.redaction||"Facility identifiers at pattern level; personal identifiers redacted"];
+    setText("doc-footer",parts.filter(Boolean).join(" · "))
+  }
+
+  function appendNodeIcon(group,node){
+    const profile=ICONS[node.icon],custom=node.iconAsset;
+    if(custom&&!/^asset:cisco\/[^/]+\.jpg$/.test(custom)){group.appendChild(svgEl("text",{class:"node-warning",x:NODE_W/2,y:34},"INVALID ASSET"));topologyErrors.push(`Invalid iconAsset on ${node.id}; use a literal asset:cisco/<filename>.jpg identifier.`);return custom}
+    if(PORTABLE_MODE){const assetId=custom||profile?.official;if(assetId){const href=assetUrl(assetId);if(href){group.appendChild(svgEl("image",{href,x:48,y:5,width:80,height:55,preserveAspectRatio:"xMidYMid meet"}));return assetId}
+      /* a partial package: this face is not in the vault, so the built-in
+         vector stays - a declared partial is not a document defect */
+      if(profile?.vector){group.appendChild(svgEl("use",{class:"topology-vector-icon",href:`#${profile.vector}`,x:48,y:4,width:80,height:56}));return `#${profile.vector} (drawn - not packaged)`}
+      group.appendChild(svgEl("text",{class:"node-warning",x:NODE_W/2,y:34},"MISSING ASSET"));topologyErrors.push(`Official asset is unavailable on ${node.id}.`);return assetId}}
+    else if(profile?.vector){group.appendChild(svgEl("use",{class:"topology-vector-icon",href:`#${profile.vector}`,x:48,y:4,width:80,height:56}));return `#${profile.vector}`}
+    else if(custom){group.appendChild(svgEl("rect",{class:"node-generic",x:56,y:9,width:64,height:48,rx:7}));group.appendChild(svgEl("text",{class:"node-generic-label",x:NODE_W/2,y:29},"OFFICIAL"));group.appendChild(svgEl("text",{class:"node-generic-label",x:NODE_W/2,y:41},"AFTER PACKAGE"));return `${custom} (official-only)`}
+    group.appendChild(svgEl("text",{class:"node-warning",x:NODE_W/2,y:34},"UNKNOWN ICON"));topologyErrors.push(`Unknown icon on ${node.id}.`);return node.icon||"unknown"
+  }
+
+  /* The hover-detail contract from NET-RH-001: one black glance box per
+     figure, filled on enter, hidden on leave, reachable by keyboard through
+     the same focus path as the click inspector. The box anchors to the
+     pointer, because a long backbone's bounding box is nowhere near it. */
+  function hoverParts(){const svg=el("topology"),wrap=svg&&svg.closest(".figwrap"),label=wrap&&wrap.querySelector(".hover-label");return label?{wrap,label}:null}
+  function fillHoverLabel(label,title,lines){label.replaceChildren();const heading=document.createElement("strong");heading.textContent=title;label.appendChild(heading);lines.forEach(line=>{if(!line||!line.text)return;const row=document.createElement("div");if(line.detail)row.className="detail";row.textContent=line.text;label.appendChild(row)})}
+  function placeHoverLabel(parts,clientX,clientY){const{wrap,label}=parts,m=wrap.getBoundingClientRect();let left=clientX-m.left+wrap.scrollLeft+14,top=clientY-m.top+wrap.scrollTop-label.offsetHeight/2;if(left+label.offsetWidth>wrap.scrollLeft+m.width-8)left=clientX-m.left+wrap.scrollLeft-label.offsetWidth-14;left=Math.max(wrap.scrollLeft+8,Math.min(left,wrap.scrollLeft+m.width-label.offsetWidth-8));top=Math.max(8,Math.min(top,wrap.scrollTop+m.height-label.offsetHeight-8));label.style.left=`${left}px`;label.style.top=`${top}px`}
+  function attachHover(target,content){
+    const show=event=>{const parts=hoverParts();if(!parts)return;const detail=content();fillHoverLabel(parts.label,detail.title,detail.lines);parts.label.classList.add("visible");const box=target.getBoundingClientRect();placeHoverLabel(parts,event&&Number.isFinite(event.clientX)?event.clientX:box.left+box.width/2,event&&Number.isFinite(event.clientY)?event.clientY:box.top+box.height/2)};
+    const hide=()=>{const parts=hoverParts();if(parts)parts.label.classList.remove("visible")};
+    target.addEventListener("mouseenter",show);target.addEventListener("mouseleave",hide);target.addEventListener("focus",()=>show(null));target.addEventListener("blur",hide)
+  }
+
+  function renderTopology(){
+    const topo=data.topology||{},width=Number(topo.canvas?.width)||1280,height=Number(topo.canvas?.height)||800,svg=el("topology");
+    svg.replaceChildren();svg.setAttribute("viewBox",`0 0 ${width} ${height}`);
+    const title=svgEl("title",{id:"svg-title"},data.document?.title||"Logical topology"),desc=svgEl("desc",{id:"svg-desc"},data.document?.subtitle||""),defs=svgEl("defs"),filter=svgEl("filter",{id:"node-shadow",x:"-20%",y:"-20%",width:"140%",height:"150%"});
+    filter.appendChild(svgEl("feDropShadow",{dx:0,dy:3,stdDeviation:3,"flood-color":"#152d39","flood-opacity":.2}));defs.appendChild(filter);svg.append(title,desc,defs);
+    (topo.zones||[]).forEach(zone=>{const zx=Number(zone.x),zy=Number(zone.y),zw=Number(zone.width),zh=Number(zone.height);if(![zx,zy,zw,zh].every(Number.isFinite)){topologyErrors.push(`Zone ${zone.id||zone.label||"?"} has no usable position or size, so it was not drawn.`);return}if(zone.kind!==undefined&&!ZONE_KINDS.includes(zone.kind))topologyErrors.push(`Zone ${zone.id||zone.label||"?"} has the unknown kind "${zone.kind}", which draws as a solid black rectangle.`);svg.appendChild(svgEl("rect",{class:`zone ${zone.kind||"other"}`,x:zx,y:zy,width:zw,height:zh,rx:12}));svg.appendChild(svgEl("text",{class:"zone-label",x:zx+18,y:zy+27},zone.label||zone.id))});
+    const nodes=new Map();(topo.nodes||[]).forEach(node=>{if(!node.id)topologyErrors.push("A topology node is missing an id.");else if(nodes.has(node.id))topologyErrors.push(`Duplicate topology node id: ${node.id}.`);else nodes.set(node.id,node)});
+    const links=svgEl("g",{"aria-label":"Network links"}),labels=svgEl("g",{"aria-label":"Link labels"});
+    (topo.links||[]).forEach((link,index)=>{const source=nodes.get(link.from),target=nodes.get(link.to);if(!source||!target){topologyErrors.push(`Link ${index+1} references a missing node.`);return}if(link.kind!==undefined&&!LINK_KINDS.includes(link.kind))topologyErrors.push(`Link ${index+1} (${link.from} to ${link.to}) has the unknown kind "${link.kind}", which draws an invisible line.`);const points=[[source.x,source.y],...(link.via||[]),[target.x,target.y]],traced=points.map(point=>point.join(",")).join(" "),kind=link.kind||"l3";const linkGroup=svgEl("g",{class:"link-group",tabindex:0,"aria-label":`${link.label?`${link.label}, `:""}${KIND_LABELS[kind]||kind} from ${source.label||source.id} to ${target.label||target.id}`});linkGroup.appendChild(svgEl("polyline",{class:`link ${kind}`,points:traced}));linkGroup.appendChild(svgEl("polyline",{class:"link-hit",points:traced}));attachHover(linkGroup,()=>({title:`${source.label||source.id} → ${target.label||target.id}`,lines:[{text:link.label||""},{text:KIND_LABELS[kind]||kind,detail:true}]}));links.appendChild(linkGroup);if(link.label){const auto=midpoint(points),x=Number.isFinite(Number(link.labelX))?Number(link.labelX):auto[0],y=Number.isFinite(Number(link.labelY))?Number(link.labelY):auto[1],w=Math.max(54,link.label.length*6.7+16);labels.appendChild(svgEl("rect",{class:"link-label-bg",x:x-w/2,y:y-12,width:w,height:22,rx:4}));labels.appendChild(svgEl("text",{class:"link-label",x,y:y+4},link.label))}});svg.append(links,labels);
+    const nodeLayer=svgEl("g",{"aria-label":"Network devices"});
+    nodes.forEach(node=>{
+      if(!Number.isFinite(Number(node.x))||!Number.isFinite(Number(node.y))){topologyErrors.push(`${node.id} has no usable x,y position, so it was not drawn.`);return}
+      const group=svgEl("g",{class:"node",tabindex:0,role:"button","aria-label":`${node.label||node.id}, ${node.role||"network device"}`,transform:`translate(${Number(node.x)-NODE_W/2} ${Number(node.y)-NODE_H/2})`});
+      group.appendChild(svgEl("rect",{class:"node-shell",width:NODE_W,height:NODE_H,rx:9}));
+      const iconRef=appendNodeIcon(group,node);
+      group.appendChild(svgEl("text",{class:"node-name",x:NODE_W/2,y:78},node.label||node.id));
+      group.appendChild(svgEl("text",{class:"node-role",x:NODE_W/2,y:95},node.role||""));
+      const select=()=>{svg.querySelectorAll(".node.selected").forEach(item=>item.classList.remove("selected"));group.classList.add("selected");makeInspector("topology-inspector",node.label||node.id,[["Role",node.role],["Address / context",node.address],["Documentation note",node.notes],["Rendered icon",iconRef]])};
+      group.addEventListener("click",select);
+      group.addEventListener("keydown",event=>{if(event.key==="Enter"||event.key===" "){event.preventDefault();select()}});
+      attachHover(group,()=>({title:node.label||node.id,lines:[{text:node.role||""},{text:node.address||""},{text:node.notes||"",detail:true}]}));
+      nodeLayer.appendChild(group)
+    });
+    svg.appendChild(nodeLayer);showErrors("topology-errors",topologyErrors)
+  }
+
+  function buildRuler(wrap,units){wrap.querySelectorAll(".ruler").forEach(ruler=>{ruler.replaceChildren();for(let u=units;u>=1;u--){const mark=document.createElement("span");mark.className="u-mark";mark.style.top=`calc((${units} - ${u}) * var(--u))`;mark.textContent=`U${u}`;ruler.appendChild(mark)}})}
+  function hideRackTooltips(){document.querySelectorAll(".rack-tooltip.visible").forEach(item=>item.classList.remove("visible"))}
+  function showRackTooltip(wrap,bay,face,device,view){hideRackTooltips();const tooltip=wrap.querySelector(".rack-tooltip");tooltip.replaceChildren();const heading=document.createElement("strong"),model=document.createElement("span"),role=document.createElement("span");heading.textContent=`${device.id} · ${range(device)}`;model.textContent=device.model;role.className="tooltip-role";role.textContent=`${device.role} · ${view} view`;tooltip.append(heading,model,role);const tooltipWidth=280,tooltipHeight=88;tooltip.style.left=`${view==="front"?bay.offsetLeft+bay.offsetWidth-70:bay.offsetLeft-tooltipWidth+70}px`;tooltip.style.top=`${Math.max(4,Math.min(face.offsetTop+Math.max(4,face.offsetHeight/2-12),bay.offsetHeight-tooltipHeight-4))}px`;tooltip.classList.add("visible")}
+  function selectRackDevice(device){hideRackTooltips();document.querySelectorAll(".device-face").forEach(item=>item.classList.toggle("selected",item.dataset.device===device.id));document.querySelectorAll("#inventory-body tr").forEach(row=>row.classList.toggle("selected",row.dataset.device===device.id));makeInspector("rack-inspector",`${device.id} · ${range(device)}`,[["Manufacturer / model",device.model],["Role",device.role],["Front face",faceDescription(device,"front")],["Rear face",faceDescription(device,"rear")]])}
+  function placeholderFace(label,view){const placeholder=document.createElement("span"),text=document.createElement("span");placeholder.className=`rack-placeholder rack-placeholder-${view}`;placeholder.setAttribute("aria-hidden","true");text.textContent=label;placeholder.appendChild(text);return placeholder}
+  // Two ways a device earns a vector face: the schedule names one directly, or
+  // it names an official asset that declares its nearest stand-in. That stand-in
+  // may be keyed by unit height, because one model can be scheduled at more than
+  // one height across a document set and no single face suits both.
+  function vectorKey(assetId,height){
+    if(typeof RACK_FACE_CORE==="undefined"||!assetId)return null;
+    if(RACK_FACE_CORE.has(assetId))return assetId;
+    const alias=RACK_ASSETS[assetId]?.vector,resolved=typeof alias==="string"?alias:alias?.[height];
+    return resolved&&RACK_FACE_CORE.has(resolved)?resolved:null
+  }
+  function vectorInfo(assetId,height){const key=vectorKey(assetId,height);return key?RACK_FACE_CORE.faceInfo(key):null}
+  function vectorFace(device,view){
+    const key=vectorKey(device.asset,device.height);
+    if(!key)return null;
+    const face=document.createElementNS(SVG_NS,"svg");
+    face.setAttribute("viewBox",RACK_FACE_CORE.viewBoxFor(key));
+    face.setAttribute("preserveAspectRatio","none");
+    face.setAttribute("aria-hidden","true");
+    face.innerHTML=RACK_FACE_CORE.faceMarkup(key,view);
+    return face
+  }
+  function faceDescription(device,view){const official=RACK_ASSETS[device.asset];if(official)return official[view];const vector=vectorInfo(device.asset,device.height);return vector?`Vector face · ${vector.label}`:"Generic face · no artwork for this model"}
+  function faceKind(device){if(RACK_ASSETS[device.asset])return "Official front/rear face";const vector=vectorInfo(device.asset,device.height);return vector?`Vector face · ${vector.units}U`:"Generic face"}
+  // Three ways to draw one slot, in falling order of fidelity: official
+  // photography once the document has been packaged, the built-in vector
+  // faceplate, and a labelled placeholder when the model has neither.
+  function rackFaceContent(device,view,assetId){
+    if(PORTABLE_MODE&&assetId){const href=assetUrl(assetId);if(href){const image=document.createElement("img");image.src=href;image.alt="";image.draggable=false;return image}}
+    /* editable mode, or a partial package whose vault lacks this face:
+       the drawn faceplate is first-class rendering, not a failure */
+    return vectorFace(device,view)||placeholderFace(`${device.id} / ${view}`,view)
+  }
+  function renderRackView(view,rack){const bay=el(`rack-${view}`),wrap=el(`rack-${view}-wrap`);bay.replaceChildren();wrap.querySelectorAll(".rack-tooltip").forEach(item=>item.remove());bay.style.height=`calc(${rack.units} * var(--u))`;wrap.querySelectorAll(".ruler").forEach(ruler=>ruler.style.height=`calc(${rack.units} * var(--u))`);buildRuler(wrap,rack.units);const tooltip=document.createElement("div");tooltip.className="rack-tooltip";tooltip.setAttribute("role","tooltip");wrap.appendChild(tooltip);(rack.reserved||[]).forEach(slot=>{const item=document.createElement("div");item.className="reserved-slot";item.style.bottom=`calc((${slot.position} - 1) * var(--u))`;item.style.height=`calc(${slot.height} * var(--u))`;item.textContent=slot.label;bay.appendChild(item)});(rack.devices||[]).forEach(device=>{if(!Number.isFinite(Number(device.position))||!Number.isFinite(Number(device.height)))return;const wanted=device.asset&&device.asset!=="generic",asset=wanted?RACK_ASSETS[device.asset]:null,vector=wanted?vectorInfo(device.asset,device.height):null;if(wanted&&!asset&&!vector&&view==="front")rackErrors.push(`Unknown rack asset ${device.asset} on ${device.id}; drawn as a generic face.`);if(vector&&vector.units!==device.height&&view==="front")rackErrors.push(`${device.id} is scheduled as ${device.height}U but ${device.asset} draws a ${vector.units}U face.`);if(wanted&&asset&&!vector&&view==="front")rackErrors.push(`${device.id} is scheduled as ${device.height}U but ${device.asset} has no ${device.height}U face.`);const face=document.createElement("button");face.type="button";face.className="device-face";face.dataset.device=device.id;face.style.bottom=`calc((${device.position} - 1) * var(--u))`;face.style.height=`calc(${device.height} * var(--u))`;face.setAttribute("aria-label",`${device.id}, ${device.model}, ${range(device)}, ${view} view`);face.appendChild(rackFaceContent(device,view,asset?asset[view]:null));const show=()=>showRackTooltip(wrap,bay,face,device,view);face.addEventListener("mouseenter",show);face.addEventListener("focus",show);face.addEventListener("mouseleave",()=>{if(!face.classList.contains("selected"))tooltip.classList.remove("visible")});face.addEventListener("blur",()=>{if(!face.classList.contains("selected"))tooltip.classList.remove("visible")});face.addEventListener("click",()=>{selectRackDevice(device);show()});bay.appendChild(face)})}
+  function renderRack(){const rack=data.rack||{};rack.units=Number(rack.units)||42;setText("rack-heading",data.sections?.physical?.heading||`Physical view · ${rack.id||"rack"} · ${rack.units}U`);const occupied=new Map(),rackIds=new Set();(rack.devices||[]).forEach(device=>{if(device.id){if(rackIds.has(device.id))rackErrors.push(`Duplicate rack device id: ${device.id}.`);rackIds.add(device.id)}else rackErrors.push("A rack device is missing an id.");if(typeof device.position==="string"||typeof device.height==="string")rackErrors.push(`${device.id||"A rack device"} has its position or height written as text instead of a number.`);const p=Number(device.position),h=Number(device.height);if(!Number.isFinite(p)||!Number.isFinite(h)||h<1){rackErrors.push(`${device.id||"A rack device"} has no usable position or height, so it was not drawn.`);return}device.position=p;device.height=h;if(p<1||p+h-1>rack.units)rackErrors.push(`${device.id} is outside the rack.`);for(let u=p;u<p+h;u++){if(occupied.has(u))rackErrors.push(`${device.id} overlaps ${occupied.get(u)} at U${u}.`);else occupied.set(u,device.id)}});setText("rack-front-caption",`Front elevation · ${rack.frontAisle||"cold aisle"}`);setText("rack-rear-caption",`Rear elevation · ${rack.rearAisle||"hot aisle"}`);renderRackView("front",rack);renderRackView("rear",rack);const tbody=el("inventory-body");tbody.replaceChildren();(rack.devices||[]).forEach(device=>{const row=document.createElement("tr");row.dataset.device=device.id;[range(device),device.id,device.model,device.role,faceKind(device)].forEach((value,index)=>{const cell=document.createElement("td");if(index===1){const code=document.createElement("code");code.textContent=value;cell.appendChild(code)}else cell.textContent=value;row.appendChild(cell)});row.addEventListener("click",()=>selectRackDevice(device));tbody.appendChild(row)});showErrors("rack-errors",rackErrors)}
+
+  /* ---- spine sections 0, 2, 4, 5 ---- */
+  function renderSections(){
+    const s=data.sections||{},doc=data.document||{};
+    if(s.overview?.heading)setText("overview-heading",s.overview.heading);
+    fillNotes("overview-notes",s.overview?.notes,[{lead:"What this is",text:doc.subtitle||"A network design document."}]);
+    fillNotes("overview-provenance",s.overview?.provenance,[{lead:"Provenance",text:"State here which parts of this document are recorded fact and which are assumption, and how each is marked."}]);
+    if(s.logical?.heading)setText("logical-heading",s.logical.heading);
+    fillNotes("logical-notes",s.logical?.notes,[]);
+    if(s.identity?.heading)setText("identity-heading",s.identity.heading);
+    fillNotes("identity-notes",s.identity?.notes,[]);
+    if(s.physical?.heading)setText("rack-heading",s.physical.heading);
+    fillNotes("physical-notes",s.physical?.notes,[]);
+    if(s.change?.heading)setText("change-heading",s.change.heading);
+    fillNotes("change-notes",s.change?.notes,[{lead:"Change record",text:"Describe how this design is versioned, reviewed and rolled back."}]);
+    if(s.operations?.heading)setText("operations-heading",s.operations.heading);
+    fillNotes("operations-notes",s.operations?.notes,[{lead:"Operations",text:"Describe monitoring, alerting and the operational owner."}]);
+    renderIdentityTable(s.identity)
+  }
+  function renderIdentityTable(identity){
+    const table=el("identity-table"),head=el("identity-head"),body=el("identity-body");
+    head.replaceChildren();body.replaceChildren();
+    const columns=Array.isArray(identity?.columns)?identity.columns:[],rows=Array.isArray(identity?.rows)?identity.rows:[];
+    if(!columns.length||!rows.length){table.hidden=true;return}
+    table.hidden=false;
+    columns.forEach(name=>{const th=document.createElement("th");th.textContent=name;head.appendChild(th)});
+    rows.forEach(row=>{
+      const cells=Array.isArray(row)?row:(Array.isArray(row.cells)?row.cells:[]);
+      const tr=document.createElement("tr");
+      if(!Array.isArray(row)&&row.layer==="gap")tr.className="gap-layer";
+      cells.forEach(value=>{const td=document.createElement("td");td.textContent=String(value??"");tr.appendChild(td)});
+      body.appendChild(tr)
+    })
+  }
+  /* Draws the numbered markers onto the topology. Anchors are node ids and zone ids,
+     never coordinates, so a marker cannot drift when the layout moves, and the number
+     is the item's position in the list, so the picture and the list cannot disagree. */
+  function renderGapOverlay(items){
+    const svg=el("topology");if(!svg)return;
+    svg.querySelectorAll(".gap-overlay").forEach(node=>node.remove());
+    const nodes=new Map((data.topology?.nodes||[]).map(node=>[node.id,node]));
+    const zones=new Map((data.topology?.zones||[]).map(zone=>[zone.id,zone]));
+    const layer=svgEl("g",{class:"gap-layer gap-overlay","aria-label":"Gap markers"});
+    const addPin=(cx,cy,number,title)=>{
+      const pin=svgEl("a",{class:"gap-pin",href:`#gap-${number}`,"aria-label":`Gap ${number}: ${title||"finding"}`});
+      pin.appendChild(svgEl("circle",{cx,cy,r:14}));
+      pin.appendChild(svgEl("text",{x:cx,y:cy+5},String(number)));
+      layer.appendChild(pin)
+    };
+    items.forEach((item,index)=>{
+      const number=index+1,title=item&&item.title;
+      if(item&&item.atZone){
+        const zone=zones.get(item.atZone);
+        if(!zone)topologyErrors.push(`Gap ${number} points at zone ${item.atZone}, which does not exist.`);
+        else{
+          layer.appendChild(svgEl("rect",{class:"gap-region",x:Number(zone.x)-7,y:Number(zone.y)-7,width:Number(zone.width)+14,height:Number(zone.height)+14,rx:15}));
+          /* a region needs its number too, or the reader cannot tell which finding it is */
+          addPin(Number(zone.x)+Number(zone.width)-22,Number(zone.y)+22,number,title)
+        }
+      }
+      const anchors=item&&item.at!=null?(Array.isArray(item.at)?item.at:[item.at]):[];
+      anchors.forEach(id=>{
+        const node=nodes.get(id);
+        if(!node){topologyErrors.push(`Gap ${number} points at device ${id}, which does not exist.`);return}
+        addPin(Number(node.x)+NODE_W/2-16,Number(node.y)-NODE_H/2+16,number,title)
+      })
+    });
+    if(layer.childNodes.length)svg.appendChild(layer)
+  }
+
+  function renderFindings(){
+    const f=data.sections?.findings||{};
+    slotAId=f.id||"gaps";
+    const section=el("gaps");
+    section.id=slotAId;
+    const link=el("gapLink");link.setAttribute("href",`#${slotAId}`);
+    el("gapToggle").setAttribute("aria-controls",slotAId);
+    setText("gap-label",f.label||"Gaps & open items");
+    setText("findings-heading",f.heading||f.label||"Gaps and open items");
+    const [listClass,numClass]=FINDING_FLAVOURS[f.flavour]||FINDING_FLAVOURS.gaps;
+    const list=el("findings-list");list.className=listClass;list.replaceChildren();
+    const items=Array.isArray(f.items)?f.items:[];
+    items.forEach((item,index)=>{
+      const li=document.createElement("li"),num=document.createElement("span"),wrap=document.createElement("div"),lead=document.createElement("b");
+      li.id=`gap-${index+1}`;
+      num.className=numClass;num.textContent=String(index+1);
+      lead.textContent=`${(item&&item.title)||"Finding"}.`;
+      wrap.append(lead,document.createTextNode(item&&item.detail?` ${item.detail}`:""));
+      li.append(num,wrap);list.appendChild(li)
+    });
+    renderGapOverlay(items);
+    showErrors("topology-errors",topologyErrors);
+    if(!list.children.length){const li=document.createElement("li"),num=document.createElement("span"),wrap=document.createElement("div");num.className=numClass;num.textContent="1";wrap.textContent="No findings recorded. A document that hides its own uncertainty is off-template - list what is assumed here.";li.append(num,wrap);list.appendChild(li)}
+  }
+  function renderEquipment(){
+    const e=data.sections?.equipment||{},grid=el("equipment-grid"),table=el("cost-table"),body=el("cost-body");
+    grid.replaceChildren();body.replaceChildren();
+    /* An empty exhibit beside a populated rack is a model omission, not a fact
+       about the hardware. Derive the cards from the schedule - one source of
+       truth, the same rule the two elevations already live by. Authored cards
+       always win. */
+    let cards=Array.isArray(e.cards)?e.cards:[];
+    if(!cards.length){
+      const seen=new Map();
+      (data.rack?.devices||[]).forEach(device=>{
+        if(!device.model&&!device.asset)return;
+        const key=(device.asset&&device.asset!=="generic")?device.asset:(device.model||device.id);
+        if(seen.has(key)){seen.get(key).count++;return}
+        seen.set(key,{device,count:1});
+      });
+      cards=[...seen.values()].map(({device,count})=>({model:device.model||device.id,u:`${device.height}U${count>1?` · ×${count}`:""}`,why:device.role||"",asset:device.asset}));
+    }
+    cards.forEach(card=>{
+      const wrap=document.createElement("div");wrap.className="equip-card";
+      const face=document.createElement("div");face.className="equip-face";
+      const assetId=RACK_ASSETS[card.asset]?.front;
+      const href=PORTABLE_MODE&&assetId?assetUrl(assetId):"";
+      const drawnUnits=Number.parseInt(card.u,10);
+      const drawn=href?null:vectorFace({asset:card.asset,height:Number.isFinite(drawnUnits)?drawnUnits:1},"front");
+      if(href){const image=document.createElement("img");image.src=href;image.alt="";image.style.width="100%";image.style.height="100%";image.style.objectFit="contain";face.appendChild(image)}
+      else if(drawn){drawn.style.width="100%";drawn.style.height="100%";face.appendChild(drawn)}
+      else face.appendChild(placeholderFace(card.model||"equipment","front"));
+      const bodyBox=document.createElement("div");bodyBox.className="equip-body";
+      const h3=document.createElement("h3");h3.textContent=card.model||"Equipment";
+      const u=document.createElement("span");u.className="u-badge";u.textContent=card.u||"";
+      const price=document.createElement("div");price.className="price";price.textContent=card.price||"";
+      const why=document.createElement("div");why.className="why";why.textContent=card.why||"";
+      bodyBox.append(h3);if(card.u)bodyBox.append(u);if(card.price)bodyBox.append(price);if(card.why)bodyBox.append(why);
+      wrap.append(face,bodyBox);grid.appendChild(wrap)
+    });
+    const costs=Array.isArray(e.costs)?e.costs:[];
+    if(!costs.length){table.hidden=true;return}
+    table.hidden=false;let total=0;
+    costs.forEach(row=>{
+      const qty=Number(row.qty)||0,unit=Number(String(row.unit).replace(/[^0-9.\-]/g,""))||0,ext=qty*unit;total+=ext;
+      const tr=document.createElement("tr");
+      [row.role||"",row.model||"",String(row.qty??""),unit?`$${unit.toLocaleString()}`:"",ext?`$${ext.toLocaleString()}`:""].forEach((value,index)=>{const td=document.createElement("td");if(index>2)td.className="money";td.textContent=value;tr.appendChild(td)});
+      body.appendChild(tr)
+    });
+    setText("cost-total",total?`$${total.toLocaleString()}`:"—")
+  }
+
+  function updateProofStatus(){const topologyIds=new Set((data.topology?.nodes||[]).map(node=>node.id)),matched=(data.rack?.devices||[]).filter(device=>topologyIds.has(device.id)).length,totalErrors=topologyErrors.length+rackErrors.length,status=el("proof-status");status.classList.remove("fail");if(totalErrors){status.textContent=`FAIL · ${totalErrors} data error${totalErrors===1?"":"s"}`;status.classList.add("fail")}else status.textContent=`PASS · ${(data.topology?.nodes||[]).length} logical nodes · ${(data.topology?.links||[]).length} links · ${(data.rack?.devices||[]).length} rack devices · ${matched} synchronized IDs`}
+  function setupControls(){let zoom=1;document.querySelectorAll("[data-zoom]").forEach(button=>button.addEventListener("click",()=>{if(button.dataset.zoom==="in")zoom=Math.min(1.8,zoom+.2);if(button.dataset.zoom==="out")zoom=Math.max(.8,zoom-.2);if(button.dataset.zoom==="fit")zoom=1;el("topology").style.width=`${zoom*100}%`}));el("rack-compact").addEventListener("click",()=>document.documentElement.style.setProperty("--u","18px"));el("rack-full").addEventListener("click",()=>document.documentElement.style.setProperty("--u","28px"))}
+
+  function updatePackagingCopy(){
+    const s=data.sections||{};
+    const captionFallback=PORTABLE_MODE?"Rendered with official artwork embedded in this file.":"Rendered from inline vector symbols; package to swap in official artwork.";
+    setText("topology-caption",s.logical?.caption||`Fig. 1 — ${data.document?.title||"Logical topology"}. Drawn from the diagram data block. ${captionFallback}`);
+    /* The shared Figure 1 legend contract - the engineering-sheet kits'
+       three-column aside - rendered from the data: only the symbols, strokes
+       and zones this drawing actually uses. A legend that lists what the
+       figure never draws reads as furniture, and furniture teaches readers
+       to skip legends. An authored sections.logical.legend becomes the note
+       row, where per-design conventions belong. */
+    const LEGEND_ICONS={"cloud":"Cloud / external network","router":"Router","firewall":"Firewall","core-switch":"Core / L3 switch","access-switch":"Access switch","access-point":"Wireless access point","server":"Server","pc":"PC endpoint","workstation":"Workstation","wlan-controller":"Wireless LAN controller","vpn-headend":"VPN headend","dc-switch":"Data-center switch","ip-phone":"IP phone","laptop":"Laptop","printer":"Printer / peripheral","database":"Database","storage-array":"Storage array","network-management":"Management appliance","branch-office":"Branch / remote site","wireless-router":"Wireless router"};
+    const legendHost=el("topology-legend");
+    if(legendHost){
+      legendHost.replaceChildren();
+      const iconsUsed=[...new Set((data.topology?.nodes||[]).map(node=>node.icon).filter(icon=>ICONS[icon]))];
+      const kindsUsed=Object.keys(KIND_LABELS).filter(kind=>(data.topology?.links||[]).some(link=>(link.kind||"l3")===kind));
+      const zonesDrawn=(data.topology?.zones||[]).filter(zone=>zone.label||zone.id);
+      if(iconsUsed.length||kindsUsed.length||zonesDrawn.length){
+        legendHost.hidden=false;
+        const title=document.createElement("h3");title.id="logical-legend-title";title.textContent="Figure 1 legend";legendHost.appendChild(title);
+        const column=(heading,listClass)=>{const box=document.createElement("div"),h4=document.createElement("h4"),list=document.createElement("ul");h4.textContent=heading;if(listClass)list.className=listClass;box.appendChild(h4);box.appendChild(list);legendHost.appendChild(box);return list};
+        const entry=(list,svgAttrs,shape,label)=>{const item=document.createElement("li"),key=svgEl("svg",svgAttrs);key.appendChild(shape);item.appendChild(key);item.appendChild(document.createTextNode(label));list.appendChild(item)};
+        if(iconsUsed.length){const list=column("Devices and symbols","device-list");iconsUsed.forEach(icon=>entry(list,{class:"legend-device-icon",viewBox:"0 0 80 56","aria-hidden":"true"},svgEl("use",{href:`#${ICONS[icon].vector}`,x:0,y:0,width:80,height:56}),LEGEND_ICONS[icon]||icon))}
+        if(kindsUsed.length){const list=column("Links and media");kindsUsed.forEach(kind=>entry(list,{class:"line-key",viewBox:"0 0 34 14","aria-hidden":"true"},svgEl("line",{class:`link ${kind}`,x1:2,y1:7,x2:32,y2:7}),KIND_LABELS[kind]))}
+        if(zonesDrawn.length){const list=column("Trust and service zones");zonesDrawn.forEach(zone=>entry(list,{class:"zone-key",viewBox:"0 0 34 14","aria-hidden":"true"},svgEl("rect",{class:`zone ${ZONE_KINDS.includes(zone.kind)?zone.kind:"other"}`,x:1,y:1,width:32,height:12,rx:3}),zone.label||zone.id))}
+        if(s.logical?.legend){const note=document.createElement("p");note.className="legend-note";note.textContent=s.logical.legend;legendHost.appendChild(note)}
+      } else legendHost.hidden=true;
+    }
+    setText("rack-caption",s.physical?.caption||`Fig. 2 — Rack elevation. Front and rear are generated from one equipment schedule; rack units are numbered from the bottom. ${captionFallback}`);
+    setText("rack-legend",s.physical?.legend||"Legend — shaded slots are occupied · hatched slots are reserved · a plain labelled face means no official artwork exists for that model.");
+    if(PORTABLE_MODE)setText("brand-doclabel",`${data.document?.brand?.label||"Systems · Network Design"} · portable copy`)
+  }
+  function setupEditableExport(){const encoded=el("editable-source-capsule").textContent.trim();if(!encoded)return;const button=el("export-editable");button.hidden=false;button.addEventListener("click",()=>{const bytes=Uint8Array.from(atob(encoded),character=>character.charCodeAt(0)),source=new TextDecoder().decode(bytes),name=(data.document?.drawing||"network-design").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")+".edit.html",url=URL.createObjectURL(new Blob([source],{type:"text/html;charset=utf-8"})),link=document.createElement("a");link.href=url;link.download=name;link.hidden=true;document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1200)})}
+
+  /* ---- the shell behaviour contract: exactly two toggleable layers ---- */
+  function setupLayers(){
+    const body=document.body,gapButton=el("gapToggle"),equipButton=el("equipToggle"),gapLink=el("gapLink"),equipLink=el("equipmentExhibitLink");
+    const noun=data.sections?.findings?.noun||"gaps and unknowns";
+    function setGapVisibility(on){body.classList.toggle("show-gaps",on);gapButton.setAttribute("aria-pressed",on?"true":"false");gapButton.title=on?`Hide ${noun}`:`Show ${noun}`}
+    function setEquipVisibility(on){body.classList.toggle("show-equip",on);equipButton.setAttribute("aria-pressed",on?"true":"false");equipButton.title=on?"Hide equipment exhibit":"Show equipment exhibit"}
+    function revealHashTarget(){
+      const id=decodeURIComponent(window.location.hash.slice(1));let target=null;
+      if(id===slotAId){setGapVisibility(true);target=el(id)}
+      else if(id==="equipment-exhibit"){setEquipVisibility(true);target=el(id)}
+      if(target)window.requestAnimationFrame(()=>target.scrollIntoView())
+    }
+    gapButton.addEventListener("click",()=>setGapVisibility(!body.classList.contains("show-gaps")));
+    equipButton.addEventListener("click",()=>setEquipVisibility(!body.classList.contains("show-equip")));
+    gapLink.addEventListener("click",()=>setGapVisibility(true));
+    equipLink.addEventListener("click",()=>setEquipVisibility(true));
+    window.addEventListener("hashchange",revealHashTarget);
+    /* Slot A defaults ON, Slot B defaults OFF; document.layers overrides both. */
+    setGapVisibility(data.document?.layers?.findings!==false);
+    setEquipVisibility(data.document?.layers?.equipment===true);
+    revealHashTarget()
+  }
+
+  /* The renderers are forgiving on purpose: a half-usable document should
+     still draw everything it can. This is the unforgiving part. A reply that
+     is valid JSON but the wrong shape must say so loudly - never render an
+     empty page under a PASS badge. Each unusable branch is reported, then
+     replaced with an empty one so the rest of the document still renders
+     under the FAIL. */
+  function checkShape(){
+    if(!data||typeof data!=="object"||Array.isArray(data)){data={};topologyErrors.push("The data block is not a JSON object, so nothing could be drawn.")}
+    if(!data.topology||typeof data.topology!=="object"||Array.isArray(data.topology)){data.topology={};topologyErrors.push("The topology section is missing from the data block.")}
+    ["nodes","links"].forEach(key=>{if(!Array.isArray(data.topology[key])){data.topology[key]=[];topologyErrors.push(`topology.${key} is missing or is not a list.`)}});
+    if(data.topology.zones!==undefined&&!Array.isArray(data.topology.zones)){data.topology.zones=[];topologyErrors.push("topology.zones is not a list, so it was ignored.")}
+    if(!data.rack||typeof data.rack!=="object"||Array.isArray(data.rack)){data.rack={};rackErrors.push("The rack section is missing from the data block.")}
+    if(!Array.isArray(data.rack.devices)){data.rack.devices=[];rackErrors.push("rack.devices is missing or is not a list.")}
+  }
+
+  try{
+    data=parseData();checkShape();renderBrand();renderHeader();renderSections();renderTopology();renderRack();renderFindings();renderEquipment();updateProofStatus();setupControls();updatePackagingCopy();setupEditableExport();renderFooter();setupLayers()
+  }catch(error){
+    /* Nothing below this line may fail silently. A truncated AI reply pasted
+       over the data block used to leave a blank page and a pill stuck on
+       "Running data checks" - the failure the whole workflow exists to catch. */
+    const status=el("proof-status");
+    if(status){status.textContent="FAIL · the data block is broken and the document could not finish rendering";status.classList.add("fail")}
+    document.querySelectorAll(".errors").forEach(box=>{if(!box.classList.contains("visible")){box.textContent=`Rendering stopped: ${error.message}. The data block is likely damaged - restore your last saved copy, or ask the AI for the complete part again.`;box.classList.add("visible")}});
+    throw error
+  }
+</script>
+</body>
+</html>
