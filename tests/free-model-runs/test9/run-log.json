@@ -1,6 +1,57 @@
 {
   "test": "test9",
-  "model": "gemini-3.7-flash",
-  "date": "2026-08-16T06:20:19.136Z",
-  "verdict": "ERROR - HTTP 429 RESOURCE_EXHAUSTED: You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usa"
+  "title": "Penguin Homelabs Network",
+  "organisation": "Penguin Homelabs",
+  "topologyImage": "home-network-traffic.png",
+  "logoImage": "logo-penguin-homelabs.png",
+  "model": "gemini-3.6-flash",
+  "surface": "API (Google AI free tier)",
+  "date": "2026-08-20T15:00:28.345Z",
+  "rounds": [
+    {
+      "round": 1,
+      "finishReason": "STOP",
+      "chars": 13151,
+      "usage": {
+        "prompt": 11771,
+        "output": 4069,
+        "thoughts": 4292
+      },
+      "repairsApplied": [],
+      "truncated": false,
+      "stops": [],
+      "warnings": 0,
+      "warningTexts": [],
+      "inventoryGate": {
+        "gate": "met",
+        "promised": 8,
+        "placed": 9,
+        "short": false
+      }
+    }
+  ],
+  "verdict": "PASS - clean save in 1 round trip",
+  "modelVersion": "gemini-3.6-flash",
+  "extract": {
+    "finishReason": "STOP",
+    "chars": 3786,
+    "usage": {
+      "prompt": 1405,
+      "output": 1233,
+      "thoughts": 1377
+    }
+  },
+  "roundTrips": 1,
+  "branding": {
+    "applied": "name+image",
+    "note": "raster logo: 2679 bytes"
+  },
+  "drawingId": "PHN-NET-001",
+  "saved": "phn-net-001.edit.html",
+  "packaged": "phn-net-001.portable.html",
+  "packaging": {
+    "embedded": 29,
+    "embeddedBytes": 2963196,
+    "skipped": []
+  }
 }

@@ -1,6 +1,59 @@
 {
   "test": "test7",
-  "model": "gemini-3.7-flash",
-  "date": "2026-08-16T06:15:07.480Z",
-  "verdict": "ERROR - HTTP 503 UNAVAILABLE: This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later."
+  "title": "Ecogrid Network",
+  "organisation": "Ecogrid",
+  "topologyImage": "images.png",
+  "logoImage": "logo-ecogrid.svg",
+  "model": "gemini-3.6-flash",
+  "surface": "API (Google AI free tier)",
+  "date": "2026-08-20T14:56:19.334Z",
+  "rounds": [
+    {
+      "round": 1,
+      "finishReason": "STOP",
+      "chars": 16645,
+      "usage": {
+        "prompt": 12489,
+        "output": 5424,
+        "thoughts": 4908
+      },
+      "repairsApplied": [],
+      "truncated": false,
+      "stops": [],
+      "warnings": 1,
+      "warningTexts": [
+        "The reply's sections no longer contains equipment. That part of the design is deleted if you save."
+      ],
+      "inventoryGate": {
+        "gate": "met",
+        "promised": 21,
+        "placed": 21,
+        "short": false
+      }
+    }
+  ],
+  "verdict": "PASS - clean save in 1 round trip with 1 warning(s)",
+  "modelVersion": "gemini-3.6-flash",
+  "extract": {
+    "finishReason": "STOP",
+    "chars": 5209,
+    "usage": {
+      "prompt": 1383,
+      "output": 1976,
+      "thoughts": 1791
+    }
+  },
+  "roundTrips": 1,
+  "branding": {
+    "applied": "name+path+viewBox+fill",
+    "note": "SVG logo: 1 path(s) extracted"
+  },
+  "drawingId": "EN-NET-001",
+  "saved": "en-net-001.edit.html",
+  "packaged": "en-net-001.portable.html",
+  "packaging": {
+    "embedded": 29,
+    "embeddedBytes": 2963196,
+    "skipped": []
+  }
 }

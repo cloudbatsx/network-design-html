@@ -1,0 +1,53 @@
+{
+  "test": "test10",
+  "title": "Cedarview Clinic Network",
+  "organisation": "Cedarview Clinic",
+  "topologyImage": "0c4e45b159c3bf1627f7497f81205111807d3a7e.png",
+  "logoImage": "logo-cedarview-clinic.png",
+  "model": "gemini-3.6-flash",
+  "surface": "API (Google AI free tier)",
+  "date": "2026-08-16T07:10:13.205Z",
+  "rounds": [
+    {
+      "round": 1,
+      "finishReason": "STOP",
+      "chars": 12800,
+      "usage": {
+        "prompt": 11816,
+        "output": 4233,
+        "thoughts": 5274
+      },
+      "repairsApplied": [],
+      "truncated": false,
+      "stops": [],
+      "warnings": 1,
+      "warningTexts": [
+        "\"isp-router-01\" and \"medvpn-router-01\" overlap by 15% of a device box."
+      ]
+    }
+  ],
+  "verdict": "PASS - clean save in 1 round trip with 1 warning(s)",
+  "modelVersion": "gemini-3.6-flash",
+  "extract": {
+    "finishReason": "STOP",
+    "chars": 7099,
+    "usage": {
+      "prompt": 1309,
+      "output": 2805,
+      "thoughts": 4236
+    }
+  },
+  "roundTrips": 1,
+  "branding": {
+    "applied": "name+image",
+    "note": "raster logo: 1563 bytes"
+  },
+  "drawingId": "CCN-NET-001",
+  "saved": "ccn-net-001.edit.html",
+  "packaged": "ccn-net-001.portable.html",
+  "packaging": {
+    "embedded": 29,
+    "embeddedBytes": 2963196,
+    "skipped": []
+  }
+}
