@@ -116,6 +116,7 @@ invent new ones.
     "brand": { "name": "", "label": "", "logoViewBox": "", "logoFill": "", "logoPath": "" },
     "layers": { "findings": true, "equipment": false },
     "omit": ["operations"],
+    "coverage": ["wireless"], "architecture": "",
     "footer": { "author": "", "originalDate": "", "edition": "", "changed": "", "detail": "", "caveat": "", "redaction": "" }
   },
   "topology": {
@@ -159,6 +160,13 @@ this document promises to record - `management-oob`, `wireless` - set in the
 helper, stamped onto fresh builds, and held by the engineering review: a
 declared pack with nothing drawn becomes an observation. Copy it through as
 you find it; the build request tells you what each declared pack wants.
+
+`document.architecture` declares the network's shape - `collapsed-core`,
+`three-tier`, `spine-leaf`, `hub-and-spoke`, `ring` - owner-set like the rest.
+A declared shape does two things: the build request teaches you its
+discipline, and the engineering review holds the drawing to it (spines never
+interconnect, access never bypasses distribution, rings close). Undeclared
+means unjudged: no shape is ever guessed. Copy it through as you find it.
 
 `document.author` is the owner's too: set in the helper's branding step, shown
 in the document-control panel, and signed onto every change-record row the

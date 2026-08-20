@@ -211,6 +211,15 @@
               <span><b>Management &amp; out-of-band</b> — the management network, console or jump paths, shared dependencies</span></label>
             <label class="pick"><input type="checkbox" data-cover="wireless">
               <span><b>Wireless</b> — access points, controller, SSIDs and their VLANs</span></label>
+            <label class="fresh-field">Architecture <span class="fresh-hint">(declares the shape; the engineering review holds the drawing to it)</span>
+              <select id="build-arch">
+                <option value="" selected>Let the drawing speak for itself</option>
+                <option value="collapsed-core">Collapsed core</option>
+                <option value="three-tier">Three-tier (core / distribution / access)</option>
+                <option value="spine-leaf">Spine-leaf fabric</option>
+                <option value="hub-and-spoke">Hub-and-spoke</option>
+                <option value="ring">Ring</option>
+              </select></label>
             <label class="fresh-field">Physical rack
               <select id="fresh-rack">
                 <option value="auto" selected>Let the diagram decide</option>
@@ -350,6 +359,15 @@
         should also record. The engineering review holds the document to what it declares.</p>
         <label class="pick"><input type="checkbox" data-cover="management-oob"> <span>Management &amp; out-of-band</span></label>
         <label class="pick"><input type="checkbox" data-cover="wireless"> <span>Wireless — APs, controller, SSIDs</span></label>
+        <label class="fresh-field" style="margin-top:12px">Architecture <span class="fresh-hint">(the declared shape; the review holds the drawing to it)</span>
+          <select id="scope-arch">
+            <option value="" selected>Not declared — let the drawing speak</option>
+            <option value="collapsed-core">Collapsed core</option>
+            <option value="three-tier">Three-tier (core / distribution / access)</option>
+            <option value="spine-leaf">Spine-leaf fabric</option>
+            <option value="hub-and-spoke">Hub-and-spoke</option>
+            <option value="ring">Ring</option>
+          </select></label>
         <div class="row gap">
           <button class="button" id="sections-apply" type="button">Apply document scope</button>
           <span class="file-name" id="sections-state"></span>
@@ -858,6 +876,33 @@ const COVERAGE_PACKS = Object.freeze({
   }
 });
 
+/* Declared architecture intent. Auto-detecting a topology's shape guesses;
+   a declaration is a fact the owner states - so the recognizers only ever
+   run against a declared shape, which is what keeps them near-zero-noise.
+   Each entry also teaches the builder its own discipline. */
+const ARCHITECTURES = Object.freeze({
+  "collapsed-core": {
+    label: "Collapsed core",
+    request: " This network is a collapsed core: core and distribution are one layer - do not draw a separate distribution tier."
+  },
+  "three-tier": {
+    label: "Three-tier (core / distribution / access)",
+    request: " This network is three-tier: access uplinks to distribution and distribution to core - access never uplinks straight to core."
+  },
+  "spine-leaf": {
+    label: "Spine-leaf fabric",
+    request: " This network is a spine-leaf fabric: every leaf uplinks to every spine, spines never link to each other, and endpoints or servers hang only off leaves."
+  },
+  "hub-and-spoke": {
+    label: "Hub-and-spoke",
+    request: " This network is hub-and-spoke: spokes connect only to the hub, never to each other."
+  },
+  "ring": {
+    label: "Ring",
+    request: " This network is a ring: each ring member links to exactly two neighbours, closing the loop."
+  }
+});
+
 /* The extract prompt grows a numbered list item per chosen pack. */
 function extractPromptText(packs) {
   const chosen = (packs || []).filter((key) => COVERAGE_PACKS[key]);
@@ -881,7 +926,7 @@ function freshDrawingId(title) {
    that never read a picture, and the reason building with nothing felt
    pointless: the model was told to work from an inventory that was not there,
    so it quietly invented one and said nothing. */
-function freshRequestText(title, drawing, rack, source, packs) {
+function freshRequestText(title, drawing, rack, source, packs, architecture) {
   const mode = (source && source.mode) || "picture";
   const described = ((source && source.description) || "").trim();
   const cleanTitle = (title || "").trim();
@@ -910,7 +955,8 @@ function freshRequestText(title, drawing, rack, source, packs) {
     ` The document must contain every device in the ${noun}. If you condense repeated devices or leave anything out, record exactly what was condensed or omitted as a finding stating both numbers - how many the ${noun} counted, how many the drawing shows - the document must never look more complete than it is.` +
     " Anything dated, expired or end-of-life becomes a finding, and anything you could not read from the diagram goes in the gaps list." +
     " Write the figure caption and legend to describe what is actually drawn." +
-    (packs || []).filter((key) => COVERAGE_PACKS[key]).map((key) => COVERAGE_PACKS[key].request).join("");
+    (packs || []).filter((key) => COVERAGE_PACKS[key]).map((key) => COVERAGE_PACKS[key].request).join("") +
+    (ARCHITECTURES[architecture] ? ARCHITECTURES[architecture].request : "");
 }
 
 /* Which sections a document's owner may leave out. The other three never
@@ -920,7 +966,7 @@ const OMITTABLE_SECTIONS = ["identity", "change", "operations", "equipment"];
 
 /* The section chooser is the same kind of edit branding is: the owner's own
    presentation choice, staged locally with no model in the loop. */
-function sectionedData(base, omit, coverage) {
+function sectionedData(base, omit, coverage, architecture) {
   const cleaned = omit.filter((key) => OMITTABLE_SECTIONS.includes(key));
   const packs = (coverage || []).filter((key) => COVERAGE_PACKS[key]);
   const next = structuredClone(base);
@@ -929,6 +975,10 @@ function sectionedData(base, omit, coverage) {
   else delete next.document.omit;
   if (packs.length) next.document.coverage = packs;
   else delete next.document.coverage;
+  if (architecture !== undefined) {
+    if (ARCHITECTURES[architecture]) next.document.architecture = architecture;
+    else delete next.document.architecture;
+  }
   return next;
 }
 
@@ -1133,6 +1183,7 @@ let stagedLogoViewBox = "";   // that file's own proportions, so a wide lockup s
    into a design you edit. */
 let buildMode = false;
 let pendingCoverage = [];   // packs ticked for a fresh build, written at check time
+let pendingArchitecture = "";  // the declared shape, same journey
 function setStepMode(building) {
   buildMode = building;
   const step = $("step-2");
@@ -1245,7 +1296,9 @@ function loadSource(text, name) {
     styleBaseline = null;
     aiSummary = ""; panelSummary = [];
     pendingCoverage = [];
+    pendingArchitecture = "";
     document.querySelectorAll("#build-options input[data-cover]").forEach((box) => { box.checked = false; });
+    if ($("build-arch")) $("build-arch").value = "";
     $("style-state").textContent = ""; note("style-message", null);
     $("style-report").replaceChildren();
     refreshStylePanel();
@@ -1809,6 +1862,12 @@ function checkShell(data, original) {
         }
       }
     }
+  }
+  /* Declared architecture: one of the shapes this edition knows, or absent. */
+  const arch = data.document?.architecture;
+  if (arch !== undefined && arch !== "" && (typeof arch !== "string" || !ARCHITECTURES[arch])) {
+    out.push(problem(false, `document.architecture declares "${arch}", which is not a shape this edition knows.`,
+      `Known shapes: ${Object.keys(ARCHITECTURES).join(", ")}. Remove or correct document.architecture.`));
   }
   /* The section chooser's contract: only four sections may be left out, and
      the three that carry the checks and the candour never leave. */
@@ -2734,6 +2793,141 @@ function reviewTopology(data, askPicture) {
     }
   }
 
+  /* The declared shape, held to. Text-classed tiers keep this deterministic:
+     a fabric whose spines are not named spines earns that question first. */
+  const architecture = typeof data.document?.architecture === "string" ? data.document.architecture : "";
+  if (architecture && ARCHITECTURES[architecture]) {
+    const lower = (n) => `${n.id} ${n.label || ""} ${n.role || ""}`.toLowerCase();
+    const linksOf = (id) => links.filter((l) => l.from === id || l.to === id);
+    const otherEnd = (l, id) => byId.get(l.from === id ? l.to : l.from);
+    const spines = nodes.filter((n) => /(^|[^a-z])spine/.test(lower(n)));
+    const leaves = nodes.filter((n) => /leaf|(^|[^a-z])tor([^a-z]|$)/.test(lower(n)));
+    const dists = nodes.filter((n) => /dist(ribution)?[^a-z]|distribution|aggregation|(^|[^a-z])agg[^a-z]/.test(lower(n)));
+    const cores = nodes.filter((n) => n.icon === "core-switch" || /(^|[^a-z])core/.test(lower(n)));
+    const accesses = nodes.filter((n) => n.icon === "access-switch" && !dists.includes(n) && !cores.includes(n));
+    const endpointish = (n) => [...ENDPOINT_ICONS, ...SERVER_ICONS].includes(n.icon);
+
+    if (architecture === "spine-leaf") {
+      if (!spines.length && !confessed(/spine|fabric|clos/i)) {
+        observe("architecture", "Declared a spine-leaf fabric, but nothing is named a spine.",
+          "No device's id, label or role says spine - the fabric's tiers cannot be told apart.",
+          ask("Look at the picture again: which devices are the spines?", "Which devices are the spines here?"),
+          "Fabric tiers not identifiable", "The document declares spine-leaf, but no device is identifiable as a spine; the fabric roles have not been verified.",
+          { slice: "nodes", request: "Rename or re-role the fabric switches so spines and leaves are identifiable (like spine-01, leaf-01), exactly as the diagram shows." });
+      }
+      const spineIds = new Set(spines.map((n) => n.id));
+      const s2s = links.filter((l) => spineIds.has(l.from) && spineIds.has(l.to));
+      if (s2s.length && !confessed(/spine.to.spine|spine link/i)) {
+        observe("architecture", "Spines are linked to each other - a Clos fabric never does that.",
+          `${s2s.length} link${s2s.length === 1 ? "" : "s"} run${s2s.length === 1 ? "s" : ""} spine-to-spine (${s2s[0].from} to ${s2s[0].to}).`,
+          ask("Look at the picture again: is there truly a line between the spines?", "Do the spines really interconnect here?"),
+          "Spine interconnect kept deliberately", "The declared Clos fabric draws spine-to-spine links; this deviation is kept deliberately.",
+          { slice: "links", request: `Remove the spine-to-spine link${s2s.length === 1 ? "" : "s"} unless the diagram truly shows ${s2s.length === 1 ? "it" : "them"} - in a spine-leaf fabric, spines never interconnect.` });
+      }
+      if (spines.length >= 2) {
+        const partial = leaves.filter((leaf) => {
+          const ups = new Set(linksOf(leaf.id).map((l) => otherEnd(l, leaf.id)).filter((n) => n && spineIds.has(n.id)).map((n) => n.id));
+          return ups.size > 0 && ups.size < spines.length;
+        });
+        if (partial.length && !confessed(/uplink|partial|leaf/i)) {
+          const shown = partial.map((n) => n.id).slice(0, 3).join(", ");
+          observe("architecture", "Leaves are missing spine uplinks.",
+            `${shown}${partial.length > 3 ? " and more" : ""} uplink to only some of the ${spines.length} spines - a Clos leaf uplinks to every spine.`,
+            ask("Look at the picture again: does every leaf run a line to every spine?", "Should every leaf uplink to every spine here?"),
+            "Fabric uplinks not verified", `${shown} are drawn with partial spine uplinks; whether the fabric is fully meshed has not been verified.`,
+            { slice: "links", request: `Add the missing leaf-to-spine uplinks so every leaf reaches every spine, exactly as the diagram shows - ${shown} are missing some.` });
+        }
+      }
+      const onSpine = nodes.filter((n) => endpointish(n)
+        && linksOf(n.id).some((l) => spineIds.has(l.from === n.id ? l.to : l.from)));
+      if (onSpine.length && !confessed(/spine/i)) {
+        const shown = onSpine.map((n) => n.id).slice(0, 3).join(", ");
+        observe("architecture", "Endpoints hang off a spine.",
+          `${shown}${onSpine.length > 3 ? " and more" : ""} attach directly to a spine - in a Clos fabric, hosts live on leaves only.`,
+          ask("Look at the picture again: are those hosts really wired to the spine, or to a leaf beside it?", "Should those hosts attach to a leaf instead of the spine?"),
+          "Spine attachments kept deliberately", `${shown} attach directly to a spine; this deviation is kept deliberately.`,
+          { slice: "links", request: `Re-home ${shown} onto the leaf switches the diagram shows - hosts never attach to spines in a Clos fabric.` });
+      }
+    }
+
+    if (architecture === "three-tier") {
+      if (!dists.length && !confessed(/distribution|three.tier/i)) {
+        observe("architecture", "Declared three-tier, but no distribution layer is named.",
+          "No device's id, label or role reads as distribution or aggregation.",
+          ask("Look at the picture again: where is the distribution layer?", "Where is the distribution layer in this network?"),
+          "Distribution layer not identifiable", "The document declares three tiers, but no distribution layer is identifiable; the tiering has not been verified.",
+          { slice: "nodes", request: "Name or re-role the distribution switches so the three tiers are identifiable, exactly as the diagram shows." });
+      }
+      const coreIds = new Set(cores.map((n) => n.id));
+      const skip = accesses.filter((a) => linksOf(a.id).some((l) => coreIds.has(l.from === a.id ? l.to : l.from)));
+      if (dists.length && skip.length && !confessed(/access.{0,20}core|tier/i)) {
+        const shown = skip.map((n) => n.id).slice(0, 3).join(", ");
+        observe("architecture", "Access switches bypass the distribution layer.",
+          `${shown}${skip.length > 3 ? " and more" : ""} uplink straight to the core, past the distribution tier this document declares.`,
+          ask("Look at the picture again: do those access switches really wire straight to the core?", "Do those access switches really uplink straight to the core?"),
+          "Tier bypass kept deliberately", `${shown} uplink straight to the core in a declared three-tier design; the bypass is kept deliberately.`,
+          { slice: "links", request: `Re-home the uplinks of ${shown} onto the distribution switches, exactly as the diagram shows - or leave them if the bypass is real.` });
+      }
+    }
+
+    if (architecture === "collapsed-core" && dists.length && !confessed(/collapsed|distribution/i)) {
+      const shown = dists.map((n) => n.id).slice(0, 3).join(", ");
+      observe("architecture", "Declared a collapsed core, but a distribution layer is drawn.",
+        `${shown}${dists.length > 3 ? " and more" : ""} read as distribution - a collapsed core folds that tier into the core.`,
+        ask("Look at the picture again: is there really a separate distribution tier?", "Is there really a separate distribution tier here?"),
+        "Extra tier kept deliberately", `A distribution tier (${shown}) is drawn under a declared collapsed core; the extra tier is kept deliberately.`,
+        { slice: "nodes", request: `Re-role ${shown} to what they actually are - core members or access - or correct document.architecture if this network is really three-tier.` });
+    }
+
+    if (architecture === "hub-and-spoke") {
+      const infra = nodes.filter((n) => !endpointish(n) && !isSegment(n) && n.icon !== "cloud");
+      const byDegree = [...infra].sort((p, q) => linksOf(q.id).length - linksOf(p.id).length);
+      const hub = byDegree[0];
+      if (hub) {
+        const hubLinked = new Set(linksOf(hub.id).map((l) => (l.from === hub.id ? l.to : l.from)));
+        const cross = links.filter((l) => l.from !== hub.id && l.to !== hub.id
+          && hubLinked.has(l.from) && hubLinked.has(l.to));
+        if (cross.length && !confessed(/spoke|mesh/i)) {
+          observe("architecture", "Spokes are linked to each other.",
+            `${cross.length} link${cross.length === 1 ? "" : "s"} run${cross.length === 1 ? "s" : ""} spoke-to-spoke (${cross[0].from} to ${cross[0].to}) around the hub "${hub.id}".`,
+            ask("Look at the picture again: do the spokes really interconnect, or does everything pass the hub?", "Do the spokes really interconnect here?"),
+            "Spoke interconnects kept deliberately", "The declared hub-and-spoke draws spoke-to-spoke links; they are kept deliberately.",
+            { slice: "links", request: `Remove the spoke-to-spoke link${cross.length === 1 ? "" : "s"} unless the diagram truly shows ${cross.length === 1 ? "it" : "them"} - in hub-and-spoke, traffic passes the hub.` });
+        }
+      }
+    }
+
+    if (architecture === "ring") {
+      const members = nodes.filter((n) => ["core-switch", "access-switch", "dc-switch", "router"].includes(n.icon));
+      const memberIds = new Set(members.map((n) => n.id));
+      const deadEnds = members.filter((n) =>
+        linksOf(n.id).filter((l) => memberIds.has(l.from === n.id ? l.to : l.from)).length < 2);
+      if (members.length >= 3 && deadEnds.length && !confessed(/ring/i)) {
+        const shown = deadEnds.map((n) => n.id).slice(0, 3).join(", ");
+        observe("architecture", "The declared ring has a dead end.",
+          `${shown}${deadEnds.length > 3 ? " and more" : ""} reach${deadEnds.length === 1 ? "es" : ""} only one ring neighbour - a ring closes, every member has two.`,
+          ask("Look at the picture again: does the ring close, or does it end there?", "Does the ring close, or does it genuinely end there?"),
+          "Open ring kept deliberately", `The declared ring does not close at ${shown}; the open ring is kept deliberately.`,
+          { slice: "links", request: `Add the ring link${deadEnds.length === 1 ? "" : "s"} that close${deadEnds.length === 1 ? "s" : ""} the loop at ${shown}, exactly as the diagram shows.` });
+      }
+    }
+  }
+
+  /* The management pack, deepened one honest notch: a management station
+     wired to nothing manages nothing. */
+  if (coverage.includes("management-oob")) {
+    const stations = nodes.filter((n) => n.icon === "network-management");
+    const isolated = stations.filter((n) => !links.some((l) => l.from === n.id || l.to === n.id));
+    if (isolated.length && !confessed(/management.{0,24}(unwired|unconnected|isolated)/i)) {
+      const shown = isolated.map(name).join(", ");
+      observe("management-isolated", "The management station is wired to nothing.",
+        `${shown} ${isolated.length === 1 ? "is" : "are"} drawn with no link at all - it manages nothing the drawing can show.`,
+        ask(`Look at the picture again: what does ${shown} connect to?`, `What does ${shown} actually connect to?`),
+        "Management wiring not verified", `${shown} ${isolated.length === 1 ? "is" : "are"} drawn unconnected; how management traffic reaches the devices has not been verified.`,
+        { slice: "links", request: `Wire ${shown} into the network as the diagram shows - to the management network or the devices it manages.` });
+    }
+  }
+
   /* R3b · the DMZ question, only when the pieces suggest it: a firewall
      exists, a public-sounding server sits in an internal zone, no DMZ drawn. */
   if (nodes.some((n) => n.icon === "firewall")
@@ -3391,9 +3585,10 @@ function check() {
   /* Declared coverage is owner-owned: the model never writes it, the helper
      stamps it onto a fresh build so the document carries what was asked of
      it - and the review below holds it to that. */
-  if (buildMode && pendingCoverage.length) {
+  if (buildMode && (pendingCoverage.length || pendingArchitecture)) {
     tidied.document = tidied.document && typeof tidied.document === "object" ? tidied.document : {};
-    tidied.document.coverage = [...pendingCoverage];
+    if (pendingCoverage.length) tidied.document.coverage = [...pendingCoverage];
+    if (pendingArchitecture) tidied.document.architecture = pendingArchitecture;
   }
 
   const all = hostile
@@ -3695,7 +3890,8 @@ $("build-copy").addEventListener("click", async () => {
     return;
   }
   pendingCoverage = buildPacks();
-  $("request").value = freshRequestText($("fresh-title").value, $("fresh-drawing").value, $("fresh-rack").value, source, pendingCoverage);
+  pendingArchitecture = $("build-arch") ? $("build-arch").value : "";
+  $("request").value = freshRequestText($("fresh-title").value, $("fresh-drawing").value, $("fresh-rack").value, source, pendingCoverage, pendingArchitecture);
   const text = buildPrompt();
   try {
     await navigator.clipboard.writeText(text);
@@ -3882,6 +4078,8 @@ function syncSectionChoices() {
   document.querySelectorAll("#section-choices input[data-cover]").forEach((box) => {
     box.checked = coverage.includes(box.dataset.cover);
   });
+  const scopeArch = $("scope-arch");
+  if (scopeArch) scopeArch.value = ARCHITECTURES[currentData?.document?.architecture] ? currentData.document.architecture : "";
   const state = $("sections-state");
   if (state) state.textContent = "";
 }
@@ -3891,9 +4089,10 @@ $("sections-apply").addEventListener("click", () => {
   const before = accepted || currentData;
   const coverChoices = [...document.querySelectorAll("#section-choices input[data-cover]")]
     .filter((box) => box.checked).map((box) => box.dataset.cover);
-  const next = sectionedData(before, omitChoices(), coverChoices);
+  const next = sectionedData(before, omitChoices(), coverChoices, $("scope-arch") ? $("scope-arch").value : undefined);
   if (JSON.stringify(next.document.omit || []) === JSON.stringify(before.document?.omit || [])
-    && JSON.stringify(next.document.coverage || []) === JSON.stringify(before.document?.coverage || [])) {
+    && JSON.stringify(next.document.coverage || []) === JSON.stringify(before.document?.coverage || [])
+    && (next.document.architecture || "") === (before.document?.architecture || "")) {
     $("sections-state").textContent = "No change - the document already declares exactly this scope.";
     return;
   }

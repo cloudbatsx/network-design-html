@@ -53,7 +53,7 @@ const sandbox = {
   PACKAGER_CORE: require(path.join(root, "tools", "packager-core.js"))
 };
 
-const shim = ";globalThis.__exports = { parseWithRepair, mergeReply, checkStructure, checkMeaning, checkShell, checkAssetStrings, looksTruncated, safeJson, contextFor, summarizeChange, editableParts, freshRequestText, freshDrawingId, brandedData, EXTRACT_PROMPT, SLICES, polishGeometry, layoutRulesFor, grammarRulesFor, svgLogoFrom, fillIdentityFromDrawing, buildPrompt, restyleTopology, sectionedData, nextRevision, versionStamp, reviewTopology, withReviewGap, flipTopology, COVERAGE_PACKS, extractPromptText," +
+const shim = ";globalThis.__exports = { parseWithRepair, mergeReply, checkStructure, checkMeaning, checkShell, checkAssetStrings, looksTruncated, safeJson, contextFor, summarizeChange, editableParts, freshRequestText, freshDrawingId, brandedData, EXTRACT_PROMPT, SLICES, polishGeometry, layoutRulesFor, grammarRulesFor, svgLogoFrom, fillIdentityFromDrawing, buildPrompt, restyleTopology, sectionedData, nextRevision, versionStamp, reviewTopology, withReviewGap, flipTopology, COVERAGE_PACKS, extractPromptText, ARCHITECTURES," +
   " setData: (d) => { currentData = d; }," +
   " setRequest: (text) => { document.getElementById('request').value = text; }," +
   " setSlice: (name) => { document.getElementById('slice').value = name; }," +
@@ -1418,6 +1418,155 @@ test("coverage: declared wireless with nothing wireless drawn is observed, with 
   design.topology.nodes.pop();
   assert(!rules(t.reviewTopology(design, false)).includes("wireless-coverage"),
     "an undeclared pack was enforced anyway");
+});
+
+/* ---- declared architecture ---- */
+
+function fabricDesign() {
+  const design = baseDesign();
+  design.topology.zones = [];
+  design.topology.nodes = [
+    { id: "spine-01", label: "Spine 1", icon: "dc-switch", x: 400, y: 200 },
+    { id: "spine-02", label: "Spine 2", icon: "dc-switch", x: 880, y: 200 },
+    { id: "leaf-01", label: "Leaf 1", icon: "access-switch", x: 300, y: 500 },
+    { id: "leaf-02", label: "Leaf 2", icon: "access-switch", x: 640, y: 500 },
+    { id: "srv-1", label: "Host", icon: "server", x: 300, y: 780 }
+  ];
+  design.topology.links = [
+    { from: "leaf-01", to: "spine-01", kind: "aggregate" },
+    { from: "leaf-01", to: "spine-02", kind: "aggregate" },
+    { from: "leaf-02", to: "spine-01", kind: "aggregate" },
+    { from: "leaf-02", to: "spine-02", kind: "aggregate" },
+    { from: "srv-1", to: "leaf-01", kind: "access" }
+  ];
+  design.sections = { findings: { items: [{ title: "T", detail: "D" }] } };
+  design.document.architecture = "spine-leaf";
+  return design;
+}
+
+test("architecture: the scope panel writes, clears and refuses unknown shapes", () => {
+  const base = baseDesign();
+  const next = t.sectionedData(base, [], [], "spine-leaf");
+  assert.strictEqual(next.document.architecture, "spine-leaf");
+  assert.strictEqual(t.sectionedData(next, [], [], "").document.architecture, undefined);
+  assert.strictEqual(t.sectionedData(base, [], [], "mesh-of-doom").document.architecture, undefined);
+  const design = baseDesign();
+  design.document.architecture = "mesh-of-doom";
+  assert(has(t.checkShell(design, design), /not a shape this edition knows/, false));
+});
+
+test("architecture: the build request teaches the declared shape", () => {
+  const text = t.freshRequestText("T", "T-NET-001", "auto", undefined, [], "spine-leaf");
+  assert(/every leaf uplinks to every spine/.test(text));
+  assert(!/spine/.test(t.freshRequestText("T", "T-NET-001", "auto")),
+    "an undeclared shape leaked into the plain request");
+});
+
+test("architecture: a clean declared fabric reviews silent", () => {
+  assert(!rules(t.reviewTopology(fabricDesign(), false)).includes("architecture"));
+});
+
+test("architecture: spine-to-spine links and hosts on spines are asked about", () => {
+  const design = fabricDesign();
+  design.topology.links.push({ from: "spine-01", to: "spine-02", kind: "aggregate" });
+  design.topology.links.push({ from: "srv-1", to: "spine-02", kind: "access" });
+  const obs = t.reviewTopology(design, false).filter((o) => o.rule === "architecture");
+  assert(obs.some((o) => /never does that/.test(o.what)), "spine-to-spine went unremarked");
+  assert(obs.some((o) => /Endpoints hang off a spine/.test(o.what)), "a host on a spine went unremarked");
+});
+
+test("architecture: a leaf missing a spine uplink is named", () => {
+  const design = fabricDesign();
+  design.topology.links = design.topology.links.filter((l) => !(l.from === "leaf-02" && l.to === "spine-02"));
+  const obs = t.reviewTopology(design, false).find((o) => /missing spine uplinks/.test(o.what));
+  assert(obs, "a partial fabric mesh went unremarked");
+  assert(/leaf-02/.test(obs.saw));
+});
+
+test("architecture: an unnamed fabric is asked which devices are the spines", () => {
+  const design = fabricDesign();
+  design.topology.nodes.forEach((n) => { n.id = n.id.replace("spine", "sw").replace("leaf", "tor... no"); });
+  // rebuild cleanly: no spine-named devices at all
+  const bare = fabricDesign();
+  bare.topology.nodes.forEach((n, i) => { n.id = "sw-" + i; n.label = "Switch " + i; n.role = ""; });
+  bare.topology.links = [];
+  const obs = t.reviewTopology(bare, false).find((o) => /nothing is named a spine/.test(o.what));
+  assert(obs, "a declared fabric with anonymous tiers went unremarked");
+});
+
+test("architecture: three-tier bypass and collapsed-core extra tier are asked about", () => {
+  const three = baseDesign();
+  three.document.architecture = "three-tier";
+  three.topology.nodes = [
+    { id: "core-01", icon: "core-switch", x: 640, y: 200 },
+    { id: "dist-01", label: "Distribution", icon: "dc-switch", x: 640, y: 450 },
+    { id: "access-01", icon: "access-switch", x: 400, y: 700 }
+  ];
+  three.topology.links = [
+    { from: "dist-01", to: "core-01", kind: "l3" },
+    { from: "access-01", to: "core-01", kind: "aggregate" }
+  ];
+  three.sections = { findings: { items: [{ title: "T", detail: "D" }] } };
+  const obs = t.reviewTopology(three, false).filter((o) => o.rule === "architecture");
+  assert(obs.some((o) => /bypass the distribution/.test(o.what)), "the tier bypass went unremarked");
+  const collapsed = structuredClone(three);
+  collapsed.document.architecture = "collapsed-core";
+  const cObs = t.reviewTopology(collapsed, false).filter((o) => o.rule === "architecture");
+  assert(cObs.some((o) => /distribution layer is drawn/.test(o.what)), "the extra tier went unremarked");
+});
+
+test("architecture: spoke-to-spoke and open rings are asked about", () => {
+  const hub = baseDesign();
+  hub.document.architecture = "hub-and-spoke";
+  hub.topology.nodes = [
+    { id: "hub-01", icon: "router", x: 640, y: 300 },
+    { id: "spoke-a", icon: "router", x: 300, y: 640 },
+    { id: "spoke-b", icon: "router", x: 980, y: 640 }
+  ];
+  hub.topology.links = [
+    { from: "spoke-a", to: "hub-01", kind: "l3" },
+    { from: "spoke-b", to: "hub-01", kind: "l3" },
+    { from: "spoke-a", to: "spoke-b", kind: "l3" }
+  ];
+  hub.sections = { findings: { items: [{ title: "T", detail: "D" }] } };
+  assert(t.reviewTopology(hub, false).some((o) => /Spokes are linked to each other/.test(o.what)),
+    "a spoke-to-spoke link went unremarked");
+  const ring = baseDesign();
+  ring.document.architecture = "ring";
+  ring.topology.nodes = [
+    { id: "r1", icon: "access-switch", x: 300, y: 300 },
+    { id: "r2", icon: "access-switch", x: 640, y: 300 },
+    { id: "r3", icon: "access-switch", x: 980, y: 300 }
+  ];
+  ring.topology.links = [
+    { from: "r1", to: "r2", kind: "l3" },
+    { from: "r2", to: "r3", kind: "l3" }
+  ];
+  ring.sections = { findings: { items: [{ title: "T", detail: "D" }] } };
+  assert(t.reviewTopology(ring, false).some((o) => /ring has a dead end/.test(o.what)),
+    "an open ring went unremarked");
+  ring.topology.links.push({ from: "r3", to: "r1", kind: "l3" });
+  assert(!t.reviewTopology(ring, false).some((o) => o.rule === "architecture"),
+    "a closed ring was told it has a dead end");
+});
+
+test("architecture: an undeclared drawing gets no shape lecture at all", () => {
+  const design = fabricDesign();
+  delete design.document.architecture;
+  design.topology.links.push({ from: "spine-01", to: "spine-02", kind: "aggregate" });
+  assert(!rules(t.reviewTopology(design, false)).includes("architecture"),
+    "recognizers ran against an undeclared shape");
+});
+
+test("coverage: a declared management pack notices an unwired management station", () => {
+  const design = reviewDesign(4);
+  design.document.coverage = ["management-oob"];
+  design.topology.nodes.push({ id: "nms", icon: "network-management", x: 200, y: 500 });
+  const obs = t.reviewTopology(design, false).find((o) => o.rule === "management-isolated");
+  assert(obs, "an unwired management station went unremarked");
+  design.topology.links.push({ from: "nms", to: "core-sw-01", kind: "access" });
+  assert(!t.reviewTopology(design, false).some((o) => o.rule === "management-isolated"),
+    "a wired management station was still called isolated");
 });
 
 /* ---- the version stamp ---- */

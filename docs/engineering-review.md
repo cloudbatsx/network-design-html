@@ -50,12 +50,24 @@ Final fire rate: 36 observations across 36 documents (1.0 average), all on
 model-built documents. Six were then judged against their source images:
 one real AI extraction error caught, ten true gaps, zero noise.
 
-## The roadmap (wave 2, unbuilt)
+## The declared shape (wave B)
 
-Architecture recognizers, gated on wave 1 proving its false-positive rate in
-real use: classify the drawing (three-tier, collapsed core, spine-leaf,
-hub-and-spoke, ring) with conservative thresholds, then ask
-pattern-specific questions — leaf-to-leaf links in a Clos fabric, a broken
-ring, endpoints hanging off a spine. Plus articulation-point analysis (the
-true single-point-of-failure test) and naming-consistency tied to the
-hostname anatomy.
+Auto-detecting a topology's architecture guesses; a declaration is a fact
+the owner states. `document.architecture` arms shape-specific checks that
+never run otherwise: a **spine-leaf** fabric is asked about spine-to-spine
+links, leaves missing spine uplinks, hosts hanging off spines, and unnamed
+tiers; **three-tier** about access uplinks that bypass distribution and a
+missing distribution layer; **collapsed-core** about a distribution tier
+that should not exist; **hub-and-spoke** about spoke-to-spoke links; and a
+**ring** about dead ends that keep the loop from closing. Declared coverage
+packs deepen the same way: a management-oob document with an unwired
+management station is told it manages nothing. Every observation keeps the
+three-way resolution and its fix prompt.
+
+## The roadmap (unbuilt)
+
+Auto-detection of undeclared shapes (conservative classification before the
+questions the declared checks already ask); articulation-point analysis (the
+true single-point-of-failure test); naming-consistency tied to the hostname
+anatomy; and the remaining coverage packs - fabric overlay tables, WAN
+diversity, security segmentation - from the NET-STD-001 research.
