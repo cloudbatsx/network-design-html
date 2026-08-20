@@ -1,6 +1,57 @@
 {
   "test": "test18",
+  "title": "Oakfield Training Network",
+  "organisation": "Oakfield Training",
+  "topologyImage": "cisco topology layout_full.png",
+  "logoImage": "logo-oakfield-training.svg",
   "model": "gemini-3.6-flash",
-  "date": "2026-08-20T14:38:20.628Z",
-  "verdict": "ERROR - HTTP 503 UNAVAILABLE: This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later."
+  "surface": "API (Google AI free tier)",
+  "date": "2026-08-20T14:41:32.789Z",
+  "rounds": [
+    {
+      "round": 1,
+      "finishReason": "STOP",
+      "chars": 10113,
+      "usage": {
+        "prompt": 11494,
+        "output": 3613,
+        "thoughts": 3491
+      },
+      "repairsApplied": [],
+      "truncated": false,
+      "stops": [],
+      "warnings": 0,
+      "warningTexts": [],
+      "inventoryGate": {
+        "gate": "met",
+        "promised": 6,
+        "placed": 6,
+        "short": false
+      }
+    }
+  ],
+  "verdict": "PASS - clean save in 1 round trip",
+  "modelVersion": "gemini-3.6-flash",
+  "extract": {
+    "finishReason": "STOP",
+    "chars": 2099,
+    "usage": {
+      "prompt": 1395,
+      "output": 968,
+      "thoughts": 1617
+    }
+  },
+  "roundTrips": 1,
+  "branding": {
+    "applied": "name+path+viewBox+fill",
+    "note": "SVG logo: 1 path(s) extracted"
+  },
+  "drawingId": "OTN-NET-001",
+  "saved": "otn-net-001.edit.html",
+  "packaged": "otn-net-001.portable.html",
+  "packaging": {
+    "embedded": 29,
+    "embeddedBytes": 2963196,
+    "skipped": []
+  }
 }
