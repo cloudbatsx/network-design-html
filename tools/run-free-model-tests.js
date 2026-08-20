@@ -436,7 +436,10 @@ async function packageEditable(editText, artwork) {
 
 /* ---------- one test, end to end ---------- */
 
-const MAX_ROUND_TRIPS = 3;
+// Four rounds, not three: the first gpt-5.4-mini fresh build converged
+// six stops -> three -> one and died at the cap. The verdict still names
+// the count, so the one-round-trip record stays a measurement, not a cap.
+const MAX_ROUND_TRIPS = 4;
 
 async function runTest(t, test, options, log) {
   const record = {

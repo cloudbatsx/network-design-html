@@ -2078,6 +2078,26 @@ function checkMeaning(data) {
   // would flag 34 non-overlapping pairs in the shipped reference diagram. Boxes
   // that merely kiss at the corner are a warning; a real pile-up is a stop,
   // because two devices in one place is unreadable rather than untidy.
+  /* A pile-up stays a stop - which of the two the model meant to sit there
+     is not ours to guess. But the retry message now hands over arithmetic
+     instead of adjectives: the first gpt-5.4-mini fresh build converged
+     from six stops to one lone pile-up and ran out of rounds, exactly the
+     failure D1 taught us to answer with computed numbers. */
+  const freeSpotNear = (mover) => {
+    const others = nodes.filter((n) => n !== mover && Number.isFinite(Number(n.x)) && Number.isFinite(Number(n.y)));
+    const hm = nodeHalf(mover);
+    const clear = (x, y) => others.every((n) => {
+      const hn = nodeHalf(n);
+      return Math.abs(x - Number(n.x)) >= hm.x + hn.x || Math.abs(y - Number(n.y)) >= hm.y + hn.y;
+    });
+    for (let ring = 1; ring <= 4; ring++) {
+      for (const [cx, cy] of [[ring, 0], [-ring, 0], [0, ring], [0, -ring], [ring, ring], [-ring, ring], [ring, -ring], [-ring, -ring]]) {
+        const x = Number(mover.x) + cx * GRID_COL, y = Number(mover.y) + cy * GRID_ROW;
+        if (x >= 90 && y >= 90 && clear(x, y)) return { x, y };
+      }
+    }
+    return null;
+  };
   if (usesCoordinates) for (let a = 0; a < nodes.length; a++) {
     for (let b = a + 1; b < nodes.length; b++) {
       const ha = nodeHalf(nodes[a]), hb = nodeHalf(nodes[b]);
@@ -2089,9 +2109,11 @@ function checkMeaning(data) {
       const covered = ((reachX - dx) * (reachY - dy)) / smallest;
       const serious = covered >= PILEUP;
       const extent = covered < 0.01 ? "by a few pixels" : `by ${Math.round(covered * 100)}% of a device box`;
+      const spot = serious ? freeSpotNear(nodes[b]) : null;
       out.push(problem(serious,
         `"${nodes[a].id}" and "${nodes[b].id}" ${serious ? "sit on top of each other" : "overlap"} ${extent}.`,
-        `Move "${nodes[b].id}" so it is at least ${NODE_W} away horizontally or ${NODE_H} away vertically from "${nodes[a].id}".`));
+        `Move "${nodes[b].id}" so it is at least ${NODE_W} away horizontally or ${NODE_H} away vertically from "${nodes[a].id}".` +
+        (spot ? ` The nearest free spot on the grid is x=${spot.x}, y=${spot.y}.` : "")));
     }
   }
 

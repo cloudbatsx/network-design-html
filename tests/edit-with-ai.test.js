@@ -250,6 +250,23 @@ test("geometry: a real pile-up is a stop", () => {
   assert(has(t.checkMeaning(data), /sit on top of each other/, true));
 });
 
+test("geometry: a pile-up stop hands the model a computed free spot", () => {
+  /* The D1 lesson reaches the retry loop: gpt-5.4-mini's first fresh build
+     converged to one lone pile-up and died at the round cap. The stop stays
+     a stop, but its message now carries the nearest free grid cell. */
+  const data = baseDesign();
+  data.topology.nodes[1].x = data.topology.nodes[0].x;
+  data.topology.nodes[1].y = data.topology.nodes[0].y;
+  const stop = t.checkMeaning(data).find((p) => /sit on top of each other/.test(p.what));
+  const spot = stop.tell.match(/nearest free spot on the grid is x=(\d+), y=(\d+)/);
+  assert(spot, "the stop's message carries no computed spot: " + stop.tell);
+  const x = Number(spot[1]), y = Number(spot[2]);
+  for (const node of data.topology.nodes.slice(0, 1).concat(data.topology.nodes.slice(2))) {
+    const clear = Math.abs(x - node.x) >= 176 || Math.abs(y - node.y) >= 104;
+    assert(clear, `the suggested spot ${x},${y} still collides with ${node.id}`);
+  }
+});
+
 test("geometry: a corner kiss is a warning, not a stop", () => {
   const data = baseDesign();
   data.topology.nodes[0].x = 200; data.topology.nodes[0].y = 200;
