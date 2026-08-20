@@ -1702,13 +1702,17 @@ function mergeReply(parsed, original, name) {
       `Include ${missing.join(" and ")} as well, or say that you left ${missing.length === 1 ? "it" : "them"} alone on purpose.`));
   }
 
-  /* A part sent back smaller than it was is a deletion no later check can
-     see: sections answered with only its overview wipes the findings, and a
-     document without its brand has destroyed the logo. Arrays shrink by
-     honest editing - removing a device is a change the list shows - but a
-     missing OBJECT key is a whole piece of the design gone, so it is named.
-     The one taught exception: a rack declared deliberately absent replaces
-     its schedule on purpose. */
+  /* A part sent back smaller than it was used to be a deletion no later
+     check could see: sections answered with only its overview wiped the
+     findings. The first cross-vendor matrix proved weak models answer a
+     scoped edit with only the key they changed - gpt-5.4-mini's run 7
+     returned one section and seven were gone at save. So the contract is
+     now: a key the reply leaves out is a key it left alone - the missing
+     pieces are restored and named, never deleted. Removing a section for
+     real belongs to the owner's section chooser (document.omit), and an
+     emptied key sent back explicitly is still an honest edit. Arrays
+     shrink by honest editing; the rack declared deliberately absent still
+     replaces its schedule on purpose. */
   for (const path of slice.paths) {
     if (!applied.includes(pathLabel(path))) continue;
     const before = readPath(original, path);
@@ -1718,8 +1722,9 @@ function mergeReply(parsed, original, name) {
     if (path[0] === "rack" && after.applicable === false) continue;
     const gone = Object.keys(before).filter((key) => !(key in after));
     if (gone.length) {
-      out.push(problem(false, `The reply's ${pathLabel(path)} no longer contains ${gone.join(", ")}. ${gone.length === 1 ? "That part of the design is" : "Those parts of the design are"} deleted if you save.`,
-        `Your reply left ${gone.join(", ")} out of ${pathLabel(path)}. Send ${pathLabel(path)} again with every field you were given, or say that you removed ${gone.length === 1 ? "it" : "them"} on purpose.`));
+      for (const key of gone) after[key] = before[key];
+      out.push(problem(false, `The reply's ${pathLabel(path)} left out ${gone.join(", ")}, so ${gone.length === 1 ? "that part was" : "those parts were"} kept unchanged.`,
+        `If you meant to remove ${gone.join(", ")} from ${pathLabel(path)}, send ${gone.length === 1 ? "that key" : "those keys"} back present but emptied - a key left out is a key left alone.`));
     }
   }
 

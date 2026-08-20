@@ -182,21 +182,31 @@ test("merge: a shape mismatch is rejected outright", () => {
   assert(has(problems, /does not contain/, true));
 });
 
-/* Replacing an object part wholesale is the merge contract, but a part sent
-   back smaller than it was is a deletion nothing downstream can see:
-   sections answered with only its overview used to wipe the findings with
-   zero warnings. Arrays are exempt - removing a device is honest editing
-   the change list already shows. */
-test("merge: a reply that quietly drops whole keys from a part is named", () => {
+/* Replacing an object part wholesale is the merge contract, but weak models
+   answer a scoped edit with only the key they changed - the first
+   cross-vendor matrix watched gpt-5.4-mini return one section and seven
+   vanish at save. The contract is now: a key the reply leaves out is a key
+   it left alone. The missing pieces are restored and the restoration is
+   named; deleting a section for real belongs to document.omit, and an
+   explicitly emptied key is still an honest edit. Arrays stay exempt -
+   removing a device is editing the change list already shows. */
+test("merge: a reply that leaves out whole keys keeps them, and says so", () => {
   const original = baseDesign();
   original.sections.overview = { heading: "Overview", notes: ["Old."] };
   const reply = { sections: { overview: { heading: "Overview", notes: ["Rewritten."] } } };
   const { merged, problems } = t.mergeReply(reply, original, "sections");
-  assert(has(problems, /no longer contains findings/, false),
-    "wiping the findings by omission earned no warning");
+  assert(has(problems, /left out findings, so that part was kept unchanged/, false),
+    "the under-returned reply's restoration went unnamed");
   assert.strictEqual(problems.filter((p) => p.stop).length, 0,
-    "the deletion notice must warn, not stop - it may be exactly what was asked for");
-  assert.strictEqual(Object.keys(merged.sections).length, 1);
+    "the restoration notice must warn, not stop");
+  assert(merged.sections.findings, "the findings were not restored");
+  assert.deepStrictEqual(merged.sections.findings, original.sections.findings,
+    "the restored findings are not the original findings");
+  assert.strictEqual(merged.sections.overview.notes[0], "Rewritten.",
+    "the key the reply DID send must still apply");
+  const emptied = t.mergeReply({ sections: { overview: { heading: "Overview", notes: ["Rewritten."] }, findings: { items: [] } } }, original, "sections");
+  assert.strictEqual(emptied.merged.sections.findings.items.length, 0,
+    "an explicitly emptied key must still be honoured as an edit");
 });
 
 test("merge: the taught no-rack form replaces the schedule without complaint", () => {

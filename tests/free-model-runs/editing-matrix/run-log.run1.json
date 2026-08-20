@@ -1,8 +1,8 @@
 {
   "protocol": "nine-run editing matrix",
   "starter": "NET-HQ-001.edit.html",
-  "model": "gpt-5.4-mini",
-  "date": "2026-08-20T16:22:51.141Z",
+  "model": "gemini-3.6-flash",
+  "date": "2026-08-17T17:17:09.841Z",
   "runs": [
     {
       "run": 1,
@@ -14,17 +14,11 @@
           "finishReason": "STOP",
           "chars": 5420,
           "usage": {
-            "prompt": 4535,
-            "output": 1619,
-            "thoughts": 0
+            "prompt": 4773,
+            "output": 1875,
+            "thoughts": 4385
           },
-          "repairsApplied": [
-            "aligned \"hq-esx-02\" with \"hq-srv-01\" (15px left) so the cable runs straight",
-            "aligned \"hq-wan-01\" with \"hq-fw-01\" (20px right) so the cable runs straight",
-            "aligned \"hq-wan-02\" with \"hq-fw-02\" (20px left) so the cable runs straight",
-            "aligned \"carrier-a\" with \"hq-wan-01\" (20px right) so the cable runs straight",
-            "aligned \"carrier-b\" with \"hq-wan-02\" (20px left) so the cable runs straight"
-          ],
+          "repairsApplied": [],
           "truncated": false,
           "stops": [],
           "warnings": 0,
@@ -42,11 +36,11 @@
         {
           "round": 1,
           "finishReason": "STOP",
-          "chars": 2345,
+          "chars": 4364,
           "usage": {
-            "prompt": 3171,
-            "output": 823,
-            "thoughts": 0
+            "prompt": 3458,
+            "output": 1704,
+            "thoughts": 1589
           },
           "repairsApplied": [],
           "truncated": false,
@@ -68,9 +62,9 @@
           "finishReason": "STOP",
           "chars": 458,
           "usage": {
-            "prompt": 2237,
-            "output": 152,
-            "thoughts": 0
+            "prompt": 2462,
+            "output": 172,
+            "thoughts": 939
           },
           "repairsApplied": [],
           "truncated": false,
@@ -92,11 +86,11 @@
         {
           "round": 1,
           "finishReason": "STOP",
-          "chars": 8232,
+          "chars": 8182,
           "usage": {
-            "prompt": 6210,
-            "output": 2591,
-            "thoughts": 0
+            "prompt": 6635,
+            "output": 3014,
+            "thoughts": 10300
           },
           "repairsApplied": [],
           "truncated": false,
@@ -118,11 +112,11 @@
         {
           "round": 1,
           "finishReason": "STOP",
-          "chars": 3210,
+          "chars": 4990,
           "usage": {
-            "prompt": 3182,
-            "output": 942,
-            "thoughts": 0
+            "prompt": 3537,
+            "output": 1799,
+            "thoughts": 3192
           },
           "repairsApplied": [],
           "truncated": false,
@@ -144,11 +138,11 @@
         {
           "round": 1,
           "finishReason": "STOP",
-          "chars": 4172,
+          "chars": 4152,
           "usage": {
-            "prompt": 2620,
-            "output": 904,
-            "thoughts": 0
+            "prompt": 2860,
+            "output": 915,
+            "thoughts": 2397
           },
           "repairsApplied": [],
           "truncated": false,
@@ -170,24 +164,23 @@
         {
           "round": 1,
           "finishReason": "STOP",
-          "chars": 1238,
+          "chars": 15555,
           "usage": {
-            "prompt": 6548,
-            "output": 255,
-            "thoughts": 0
+            "prompt": 6946,
+            "output": 3818,
+            "thoughts": 1224
           },
           "repairsApplied": [],
           "truncated": false,
           "stops": [],
-          "warnings": 2,
+          "warnings": 1,
           "warningTexts": [
-            "The reply's sections no longer contains overview, logical, identity, physical, change, findings, equipment. Those parts of the design are deleted if you save.",
             "The area \"oob-mgmt\" runs past the edge of the page."
           ]
         }
       ],
       "roundTrips": 1,
-      "verdict": "clean save in 1 round trip with 2 warning(s)"
+      "verdict": "clean save in 1 round trip with 1 warning(s)"
     },
     {
       "run": 8,
@@ -197,11 +190,11 @@
         {
           "round": 1,
           "finishReason": "STOP",
-          "chars": 1555,
+          "chars": 1785,
           "usage": {
-            "prompt": 1908,
-            "output": 366,
-            "thoughts": 0
+            "prompt": 2312,
+            "output": 608,
+            "thoughts": 2312
           },
           "repairsApplied": [],
           "truncated": false,
@@ -223,29 +216,26 @@
         {
           "round": 1,
           "finishReason": "STOP",
-          "chars": 15930,
+          "chars": 40908,
           "usage": {
-            "prompt": 8617,
-            "output": 4620,
-            "thoughts": 0
+            "prompt": 14134,
+            "output": 12884,
+            "thoughts": 6154
           },
-          "repairsApplied": [
-            "moved \"hq-oob-01\" 37px down to clear \"hq-wlc-02\""
-          ],
+          "repairsApplied": [],
           "truncated": false,
           "stops": [],
-          "warnings": 2,
+          "warnings": 1,
           "warningTexts": [
-            "The reply's sections no longer contains operations. That part of the design is deleted if you save.",
             "The area \"oob-mgmt\" runs past the edge of the page."
           ]
         }
       ],
       "roundTrips": 1,
-      "verdict": "clean save in 1 round trip with 2 warning(s)"
+      "verdict": "clean save in 1 round trip with 1 warning(s)"
     }
   ],
-  "modelVersion": "gpt-5.4-mini-2026-03-17",
-  "verdict": "PASS - runs 1-8 clean in at most two round trips, no truncation; run 9 (diagnostic): clean save in 1 round trip with 2 warning(s)",
+  "modelVersion": "gemini-3.6-flash",
+  "verdict": "PASS - runs 1-8 clean in at most two round trips, no truncation; run 9 (diagnostic): clean save in 1 round trip with 1 warning(s)",
   "saved": "NET-HQ-001.after-matrix.edit.html"
 }
