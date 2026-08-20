@@ -653,3 +653,37 @@ fidelity.** Teaching moved 3.6-flash from condensation to exactness in one
 round; 2.5-flash invents through the same teaching. The review caught the
 merge; nothing yet catches an invention the model also counts — that
 remains the extraction-fidelity frontier.
+
+### The cross-vendor editing matrix — a hole found and closed in ninety minutes · 2026-08-20
+
+The nine-run editing protocol went to a second vendor for the first time:
+`gpt-5.4-mini` through the new OpenAI-protocol adapter. First pass: **nine
+for nine in one round trip each**, zero truncation — and a document with one
+section left. Weak models answer a scoped edit with only the key they
+changed; the merge read every missing key as a deletion, the guard warned
+exactly as designed, and the auto-save committed the loss seven sections at
+a time. Gemini had never surfaced this in five matrix passes because it
+echoes the whole sections object back. One vendor's habit was another
+vendor's blind spot.
+
+The contract changed the same hour (1c35f31): **a key the reply leaves out
+is a key it left alone** — missing pieces are restored and the restoration
+is named; removing a section for real belongs to the owner's section
+chooser, and an explicitly emptied key is still an honest edit. The gutted
+document stays in the folder as evidence
+(`NET-HQ-001.after-matrix__gpt-5.4-mini-gutted.edit.html`). The re-run on
+the fixed merge: matrix PASS again, and the final document carries **all
+eight sections**, revision v1.1, both controllers, every edit intact
+(`__gpt-5.4-mini`). The column-snap pass narrated five alignments in run 1;
+run 9 took three round trips this time — the retry loop, not luck.
+
+### test11 on gemini-2.5-flash — the geometry benchmark revisited
+
+One round trip, zero stops, zero warnings, and **zero review
+observations** — it drew an "Organizational Perimeter" zone unprompted
+where the archived run had earned the perimeter-band question, gave the
+egress pair real firewall icons, and extracted the image's dashed HA
+heartbeat as an `ha` link. The vision audit re-counted the image at exactly
+**40** (the validated by-hand number): this run's 48 pads the pattern the
+model keeps showing — HQ PCs doubled 4→8, one extra mobile, one extra
+server in each server area. Padding again, structure otherwise excellent.
