@@ -211,6 +211,12 @@
               <span><b>Management &amp; out-of-band</b> — the management network, console or jump paths, shared dependencies</span></label>
             <label class="pick"><input type="checkbox" data-cover="wireless">
               <span><b>Wireless</b> — access points, controller, SSIDs and their VLANs</span></label>
+            <label class="pick"><input type="checkbox" data-cover="fabric-overlay">
+              <span><b>Fabric overlay</b> — VXLAN/EVPN mappings: segments, VNIs, VRFs</span></label>
+            <label class="pick"><input type="checkbox" data-cover="wan-multisite">
+              <span><b>WAN / multi-site</b> — sites, circuits, carriers, and whether two circuits are truly diverse</span></label>
+            <label class="pick"><input type="checkbox" data-cover="security-segmentation">
+              <span><b>Security &amp; segmentation</b> — the zone-to-VLAN/VRF mapping and policy stance</span></label>
             <label class="fresh-field">Architecture <span class="fresh-hint">(declares the shape; the engineering review holds the drawing to it)</span>
               <select id="build-arch">
                 <option value="" selected>Let the drawing speak for itself</option>
@@ -359,6 +365,9 @@
         should also record. The engineering review holds the document to what it declares.</p>
         <label class="pick"><input type="checkbox" data-cover="management-oob"> <span>Management &amp; out-of-band</span></label>
         <label class="pick"><input type="checkbox" data-cover="wireless"> <span>Wireless — APs, controller, SSIDs</span></label>
+        <label class="pick"><input type="checkbox" data-cover="fabric-overlay"> <span>Fabric overlay — VNIs, VRFs, mappings</span></label>
+        <label class="pick"><input type="checkbox" data-cover="wan-multisite"> <span>WAN / multi-site — sites, circuits, diversity</span></label>
+        <label class="pick"><input type="checkbox" data-cover="security-segmentation"> <span>Security &amp; segmentation — zone-to-VLAN mapping</span></label>
         <label class="fresh-field" style="margin-top:12px">Architecture <span class="fresh-hint">(the declared shape; the review holds the drawing to it)</span>
           <select id="scope-arch">
             <option value="" selected>Not declared — let the drawing speak</option>
@@ -873,6 +882,21 @@ const COVERAGE_PACKS = Object.freeze({
     label: "Wireless",
     extract: "The wireless story: every access point and controller, the SSIDs written on the diagram, and which wired switch each access point plugs into.",
     request: " This document also covers wireless: draw the access points and their controller with their wired uplinks, and add a table to sections.identity (columns SSID | VLAN or network | Security | Notes) for what the diagram states, marking unverified rows with \"layer\": \"gap\". If the diagram shows no wireless, record that as a finding rather than inventing one."
+  },
+  "fabric-overlay": {
+    label: "Fabric overlay",
+    extract: "The fabric overlay: any VXLAN, EVPN or overlay markings - VNIs, VRFs, VTEPs, anycast gateways - and which VLAN or segment maps to which.",
+    request: " This document also covers the fabric overlay: add a table to sections.logical (columns VLAN or segment | VNI | VRF | Notes) recording the overlay mappings the diagram states, and note the overlay control plane and anycast gateway in the notes if written. Never invent a mapping - anything unstated becomes a row marked \"layer\": \"gap\" or a finding."
+  },
+  "wan-multisite": {
+    label: "WAN / multi-site",
+    extract: "The WAN story: every site or branch, the circuits joining them, carrier names, circuit types, and any diversity notes written on the drawing.",
+    request: " This document also covers the WAN: draw every site and the circuits joining them, name the carrier on each WAN link's label, and add a table to sections.overview (columns Site | Circuit | Carrier | Notes) for what the diagram states. Where two circuits share a carrier, path or conduit, say so - two links are not diverse just because there are two - and anything unstated becomes a gap."
+  },
+  "security-segmentation": {
+    label: "Security & segmentation",
+    extract: "The segmentation story: security zones, the VLANs or VRFs marking trust boundaries, and any deny-by-default or policy notes written on the drawing.",
+    request: " This document also covers segmentation: add a table to sections.identity (columns Zone or segment | VLAN or VRF | Purpose | Policy) mapping the trust boundaries the diagram states, and record the policy stance in the notes if written - a VLAN is not, by itself, a security boundary. Anything unstated becomes a gap."
   }
 });
 
@@ -2925,6 +2949,92 @@ function reviewTopology(data, askPicture) {
         ask(`Look at the picture again: what does ${shown} connect to?`, `What does ${shown} actually connect to?`),
         "Management wiring not verified", `${shown} ${isolated.length === 1 ? "is" : "are"} drawn unconnected; how management traffic reaches the devices has not been verified.`,
         { slice: "links", request: `Wire ${shown} into the network as the diagram shows - to the management network or the devices it manages.` });
+    }
+  }
+
+  /* The wave-C packs, held to. Evidence is looked for wherever it could
+     honestly live - authored tables, the identity table's own columns, link
+     labels - so a document that records the story any reasonable way is
+     never nagged for recording it differently. */
+  const authoredTables = Object.values(data.sections || {})
+    .flatMap((section) => (Array.isArray(section?.tables) ? section.tables : []));
+  const tableEvidence = (re) => authoredTables.some((table) =>
+      re.test(String(table?.caption || "")) ||
+      (Array.isArray(table?.columns) && table.columns.some((c) => re.test(String(c)))))
+    || (Array.isArray(data.sections?.identity?.columns)
+      && data.sections.identity.columns.some((c) => re.test(String(c))));
+
+  if (coverage.includes("fabric-overlay")) {
+    const drawn = tableEvidence(/vni|vrf|vxlan|evpn|overlay/i)
+      || links.some((l) => /vxlan|evpn|vni|overlay/i.test(l.label || ""));
+    if (!drawn && !confessed(/overlay|vxlan|evpn|vni/i)) {
+      observe("fabric-coverage",
+        "This document declares fabric-overlay coverage, and no overlay mapping is recorded.",
+        "No table maps VLANs or segments to VNIs and VRFs, and no link carries an overlay label.",
+        ask("Look at the picture again: are there VXLAN, EVPN, VNI or VRF markings anywhere?",
+          "Does this fabric run an overlay - VXLAN/EVPN, VNIs, VRFs - worth recording?"),
+        "Overlay mappings not documented",
+        "This document declares fabric-overlay coverage, but no overlay mapping is recorded; the overlay design has not been verified.",
+        { slice: "sections", request: "Add a table to sections.logical (columns VLAN or segment | VNI | VRF | Notes) recording the overlay mappings the diagram states - rows the diagram does not state get \"layer\": \"gap\"." });
+    }
+  }
+
+  if (coverage.includes("wan-multisite")) {
+    const wanText = /mpls|\bwan\b|circuit|carrier|\bdia\b|\blte\b|sd-?wan|broadband|fibre|fiber/i;
+    const wanDrawn = nodes.some((n) => ["cloud", "branch-office"].includes(n.icon))
+      || links.some((l) => wanText.test(l.label || ""));
+    if (!wanDrawn && !confessed(/\bwan\b|circuit|carrier|site/i)) {
+      observe("wan-coverage",
+        "This document declares WAN coverage, and no WAN is drawn.",
+        "No cloud, branch or carrier-labelled circuit appears in the drawing.",
+        ask("Look at the picture again: are there other sites, carriers or circuits drawn or written anywhere?",
+          "Which sites and circuits should this document carry?"),
+        "WAN not documented",
+        "This document declares WAN coverage, but no site, carrier or circuit is drawn; the WAN estate has not been verified.",
+        { slice: "topology", request: "Add the sites and the circuits joining them exactly as the diagram shows, naming the carrier on each WAN link's label. If the diagram truly shows a single site, change nothing." });
+    }
+    /* RES-003, computable: two circuits between the same pair, labelled
+       identically, are two lines - not two paths. */
+    const seenCircuits = new Map();
+    const twins = [];
+    for (const link of links) {
+      const label = String(link.label || "").trim().toLowerCase();
+      if (!label || !wanText.test(label)) continue;
+      const key = [link.from, link.to].sort().join("|") + "|" + label;
+      if (seenCircuits.has(key)) twins.push(link.from + " to " + link.to + " (\"" + link.label + "\")");
+      else seenCircuits.set(key, link);
+    }
+    if (twins.length && !confessed(/diver|conduit|carrier/i)) {
+      observe("wan-diversity",
+        "Parallel circuits carry the same name - are they truly diverse?",
+        twins[0] + (twins.length > 1 ? " and more" : "") + " run in parallel with identical labels - two links in one conduit, on one carrier, are not independent.",
+        ask("Look at the picture again: do the parallel circuits name different carriers or paths?",
+          "Do these parallel circuits ride different carriers, paths and conduits?"),
+        "Circuit diversity not verified",
+        "Parallel circuits (" + twins[0] + ") carry identical labels; whether they are genuinely diverse - separate carriers, paths, conduits - has not been verified.",
+        { slice: "links", request: "Label each parallel circuit with what makes it different - carrier, path or conduit - exactly as the diagram states: " + twins[0] + "." });
+    }
+  }
+
+  if (coverage.includes("security-segmentation")) {
+    if (zones.length < 2 && !confessed(/segment|zone|vlan|vrf/i)) {
+      observe("segmentation-coverage",
+        "This document declares segmentation coverage, and fewer than two trust areas are drawn.",
+        (zones.length === 0 ? "No zones exist" : "Only one zone exists") + " - segmentation cannot be shown on one undivided canvas.",
+        ask("Look at the picture again: what trust boundaries does it mark?",
+          "What trust boundaries should this document draw?"),
+        "Segmentation not documented",
+        "This document declares segmentation coverage, but the drawing carries fewer than two trust areas; the segmentation has not been verified.",
+        { slice: "zones", request: "Add the trust areas the diagram shows - external, perimeter, internal, and any further segments - sized to hold their members." });
+    } else if (zones.length >= 2 && !tableEvidence(/vlan|vrf|zone|segment/i) && !confessed(/segment|vlan|vrf|policy/i)) {
+      observe("segmentation-coverage",
+        "This document declares segmentation coverage, and no zone-to-VLAN mapping is recorded.",
+        "The zones are drawn, but no table maps them to VLANs or VRFs - a VLAN is not, by itself, a security boundary, and the mapping is the evidence.",
+        ask("Look at the picture again: which VLANs or VRFs belong to which zones?",
+          "Which VLANs or VRFs implement each trust area?"),
+        "Segmentation mapping not documented",
+        "The zones are drawn but nothing maps them to VLANs or VRFs; how segmentation is enforced has not been verified.",
+        { slice: "sections", request: "Add a table to sections.identity (columns Zone or segment | VLAN or VRF | Purpose | Policy) mapping the drawn zones to what the diagram states - unstated rows get \"layer\": \"gap\"." });
     }
   }
 

@@ -61,7 +61,15 @@ missing distribution layer; **collapsed-core** about a distribution tier
 that should not exist; **hub-and-spoke** about spoke-to-spoke links; and a
 **ring** about dead ends that keep the loop from closing. Declared coverage
 packs deepen the same way: a management-oob document with an unwired
-management station is told it manages nothing. Every observation keeps the
+management station is told it manages nothing. The wave-C packs
+hold the same way, always evidence-first: **fabric-overlay** looks for a
+VNI/VRF mapping in any authored table or an overlay-labelled link;
+**wan-multisite** is satisfied by any drawn cloud, branch or carrier-labelled
+circuit, and separately questions parallel circuits with identical labels -
+two links in one conduit are not independent (RES-003); and
+**security-segmentation** asks first for two trust areas, then for the
+zone-to-VLAN/VRF mapping, accepting the identity table's own columns as
+evidence - a VLAN is not, by itself, a security boundary (SEC-002). Every observation keeps the
 three-way resolution and its fix prompt.
 
 ## The roadmap (unbuilt)

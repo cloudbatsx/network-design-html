@@ -1367,9 +1367,9 @@ test("coverage: the scope panel writes and clears document.coverage, filtering n
 
 test("coverage: the shell check holds the pack contract", () => {
   const design = baseDesign();
-  design.document.coverage = ["wireless", "fabric-overlay"];
+  design.document.coverage = ["wireless", "quantum-mesh"];
   const problems = t.checkShell(design, design);
-  assert(has(problems, /"fabric-overlay", which is not a coverage pack/, false),
+  assert(has(problems, /"quantum-mesh", which is not a coverage pack/, false),
     "an unknown pack earned no warning");
   design.document.coverage = "wireless";
   assert(has(t.checkShell(design, design), /not a list/, false), "a non-list coverage slipped through");
@@ -1418,6 +1418,58 @@ test("coverage: declared wireless with nothing wireless drawn is observed, with 
   design.topology.nodes.pop();
   assert(!rules(t.reviewTopology(design, false)).includes("wireless-coverage"),
     "an undeclared pack was enforced anyway");
+});
+
+/* ---- wave C packs: fabric overlay, WAN, segmentation ---- */
+
+test("coverage: the three wave-C packs carry their requests and honesty clauses", () => {
+  const text = t.freshRequestText("T", "T-NET-001", "auto", undefined,
+    ["fabric-overlay", "wan-multisite", "security-segmentation"]);
+  assert(/VLAN or segment \| VNI \| VRF/.test(text), "the overlay table shape is gone");
+  assert(/two links are not diverse just because there are two/.test(text), "the diversity honesty rule is gone");
+  assert(/a VLAN is not, by itself, a security boundary/.test(text), "the segmentation doctrine is gone");
+});
+
+test("coverage: declared fabric overlay is held to, and a mapping table satisfies it", () => {
+  const design = reviewDesign(4);
+  design.document.coverage = ["fabric-overlay"];
+  assert(rules(t.reviewTopology(design, false)).includes("fabric-coverage"));
+  design.sections.logical = { tables: [{ caption: "Overlay mappings", columns: ["Segment", "VNI", "VRF"], rows: [{ cells: ["a", "1", "x"] }] }] };
+  assert(!rules(t.reviewTopology(design, false)).includes("fabric-coverage"),
+    "a recorded VNI/VRF table was not accepted as evidence");
+});
+
+test("coverage: declared WAN is held to, and identical parallel circuits are questioned", () => {
+  const design = reviewDesign(4);
+  design.document.coverage = ["wan-multisite"];
+  assert(rules(t.reviewTopology(design, false)).includes("wan-coverage"));
+  design.topology.nodes.push({ id: "site-b", icon: "branch-office", x: 1000, y: 300 });
+  design.topology.links.push(
+    { from: "core-sw-01", to: "site-b", kind: "l3", label: "MPLS circuit" },
+    { from: "core-sw-01", to: "site-b", kind: "backup", label: "MPLS circuit" });
+  const obs = t.reviewTopology(design, false);
+  assert(!obs.some((o) => o.rule === "wan-coverage"), "a drawn WAN was still called missing");
+  const twin = obs.find((o) => o.rule === "wan-diversity");
+  assert(twin, "identical parallel circuits went unquestioned");
+  assert(/not independent/.test(twin.saw));
+  design.topology.links.at(-1).label = "LTE backup circuit";
+  assert(!t.reviewTopology(design, false).some((o) => o.rule === "wan-diversity"),
+    "differently-labelled circuits were still called twins");
+});
+
+test("coverage: declared segmentation asks for zones first, then for the mapping", () => {
+  const design = reviewDesign(4);
+  design.document.coverage = ["security-segmentation"];
+  design.topology.zones = [];
+  const zoneless = t.reviewTopology(design, false).find((o) => o.rule === "segmentation-coverage");
+  assert(zoneless && /fewer than two trust areas/.test(zoneless.what));
+  const zoned = reviewDesign(4);
+  zoned.document.coverage = ["security-segmentation"];
+  const mapless = t.reviewTopology(zoned, false).find((o) => o.rule === "segmentation-coverage");
+  assert(mapless && /no zone-to-VLAN mapping/.test(mapless.what));
+  zoned.sections.identity = { columns: ["Function", "VLAN", "Range"], rows: [{ cells: ["u", "10", "x"] }] };
+  assert(!t.reviewTopology(zoned, false).some((o) => o.rule === "segmentation-coverage"),
+    "the identity table's own VLAN column was not accepted as evidence");
 });
 
 /* ---- declared architecture ---- */

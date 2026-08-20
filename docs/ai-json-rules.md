@@ -156,7 +156,8 @@ reports loudly. This is the owner's presentation choice, set in the helper's
 branding step — like `brand`, it is not yours to write.
 
 `document.coverage` is the owner's declared scope: a list of coverage packs
-this document promises to record - `management-oob`, `wireless` - set in the
+this document promises to record - `management-oob`, `wireless`,
+`fabric-overlay`, `wan-multisite`, `security-segmentation` - set in the
 helper, stamped onto fresh builds, and held by the engineering review: a
 declared pack with nothing drawn becomes an observation. Copy it through as
 you find it; the build request tells you what each declared pack wants.
