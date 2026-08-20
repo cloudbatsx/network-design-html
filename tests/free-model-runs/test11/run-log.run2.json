@@ -4,43 +4,35 @@
   "organisation": "Crestline Group",
   "topologyImage": "513321_1_En_15_Fig5_HTML.png",
   "logoImage": "logo-crestline-group.svg",
-  "model": "gemini-2.5-flash",
+  "model": "gemini-3.6-flash",
   "surface": "API (Google AI free tier)",
-  "date": "2026-08-20T16:22:50.556Z",
+  "date": "2026-08-17T05:32:40.236Z",
   "rounds": [
     {
       "round": 1,
       "finishReason": "STOP",
-      "chars": 28875,
+      "chars": 14955,
       "usage": {
-        "prompt": 12681,
-        "output": 9590,
-        "thoughts": 17355
+        "prompt": 11637,
+        "output": 4866,
+        "thoughts": 6622
       },
-      "repairsApplied": [
-        "removed a code fence"
-      ],
+      "repairsApplied": [],
       "truncated": false,
       "stops": [],
       "warnings": 0,
-      "warningTexts": [],
-      "inventoryGate": {
-        "gate": "met",
-        "promised": 48,
-        "placed": 48,
-        "short": false
-      }
+      "warningTexts": []
     }
   ],
   "verdict": "PASS - clean save in 1 round trip",
-  "modelVersion": "gemini-2.5-flash",
+  "modelVersion": "gemini-3.6-flash",
   "extract": {
     "finishReason": "STOP",
-    "chars": 7698,
+    "chars": 5654,
     "usage": {
-      "prompt": 696,
-      "output": 2853,
-      "thoughts": 5755
+      "prompt": 1309,
+      "output": 2338,
+      "thoughts": 3398
     }
   },
   "roundTrips": 1,
