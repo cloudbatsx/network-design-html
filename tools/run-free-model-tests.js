@@ -152,7 +152,11 @@ function toOpenAiMessages(contents) {
     role: message.role === "model" ? "assistant" : "user",
     content: (message.parts || []).map((part) => {
       if (typeof part.text === "string") return { type: "text", text: part.text };
-      if (part.inlineData) return { type: "image_url", image_url: { url: `data:${part.inlineData.mimeType};base64,${part.inlineData.data}` } };
+      // The runner builds parts in Google's wire form (inline_data/mime_type);
+      // the camelCase twin is accepted too - the first live vision call on
+      // this lane failed on exactly this difference.
+      const image = part.inline_data || part.inlineData;
+      if (image) return { type: "image_url", image_url: { url: `data:${image.mime_type || image.mimeType};base64,${image.data}` } };
       throw new Error("a message part is neither text nor inline image");
     })
   }));

@@ -1994,7 +1994,7 @@ test("provider: the OpenAI-protocol converter keeps every part and role honest",
      parts stay text; inline images become data-URL image_url parts; and a
      part that is neither fails loudly rather than being dropped. */
   const contents = [
-    { role: "user", parts: [{ text: "read this" }, { inlineData: { mimeType: "image/png", data: "QUJD" } }] },
+    { role: "user", parts: [{ text: "read this" }, { inline_data: { mime_type: "image/png", data: "QUJD" } }] },
     { role: "model", parts: [{ text: "{}" }] }
   ];
   const messages = gateTools.toOpenAiMessages(contents);
@@ -2002,7 +2002,10 @@ test("provider: the OpenAI-protocol converter keeps every part and role honest",
   assert.strictEqual(messages[0].role, "user");
   assert.strictEqual(messages[1].role, "assistant");
   assert.deepStrictEqual(messages[0].content[0], { type: "text", text: "read this" });
-  assert.deepStrictEqual(messages[0].content[1], { type: "image_url", image_url: { url: "data:image/png;base64,QUJD" } });
+  assert.deepStrictEqual(messages[0].content[1], { type: "image_url", image_url: { url: "data:image/png;base64,QUJD" } },
+    "the runner's snake_case wire form (inline_data/mime_type) must convert - the first live vision call failed on it");
+  assert.deepStrictEqual(gateTools.toOpenAiMessages([{ role: "user", parts: [{ inlineData: { mimeType: "image/jpeg", data: "QQ==" } }] }])[0].content[0],
+    { type: "image_url", image_url: { url: "data:image/jpeg;base64,QQ==" } }, "the camelCase twin must convert too");
   assert.throws(() => gateTools.toOpenAiMessages([{ role: "user", parts: [{ mystery: 1 }] }]),
     /neither text nor inline image/, "an unknown part must fail loudly, never vanish");
   assert.strictEqual(gateTools.OPENAI_FINISH.stop, "STOP");
