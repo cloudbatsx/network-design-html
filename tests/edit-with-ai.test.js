@@ -53,7 +53,7 @@ const sandbox = {
   PACKAGER_CORE: require(path.join(root, "tools", "packager-core.js"))
 };
 
-const shim = ";globalThis.__exports = { parseWithRepair, mergeReply, checkStructure, checkMeaning, checkShell, checkAssetStrings, looksTruncated, safeJson, contextFor, summarizeChange, editableParts, freshRequestText, freshDrawingId, brandedData, EXTRACT_PROMPT, SLICES, polishGeometry, layoutRulesFor, grammarRulesFor, svgLogoFrom, fillIdentityFromDrawing, buildPrompt, restyleTopology, sectionedData, nextRevision, versionStamp," +
+const shim = ";globalThis.__exports = { parseWithRepair, mergeReply, checkStructure, checkMeaning, checkShell, checkAssetStrings, looksTruncated, safeJson, contextFor, summarizeChange, editableParts, freshRequestText, freshDrawingId, brandedData, EXTRACT_PROMPT, SLICES, polishGeometry, layoutRulesFor, grammarRulesFor, svgLogoFrom, fillIdentityFromDrawing, buildPrompt, restyleTopology, sectionedData, nextRevision, versionStamp, reviewTopology, withReviewGap," +
   " setData: (d) => { currentData = d; }," +
   " setRequest: (text) => { document.getElementById('request').value = text; }," +
   " setSlice: (name) => { document.getElementById('slice').value = name; } };";
@@ -1080,6 +1080,139 @@ test("sections: the shell check holds the omit contract", () => {
   design.document.omit = "operations";
   assert(has(t.checkShell(design, design), /not a list/, false),
     "a non-list omit slipped through");
+});
+
+/* ---- the engineering review ---- */
+
+/* A design big enough to earn opinions: N filler PCs beside the fixture. */
+function reviewDesign(fillers = 8) {
+  const design = baseDesign();
+  design.topology.zones = [
+    { id: "outside", label: "Outside", kind: "external", x: 40, y: 20, width: 1180, height: 120 },
+    { id: "inside", label: "Inside", kind: "internal", x: 40, y: 180, width: 1180, height: 700 }
+  ];
+  for (let i = 0; i < fillers; i++) {
+    design.topology.nodes.push({ id: `pc-${i}`, icon: "pc", x: 120 + i * 130, y: 700 });
+  }
+  design.sections = { findings: { items: [{ title: "T", detail: "D" }] } };
+  return design;
+}
+const rules = (obs) => obs.map((o) => o.rule);
+
+test("review: a zoneless drawing is asked about its trust skeleton", () => {
+  const design = reviewDesign();
+  design.topology.zones = [];
+  assert(rules(t.reviewTopology(design, false)).includes("trust-skeleton"));
+  assert(!rules(t.reviewTopology(reviewDesign(), false)).includes("trust-skeleton"),
+    "a drawing with an external zone was lectured about boundaries");
+});
+
+test("review: the internet inside the organisation's space is questioned", () => {
+  const design = reviewDesign();
+  design.topology.zones = design.topology.zones.filter((z) => z.kind !== "external");
+  design.topology.nodes.push({ id: "net", label: "Internet", icon: "cloud", x: 640, y: 60 });
+  assert(rules(t.reviewTopology(design, false)).includes("trust-skeleton"));
+});
+
+test("review: the undefended edge fires, and a labelled tunnel excuses it", () => {
+  const design = reviewDesign();
+  design.topology.nodes.push({ id: "net", icon: "cloud", x: 640, y: 60 });
+  design.topology.links.push({ from: "net", to: "pc-0", kind: "l3" });
+  assert(rules(t.reviewTopology(design, false)).includes("undefended-edge"));
+  design.topology.links.at(-1).label = "VPN tunnel to HQ";
+  assert(!rules(t.reviewTopology(design, false)).includes("undefended-edge"),
+    "a labelled tunnel was treated as an unprotected wire");
+});
+
+test("review: a server the internet reaches without a firewall is exposed", () => {
+  const design = reviewDesign();
+  design.topology.nodes.push(
+    { id: "net", icon: "cloud", x: 640, y: 60 },
+    { id: "rtr", icon: "router", x: 640, y: 300 },
+    { id: "srv", icon: "server", label: "File Server", x: 640, y: 500 });
+  design.topology.links.push({ from: "net", to: "rtr", kind: "l3" }, { from: "rtr", to: "srv", kind: "l3" });
+  assert(rules(t.reviewTopology(design, false)).includes("exposed-service"),
+    "a router-only path from internet to server went unremarked");
+  // put the firewall on the path and the walk stops at it
+  design.topology.links = design.topology.links.filter((l) => l.from !== "net" || l.to !== "rtr");
+  design.topology.links.push({ from: "net", to: "edge-fw-01", kind: "l3" }, { from: "edge-fw-01", to: "rtr", kind: "l3" });
+  assert(!rules(t.reviewTopology(design, false)).includes("exposed-service"),
+    "a firewalled path was still called exposed");
+});
+
+test("review: a public-sounding server inside with no DMZ earns the DMZ question", () => {
+  const design = reviewDesign();
+  design.topology.nodes.push({ id: "web", icon: "server", label: "Public Web Server", x: 640, y: 500 });
+  assert(rules(t.reviewTopology(design, false)).includes("dmz-question"));
+  design.topology.zones.push({ id: "dmz", label: "DMZ", kind: "perimeter", x: 40, y: 140, width: 300, height: 30 });
+  assert(!rules(t.reviewTopology(design, false)).includes("dmz-question"),
+    "a drawing with a perimeter zone was still asked for a DMZ");
+});
+
+test("review: one firewall carrying everything is a question; small nets are not", () => {
+  const big = reviewDesign(10);
+  assert(rules(t.reviewTopology(big, false)).includes("single-point"));
+  const small = reviewDesign(2);
+  assert(!rules(t.reviewTopology(small, false)).includes("single-point"),
+    "a home-sized network was held to enterprise redundancy");
+  big.sections.findings.items.push({ title: "Redundancy risk accepted", detail: "Single firewall by design." });
+  assert(!rules(t.reviewTopology(big, false)).includes("single-point"),
+    "a confessed redundancy risk was lectured twice");
+});
+
+test("review: a symmetric pair with no line between them is asked; layers and routers are not", () => {
+  const design = reviewDesign(4);
+  design.topology.nodes.push(
+    { id: "fw-a-01", icon: "firewall", x: 500, y: 300 }, { id: "fw-a-02", icon: "firewall", x: 800, y: 300 },
+    { id: "up", icon: "router", x: 650, y: 200 }, { id: "down", icon: "core-switch", x: 650, y: 420 });
+  design.topology.links.push(
+    { from: "fw-a-01", to: "up", kind: "l3" }, { from: "fw-a-02", to: "up", kind: "l3" },
+    { from: "fw-a-01", to: "down", kind: "l3" }, { from: "fw-a-02", to: "down", kind: "l3" });
+  assert(rules(t.reviewTopology(design, false)).includes("unjoined-pair"));
+  design.topology.links.push({ from: "fw-a-01", to: "fw-a-02", kind: "aggregate" });
+  assert(!rules(t.reviewTopology(design, false)).includes("unjoined-pair"),
+    "an aggregate peer link did not count as joined");
+  // a Purdue sandwich: same stem, same row, but in series through a host
+  const sandwich = reviewDesign(4);
+  sandwich.topology.nodes.push(
+    { id: "sfw-01", icon: "firewall", x: 500, y: 300 }, { id: "sfw-02", icon: "firewall", x: 800, y: 300 },
+    { id: "mid", icon: "server", x: 650, y: 300 }, { id: "top", icon: "router", x: 500, y: 200 }, { id: "bot", icon: "core-switch", x: 800, y: 420 });
+  sandwich.topology.links.push(
+    { from: "top", to: "sfw-01", kind: "l3" }, { from: "sfw-01", to: "mid", kind: "l3" },
+    { from: "mid", to: "sfw-02", kind: "l3" }, { from: "sfw-02", to: "bot", kind: "l3" });
+  assert(!rules(t.reviewTopology(sandwich, false)).includes("unjoined-pair"),
+    "a sandwich in series was mistaken for an HA pair");
+});
+
+test("review: no management story is one gentle note, silenced by drawing or confessing one", () => {
+  const design = reviewDesign(8);
+  assert(rules(t.reviewTopology(design, false)).includes("no-management"));
+  const drawn = reviewDesign(8);
+  drawn.topology.nodes.push({ id: "nms", icon: "network-management", x: 200, y: 500 });
+  assert(!rules(t.reviewTopology(drawn, false)).includes("no-management"));
+  const confessed = reviewDesign(8);
+  confessed.sections.findings.items.push({ title: "Management access not documented", detail: "OOB unknown." });
+  assert(!rules(t.reviewTopology(confessed, false)).includes("no-management"),
+    "a confessed management gap was lectured twice");
+});
+
+test("review: recording a gap makes its observation stand down", () => {
+  const design = reviewDesign(8);
+  const before = t.reviewTopology(design, false);
+  const obs = before.find((o) => o.rule === "no-management");
+  assert(obs, "the fixture lost its management observation");
+  const next = t.withReviewGap(design, obs.gap);
+  assert.strictEqual(next.sections.findings.items.at(-1).title, obs.gap.title);
+  assert(!rules(t.reviewTopology(next, false)).includes("no-management"),
+    "the recorded gap did not satisfy its own rule");
+});
+
+test("review: the question knows whether a picture exists to look at", () => {
+  const design = reviewDesign(8);
+  const picture = t.reviewTopology(design, true).find((o) => o.rule === "no-management");
+  const plain = t.reviewTopology(design, false).find((o) => o.rule === "no-management");
+  assert(/Look at the picture again/.test(picture.question));
+  assert(!/Look at the picture again/.test(plain.question));
 });
 
 /* ---- the version stamp ---- */

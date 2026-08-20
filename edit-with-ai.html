@@ -63,6 +63,10 @@
     .style-choice>.button{flex-shrink:0;min-width:238px;text-align:left}
     .style-blurb{padding-top:6px;font-size:.9rem}
     .style-note{display:block;margin-top:3px;color:var(--blue2);font-weight:650;font-size:.82rem}
+    .review-head{margin:18px 0 4px;font-size:.98rem}
+    .problems.review li{border-color:var(--blue);background:#f3f8fa}
+    .review-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px}
+    .review-actions .button{padding:5px 10px;font-size:.82rem}
     .branch{display:none;margin:10px 0 0;padding:10px 12px;border-left:3px solid #9fc0cd;background:#fbfdfe}
     .branch.on{display:block}
     #network-description{width:100%;margin:0;min-height:76px}
@@ -261,6 +265,14 @@
       </div>
       <div id="check-message"></div>
       <ul class="problems" id="problems"></ul>
+      <!-- The engineering review: observations, never errors. The drawing may
+           be right and the network unusual - or the model may have misread
+           the picture. Each observation hands over the question that settles
+           it, and one honest click records the absence as a gap. -->
+      <div id="review-block" hidden>
+        <h3 class="review-head">Engineering review <span class="turn-tag">— observations, not errors: popular patterns this drawing may or may not intend</span></h3>
+        <ul class="problems review" id="review-list"></ul>
+      </div>
     </section>
 
     <section class="step" id="step-style" hidden>
@@ -1191,6 +1203,8 @@ function loadSource(text, name) {
     $("style-report").replaceChildren();
     refreshStylePanel();
     syncSectionChoices();
+    lastAskPicture = false;
+    renderReview(reviewTopology(currentData, false));
     setStage("build", "pick the part that is changing, describe the change, then press Copy prompt.");
     $("step-2").hidden = false; $("step-3").hidden = false; $("step-style").hidden = false; $("step-brand").hidden = false;
     $("step-4").hidden = false; $("save").disabled = true;
@@ -2326,6 +2340,278 @@ function polishGeometry(data) {
   return { next, applied };
 }
 
+/* ---------- 3c½. The engineering review ----------
+ *
+ * The checkers above prove the data is sound. This pass knows some network
+ * engineering: the popular shapes real topologies carry - trust zones, a
+ * defended edge, redundant pairs, a management story - and it notices when a
+ * drawing lacks one. It can never know WHY: maybe the network truly lacks it,
+ * maybe the model misread the picture. So it never blocks and never fixes.
+ * Each observation states the pattern, what the drawing shows, and hands the
+ * person a ready question that settles it - re-ask the AI that read the
+ * picture, or answer from their own knowledge - plus one honest click to
+ * record the absence as a gap. Calibrated against all 36 corpus documents;
+ * a rule that shouts at accepted drawings is a rule people switch off. */
+
+const ENDPOINT_ICONS = ["pc", "workstation", "laptop", "printer", "ip-phone"];
+const SERVER_ICONS = ["server", "database", "storage-array"];
+const SECURITY_ICONS = ["firewall", "vpn-headend"];
+const TUNNEL_TEXT = /vpn|encrypt|tunnel|ipsec|ssl|wireguard|remote/i;
+const MGMT_TEXT = /\bmgmt\b|management|\boob\b|out.of.band|console/i;
+const PUBLIC_TEXT = /\bweb\b|www|\bmail\b|smtp|\bdns\b|proxy|public|portal/i;
+
+function reviewTopology(data, askPicture) {
+  const out = [];
+  if (!usesCoordinateGrammar(data)) return out;
+  const nodes = (data.topology.nodes || []).filter((n) => n.id && !isSegment(n));
+  const links = data.topology.links || [];
+  const zones = data.topology.zones || [];
+  const byId = new Map(nodes.map((n) => [n.id, n]));
+  const textOf = (n) => `${n.label || ""} ${n.role || ""} ${n.notes || ""}`;
+  const name = (n) => n.label || n.id;
+  const ask = (pictureForm, plainForm) => (askPicture ? pictureForm : plainForm) +
+    " Answer in plain words first - if something was missed, I will ask for the corrected part next.";
+  /* The candour layer outranks the reviewer: a document whose findings
+     already confess a territory gets no second lecture about it. */
+  const findingsText = (data.sections?.findings?.items || [])
+    .map((item) => `${item?.title || ""} ${item?.detail || ""}`).join(" ");
+  const confessed = (pattern) => pattern.test(findingsText);
+  const observe = (rule, what, saw, question, gapTitle, gapDetail) =>
+    out.push({ rule, what, saw, question, gap: { title: gapTitle, detail: gapDetail } });
+  const clouds = nodes.filter((n) => n.icon === "cloud");
+
+  /* R1 · the trust skeleton. Nearly every real topology separates outside
+     from inside; 34 of the 36 corpus documents draw an external area. */
+  if (!zones.length && nodes.length >= 5) {
+    observe("trust-skeleton",
+      "No trust areas are drawn.",
+      `${nodes.length} devices float on one canvas with no zones - nothing separates outside from inside.`,
+      ask("Look at the picture again: does it mark any boundaries - internet versus inside, sites, security zones?",
+        "Does this network distinguish an outside from an inside - internet edge, trusted LAN, any security zones?"),
+      "Trust boundaries not documented",
+      "The drawing carries no zones, so outside and inside are indistinguishable. Boundary placement has not been verified.");
+  } else if (clouds.length && !zones.some((z) => z.kind === "external")) {
+    observe("trust-skeleton",
+      "The internet is drawn, but no area is marked external.",
+      `${clouds.map(name).slice(0, 3).join(", ")} sit${clouds.length === 1 ? "s" : ""} in the organisation's own space - no zone of kind "external" exists.`,
+      ask("Look at the picture again: is the internet or provider drawn outside the organisation's boundary?",
+        "Should the internet and provider services sit in an external area, outside the organisation's boundary?"),
+      "External boundary not documented",
+      "The internet is drawn inside the organisation's space; where the trust boundary actually lies has not been verified.");
+  }
+
+  /* R2 · the undefended edge. The internet wired straight to endpoints or
+     servers, with nothing between and no labelled tunnel. */
+  const bare = [];
+  for (const link of links) {
+    const a = byId.get(link.from), b = byId.get(link.to);
+    if (!a || !b) continue;
+    const pair = a.icon === "cloud" ? b : b.icon === "cloud" ? a : null;
+    if (!pair || ![...ENDPOINT_ICONS, ...SERVER_ICONS].includes(pair.icon)) continue;
+    if (link.kind === "backup") continue;
+    if (TUNNEL_TEXT.test(link.label || "") || TUNNEL_TEXT.test(textOf(pair))) continue;
+    bare.push(pair);
+  }
+  if (bare.length && !confessed(/unprotect|expos|direct.{0,24}internet/i)) {
+    const shown = [...new Set(bare.map(name))].slice(0, 4).join(", ");
+    observe("undefended-edge",
+      "Devices are wired straight to the internet with nothing between.",
+      `${shown}${bare.length > 4 ? " and more" : ""} connect${bare.length === 1 ? "s" : ""} directly to a cloud - no firewall, no router, and no label saying VPN or tunnel.`,
+      ask(`Look at the picture again: how do ${shown} reach the internet - is there a firewall, router or VPN the drawing shows?`,
+        `How do ${shown} actually reach the internet - through a firewall or VPN?`) +
+        " If they are roaming or VPN clients, a label on the link (like \"VPN tunnel\") makes the drawing say so.",
+      "Unprotected edge not verified",
+      `${shown} are drawn connected directly to the internet with no security device or labelled tunnel between; whether protection exists has not been verified.`);
+  }
+
+  /* R3 · exposure. Walk outward from every cloud; firewalls and VPN heads
+     stop the walk, labelled tunnels are not crossed. Any server the walk
+     still reaches is drawn as internet-reachable with no firewall in front. */
+  const adjacency = new Map(nodes.map((n) => [n.id, []]));
+  for (const link of links) {
+    if (!byId.has(link.from) || !byId.has(link.to)) continue;
+    if (TUNNEL_TEXT.test(link.label || "")) continue;
+    adjacency.get(link.from).push(link.to);
+    adjacency.get(link.to).push(link.from);
+  }
+  const reached = new Set();
+  const queue = clouds.map((n) => n.id);
+  const visited = new Set(queue);
+  while (queue.length) {
+    const id = queue.shift();
+    const node = byId.get(id);
+    if (node && SECURITY_ICONS.includes(node.icon)) continue;   // the wall
+    for (const next of adjacency.get(id) || []) {
+      if (visited.has(next)) continue;
+      visited.add(next); reached.add(next); queue.push(next);
+    }
+  }
+  const exposed = nodes.filter((n) => SERVER_ICONS.includes(n.icon) && reached.has(n.id));
+  if (exposed.length && nodes.some((n) => n.icon === "firewall") && !confessed(/expos|unprotect|bypass|dmz/i)) {
+    const shown = exposed.map(name).slice(0, 4).join(", ");
+    observe("exposed-service",
+      "Servers are reachable from the internet without passing any firewall.",
+      `Following the drawn links from the internet, ${shown}${exposed.length > 4 ? " and more" : ""} can be reached without crossing the firewall.`,
+      ask("Look at the picture again: does every path from the internet to the servers pass through the firewall?",
+        "Should every path from the internet to these servers pass through the firewall?"),
+      "Internet-to-server paths not verified",
+      `The drawing shows a path from the internet to ${shown} that crosses no firewall; whether that exposure is real has not been verified.`);
+  }
+
+  /* R4 · single points and unpaired pairs. */
+  const solos = [];
+  if (nodes.length >= 10) {
+    for (const icon of ["firewall", "core-switch"]) {
+      const of = nodes.filter((n) => n.icon === icon);
+      if (of.length === 1) solos.push(name(of[0]));
+    }
+  }
+  if (solos.length && !confessed(/redundan|fail.?over|single point|spof|standby/i)) {
+    observe("single-point",
+      "One device carries every path.",
+      `${solos.join(" and ")} ${solos.length === 1 ? "has" : "have"} no partner - a failure there parts the network.`,
+      ask(`Look at the picture again: is there a second unit or standby beside ${solos.join(" or ")}?`,
+        `Is ${solos.join(" or ")} genuinely a single unit, or does a standby exist that the drawing leaves out?`),
+      "Redundancy not verified",
+      `${solos.join(" and ")} ${solos.length === 1 ? "is" : "are"} drawn without a partner; whether redundancy exists has not been verified.`);
+  }
+  /* A pair is "joined" by ANY direct line - accepted drawings join core
+     pairs with aggregate peer-links, not only ha. Only a same-row pair with
+     no line at all between them is asked about: side by side is how a
+     drawing says "partners", while stacked same-name firewalls are usually
+     layers of a sandwich, and router pairs are often independent on purpose
+     - dual ISPs, iBGP through the core - so routers sit this rule out. */
+  const stems = new Map();
+  for (const node of nodes) {
+    if (!["firewall", "core-switch", "wlan-controller"].includes(node.icon)) continue;
+    const stem = node.id.replace(/[-_]?\d+[a-z]?$/i, "");
+    if (!stems.has(stem)) stems.set(stem, []);
+    stems.get(stem).push(node);
+  }
+  /* And partners are symmetric: a real pair plugs into the same neighbours,
+     while a Purdue-style sandwich - enterprise-facing and plant-facing
+     firewalls in series through a DMZ host - shares almost none. */
+  const neighboursOf = (id) => new Set(links.flatMap((l) =>
+    l.from === id ? [l.to] : l.to === id ? [l.from] : []));
+  const unpaired = [];
+  for (const group of stems.values()) {
+    if (group.length !== 2) continue;
+    const [a, b] = group;
+    if (Math.abs(Number(a.y) - Number(b.y)) > 40) continue;
+    const joined = links.some((l) =>
+      (l.from === a.id && l.to === b.id) || (l.from === b.id && l.to === a.id));
+    if (joined) continue;
+    const na = neighboursOf(a.id), nb = neighboursOf(b.id);
+    na.delete(b.id); nb.delete(a.id);
+    const shared = [...na].filter((id) => nb.has(id)).length;
+    const union = new Set([...na, ...nb]).size;
+    if (union && shared / union >= 0.5) unpaired.push(`${a.id}/${b.id}`);
+  }
+  if (unpaired.length && !confessed(/redundan|fail.?over|single point|spof|standby|heartbeat|pairing/i)) {
+    observe("unjoined-pair",
+      "Devices drawn as a pair have no line between them.",
+      `${unpaired.slice(0, 3).join(", ")} look like redundant pairs, but nothing joins them - no HA link, no peer link, nothing.`,
+      ask(`Look at the picture again: is there a failover, heartbeat, stack or peer line between ${unpaired[0]}?`,
+        `Do ${unpaired.slice(0, 3).join(", ")} run as pairs? If so, the line between them - HA, peer link, stack - makes the drawing say it.`),
+      "Pairing not verified",
+      `${unpaired.slice(0, 3).join(", ")} are drawn as pairs with no connection between them; whether they fail over to each other has not been verified.`);
+  }
+
+  /* R5 · the management story. Popular, not required - one line, said once. */
+  const mgmtDrawn = nodes.some((n) => n.icon === "network-management" || MGMT_TEXT.test(textOf(n)))
+    || zones.some((z) => MGMT_TEXT.test(`${z.label || ""} ${z.id || ""}`));
+  if (!mgmtDrawn && nodes.length >= 8 && !confessed(MGMT_TEXT)) {
+    observe("no-management",
+      "No management story is drawn.",
+      "Nothing in the drawing shows how these devices are managed - no management network, no out-of-band access, no console path.",
+      ask("Look at the picture again: does it show any management network, out-of-band access or console connections?",
+        "How is this network managed - is there a management VLAN, out-of-band network or console access worth drawing?"),
+      "Management access not documented",
+      "The drawing shows no management network, out-of-band path or console access; how these devices are reached for administration has not been verified.");
+  }
+
+  /* R3b · the DMZ question, only when the pieces suggest it: a firewall
+     exists, a public-sounding server sits in an internal zone, no DMZ drawn. */
+  if (nodes.some((n) => n.icon === "firewall")
+    && !zones.some((z) => /dmz/i.test(`${z.label || ""} ${z.id || ""}`) || z.kind === "perimeter")) {
+    const publicServers = confessed(/dmz|screened|perimeter/i) ? [] : nodes.filter((n) => SERVER_ICONS.includes(n.icon) && PUBLIC_TEXT.test(textOf(n)));
+    if (publicServers.length) {
+      const shown = publicServers.map(name).slice(0, 3).join(", ");
+      observe("dmz-question",
+        "Public-facing servers sit inside with no DMZ or perimeter drawn.",
+        `${shown} sound${publicServers.length === 1 ? "s" : ""} public-facing, but the drawing has no DMZ or perimeter zone.`,
+        ask("Look at the picture again: is there a DMZ, screened segment or perimeter zone holding the public services?",
+          `Do ${shown} serve the internet? If so, is there a DMZ or screened segment the drawing should show?`),
+        "Public service placement not verified",
+        `${shown} appear public-facing yet sit inside the trusted zone with no DMZ drawn; the intended placement has not been verified.`);
+    }
+  }
+
+  return out;
+}
+
+/* The review's face. Re-rendered whenever the data it judged changes; an
+   observation whose territory the findings now confess simply stops
+   appearing, which is the recording click paying off in front of you. */
+let lastAskPicture = false;
+function renderReview(observations) {
+  const block = $("review-block"), host = $("review-list");
+  if (!block || !host) return;
+  host.replaceChildren();
+  block.hidden = observations.length === 0;
+  for (const obs of observations) {
+    const li = document.createElement("li");
+    const what = document.createElement("span");
+    what.className = "what";
+    what.textContent = obs.what;
+    const saw = document.createElement("code");
+    saw.className = "tell";
+    saw.textContent = obs.saw;
+    const actions = document.createElement("div");
+    actions.className = "review-actions";
+    const copy = document.createElement("button");
+    copy.type = "button"; copy.className = "button"; copy.textContent = "Copy the question";
+    const state = document.createElement("span");
+    state.className = "file-name";
+    copy.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(obs.question);
+        state.textContent = "Copied - paste it to your AI.";
+      } catch {
+        $("payload-details").open = true;
+        $("payload").value = obs.question;
+        state.textContent = "Could not copy - the question is in the box under step 2.";
+      }
+    });
+    const record = document.createElement("button");
+    record.type = "button"; record.className = "button"; record.textContent = "Record as a gap";
+    record.addEventListener("click", () => {
+      const before = accepted || currentData;
+      const next = withReviewGap(before, obs.gap);
+      currentData = next;
+      accepted = next;
+      if (!panelSummary.includes("Recorded engineering-review gaps")) panelSummary.push("Recorded engineering-review gaps");
+      renderChanges(before, next);
+      $("save").disabled = false;
+      renderReview(reviewTopology(next, lastAskPicture));
+    });
+    actions.append(copy, record, state);
+    li.append(what, saw, actions);
+    host.appendChild(li);
+  }
+}
+
+/* One honest click: the observation becomes a finding the reader can see,
+   staged and change-listed like every other edit. */
+function withReviewGap(base, gap) {
+  const next = structuredClone(base);
+  if (!next.sections || typeof next.sections !== "object") next.sections = {};
+  if (!next.sections.findings || typeof next.sections.findings !== "object") next.sections.findings = {};
+  if (!Array.isArray(next.sections.findings.items)) next.sections.findings.items = [];
+  next.sections.findings.items.push({ title: gap.title, detail: gap.detail });
+  return next;
+}
+
 /* ---------- 3c. The style converter ----------
  *
  * The same facts can be drawn two ways: the clean grid most starters use, and
@@ -2783,6 +3069,7 @@ function check() {
   // A check rebuilds from the file, so anything the panels staged is gone -
   // their summary lines must not survive into a save they are no part of.
   accepted = null; aiSummary = ""; panelSummary = [];
+  renderReview([]);
   $("save").disabled = true; $("save-state").textContent = "";
   note("save-message", null);
   $("changes").replaceChildren();   // covers every early return below
@@ -2867,6 +3154,8 @@ function check() {
     note("check-message", "ok", "No problems found.", ` The diagram data is complete and consistent.${kept}${cleaned}${tidiedNote}`);
   }
   refreshStylePanel();
+  lastAskPicture = buildMode && buildSource().mode === "picture";
+  renderReview(reviewTopology(tidied, lastAskPicture));
   setStage("style", "optional: pick a drawing style in step 4 or branding in step 5 - or go straight to Save.");
 }
 
@@ -3061,6 +3350,7 @@ $("new-design").addEventListener("click", () => {
   const bytes = Uint8Array.from(atob(encoded), (character) => character.charCodeAt(0));
   loadSource(new TextDecoder("utf-8", { fatal: true }).decode(bytes), "network-design-template.edit.html");
   setStepMode(true);
+  renderReview([]);
   note("load-message", "ok", "Blank template ready.", " Now copy the build prompt below.");
   setStage("build", "answer A - where your network is coming from - then press Copy the build prompt in B.");
 });
