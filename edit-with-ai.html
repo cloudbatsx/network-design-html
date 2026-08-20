@@ -3092,7 +3092,7 @@ function renderReview(observations) {
       } catch {
         $("payload-details").open = true;
         $("payload").value = obs.question;
-        state.textContent = "Could not copy - the question is in the box under step 2.";
+        state.textContent = "Could not copy - the question is in the box under 'Show the diagram data being sent'.";
       }
     });
     /* The step the first field test could not guess: after the AI answers the
@@ -3115,7 +3115,7 @@ function renderReview(observations) {
         } catch {
           $("payload-details").open = true;
           $("payload").value = text;
-          state.textContent = "Could not copy - the fix prompt is in the box under step 2.";
+          state.textContent = "Could not copy - the fix prompt is in the box under 'Show the diagram data being sent'.";
         }
         setStage("check", "paste the fix prompt into your AI, then paste its reply into step 3 and press Check it.");
       });
