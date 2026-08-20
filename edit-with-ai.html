@@ -271,6 +271,10 @@
            it, and one honest click records the absence as a gap. -->
       <div id="review-block" hidden>
         <h3 class="review-head">Engineering review <span class="turn-tag">— observations, not errors: popular patterns this drawing may or may not intend</span></h3>
+        <p class="hint">Each observation resolves one of three ways: <b>Copy the question</b> asks your
+        AI (or you) whether the drawing missed it — if the answer is yes, <b>Copy the fix prompt</b>
+        carries the correction back through the ordinary Check loop; if the network truly lacks it,
+        <b>Record as a gap</b> files it honestly in the document.</p>
         <ul class="problems review" id="review-list"></ul>
       </div>
     </section>
@@ -824,7 +828,7 @@ function contextFor(data, name) {
    compose prose: prompt A has the AI read the picture, and three answers
    build the whole-design request. It lives here rather than in the guide so
    this page is the only one that has to be open. */
-const EXTRACT_PROMPT = "Describe this network diagram as five plain-text lists, capturing everything written on it. First count every device drawn on the diagram, one by one, and state the total as your reply's first line, exactly in this form - \"Total device count: <N>\" - where <N> is the number you yourself counted on this diagram, never a number copied from these instructions, and the device list must match that count:\n1. Every device, with a suggested short id (like fw-01, core-sw-01). Repeated devices are listed one per line with their own ids - eight identical floor switches are eight lines, never \"switches x8\" and never one example standing in for the rest.\n2. Every connection between devices, including any interface or port names written on the line (like FA0/0, GE0/7, Port 4).\n3. The trust areas: what is inside the organization, what is outside.\n4. Per-device details, exactly as written: model, addresses, software versions, licenses and their dates, SSIDs, port counts used and available, DHCP or static.\n5. Anything dated, expired, or end-of-life - old licenses, unsupported operating systems, aged hardware.\nDo not write any code yet - I will paste build instructions next.";
+const EXTRACT_PROMPT = "Describe this network diagram as five plain-text lists, capturing everything written on it. First count every device drawn on the diagram, one by one, and state the total as your reply's first line, exactly in this form - \"Total device count: <N>\" - where <N> is the number you yourself counted on this diagram, never a number copied from these instructions, and the device list must match that count:\n1. Every device, with a suggested short id (like fw-01, core-sw-01). Repeated devices are listed one per line with their own ids - eight identical floor switches are eight lines, never \"switches x8\" and never one example standing in for the rest.\n2. Every connection between devices, including any interface or port names written on the line (like FA0/0, GE0/7, Port 4).\n3. The trust areas: what is inside the organization, what is outside, and any boundary between them - a DMZ, perimeter band or edge-security segment, and which devices sit in it.\n4. Per-device details, exactly as written: model, addresses, software versions, licenses and their dates, SSIDs, port counts used and available, DHCP or static.\n5. Anything dated, expired, or end-of-life - old licenses, unsupported operating systems, aged hardware.\nDo not write any code yet - I will paste build instructions next.";
 
 function freshDrawingId(title) {
   const initials = (title || "").trim().split(/\s+/).map((word) => word[0] || "").join("").toUpperCase().replace(/[^A-Z0-9]/g, "");
@@ -863,7 +867,7 @@ function freshRequestText(title, drawing, rack, source) {
       ? "Small rack with the rack-mountable devices - firewall, switches, servers."
       : "If the diagram shows rack-mountable devices, put them in a small rack; if it shows none, record the absence of physical documentation as a gap.";
   return opening + identity +
-    "Put the internet and anything outside the organization in an external area, and the organization in an internal area. " +
+    "Put the internet and anything outside the organization in an external area, and the organization in an internal area. If edge security devices - firewalls, VPN heads - stand between outside and inside on the diagram, give them a perimeter area of their own between the two. " +
     rackLine +
     ` Carry every detail from the ${noun} into the document: models, versions and specs in each device's notes, its address in the address field, interface or port names as connection labels, and addressing, VLANs and SSIDs as identity table rows.` +
     " Section 3 is not optional: sections.identity.rows must have a row for every device that has an address, and every rack-mountable device - firewall, router, switch, server - must appear in the rack schedule with a position, a height and a face code. A device drawn in the topology and missing from both tables is a device the document only half records." +
@@ -1345,7 +1349,10 @@ ${rules.join("\n")}
 
 function layoutRulesFor(name) {
   if (!PLACING_SLICES.includes(name)) return "";
-  return `- Construct positions, never estimate them. Inside each area, place node
+  return `- The page flows top-down: the internet and external services at the top,
+  edge security beneath them, core and distribution next, endpoints and
+  servers toward the bottom - the order a reader expects.
+- Construct positions, never estimate them. Inside each area, place node
   centres on a grid: ${GRID_COL} apart across, ${GRID_ROW} apart down, the first centre ${GRID_INSET_X}
   from the area's left edge and ${GRID_INSET_Y} below its top edge. Grid positions never
   overlap and never straddle an edge.
@@ -2370,14 +2377,18 @@ function reviewTopology(data, askPicture) {
   const textOf = (n) => `${n.label || ""} ${n.role || ""} ${n.notes || ""}`;
   const name = (n) => n.label || n.id;
   const ask = (pictureForm, plainForm) => (askPicture ? pictureForm : plainForm) +
-    " Answer in plain words first - if something was missed, I will ask for the corrected part next.";
+    " Answer in plain words first; if something was missed, the corrected part gets requested separately.";
   /* The candour layer outranks the reviewer: a document whose findings
      already confess a territory gets no second lecture about it. */
   const findingsText = (data.sections?.findings?.items || [])
     .map((item) => `${item?.title || ""} ${item?.detail || ""}`).join(" ");
   const confessed = (pattern) => pattern.test(findingsText);
-  const observe = (rule, what, saw, question, gapTitle, gapDetail) =>
-    out.push({ rule, what, saw, question, gap: { title: gapTitle, detail: gapDetail } });
+  /* Every observation carries its own way forward: `fix` is a ready-made,
+     part-scoped correction request - the flow the first field test could not
+     guess is now a button - and `remedy` marks the observations the engine
+     can repair itself, arithmetic only, no AI. */
+  const observe = (rule, what, saw, question, gapTitle, gapDetail, fix, remedy) =>
+    out.push({ rule, what, saw, question, gap: { title: gapTitle, detail: gapDetail }, fix, remedy });
   const clouds = nodes.filter((n) => n.icon === "cloud");
 
   /* R1 · the trust skeleton. Nearly every real topology separates outside
@@ -2389,7 +2400,8 @@ function reviewTopology(data, askPicture) {
       ask("Look at the picture again: does it mark any boundaries - internet versus inside, sites, security zones?",
         "Does this network distinguish an outside from an inside - internet edge, trusted LAN, any security zones?"),
       "Trust boundaries not documented",
-      "The drawing carries no zones, so outside and inside are indistinguishable. Boundary placement has not been verified.");
+      "The drawing carries no zones, so outside and inside are indistinguishable. Boundary placement has not been verified.",
+      { slice: "zones", request: "Add the missing trust areas: an external area holding the internet and provider services, and an internal area holding the organisation's devices. Size each area to hold its members." });
   } else if (clouds.length && !zones.some((z) => z.kind === "external")) {
     observe("trust-skeleton",
       "The internet is drawn, but no area is marked external.",
@@ -2397,7 +2409,62 @@ function reviewTopology(data, askPicture) {
       ask("Look at the picture again: is the internet or provider drawn outside the organisation's boundary?",
         "Should the internet and provider services sit in an external area, outside the organisation's boundary?"),
       "External boundary not documented",
-      "The internet is drawn inside the organisation's space; where the trust boundary actually lies has not been verified.");
+      "The internet is drawn inside the organisation's space; where the trust boundary actually lies has not been verified.",
+      { slice: "zones", request: "Add an external area of kind \"external\" holding the internet and provider devices, above the organisation's areas, and keep every existing area as it is." });
+  }
+
+  /* R1b · the perimeter band. When edge security exists, it conventionally
+     lives in a perimeter zone between outside and inside - and the field test
+     showed the model produces one on some runs and forgets it on others. A
+     firewall swallowed by the trusted zone earns the question. */
+  const fws = nodes.filter((n) => n.icon === "firewall");
+  if (fws.length && zones.length && !zones.some((z) => z.kind === "perimeter")
+    && !confessed(/perimeter|dmz|screened|edge zone/i)) {
+    const swallowed = fws.filter((fw) => {
+      const best = bestZoneCoverage(fw, zones);
+      return best && best.fraction >= CONTAINED && best.zone.kind === "internal";
+    });
+    if (swallowed.length) {
+      const shown = swallowed.map(name).join(", ");
+      observe("perimeter-band",
+        "The firewall sits inside the trusted zone - no perimeter is drawn.",
+        `${shown} ${swallowed.length === 1 ? "lives" : "live"} fully inside an internal area, and no zone of kind "perimeter" exists to hold the edge.`,
+        ask("Look at the picture again: is there a boundary band - a DMZ, a perimeter, an edge segment - holding the firewall between outside and inside?",
+          "Should the firewall sit in a perimeter area of its own, between the external and internal areas?"),
+        "Perimeter placement not verified",
+        `${shown} ${swallowed.length === 1 ? "is" : "are"} drawn inside the trusted zone with no perimeter area; the intended edge placement has not been verified.`,
+        { slice: "zones", request: `Add a perimeter area of kind "perimeter" between the external and internal areas, sized to hold ${shown}, and shrink the internal area so they no longer overlap. Keep every other area as it is.` });
+    }
+  }
+
+  /* R0 · orientation. Convention flows top-down: the internet and external
+     services at the top, the organisation beneath. A drawing flipped on its
+     head is arithmetic to repair, so this observation carries the one-click
+     remedy - no AI, mirror the page. */
+  const externalZones = zones.filter((z) => z.kind === "external");
+  const internalZones = zones.filter((z) => z.kind === "internal");
+  const centreOf = (z) => Number(z.y) + Number(z.height) / 2;
+  let flippedWhy = "";
+  if (externalZones.length && internalZones.length
+    && externalZones.every((z) => [z.y, z.height].every((v) => Number.isFinite(Number(v))))
+    && internalZones.every((z) => [z.y, z.height].every((v) => Number.isFinite(Number(v))))) {
+    if (Math.min(...externalZones.map(centreOf)) > Math.max(...internalZones.map(centreOf))) {
+      flippedWhy = "the external area sits below the internal one";
+    }
+  } else if (clouds.length && nodes.length > clouds.length + 2) {
+    const mean = (list) => list.reduce((sum, n) => sum + Number(n.y), 0) / list.length;
+    const rest = nodes.filter((n) => n.icon !== "cloud" && Number.isFinite(Number(n.y)));
+    if (rest.length && mean(clouds) > mean(rest) + 120) flippedWhy = "the internet sits at the bottom of the page";
+    }
+  if (flippedWhy) {
+    observe("orientation",
+      "The drawing is upside down by convention.",
+      `Topologies conventionally flow top-down - internet and external services first, the organisation beneath - but here ${flippedWhy}.`,
+      ask("Look at the picture again: does the original genuinely draw the internet at the bottom?",
+        "Is the internet meant to sit at the bottom of this drawing?"),
+      "Orientation kept unconventional",
+      `The drawing places the outside world at the bottom (${flippedWhy}); this orientation was kept deliberately.`,
+      undefined, "flip");
   }
 
   /* R2 · the undefended edge. The internet wired straight to endpoints or
@@ -2421,7 +2488,8 @@ function reviewTopology(data, askPicture) {
         `How do ${shown} actually reach the internet - through a firewall or VPN?`) +
         " If they are roaming or VPN clients, a label on the link (like \"VPN tunnel\") makes the drawing say so.",
       "Unprotected edge not verified",
-      `${shown} are drawn connected directly to the internet with no security device or labelled tunnel between; whether protection exists has not been verified.`);
+      `${shown} are drawn connected directly to the internet with no security device or labelled tunnel between; whether protection exists has not been verified.`,
+      { slice: "topology", request: `Correct how ${shown} reach the internet: add the security device the diagram shows between them and the cloud, or label each of those links as the VPN or tunnel it is.` });
   }
 
   /* R3 · exposure. Walk outward from every cloud; firewalls and VPN heads
@@ -2455,7 +2523,8 @@ function reviewTopology(data, askPicture) {
       ask("Look at the picture again: does every path from the internet to the servers pass through the firewall?",
         "Should every path from the internet to these servers pass through the firewall?"),
       "Internet-to-server paths not verified",
-      `The drawing shows a path from the internet to ${shown} that crosses no firewall; whether that exposure is real has not been verified.`);
+      `The drawing shows a path from the internet to ${shown} that crosses no firewall; whether that exposure is real has not been verified.`,
+      { slice: "topology", request: `Re-route the internet-facing links so every path from the internet to ${shown} crosses the firewall, exactly as the diagram shows. Change only what is wrong.` });
   }
 
   /* R4 · single points and unpaired pairs. */
@@ -2473,7 +2542,8 @@ function reviewTopology(data, askPicture) {
       ask(`Look at the picture again: is there a second unit or standby beside ${solos.join(" or ")}?`,
         `Is ${solos.join(" or ")} genuinely a single unit, or does a standby exist that the drawing leaves out?`),
       "Redundancy not verified",
-      `${solos.join(" and ")} ${solos.length === 1 ? "is" : "are"} drawn without a partner; whether redundancy exists has not been verified.`);
+      `${solos.join(" and ")} ${solos.length === 1 ? "is" : "are"} drawn without a partner; whether redundancy exists has not been verified.`,
+      { slice: "nodes", request: `Add the partner or standby unit the diagram shows beside ${solos.join(" or ")}, placed beside it. If it is genuinely a single unit, change nothing.` });
   }
   /* A pair is "joined" by ANY direct line - accepted drawings join core
      pairs with aggregate peer-links, not only ha. Only a same-row pair with
@@ -2514,7 +2584,8 @@ function reviewTopology(data, askPicture) {
       ask(`Look at the picture again: is there a failover, heartbeat, stack or peer line between ${unpaired[0]}?`,
         `Do ${unpaired.slice(0, 3).join(", ")} run as pairs? If so, the line between them - HA, peer link, stack - makes the drawing say it.`),
       "Pairing not verified",
-      `${unpaired.slice(0, 3).join(", ")} are drawn as pairs with no connection between them; whether they fail over to each other has not been verified.`);
+      `${unpaired.slice(0, 3).join(", ")} are drawn as pairs with no connection between them; whether they fail over to each other has not been verified.`,
+      { slice: "links", request: `Add the link the diagram shows between ${unpaired[0]} - HA, peer link or stack - with the right kind. If they are genuinely unjoined, change nothing.` });
   }
 
   /* R5 · the management story. Popular, not required - one line, said once. */
@@ -2527,7 +2598,8 @@ function reviewTopology(data, askPicture) {
       ask("Look at the picture again: does it show any management network, out-of-band access or console connections?",
         "How is this network managed - is there a management VLAN, out-of-band network or console access worth drawing?"),
       "Management access not documented",
-      "The drawing shows no management network, out-of-band path or console access; how these devices are reached for administration has not been verified.");
+      "The drawing shows no management network, out-of-band path or console access; how these devices are reached for administration has not been verified.",
+      { slice: "topology", request: "Add the management elements the diagram shows - a management network or zone, out-of-band access, console paths - exactly as drawn. If the diagram shows none, change nothing." });
   }
 
   /* R3b · the DMZ question, only when the pieces suggest it: a firewall
@@ -2543,7 +2615,8 @@ function reviewTopology(data, askPicture) {
         ask("Look at the picture again: is there a DMZ, screened segment or perimeter zone holding the public services?",
           `Do ${shown} serve the internet? If so, is there a DMZ or screened segment the drawing should show?`),
         "Public service placement not verified",
-        `${shown} appear public-facing yet sit inside the trusted zone with no DMZ drawn; the intended placement has not been verified.`);
+        `${shown} appear public-facing yet sit inside the trusted zone with no DMZ drawn; the intended placement has not been verified.`,
+        { slice: "zones", request: `Add the DMZ or perimeter area the diagram shows holding ${shown}, and keep every other area as it is.` });
     }
   }
 
@@ -2583,6 +2656,48 @@ function renderReview(observations) {
         state.textContent = "Could not copy - the question is in the box under step 2.";
       }
     });
+    /* The step the first field test could not guess: after the AI answers the
+       question, THIS button carries the correction - it aims the part picker,
+       writes the request, and copies the real edit prompt, so the reply lands
+       back in the ordinary Check loop. */
+    let fixButton = null;
+    if (obs.fix) {
+      fixButton = document.createElement("button");
+      fixButton.type = "button"; fixButton.className = "button"; fixButton.textContent = "Copy the fix prompt";
+      fixButton.addEventListener("click", async () => {
+        const slice = $("slice");
+        slice.value = obs.fix.slice;
+        slice.dispatchEvent(new Event("change"));
+        $("request").value = obs.fix.request;
+        const text = buildPrompt();
+        try {
+          await navigator.clipboard.writeText(text);
+          state.textContent = "Copied - paste it into your AI chat, then its reply into step 3 and press Check it.";
+        } catch {
+          $("payload-details").open = true;
+          $("payload").value = text;
+          state.textContent = "Could not copy - the fix prompt is in the box under step 2.";
+        }
+        setStage("check", "paste the fix prompt into your AI, then paste its reply into step 3 and press Check it.");
+      });
+    }
+    /* Some observations the engine can repair itself - arithmetic, no AI. */
+    let remedyButton = null;
+    if (obs.remedy === "flip") {
+      remedyButton = document.createElement("button");
+      remedyButton.type = "button"; remedyButton.className = "button"; remedyButton.textContent = "Flip the drawing — no AI";
+      remedyButton.addEventListener("click", () => {
+        const before = accepted || currentData;
+        const next = flipTopology(before);
+        currentData = next;
+        accepted = next;
+        panelSummary.push("Drawing flipped top-to-bottom");
+        renderChanges(before, next);
+        $("save").disabled = false;
+        refreshStylePanel();
+        renderReview(reviewTopology(next, lastAskPicture));
+      });
+    }
     const record = document.createElement("button");
     record.type = "button"; record.className = "button"; record.textContent = "Record as a gap";
     record.addEventListener("click", () => {
@@ -2595,10 +2710,36 @@ function renderReview(observations) {
       $("save").disabled = false;
       renderReview(reviewTopology(next, lastAskPicture));
     });
-    actions.append(copy, record, state);
+    actions.append(copy);
+    if (fixButton) actions.append(fixButton);
+    if (remedyButton) actions.append(remedyButton);
+    actions.append(record, state);
     li.append(what, saw, actions);
     host.appendChild(li);
   }
+}
+
+/* The orientation remedy: mirror the page top-to-bottom. Pure arithmetic -
+   every distance is preserved, so the geometry checkers agree before and
+   after by construction - and flipping twice is the identity. */
+function flipTopology(base) {
+  const next = structuredClone(base);
+  const topo = next.topology;
+  const height = Number(topo.canvas.height);
+  for (const node of topo.nodes || []) {
+    if (Number.isFinite(Number(node.y))) node.y = height - Number(node.y);
+  }
+  for (const zone of topo.zones || []) {
+    if ([zone.y, zone.height].every((v) => Number.isFinite(Number(v)))) {
+      zone.y = height - Number(zone.y) - Number(zone.height);
+    }
+  }
+  for (const link of topo.links || []) {
+    if (Array.isArray(link.via)) link.via = link.via.map(([x, y]) => [x, height - y]);
+    if (Number.isFinite(Number(link.elbowAt))) link.elbowAt = height - Number(link.elbowAt);
+    if (Number.isFinite(Number(link.labelY))) link.labelY = height - Number(link.labelY);
+  }
+  return next;
 }
 
 /* One honest click: the observation becomes a finding the reader can see,

@@ -53,7 +53,7 @@ const sandbox = {
   PACKAGER_CORE: require(path.join(root, "tools", "packager-core.js"))
 };
 
-const shim = ";globalThis.__exports = { parseWithRepair, mergeReply, checkStructure, checkMeaning, checkShell, checkAssetStrings, looksTruncated, safeJson, contextFor, summarizeChange, editableParts, freshRequestText, freshDrawingId, brandedData, EXTRACT_PROMPT, SLICES, polishGeometry, layoutRulesFor, grammarRulesFor, svgLogoFrom, fillIdentityFromDrawing, buildPrompt, restyleTopology, sectionedData, nextRevision, versionStamp, reviewTopology, withReviewGap," +
+const shim = ";globalThis.__exports = { parseWithRepair, mergeReply, checkStructure, checkMeaning, checkShell, checkAssetStrings, looksTruncated, safeJson, contextFor, summarizeChange, editableParts, freshRequestText, freshDrawingId, brandedData, EXTRACT_PROMPT, SLICES, polishGeometry, layoutRulesFor, grammarRulesFor, svgLogoFrom, fillIdentityFromDrawing, buildPrompt, restyleTopology, sectionedData, nextRevision, versionStamp, reviewTopology, withReviewGap, flipTopology," +
   " setData: (d) => { currentData = d; }," +
   " setRequest: (text) => { document.getElementById('request').value = text; }," +
   " setSlice: (name) => { document.getElementById('slice').value = name; } };";
@@ -1194,6 +1194,73 @@ test("review: no management story is one gentle note, silenced by drawing or con
   confessed.sections.findings.items.push({ title: "Management access not documented", detail: "OOB unknown." });
   assert(!rules(t.reviewTopology(confessed, false)).includes("no-management"),
     "a confessed management gap was lectured twice");
+});
+
+test("review: a firewall swallowed by the trusted zone earns the perimeter question", () => {
+  const design = reviewDesign();
+  design.topology.nodes.push({ id: "fw-edge", icon: "firewall", x: 640, y: 500 });
+  assert(rules(t.reviewTopology(design, false)).includes("perimeter-band"));
+  design.topology.zones.push({ id: "perim", label: "Perimeter", kind: "perimeter", x: 40, y: 145, width: 1180, height: 30 });
+  assert(!rules(t.reviewTopology(design, false)).includes("perimeter-band"),
+    "a drawing with a perimeter zone was still asked for one");
+  design.topology.zones.pop();
+  design.sections.findings.items.push({ title: "Perimeter placement not verified", detail: "D" });
+  assert(!rules(t.reviewTopology(design, false)).includes("perimeter-band"),
+    "a confessed perimeter gap was lectured twice");
+});
+
+test("review: an upside-down drawing is noticed and carries the flip remedy", () => {
+  const design = reviewDesign();
+  // swap the zones: external at the bottom, internal on top
+  design.topology.zones[0].y = 760; design.topology.zones[0].height = 120;
+  design.topology.zones[1].y = 20; design.topology.zones[1].height = 700;
+  const obs = t.reviewTopology(design, false).find((o) => o.rule === "orientation");
+  assert(obs, "an inverted drawing went unremarked");
+  assert.strictEqual(obs.remedy, "flip", "the arithmetic remedy is not offered");
+  assert(!rules(t.reviewTopology(reviewDesign(), false)).includes("orientation"),
+    "a conventionally-oriented drawing was told it is upside down");
+});
+
+test("review: flipping the drawing is arithmetic - twice is the identity", () => {
+  const design = reviewDesign();
+  design.topology.nodes[0].y = 200;
+  design.topology.links[0].route = "elbow";
+  design.topology.links[0].elbowAt = 350;
+  design.topology.links[0].labelY = 340;
+  design.topology.links.push({ from: "core-sw-01", to: "pc-0", kind: "access", via: [[500, 600]] });
+  const once = t.flipTopology(design);
+  const height = design.topology.canvas.height;
+  assert.strictEqual(once.topology.nodes[0].y, height - 200);
+  assert.strictEqual(once.topology.links[0].elbowAt, height - 350);
+  assert.strictEqual(once.topology.links[0].labelY, height - 340);
+  assert.deepStrictEqual(json(once.topology.links.at(-1).via), [[500, height - 600]]);
+  assert.strictEqual(JSON.stringify(t.flipTopology(once)), JSON.stringify(json(design)),
+    "flipping twice did not return the original drawing");
+});
+
+test("review: every observation carries a way forward - a fix prompt or a remedy", () => {
+  const design = reviewDesign(10);
+  design.topology.zones = [];
+  design.topology.nodes.push({ id: "net", icon: "cloud", x: 640, y: 60 });
+  design.topology.links.push({ from: "net", to: "pc-0", kind: "l3" });
+  const observations = t.reviewTopology(design, false);
+  assert(observations.length >= 3, "the fixture stopped firing");
+  for (const obs of observations) {
+    assert(obs.fix || obs.remedy, `${obs.rule} offers no way forward`);
+    if (obs.fix) {
+      assert(Object.keys(t.SLICES).includes(obs.fix.slice), `${obs.rule} aims at the unknown part "${obs.fix.slice}"`);
+      assert(obs.fix.request.length > 30, `${obs.rule}'s fix request says nothing`);
+    }
+  }
+});
+
+test("review: the prompts now ask for the boundary and the top-down flow up front", () => {
+  assert(/DMZ, perimeter band or edge-security segment/.test(t.EXTRACT_PROMPT),
+    "the extraction no longer asks for the boundary between outside and inside");
+  assert(/perimeter area of their own/.test(t.freshRequestText("T", "T-NET-001", "auto")),
+    "the build request no longer asks for the perimeter");
+  assert(/flows top-down/.test(t.layoutRulesFor("all")),
+    "the layout rules no longer state the top-down convention");
 });
 
 test("review: recording a gap makes its observation stand down", () => {

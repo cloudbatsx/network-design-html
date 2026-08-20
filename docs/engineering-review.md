@@ -8,10 +8,15 @@ sometimes the picture genuinely shows an unusual network. The reviewer can
 never know which — so it never blocks, never fixes, and never invents.
 
 Each observation states a popular pattern, what this drawing shows instead,
-and hands the person the question that settles it: **Copy the question**
-re-asks the AI (aimed at the same chat that read the picture, when there was
-one), and **Record as a gap** files the absence in the candour layer, staged
-and change-listed like every other edit. An observation whose territory the
+and resolves one of three ways. **Copy the question** re-asks the AI (aimed
+at the same chat that read the picture, when there was one). **Copy the fix
+prompt** carries the correction: it aims the part picker, writes the request,
+and copies the real edit prompt, so the reply lands back in the ordinary
+Check loop - the step the first field test could not guess is now a button.
+**Record as a gap** files the absence in the candour layer, staged and
+change-listed like every other edit. And an observation the engine can repair
+by arithmetic alone carries its own remedy button - the upside-down drawing
+flips top-to-bottom with no AI involved. An observation whose territory the
 findings already confess stands down — the candour layer outranks the
 reviewer, so recording a gap makes its observation disappear in front of you.
 
@@ -25,6 +30,8 @@ reviewer, so recording a gap makes its observation disappear in front of you.
 | **dmz-question** | Public-facing services conventionally live in a DMZ or screened segment, not in the trusted zone. | A firewall exists, a public-sounding server (web, mail, DNS, proxy, portal) sits inside, and no DMZ or perimeter zone is drawn. | A perimeter/DMZ zone exists, or the findings mention one. |
 | **single-point** | Enterprise edges and cores are usually paired; one unit carrying every path is a risk worth a sentence. | Exactly one firewall or one core switch in a 10+ device drawing. | Smaller networks — a home office with one firewall is normal; a confessed redundancy risk. |
 | **unjoined-pair** | Real HA pairs are joined — an HA line, a peer link, a stack cable. | Two same-stem firewalls/cores/WLCs sit **side by side** with **symmetric neighbours** and no line of any kind between them. | Routers (dual-ISP edges and iBGP-through-core are legitimately unjoined); stacked same-name firewalls in **series** — the Purdue iDMZ sandwich — whose neighbours barely overlap; any direct link of any kind. |
+| **perimeter-band** | Edge security conventionally lives in a perimeter zone between outside and inside; the field test watched the model produce one on some runs and forget it on others. | A firewall sits fully inside an internal zone and no perimeter-kind zone exists. | A perimeter/DMZ zone drawn or confessed; firewalls not swallowed by the trusted zone. |
+| **orientation** | Topologies flow top-down: internet and external services first, the organisation beneath. Flipping a canvas is pure arithmetic, so this one carries its own one-click remedy. | The external zone sits below the internal one, or the internet clouds sit well below the rest of the drawing. | Conventionally-oriented drawings; drawings whose findings keep the orientation deliberately. |
 | **no-management** | Popular, not required: a management VLAN, out-of-band network or console path. One gentle line, said once. | Nothing in an 8+ device drawing mentions management, OOB or console. | A management device or zone is drawn, or the findings confess the gap. |
 
 ## How it was calibrated
@@ -38,8 +45,9 @@ independent on purpose; and OT-001's enterprise-facing/plant-facing firewall
 sandwich taught the symmetric-neighbours test. A rule that shouts at accepted
 drawings is a rule people switch off.
 
-Final fire rate: 30 observations across 36 documents (0.8 average), all on
-model-built documents, spot-checked as genuine questions.
+Final fire rate: 36 observations across 36 documents (1.0 average), all on
+model-built documents. Six were then judged against their source images:
+one real AI extraction error caught, ten true gaps, zero noise.
 
 ## The roadmap (wave 2, unbuilt)
 
