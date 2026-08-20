@@ -77,5 +77,5 @@ three-way resolution and its fix prompt.
 Auto-detection of undeclared shapes (conservative classification before the
 questions the declared checks already ask); articulation-point analysis (the
 true single-point-of-failure test); naming-consistency tied to the hostname
-anatomy; and the remaining coverage packs - fabric overlay tables, WAN
-diversity, security segmentation - from the NET-STD-001 research.
+anatomy; multi-view documents (one figure per declared view, the NET-STD-001
+section 17.2 model); and a rubric-scored assessment appendix.

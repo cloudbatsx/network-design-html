@@ -166,6 +166,7 @@ is a valid package. Nothing fails silently, and nothing missing vetoes a build.
 | 🖨️ **Prints properly** | Letter-size PDF with the sidebar dropped, printing exactly the layers you have on screen. |
 | 📐 **Two drawing styles** | The helper's Style panel converts a finished drawing between a clean grid and an engineering sheet — subnet bars, cable lanes, side captions — deterministically, no AI and no quota. Each option says up front what it would do; what can't convert honestly is left alone and named. |
 | 🔎 **Engineering review** | After every check, the helper looks at the drawing like a network engineer: trust zones, the defended edge, exposed servers, redundancy, a management story. Observations, never errors — each hands you the question that settles it, or one click records the absence as a gap. |
+| 🧭 **Declared scope** | Five opt-in coverage packs — management & OOB, wireless, fabric overlay, WAN / multi-site, security & segmentation — and five declarable architectures (collapsed core, three-tier, spine-leaf, hub-and-spoke, ring). The document promises; the engineering review holds it to the promise. |
 | 🎨 **Your branding** | Name, colours and logo staged in the helper's Branding panel — the one edit no AI ever touches. |
 | 🗂️ **Sections you choose** | Leave out identity, change, operations or the equipment appendix; the document renumbers itself and the printed PDF follows. The overview, the figure and the gaps list never leave — they carry the checks and the honesty. |
 | 🧾 **Version control built in** | Every save of an edit bumps the revision and adds a dated row to the change record, summarised from your own request — no AI involved, and never in the filename. A fresh build's first save is dated, not bumped. |
@@ -333,7 +334,7 @@ dist/                    build output, untracked
 ## Status and license
 
 Pre-release. The workflow is complete, machine-checked on every commit — 37
-repository checks plus a 124-test behaviour suite — and validated on both
+repository checks plus a 171-test behaviour suite — and validated on both
 paths. Fresh-build: one live session and twenty-two automated runs, each
 building a complete document from a different diagram image with free Gemini,
 every one reaching a clean save (source-fidelity auditing is ongoing).
