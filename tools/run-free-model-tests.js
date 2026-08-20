@@ -21,6 +21,14 @@
  *   node tools/run-free-model-tests.js --tests-dir <folder> [--tests 3-9]
  *     [--model gemini-3.6-flash] [--env-file <path-to-.env>] [--delay-ms 7000]
  *     [--smoke] [--edit-matrix]
+ *     [--provider google|openai] [--base-url <vendor>] [--key-name <ENV_NAME>]
+ *
+ * --provider openai speaks the OpenAI chat-completions protocol every other
+ * free-tier vendor uses (Groq, OpenRouter, Mistral, OpenAI itself):
+ *   --provider openai --base-url https://api.groq.com/openai/v1 \
+ *     --model meta-llama/llama-4-scout-17b-16e-instruct --key-name GROQ_API_KEY
+ * The key is read from --env-file (or the environment) under --key-name;
+ * it never appears on the command line.
  *
  * --edit-matrix drives the nine-run editing protocol from
  * docs/free-model-results.md instead of the fresh-build loop: nine
@@ -119,29 +127,59 @@ function discoverTest(dir) {
 
 /* ---------- the model ---------- */
 
-function readKey(envFile) {
-  let key = process.env.GOOGLE_GENERATIVE_AI_API_KEY || process.env.GEMINI_API_KEY || "";
+function readKey(envFile, keyName) {
+  const names = keyName ? [keyName] : ["GOOGLE_GENERATIVE_AI_API_KEY", "GEMINI_API_KEY"];
+  let key = "";
+  for (const name of names) { if (process.env[name]) { key = process.env[name]; break; } }
   if (!key && envFile) {
     const text = fs.readFileSync(envFile, "utf8");
-    const match = text.match(/^\s*(?:GOOGLE_GENERATIVE_AI_API_KEY|GEMINI_API_KEY)\s*=\s*(.+)$/m);
+    const match = text.match(new RegExp("^\\s*(?:" + names.join("|") + ")\\s*=\\s*(.+)$", "m"));
     if (match) key = match[1].trim();
   }
-  if (!key) throw new Error("No API key: set GOOGLE_GENERATIVE_AI_API_KEY or pass --env-file");
+  if (!key) throw new Error(`No API key: set ${names.join(" or ")} or pass --env-file`);
   return key;
 }
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-async function callModel(model, key, contents, log) {
+/* The harness's internal message shape is Google's contents array (role
+   user|model, parts of {text} or {inlineData:{mimeType,data}}). Every other
+   free-tier vendor worth testing - Groq, OpenRouter, Mistral, OpenAI itself -
+   speaks the OpenAI chat-completions protocol, so one converter covers them
+   all: pass --provider openai --base-url <vendor> --key-name <ENV_NAME>. */
+function toOpenAiMessages(contents) {
+  return contents.map((message) => ({
+    role: message.role === "model" ? "assistant" : "user",
+    content: (message.parts || []).map((part) => {
+      if (typeof part.text === "string") return { type: "text", text: part.text };
+      if (part.inlineData) return { type: "image_url", image_url: { url: `data:${part.inlineData.mimeType};base64,${part.inlineData.data}` } };
+      throw new Error("a message part is neither text nor inline image");
+    })
+  }));
+}
+const OPENAI_FINISH = Object.freeze({ stop: "STOP", length: "MAX_TOKENS", content_filter: "SAFETY" });
+
+async function callModel(options, contents, log) {
+  const { model, key } = options;
+  const openai = options.provider === "openai";
   for (let attempt = 1; ; attempt++) {
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "x-goog-api-key": key },
-      body: JSON.stringify({ contents, generationConfig: { maxOutputTokens: 65536 } })
-    });
+    const res = openai
+      ? await fetch(`${options.baseUrl.replace(/\/+$/, "")}/chat/completions`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "Authorization": `Bearer ${key}` },
+          // max_tokens deliberately unset: model defaults differ per vendor,
+          // and an over-cap value is a 400 on some. finishReason still grades
+          // truncation, so the zero-truncation record keeps its meaning.
+          body: JSON.stringify({ model, messages: toOpenAiMessages(contents) })
+        })
+      : await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "x-goog-api-key": key },
+          body: JSON.stringify({ contents, generationConfig: { maxOutputTokens: 65536 } })
+        });
     if (!res.ok) {
       const body = await res.json().catch(() => ({}));
-      const message = `HTTP ${res.status} ${body.error?.status || ""}: ${String(body.error?.message || "").slice(0, 200)}`;
+      const message = `HTTP ${res.status} ${body.error?.status || body.error?.type || ""}: ${String(body.error?.message || "").slice(0, 200)}`;
       if ((res.status === 429 || res.status >= 500) && attempt < 4) {
         log(`  model returned ${res.status}, waiting 35s (attempt ${attempt}/3 retries)`);
         await sleep(35000);
@@ -150,6 +188,22 @@ async function callModel(model, key, contents, log) {
       throw new Error(message);
     }
     const data = await res.json();
+    if (openai) {
+      const choice = data.choices?.[0];
+      const content = choice?.message?.content;
+      const text = typeof content === "string" ? content
+        : (content || []).map((part) => (typeof part.text === "string" ? part.text : "")).join("");
+      return {
+        text,
+        finishReason: OPENAI_FINISH[choice?.finish_reason] || choice?.finish_reason || "?",
+        modelVersion: data.model || model,
+        usage: {
+          prompt: data.usage?.prompt_tokens,
+          output: data.usage?.completion_tokens,
+          thoughts: data.usage?.completion_tokens_details?.reasoning_tokens
+        }
+      };
+    }
     const candidate = data.candidates?.[0];
     const text = (candidate?.content?.parts || [])
       .filter((part) => typeof part.text === "string" && !part.thought)
@@ -406,7 +460,7 @@ async function runTest(t, test, options, log) {
     ]
   }];
   log(`  EXTRACT: ${test.topologyName} (${mime}, ${imageBytes.length} bytes)`);
-  const extract = await callModel(options.model, options.key, contents, log);
+  const extract = await callModel(options, contents, log);
   record.modelVersion = extract.modelVersion;
   record.extract = { finishReason: extract.finishReason, chars: extract.text.length, usage: extract.usage };
   log(`  extract reply: ${extract.text.length} chars, ${extract.finishReason}`);
@@ -425,7 +479,7 @@ async function runTest(t, test, options, log) {
   for (let round = 1; round <= MAX_ROUND_TRIPS; round++) {
     await sleep(options.delayMs);
     log(`  BUILD round ${round}...`);
-    const reply = await callModel(options.model, options.key, contents, log);
+    const reply = await callModel(options, contents, log);
     const checked = runCheck(t, reply.text, state.currentData);
     const stops = checked.problems.filter((p) => p.stop);
     const warnings = checked.problems.length - stops.length;
@@ -587,7 +641,7 @@ async function runEditMatrix(t, options, log) {
     let accepted = null;
     for (let round = 1; round <= MAX_ROUND_TRIPS; round++) {
       await sleep(options.delayMs);
-      const reply = await callModel(options.model, options.key, contents, log);
+      const reply = await callModel(options, contents, log);
       record.modelVersion = reply.modelVersion;
       const checked = runCheck(t, reply.text, state.currentData, part);
       const stops = checked.problems.filter((p) => p.stop);
@@ -672,7 +726,7 @@ function editMatrixSmoke(t) {
 /* ---------- main ---------- */
 
 function parseArgs(argv) {
-  const options = { tests: "3-9", model: "gemini-3.6-flash", delayMs: 7000, smoke: false };
+  const options = { tests: "3-9", model: "gemini-3.6-flash", delayMs: 7000, smoke: false, provider: "google" };
   for (let i = 2; i < argv.length; i++) {
     const arg = argv[i];
     if (arg === "--tests-dir") options.testsDir = argv[++i];
@@ -680,10 +734,15 @@ function parseArgs(argv) {
     else if (arg === "--model") options.model = argv[++i];
     else if (arg === "--env-file") options.envFile = argv[++i];
     else if (arg === "--delay-ms") options.delayMs = Number(argv[++i]);
+    else if (arg === "--provider") options.provider = argv[++i];
+    else if (arg === "--base-url") options.baseUrl = argv[++i];
+    else if (arg === "--key-name") options.keyName = argv[++i];
     else if (arg === "--smoke") options.smoke = true;
     else if (arg === "--edit-matrix") options.editMatrix = true;
     else throw new Error(`unknown argument: ${arg}`);
   }
+  if (!["google", "openai"].includes(options.provider)) throw new Error(`unknown provider: ${options.provider} (google | openai)`);
+  if (options.provider === "openai" && !options.baseUrl) throw new Error("--provider openai needs --base-url (e.g. https://api.groq.com/openai/v1)");
   const range = options.tests.match(/^(\d+)-(\d+)$/);
   options.testNumbers = range
     ? Array.from({ length: Number(range[2]) - Number(range[1]) + 1 }, (_, i) => Number(range[1]) + i)
@@ -704,7 +763,7 @@ if (require.main === module) (async () => {
   }
 
   if (!options.testsDir) throw new Error("--tests-dir is required (or use --smoke)");
-  options.key = readKey(options.envFile);
+  options.key = readKey(options.envFile, options.keyName);
   options.artwork = artwork;
 
   if (options.editMatrix) {
@@ -744,4 +803,4 @@ if (require.main === module) (async () => {
 
 // The gate and the rotation are graded by the behaviour suite; requiring
 // this file runs nothing.
-module.exports = { statedDeviceCount, confessesCondensation, inventoryShortfall, rotateArtifact, EDIT_MATRIX };
+module.exports = { statedDeviceCount, confessesCondensation, inventoryShortfall, rotateArtifact, EDIT_MATRIX, toOpenAiMessages, OPENAI_FINISH, parseArgs };

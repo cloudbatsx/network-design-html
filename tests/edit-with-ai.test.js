@@ -1969,6 +1969,39 @@ test("gate: more placed than promised reads over, not met", () => {
   assert.strictEqual(exact.gate, "met");
 });
 
+test("provider: the OpenAI-protocol converter keeps every part and role honest", () => {
+  /* One converter covers Groq, OpenRouter, Mistral and OpenAI - the free
+     vendors beyond Google. Roles map user/model -> user/assistant; text
+     parts stay text; inline images become data-URL image_url parts; and a
+     part that is neither fails loudly rather than being dropped. */
+  const contents = [
+    { role: "user", parts: [{ text: "read this" }, { inlineData: { mimeType: "image/png", data: "QUJD" } }] },
+    { role: "model", parts: [{ text: "{}" }] }
+  ];
+  const messages = gateTools.toOpenAiMessages(contents);
+  assert.strictEqual(messages.length, 2);
+  assert.strictEqual(messages[0].role, "user");
+  assert.strictEqual(messages[1].role, "assistant");
+  assert.deepStrictEqual(messages[0].content[0], { type: "text", text: "read this" });
+  assert.deepStrictEqual(messages[0].content[1], { type: "image_url", image_url: { url: "data:image/png;base64,QUJD" } });
+  assert.throws(() => gateTools.toOpenAiMessages([{ role: "user", parts: [{ mystery: 1 }] }]),
+    /neither text nor inline image/, "an unknown part must fail loudly, never vanish");
+  assert.strictEqual(gateTools.OPENAI_FINISH.stop, "STOP");
+  assert.strictEqual(gateTools.OPENAI_FINISH.length, "MAX_TOKENS",
+    "a length finish must read as truncation or the zero-truncation record lies");
+});
+
+test("provider: the openai provider demands a base url and unknown providers are refused", () => {
+  const base = ["node", "runner", "--tests-dir", "x", "--tests", "3"];
+  const google = gateTools.parseArgs(base);
+  assert.strictEqual(google.provider, "google", "google must stay the default");
+  assert.throws(() => gateTools.parseArgs(base.concat(["--provider", "openai"])), /needs --base-url/);
+  assert.throws(() => gateTools.parseArgs(base.concat(["--provider", "grok"])), /unknown provider/);
+  const openai = gateTools.parseArgs(base.concat(["--provider", "openai", "--base-url", "https://api.groq.com/openai/v1", "--key-name", "GROQ_API_KEY"]));
+  assert.strictEqual(openai.baseUrl, "https://api.groq.com/openai/v1");
+  assert.strictEqual(openai.keyName, "GROQ_API_KEY");
+});
+
 test("gate: the harness save stamps a fresh build the way the browser save does", () => {
   /* Harness artifacts used to skip versionStamp and carry the template's
      stale date; the runner now stamps before the splice. Source-level pin:
