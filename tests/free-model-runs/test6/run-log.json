@@ -1,6 +1,57 @@
 {
   "test": "test6",
-  "model": "gemini-3.7-flash",
-  "date": "2026-08-16T06:12:17.915Z",
-  "verdict": "ERROR - HTTP 503 UNAVAILABLE: This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later."
+  "title": "Summit Academy Network",
+  "organisation": "Summit Academy",
+  "topologyImage": "images (1).jpg",
+  "logoImage": "logo-summit-academy.png",
+  "model": "gemini-3.6-flash",
+  "surface": "API (Google AI free tier)",
+  "date": "2026-08-20T02:33:43.215Z",
+  "rounds": [
+    {
+      "round": 1,
+      "finishReason": "STOP",
+      "chars": 9573,
+      "usage": {
+        "prompt": 11183,
+        "output": 3014,
+        "thoughts": 3536
+      },
+      "repairsApplied": [],
+      "truncated": false,
+      "stops": [],
+      "warnings": 0,
+      "warningTexts": [],
+      "inventoryGate": {
+        "gate": "met",
+        "promised": 12,
+        "placed": 14,
+        "short": false
+      }
+    }
+  ],
+  "verdict": "PASS - clean save in 1 round trip",
+  "modelVersion": "gemini-3.6-flash",
+  "extract": {
+    "finishReason": "STOP",
+    "chars": 2147,
+    "usage": {
+      "prompt": 1380,
+      "output": 841,
+      "thoughts": 3410
+    }
+  },
+  "roundTrips": 1,
+  "branding": {
+    "applied": "name+image",
+    "note": "raster logo: 3991 bytes"
+  },
+  "drawingId": "SAN-NET-001",
+  "saved": "san-net-001.edit.html",
+  "packaged": "san-net-001.portable.html",
+  "packaging": {
+    "embedded": 29,
+    "embeddedBytes": 2963196,
+    "skipped": []
+  }
 }

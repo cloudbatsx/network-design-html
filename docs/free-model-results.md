@@ -478,3 +478,37 @@ requests by hand found what they cannot see:
    edge instead of raising `canvas.height` — the permission exists in the
    grid text for placing parts; the zones part needs the same sentence
    about the canvas following the areas.
+
+## 2026-08-19 — the guardrails validation round
+
+Two questions, answered with the archive and two live probes.
+
+**Does the de-anchored count line still work?** The extraction prompt's count
+line became `"Total device count: <N>"` with an explicit never-copy rule,
+after 19 archived extracts proved the old literal example was never echoed
+(counts 6–41, none said 12). Two live re-runs on `gemini-3.6-flash` with the
+new form: test18 stated **6** (gate: promised 6 = placed 6), test6 stated
+**12** — and with no example number left in the prompt, a genuine 12 is now
+unambiguous. Both runs: clean save in **one round trip**, packaged 29/29,
+prior artifacts rotated to `.run1`. No regression.
+
+**Is the engineering review pointing at real things?** Ground-truth audit:
+for six archived tests (6, 10, 13, 14, 15, 18), every review observation was
+judged against the *source image*. Eleven observations: **one AI-MISS, ten
+TRUE-GAP, zero noise.**
+
+- The AI-MISS is the reason the feature exists: test6's source image draws
+  the firewall **inline** — Internet → firewall → router → switch → server —
+  but the archived build placed it as a spur, leaving servers reachable
+  without crossing it. The review's *exposed-service* observation caught a
+  real extraction error a human had accepted. (The live re-run this round
+  placed the firewall inline toward the internet on its own — and the review
+  then flagged the *other* cloud it wired straight to a PC.)
+- The ten TRUE-GAPs are the honest other half: images that genuinely draw no
+  management story, a single core, an unjoined distribution pair, a raw
+  facility-LAN edge — cases where **Record as a gap** is the right resolution,
+  and notably test15, where even the source image draws its ASA firewalls
+  off-path.
+
+Rate so far: 11 of 11 observations useful, none inapplicable — consistent
+with the calibration bar (zero observations on the eleven shipped starters).
