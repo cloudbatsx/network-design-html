@@ -755,8 +755,8 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
 <script id="proof-data" type="application/json">
 {
   "document": {
-    "title": "Campus Topology \u0026 Rack Elevation",
-    "subtitle": "A worked sample of the documentation shell \u2014 logical topology, addressing and a 42U elevation generated from one data block, with every assumption marked as an assumption.",
+    "title": "Campus Topology & Rack Elevation",
+    "subtitle": "A worked sample of the documentation shell — logical topology, addressing and a 42U elevation generated from one data block, with every assumption marked as an assumption.",
     "drawing": "NET-PROOF-001",
     "revision": "v1.0",
     "status": "Working sample",
@@ -764,9 +764,17 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
     "docClass": "Reference design",
     "subject": "Campus",
     "history": [
-      { "revision": "v1.0", "date": "2026-08-13", "author": "Sayed Haque", "summary": "Working sample of the documentation shell, generated from one data block." }
+      {
+        "revision": "v1.0",
+        "date": "2026-08-13",
+        "author": "Sayed Haque",
+        "summary": "Working sample of the documentation shell, generated from one data block."
+      }
     ],
-    "evidence": { "text": "Assumptions \u00b7 validation required", "color": "red" },
+    "evidence": {
+      "text": "Assumptions · validation required",
+      "color": "red"
+    },
     "brand": {
       "name": "",
       "label": "",
@@ -774,7 +782,10 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
       "logoFill": "#0F172A",
       "logoPath": ""
     },
-    "layers": { "findings": true, "equipment": false },
+    "layers": {
+      "findings": true,
+      "equipment": false
+    },
     "footer": {
       "author": "Prepared by the design owner",
       "originalDate": "2026-08-13",
@@ -783,7 +794,8 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
       "detail": "full working detail lives with the change record",
       "caveat": "Every element in this sample is an assumption to validate, not a recorded fact",
       "redaction": "Facility identifiers at pattern level; personal identifiers redacted"
-    }  },
+    }
+  },
   "topology": {
     "canvas": {
       "width": 1280,
@@ -1192,84 +1204,218 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
     "overview": {
       "heading": "What this document is",
       "notes": [
-        { "lead": "A reference campus design", "text": "one collapsed core, a redundant perimeter and a single 42U rack, drawn to show the notation rather than a real site." },
-        { "lead": "Why it matters here", "text": "it is the worked example every other document in this repository is copied from." },
-        { "lead": "Same drawing conventions as the rest of the set", "text": "only the network changes, not the notation." }
+        {
+          "lead": "A reference campus design",
+          "text": "one collapsed core, a redundant perimeter and a single 42U rack, drawn to show the notation rather than a real site."
+        },
+        {
+          "lead": "Why it matters here",
+          "text": "it is the worked example every other document in this repository is copied from."
+        },
+        {
+          "lead": "Same drawing conventions as the rest of the set",
+          "text": "only the network changes, not the notation."
+        }
       ],
       "provenance": [
-        { "lead": "Provenance, two classes, kept visibly distinct", "text": "Recorded = the topology and rack data in this file, which renders exactly what it says. Assumed = every address, model and role, which is illustrative only." },
-        { "lead": "The Key gaps eye control in the sidebar", "text": "hides the assumption layer for a recorded-only view. Printing follows it, so the PDF is whatever the document shows on screen." }
+        {
+          "lead": "Provenance, two classes, kept visibly distinct",
+          "text": "Recorded = the topology and rack data in this file, which renders exactly what it says. Assumed = every address, model and role, which is illustrative only."
+        },
+        {
+          "lead": "The Key gaps eye control in the sidebar",
+          "text": "hides the assumption layer for a recorded-only view. Printing follows it, so the PDF is whatever the document shows on screen."
+        }
       ]
     },
     "logical": {
-      "heading": "Logical topology \u2014 dual-homed edge into a collapsed core",
+      "heading": "Logical topology — dual-homed edge into a collapsed core",
       "notes": [
-        { "lead": "Design point", "text": "two providers terminate on separate edge routers, cross-connect to an active/standby firewall pair, then port-channel into a two-member collapsed core." },
-        { "lead": "Provenance", "text": "the shape is a documented pattern; every address shown is assumed." }
+        {
+          "lead": "Design point",
+          "text": "two providers terminate on separate edge routers, cross-connect to an active/standby firewall pair, then port-channel into a two-member collapsed core."
+        },
+        {
+          "lead": "Provenance",
+          "text": "the shape is a documented pattern; every address shown is assumed."
+        }
       ]
     },
     "identity": {
-      "heading": "Identity \u0026 addressing \u2014 one summarizable block per function",
+      "heading": "Identity & addressing — one summarizable block per function",
       "notes": [
-        { "lead": "Addressing intent", "text": "user, voice, wireless and server ranges stay separable so the core can summarize outward." }
+        {
+          "lead": "Addressing intent",
+          "text": "user, voice, wireless and server ranges stay separable so the core can summarize outward."
+        }
       ],
       "naming": {
         "parts": [
-          { "text": "edge", "label": "Placement", "note": "edge · core · access · services — the tier the device sits in" },
-          { "text": "fw", "label": "Role", "note": "fw firewall · rtr router · sw switch · ap access point" },
-          { "text": "01", "label": "Unit", "note": "01 = first of the pair, 02 its partner" }
+          {
+            "text": "edge",
+            "label": "Placement",
+            "note": "edge · core · access · services — the tier the device sits in"
+          },
+          {
+            "text": "fw",
+            "label": "Role",
+            "note": "fw firewall · rtr router · sw switch · ap access point"
+          },
+          {
+            "text": "01",
+            "label": "Unit",
+            "note": "01 = first of the pair, 02 its partner"
+          }
         ],
         "note": "Worked from edge-fw-01; every device on this drawing follows the same three segments."
       },
-      "columns": ["Function", "VLAN", "Range", "Provenance"],
+      "columns": [
+        "Function",
+        "VLAN",
+        "Range",
+        "Provenance"
+      ],
       "rows": [
-        { "cells": ["Users", "10", "10.10.10.0/24", "Assumed"], "layer": "gap" },
-        { "cells": ["Wireless infrastructure", "99", "10.10.99.0/24", "Assumed"], "layer": "gap" },
-        { "cells": ["Server / compute", "50", "10.50.50.0/24", "Assumed"], "layer": "gap" },
-        { "cells": ["Core loopbacks", "\u2014", "10.255.255.0/24", "Assumed"], "layer": "gap" }
+        {
+          "cells": [
+            "Users",
+            "10",
+            "10.10.10.0/24",
+            "Assumed"
+          ],
+          "layer": "gap"
+        },
+        {
+          "cells": [
+            "Wireless infrastructure",
+            "99",
+            "10.10.99.0/24",
+            "Assumed"
+          ],
+          "layer": "gap"
+        },
+        {
+          "cells": [
+            "Server / compute",
+            "50",
+            "10.50.50.0/24",
+            "Assumed"
+          ],
+          "layer": "gap"
+        },
+        {
+          "cells": [
+            "Core loopbacks",
+            "—",
+            "10.255.255.0/24",
+            "Assumed"
+          ],
+          "layer": "gap"
+        }
       ]
     },
     "physical": {
-      "heading": "Physical view \u2014 one rack, both faces, one schedule",
+      "heading": "Physical view — one rack, both faces, one schedule",
       "notes": [
-        { "lead": "Same device IDs, different view", "text": "front and rear elevations and the schedule below are generated from a single equipment list, so they cannot drift apart." },
-        { "lead": "Rack units are numbered from the bottom", "text": "a device position is the lowest unit it fills." }
+        {
+          "lead": "Same device IDs, different view",
+          "text": "front and rear elevations and the schedule below are generated from a single equipment list, so they cannot drift apart."
+        },
+        {
+          "lead": "Rack units are numbered from the bottom",
+          "text": "a device position is the lowest unit it fills."
+        }
       ]
     },
     "change": {
-      "heading": "Change management \u2014 the file is the record",
+      "heading": "Change management — the file is the record",
       "notes": [
-        { "lead": "Versioned as text", "text": "the whole document is one HTML file, so a topology change is a reviewable diff rather than an opaque binary replacement." },
-        { "lead": "Revision discipline", "text": "bump the revision and the date in the data block whenever the design changes; the header badges read from those fields." },
-        { "lead": "Rollback", "text": "any prior revision opens in a browser exactly as it was published." }
+        {
+          "lead": "Versioned as text",
+          "text": "the whole document is one HTML file, so a topology change is a reviewable diff rather than an opaque binary replacement."
+        },
+        {
+          "lead": "Revision discipline",
+          "text": "bump the revision and the date in the data block whenever the design changes; the header badges read from those fields."
+        },
+        {
+          "lead": "Rollback",
+          "text": "any prior revision opens in a browser exactly as it was published."
+        }
       ]
     },
     "operations": {
-      "heading": "Operations \u0026 observability \u2014 what to watch",
+      "heading": "Operations & observability — what to watch",
       "notes": [
-        { "lead": "Owner", "text": "name the team accountable for this design and the escalation path." },
-        { "lead": "Signals", "text": "the links drawn as HA or aggregate are the ones whose loss is silent \u2014 monitor member state, not just the logical interface." },
-        { "lead": "Validation", "text": "this document asserts intent. Reconcile it against the running configuration before treating any value as fact." }
+        {
+          "lead": "Owner",
+          "text": "name the team accountable for this design and the escalation path."
+        },
+        {
+          "lead": "Signals",
+          "text": "the links drawn as HA or aggregate are the ones whose loss is silent — monitor member state, not just the logical interface."
+        },
+        {
+          "lead": "Validation",
+          "text": "this document asserts intent. Reconcile it against the running configuration before treating any value as fact."
+        }
       ]
     },
     "findings": {
       "id": "gaps",
-      "label": "Gaps \u0026 open items",
+      "label": "Gaps & open items",
       "noun": "gaps and open items",
-      "heading": "Gaps and open items \u2014 what this document does not know",
+      "heading": "Gaps and open items — what this document does not know",
       "flavour": "gaps",
       "items": [
-        { "title": "Every address is illustrative", "detail": "No range here has been reconciled against a live device. Replace them before this document is used to make a change.", "atZone": "internal" },
-        { "title": "No provider or circuit detail", "detail": "Both uplinks are drawn as a pattern. Carrier, bandwidth and demarcation are unrecorded.", "at": ["edge-rtr-01", "edge-rtr-02"] },
-        { "title": "Firewall failover is unproven", "detail": "The HA pair is drawn as active/standby, but no failover test is recorded against this design.", "at": "edge-fw-02" },
-        { "title": "Rack schedule is partial", "detail": "Power, cooling and cable management are not modelled, so the elevation shows placement only, not capacity." }
+        {
+          "title": "Every address is illustrative",
+          "detail": "No range here has been reconciled against a live device. Replace them before this document is used to make a change.",
+          "atZone": "internal"
+        },
+        {
+          "title": "No provider or circuit detail",
+          "detail": "Both uplinks are drawn as a pattern. Carrier, bandwidth and demarcation are unrecorded.",
+          "at": [
+            "edge-rtr-01",
+            "edge-rtr-02"
+          ]
+        },
+        {
+          "title": "Firewall failover is unproven",
+          "detail": "The HA pair is drawn as active/standby, but no failover test is recorded against this design.",
+          "at": "edge-fw-02"
+        },
+        {
+          "title": "Rack schedule is partial",
+          "detail": "Power, cooling and cable management are not modelled, so the elevation shows placement only, not capacity."
+        },
+        {
+          "title": "Management access not documented",
+          "detail": "The drawing shows no management network, out-of-band path or console access; how these devices are reached for administration has not been recorded."
+        }
       ]
     },
     "equipment": {
       "cards": [
-        { "model": "Cisco Catalyst 9500X-28C8D", "u": "1U", "why": "Collapsed core \u2014 two members, port-channelled to every access switch.", "asset": "c9500" },
-        { "model": "Cisco Catalyst 9300-48P", "u": "1U", "why": "User and voice access with PoE for the wireless estate.", "asset": "c9300" },
-        { "model": "Cisco FPR4215-NGFW-K9", "u": "1U", "why": "Perimeter pair, active and standby.", "asset": "fpr4215" }
+        {
+          "model": "Cisco Catalyst 9500X-28C8D",
+          "u": "1U",
+          "why": "Collapsed core — two members, port-channelled to every access switch.",
+          "asset": "c9500"
+        },
+        {
+          "model": "Cisco Catalyst 9300-48P",
+          "u": "1U",
+          "why": "User and voice access with PoE for the wireless estate.",
+          "asset": "c9300"
+        },
+        {
+          "model": "Cisco FPR4215-NGFW-K9",
+          "u": "1U",
+          "why": "Perimeter pair, active and standby.",
+          "asset": "fpr4215"
+        }
       ],
       "costs": []
     }

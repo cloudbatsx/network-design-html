@@ -53,10 +53,11 @@ const sandbox = {
   PACKAGER_CORE: require(path.join(root, "tools", "packager-core.js"))
 };
 
-const shim = ";globalThis.__exports = { parseWithRepair, mergeReply, checkStructure, checkMeaning, checkShell, checkAssetStrings, looksTruncated, safeJson, contextFor, summarizeChange, editableParts, freshRequestText, freshDrawingId, brandedData, EXTRACT_PROMPT, SLICES, polishGeometry, layoutRulesFor, grammarRulesFor, svgLogoFrom, fillIdentityFromDrawing, buildPrompt, restyleTopology, sectionedData, nextRevision, versionStamp, reviewTopology, withReviewGap, flipTopology," +
+const shim = ";globalThis.__exports = { parseWithRepair, mergeReply, checkStructure, checkMeaning, checkShell, checkAssetStrings, looksTruncated, safeJson, contextFor, summarizeChange, editableParts, freshRequestText, freshDrawingId, brandedData, EXTRACT_PROMPT, SLICES, polishGeometry, layoutRulesFor, grammarRulesFor, svgLogoFrom, fillIdentityFromDrawing, buildPrompt, restyleTopology, sectionedData, nextRevision, versionStamp, reviewTopology, withReviewGap, flipTopology, COVERAGE_PACKS, extractPromptText," +
   " setData: (d) => { currentData = d; }," +
   " setRequest: (text) => { document.getElementById('request').value = text; }," +
-  " setSlice: (name) => { document.getElementById('slice').value = name; } };";
+  " setSlice: (name) => { document.getElementById('slice').value = name; }," +
+  " getAccepted: () => accepted, forceAccepted: (v) => { accepted = v; }, loadSource };";
 vm.runInNewContext(script[1] + shim, sandbox, { filename: "edit-with-ai.html <script>" });
 const t = sandbox.__exports;
 
@@ -1194,6 +1195,11 @@ test("review: no management story is one gentle note, silenced by drawing or con
   confessed.sections.findings.items.push({ title: "Management access not documented", detail: "OOB unknown." });
   assert(!rules(t.reviewTopology(confessed, false)).includes("no-management"),
     "a confessed management gap was lectured twice");
+  // The field-test regression: cable management is not network management.
+  const cable = reviewDesign(8);
+  cable.sections.findings.items.push({ title: "Rack schedule is partial", detail: "Power, cooling and cable management are not modelled." });
+  assert(rules(t.reviewTopology(cable, false)).includes("no-management"),
+    "a finding about CABLE management silenced the NETWORK management rule");
 });
 
 test("review: a firewall swallowed by the trusted zone earns the perimeter question", () => {
@@ -1280,6 +1286,83 @@ test("review: the question knows whether a picture exists to look at", () => {
   const plain = t.reviewTopology(design, false).find((o) => o.rule === "no-management");
   assert(/Look at the picture again/.test(picture.question));
   assert(!/Look at the picture again/.test(plain.question));
+});
+
+/* ---- loading a file clears the previous file's staging ---- */
+
+test("load: opening a file abandons whatever the previous file had staged", () => {
+  const template = fs.readFileSync(path.join(root, "starters", "network-design-template.edit.html"), "utf8");
+  t.loadSource(template, "first.edit.html");
+  t.forceAccepted({ document: { drawing: "GHOST-001" }, topology: { canvas: { width: 1, height: 1 }, nodes: [], links: [] }, rack: {}, sections: {} });
+  t.loadSource(template, "second.edit.html");
+  assert.strictEqual(t.getAccepted(), null,
+    "the first file's staged data survived into the second - the panels would stage a ghost");
+});
+
+/* ---- coverage packs ---- */
+
+test("coverage: the scope panel writes and clears document.coverage, filtering nonsense", () => {
+  const base = baseDesign();
+  const next = t.sectionedData(base, [], ["wireless", "management-oob", "bogus"]);
+  assert.deepStrictEqual(json(next.document.coverage), ["wireless", "management-oob"],
+    "an unknown pack crept into document.coverage");
+  const cleared = t.sectionedData(next, [], []);
+  assert.strictEqual(cleared.document.coverage, undefined, "an empty choice must remove the key");
+});
+
+test("coverage: the shell check holds the pack contract", () => {
+  const design = baseDesign();
+  design.document.coverage = ["wireless", "fabric-overlay"];
+  const problems = t.checkShell(design, design);
+  assert(has(problems, /"fabric-overlay", which is not a coverage pack/, false),
+    "an unknown pack earned no warning");
+  design.document.coverage = "wireless";
+  assert(has(t.checkShell(design, design), /not a list/, false), "a non-list coverage slipped through");
+  design.document.coverage = ["wireless", "management-oob"];
+  assert(!has(t.checkShell(design, design), /coverage/), "the known packs were scolded");
+});
+
+test("coverage: the build request carries exactly the chosen packs", () => {
+  const plain = t.freshRequestText("T", "T-NET-001", "auto");
+  assert(!/also covers/.test(plain), "an unchosen pack leaked into the plain request");
+  const packed = t.freshRequestText("T", "T-NET-001", "auto", undefined, ["management-oob", "wireless"]);
+  assert(/also covers management and out-of-band/.test(packed));
+  assert(/also covers wireless/.test(packed));
+  assert(/record that as a finding rather than inventing one/.test(packed),
+    "the packs lost their honesty clause");
+});
+
+test("coverage: the extract prompt grows numbered items only when packs are chosen", () => {
+  assert.strictEqual(t.extractPromptText([]), t.EXTRACT_PROMPT);
+  const grown = t.extractPromptText(["wireless"]);
+  assert(/6\. The wireless story/.test(grown), "the pack item did not take the next number");
+  const both = t.extractPromptText(["management-oob", "wireless"]);
+  assert(/6\. The management story/.test(both) && /7\. The wireless story/.test(both),
+    "two packs did not number themselves 6 and 7");
+});
+
+test("coverage: a declared pack is held to - management on a small drawing", () => {
+  const design = reviewDesign(2);   // small: undeclared, the rule stays quiet
+  assert(!rules(t.reviewTopology(design, false)).includes("no-management"));
+  design.document.coverage = ["management-oob"];
+  const obs = t.reviewTopology(design, false).find((o) => o.rule === "no-management");
+  assert(obs, "declared management coverage went unheld on a small drawing");
+  assert(/declares management/.test(obs.what), "the escalated wording is gone");
+});
+
+test("coverage: declared wireless with nothing wireless drawn is observed, with a fix", () => {
+  const design = reviewDesign(4);
+  design.document.coverage = ["wireless"];
+  const obs = t.reviewTopology(design, false).find((o) => o.rule === "wireless-coverage");
+  assert(obs, "declared wireless coverage went unheld");
+  assert.strictEqual(obs.fix.slice, "topology");
+  design.topology.nodes.push({ id: "ap-1", icon: "access-point", x: 300, y: 700 });
+  assert(!rules(t.reviewTopology(design, false)).includes("wireless-coverage"),
+    "a drawing with an access point was still told it lacks wireless");
+  delete design.document.coverage;
+  design.topology.nodes.pop();
+  assert(!rules(t.reviewTopology(design, false)).includes("wireless-coverage"),
+    "an undeclared pack was enforced anyway");
 });
 
 /* ---- the version stamp ---- */

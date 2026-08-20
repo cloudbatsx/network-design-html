@@ -154,6 +154,12 @@ pins and the candour doctrine. Any other key is a data error the document
 reports loudly. This is the owner's presentation choice, set in the helper's
 branding step — like `brand`, it is not yours to write.
 
+`document.coverage` is the owner's declared scope: a list of coverage packs
+this document promises to record - `management-oob`, `wireless` - set in the
+helper, stamped onto fresh builds, and held by the engineering review: a
+declared pack with nothing drawn becomes an observation. Copy it through as
+you find it; the build request tells you what each declared pack wants.
+
 `document.author` is the owner's too: set in the helper's branding step, shown
 in the document-control panel, and signed onto every change-record row the
 save stamp writes. Copy it through as you find it.

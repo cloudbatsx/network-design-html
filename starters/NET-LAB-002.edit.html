@@ -761,14 +761,22 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
     "author": "Sayed Haque",
     "classification": "Sample / reference",
     "history": [
-      { "revision": "v1.0", "date": "2026-08-13", "author": "Sayed Haque", "summary": "Published as the NET-LAB-002 starter kit." }
+      {
+        "revision": "v1.0",
+        "date": "2026-08-13",
+        "author": "Sayed Haque",
+        "summary": "Published as the NET-LAB-002 starter kit."
+      }
     ],
     "revision": "v1.0",
     "status": "Starter kit · proposed",
     "date": "2026-08-13",
     "docClass": "Campus topology and rack",
     "subject": "Campus",
-    "evidence": { "text": "Proposed · validation required", "color": "green" },
+    "evidence": {
+      "text": "Proposed · validation required",
+      "color": "green"
+    },
     "brand": {
       "name": "Example Organisation",
       "label": "Network design — starter kit",
@@ -776,7 +784,10 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
       "logoFill": "#0F172A",
       "logoPath": ""
     },
-    "layers": { "findings": true, "equipment": false },
+    "layers": {
+      "findings": true,
+      "equipment": false
+    },
     "footer": {
       "author": "Prepared by the design owner",
       "originalDate": "2026-08-13",
@@ -788,7 +799,10 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
     }
   },
   "topology": {
-    "canvas": { "width": 1280, "height": 930 },
+    "canvas": {
+      "width": 1280,
+      "height": 930
+    },
     "zones": [
       {
         "id": "external",
@@ -1000,31 +1014,169 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
       }
     ],
     "links": [
-      { "from": "internet", "to": "edge-rtr-01", "kind": "l3", "label": "DIA · ISP-A", "labelX": 470, "labelY": 130 },
-      { "from": "internet", "to": "edge-rtr-02", "kind": "l3", "label": "DIA · ISP-B", "labelX": 810, "labelY": 130 },
-      { "from": "edge-rtr-01", "to": "edge-fw-01", "kind": "l3" },
-      { "from": "edge-rtr-02", "to": "edge-fw-02", "kind": "l3" },
-      { "from": "edge-rtr-01", "to": "edge-fw-02", "kind": "backup" },
-      { "from": "edge-rtr-02", "to": "edge-fw-01", "kind": "backup" },
-      { "from": "edge-fw-01", "to": "edge-fw-02", "kind": "ha", "label": "HA state + config sync", "labelX": 640, "labelY": 365 },
-      { "from": "edge-fw-01", "to": "core-sw-01", "kind": "aggregate" },
-      { "from": "edge-fw-01", "to": "core-sw-02", "kind": "aggregate" },
-      { "from": "edge-fw-02", "to": "core-sw-01", "kind": "aggregate" },
-      { "from": "edge-fw-02", "to": "core-sw-02", "kind": "aggregate", "label": "4 × 40 GbE routed", "labelX": 640, "labelY": 460 },
-      { "from": "core-sw-01", "to": "core-sw-02", "kind": "ha", "label": "Peer link · 100G", "labelX": 640, "labelY": 545 },
-      { "from": "core-sw-01", "to": "access-sw-01", "kind": "aggregate" },
-      { "from": "core-sw-02", "to": "access-sw-01", "kind": "aggregate", "via": [[805, 606], [280, 606]] },
-      { "from": "core-sw-01", "to": "access-sw-02", "kind": "aggregate" },
-      { "from": "core-sw-02", "to": "access-sw-02", "kind": "aggregate", "label": "MLAG · diverse members", "labelX": 640, "labelY": 625 },
-      { "from": "core-sw-01", "to": "services-sw-01", "kind": "aggregate" },
-      { "from": "core-sw-02", "to": "services-sw-01", "kind": "aggregate" },
-      { "from": "core-sw-02", "to": "wlc-01", "kind": "aggregate" },
-      { "from": "access-sw-01", "to": "ap-01", "kind": "access" },
-      { "from": "access-sw-01", "to": "users-a", "kind": "access" },
-      { "from": "access-sw-01", "to": "phone-a", "kind": "access", "via": [[200, 780], [530, 780]] },
-      { "from": "access-sw-02", "to": "ap-02", "kind": "access" },
-      { "from": "services-sw-01", "to": "hv-01", "kind": "access" },
-      { "from": "services-sw-01", "to": "hv-02", "kind": "access" }
+      {
+        "from": "internet",
+        "to": "edge-rtr-01",
+        "kind": "l3",
+        "label": "DIA · ISP-A",
+        "labelX": 470,
+        "labelY": 130
+      },
+      {
+        "from": "internet",
+        "to": "edge-rtr-02",
+        "kind": "l3",
+        "label": "DIA · ISP-B",
+        "labelX": 810,
+        "labelY": 130
+      },
+      {
+        "from": "edge-rtr-01",
+        "to": "edge-fw-01",
+        "kind": "l3"
+      },
+      {
+        "from": "edge-rtr-02",
+        "to": "edge-fw-02",
+        "kind": "l3"
+      },
+      {
+        "from": "edge-rtr-01",
+        "to": "edge-fw-02",
+        "kind": "backup"
+      },
+      {
+        "from": "edge-rtr-02",
+        "to": "edge-fw-01",
+        "kind": "backup"
+      },
+      {
+        "from": "edge-fw-01",
+        "to": "edge-fw-02",
+        "kind": "ha",
+        "label": "HA state + config sync",
+        "labelX": 640,
+        "labelY": 365
+      },
+      {
+        "from": "edge-fw-01",
+        "to": "core-sw-01",
+        "kind": "aggregate"
+      },
+      {
+        "from": "edge-fw-01",
+        "to": "core-sw-02",
+        "kind": "aggregate"
+      },
+      {
+        "from": "edge-fw-02",
+        "to": "core-sw-01",
+        "kind": "aggregate"
+      },
+      {
+        "from": "edge-fw-02",
+        "to": "core-sw-02",
+        "kind": "aggregate",
+        "label": "4 × 40 GbE routed",
+        "labelX": 640,
+        "labelY": 460
+      },
+      {
+        "from": "core-sw-01",
+        "to": "core-sw-02",
+        "kind": "ha",
+        "label": "Peer link · 100G",
+        "labelX": 640,
+        "labelY": 545
+      },
+      {
+        "from": "core-sw-01",
+        "to": "access-sw-01",
+        "kind": "aggregate"
+      },
+      {
+        "from": "core-sw-02",
+        "to": "access-sw-01",
+        "kind": "aggregate",
+        "via": [
+          [
+            805,
+            606
+          ],
+          [
+            280,
+            606
+          ]
+        ]
+      },
+      {
+        "from": "core-sw-01",
+        "to": "access-sw-02",
+        "kind": "aggregate"
+      },
+      {
+        "from": "core-sw-02",
+        "to": "access-sw-02",
+        "kind": "aggregate",
+        "label": "MLAG · diverse members",
+        "labelX": 640,
+        "labelY": 625
+      },
+      {
+        "from": "core-sw-01",
+        "to": "services-sw-01",
+        "kind": "aggregate"
+      },
+      {
+        "from": "core-sw-02",
+        "to": "services-sw-01",
+        "kind": "aggregate"
+      },
+      {
+        "from": "core-sw-02",
+        "to": "wlc-01",
+        "kind": "aggregate"
+      },
+      {
+        "from": "access-sw-01",
+        "to": "ap-01",
+        "kind": "access"
+      },
+      {
+        "from": "access-sw-01",
+        "to": "users-a",
+        "kind": "access"
+      },
+      {
+        "from": "access-sw-01",
+        "to": "phone-a",
+        "kind": "access",
+        "via": [
+          [
+            200,
+            780
+          ],
+          [
+            530,
+            780
+          ]
+        ]
+      },
+      {
+        "from": "access-sw-02",
+        "to": "ap-02",
+        "kind": "access"
+      },
+      {
+        "from": "services-sw-01",
+        "to": "hv-01",
+        "kind": "access"
+      },
+      {
+        "from": "services-sw-01",
+        "to": "hv-02",
+        "kind": "access"
+      }
     ]
   },
   "rack": {
@@ -1034,8 +1186,16 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
     "frontAisle": "cold aisle",
     "rearAisle": "hot aisle",
     "reserved": [
-      { "position": 40, "height": 1, "label": "U40 · reserved growth" },
-      { "position": 36, "height": 1, "label": "U36 · reserved patch field" }
+      {
+        "position": 40,
+        "height": 1,
+        "label": "U40 · reserved growth"
+      },
+      {
+        "position": 36,
+        "height": 1,
+        "label": "U36 · reserved patch field"
+      }
     ],
     "devices": [
       {
@@ -1148,25 +1308,61 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
     "overview": {
       "heading": "What this document is",
       "notes": [
-        { "lead": "A campus reference in two synchronized views", "text": "one collapsed core, a redundant perimeter, and a single 42U rack — the same device identifiers carry the logical figure and the elevation." },
-        { "lead": "Why the identifiers are shared", "text": "a rack device id that equals a topology node id is what proves the two views cannot drift apart. Twelve of the thirteen installed devices are cross-linked; the UPS is the deliberate exception." },
-        { "lead": "This is the cross-linking kit in the set", "text": "the headquarters kit shows a bigger rack, and the fabric kit shows a non-hierarchical shape. This one exists to be edited: move a device in the schedule and watch the badge in section 0 catch it." },
-        { "lead": "What this is not", "text": "not an as-built record, not a patching authority, and not a bill of materials." }
+        {
+          "lead": "A campus reference in two synchronized views",
+          "text": "one collapsed core, a redundant perimeter, and a single 42U rack — the same device identifiers carry the logical figure and the elevation."
+        },
+        {
+          "lead": "Why the identifiers are shared",
+          "text": "a rack device id that equals a topology node id is what proves the two views cannot drift apart. Twelve of the thirteen installed devices are cross-linked; the UPS is the deliberate exception."
+        },
+        {
+          "lead": "This is the cross-linking kit in the set",
+          "text": "the headquarters kit shows a bigger rack, and the fabric kit shows a non-hierarchical shape. This one exists to be edited: move a device in the schedule and watch the badge in section 0 catch it."
+        },
+        {
+          "lead": "What this is not",
+          "text": "not an as-built record, not a patching authority, and not a bill of materials."
+        }
       ],
       "provenance": [
-        { "lead": "Provenance, two classes, kept visibly distinct", "text": "Recorded = the topology shape, the rack schedule and the unit accounting, which render exactly what the data says. Assumed = every address, platform choice and link speed." },
-        { "lead": "The green evidence badge claims consistency, not truth", "text": "the strongest thing this document proves is that its two views agree with each other. It proves nothing about a network. Every value in it is still an assumption." },
-        { "lead": "The Key gaps eye control in the sidebar", "text": "hides the assumption layer, including the assumed rows of the addressing table, for a recorded-only read. Printing follows it, so the PDF is whatever the document shows on screen." }
+        {
+          "lead": "Provenance, two classes, kept visibly distinct",
+          "text": "Recorded = the topology shape, the rack schedule and the unit accounting, which render exactly what the data says. Assumed = every address, platform choice and link speed."
+        },
+        {
+          "lead": "The green evidence badge claims consistency, not truth",
+          "text": "the strongest thing this document proves is that its two views agree with each other. It proves nothing about a network. Every value in it is still an assumption."
+        },
+        {
+          "lead": "The Key gaps eye control in the sidebar",
+          "text": "hides the assumption layer, including the assumed rows of the addressing table, for a recorded-only read. Printing follows it, so the PDF is whatever the document shows on screen."
+        }
       ]
     },
     "logical": {
       "heading": "Logical topology — a campus hierarchy that maps one-to-one onto the rack",
       "notes": [
-        { "lead": "Design point", "text": "two provider circuits terminate on separate edge routers, cross-connect to an active/standby firewall pair, then port-channel into a two-member collapsed core that fans out to user access, service access and wireless control." },
-        { "lead": "Read this figure against section 4", "text": "twelve of the seventeen symbols below carry a device id that also appears in the rack schedule. That shared id is the only thing keeping a logical drawing and a physical drawing honest with each other." },
-        { "lead": "Two independent gateways, not one logical switch", "text": "the core members here are separate control planes joined by a peer link, which is why downstream bundles are drawn as MLAG with diverse members. That is a different design from a single logical switch, and the distinction changes what a member loss costs." },
-        { "lead": "Layer boundary", "text": "this is a Layer 3 hierarchy view. Aggregate members are drawn only where they explain redundancy; their ports, optics and bundle identifiers stay in the engineering schedule." },
-        { "lead": "Provenance", "text": "the shape is a documented pattern. Every address shown is an assumption to replace from an approved IPAM record." }
+        {
+          "lead": "Design point",
+          "text": "two provider circuits terminate on separate edge routers, cross-connect to an active/standby firewall pair, then port-channel into a two-member collapsed core that fans out to user access, service access and wireless control."
+        },
+        {
+          "lead": "Read this figure against section 4",
+          "text": "twelve of the seventeen symbols below carry a device id that also appears in the rack schedule. That shared id is the only thing keeping a logical drawing and a physical drawing honest with each other."
+        },
+        {
+          "lead": "Two independent gateways, not one logical switch",
+          "text": "the core members here are separate control planes joined by a peer link, which is why downstream bundles are drawn as MLAG with diverse members. That is a different design from a single logical switch, and the distinction changes what a member loss costs."
+        },
+        {
+          "lead": "Layer boundary",
+          "text": "this is a Layer 3 hierarchy view. Aggregate members are drawn only where they explain redundancy; their ports, optics and bundle identifiers stay in the engineering schedule."
+        },
+        {
+          "lead": "Provenance",
+          "text": "the shape is a documented pattern. Every address shown is an assumption to replace from an approved IPAM record."
+        }
       ],
       "caption": "Fig. 1 — Campus topology drawn at Layer 3, with the endpoint band separated so the access edge reads at a glance. Generated from the diagram data block; twelve of the seventeen node ids are the join key to the rack schedule in section 4. Every address, platform choice and link speed shown is assumed.",
       "legend": "The HA stroke is a state relationship, not a cable. The three coloured bands are trust zones; the fourth band is a drawing convenience for endpoints, not a security boundary."
@@ -1174,33 +1370,156 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
     "identity": {
       "heading": "Identity and addressing — one summarizable block per function",
       "notes": [
-        { "lead": "Addressing intent", "text": "user, voice, wireless, compute and management ranges stay separable so the collapsed core can summarize outward on a clean bit boundary." },
-        { "lead": "How to read the Provenance column", "text": "Assumed rows carry a value no device has confirmed, and they hide with the gaps control. Recorded rows state something this document genuinely knows — including the fact that a segment has a VLAN identifier and no prefix." },
-        { "lead": "Ranges used", "text": "documentation ranges only: RFC 5737 for public examples and RFC 1918 for private. Nothing here is routable." }
+        {
+          "lead": "Addressing intent",
+          "text": "user, voice, wireless, compute and management ranges stay separable so the collapsed core can summarize outward on a clean bit boundary."
+        },
+        {
+          "lead": "How to read the Provenance column",
+          "text": "Assumed rows carry a value no device has confirmed, and they hide with the gaps control. Recorded rows state something this document genuinely knows — including the fact that a segment has a VLAN identifier and no prefix."
+        },
+        {
+          "lead": "Ranges used",
+          "text": "documentation ranges only: RFC 5737 for public examples and RFC 1918 for private. Nothing here is routable."
+        }
       ],
-      "columns": ["Function", "VLAN", "Prefix", "Provenance"],
+      "columns": [
+        "Function",
+        "VLAN",
+        "Prefix",
+        "Provenance"
+      ],
       "rows": [
-        { "cells": ["Provider handoff A", "—", "198.51.100.0/30", "Assumed · replace from IPAM"], "layer": "gap" },
-        { "cells": ["Provider handoff B", "—", "203.0.113.0/30", "Assumed · replace from IPAM"], "layer": "gap" },
-        { "cells": ["Firewall outside pair", "—", "192.0.2.0/29", "Assumed · replace from IPAM"], "layer": "gap" },
-        { "cells": ["Firewall inside transit", "—", "10.255.0.0/30 · fw-01 .1 · fw-02 .2", "Assumed · validate pairing"], "layer": "gap" },
-        { "cells": ["Core loopbacks", "—", "10.255.255.0/24", "Assumed · replace from IPAM"], "layer": "gap" },
-        { "cells": ["Wired users", "10", "10.10.10.0/24", "Assumed · replace from IPAM"], "layer": "gap" },
-        { "cells": ["Corporate wireless", "20", "Unallocated", "Recorded · nothing allocated"] },
-        { "cells": ["Voice", "30", "Unallocated", "Recorded · nothing allocated"] },
-        { "cells": ["Guest wireless", "40", "Unallocated", "Recorded · nothing allocated"] },
-        { "cells": ["Compute", "50", "10.50.50.0/24", "Assumed · replace from IPAM"], "layer": "gap" },
-        { "cells": ["Services", "51", "Unallocated", "Recorded · nothing allocated"] },
-        { "cells": ["Campus management", "99", "10.10.99.0/24", "Assumed · replace from IPAM"], "layer": "gap" },
-        { "cells": ["Service management", "99", "10.50.99.0/24", "Assumed · replace from IPAM"], "layer": "gap" }
+        {
+          "cells": [
+            "Provider handoff A",
+            "—",
+            "198.51.100.0/30",
+            "Assumed · replace from IPAM"
+          ],
+          "layer": "gap"
+        },
+        {
+          "cells": [
+            "Provider handoff B",
+            "—",
+            "203.0.113.0/30",
+            "Assumed · replace from IPAM"
+          ],
+          "layer": "gap"
+        },
+        {
+          "cells": [
+            "Firewall outside pair",
+            "—",
+            "192.0.2.0/29",
+            "Assumed · replace from IPAM"
+          ],
+          "layer": "gap"
+        },
+        {
+          "cells": [
+            "Firewall inside transit",
+            "—",
+            "10.255.0.0/30 · fw-01 .1 · fw-02 .2",
+            "Assumed · validate pairing"
+          ],
+          "layer": "gap"
+        },
+        {
+          "cells": [
+            "Core loopbacks",
+            "—",
+            "10.255.255.0/24",
+            "Assumed · replace from IPAM"
+          ],
+          "layer": "gap"
+        },
+        {
+          "cells": [
+            "Wired users",
+            "10",
+            "10.10.10.0/24",
+            "Assumed · replace from IPAM"
+          ],
+          "layer": "gap"
+        },
+        {
+          "cells": [
+            "Corporate wireless",
+            "20",
+            "Unallocated",
+            "Recorded · nothing allocated"
+          ]
+        },
+        {
+          "cells": [
+            "Voice",
+            "30",
+            "Unallocated",
+            "Recorded · nothing allocated"
+          ]
+        },
+        {
+          "cells": [
+            "Guest wireless",
+            "40",
+            "Unallocated",
+            "Recorded · nothing allocated"
+          ]
+        },
+        {
+          "cells": [
+            "Compute",
+            "50",
+            "10.50.50.0/24",
+            "Assumed · replace from IPAM"
+          ],
+          "layer": "gap"
+        },
+        {
+          "cells": [
+            "Services",
+            "51",
+            "Unallocated",
+            "Recorded · nothing allocated"
+          ]
+        },
+        {
+          "cells": [
+            "Campus management",
+            "99",
+            "10.10.99.0/24",
+            "Assumed · replace from IPAM"
+          ],
+          "layer": "gap"
+        },
+        {
+          "cells": [
+            "Service management",
+            "99",
+            "10.50.99.0/24",
+            "Assumed · replace from IPAM"
+          ],
+          "layer": "gap"
+        }
       ]
     },
     "physical": {
       "heading": "Physical view — one rack, both faces, one schedule",
       "notes": [
-        { "lead": "Same identifiers, different view", "text": "front and rear elevations and the schedule below are generated from one equipment list, so a position can only be wrong in both views at once." },
-        { "lead": "Rack units count from the bottom", "text": "a device position is the lowest unit it fills, and every unit is accounted exactly once: 16U installed, 2U reserved, 24U open." },
-        { "lead": "A generic face is a finding, not a rendering fault", "text": "the two edge routers, the service-access switch and the wireless controller are drawn as plain labelled faces because no platform has been chosen for them. They still hold real units, so the capacity arithmetic stays honest." }
+        {
+          "lead": "Same identifiers, different view",
+          "text": "front and rear elevations and the schedule below are generated from one equipment list, so a position can only be wrong in both views at once."
+        },
+        {
+          "lead": "Rack units count from the bottom",
+          "text": "a device position is the lowest unit it fills, and every unit is accounted exactly once: 16U installed, 2U reserved, 24U open."
+        },
+        {
+          "lead": "A generic face is a finding, not a rendering fault",
+          "text": "the two edge routers, the service-access switch and the wireless controller are drawn as plain labelled faces because no platform has been chosen for them. They still hold real units, so the capacity arithmetic stays honest."
+        }
       ],
       "caption": "Fig. 2 — Rack elevation, front and rear, generated from one equipment schedule at a single vertical scale. Twelve of the thirteen scheduled devices carry a topology node id; only the UPS does not. Every position, platform and height shown is assumed, and no power, weight, airflow or blanking value stands behind this drawing.",
       "legend": "Legend — shaded slots are occupied · hatched slots are reserved · a plain labelled face means no orthographic artwork exists for that platform, which here also means no platform has been selected. Power feeds, cord assignment, airflow direction, weights and blanking state are not modelled."
@@ -1208,20 +1527,47 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
     "change": {
       "heading": "Change management — the file is the record",
       "notes": [
-        { "lead": "Versioned as text", "text": "the whole document is one HTML file, so a topology or rack change is a reviewable diff rather than an opaque binary replacement." },
-        { "lead": "Revision discipline", "text": "bump the revision and the date in the data block whenever the design changes; the header badges and the footer read from those fields." },
-        { "lead": "Edit both views or neither", "text": "renaming a device in one list and not the other drops the synchronized-id count in section 0. That badge is the cheapest review this document offers; read it before you read anything else." },
-        { "lead": "What does not exist", "text": "there is no device configuration, no infrastructure-as-code repository, and no approval, maintenance-window or rollback artifact behind this design. Control of the document is the only change record that genuinely exists." },
-        { "lead": "Rollback", "text": "any prior revision opens in a browser exactly as it was published." }
+        {
+          "lead": "Versioned as text",
+          "text": "the whole document is one HTML file, so a topology or rack change is a reviewable diff rather than an opaque binary replacement."
+        },
+        {
+          "lead": "Revision discipline",
+          "text": "bump the revision and the date in the data block whenever the design changes; the header badges and the footer read from those fields."
+        },
+        {
+          "lead": "Edit both views or neither",
+          "text": "renaming a device in one list and not the other drops the synchronized-id count in section 0. That badge is the cheapest review this document offers; read it before you read anything else."
+        },
+        {
+          "lead": "What does not exist",
+          "text": "there is no device configuration, no infrastructure-as-code repository, and no approval, maintenance-window or rollback artifact behind this design. Control of the document is the only change record that genuinely exists."
+        },
+        {
+          "lead": "Rollback",
+          "text": "any prior revision opens in a browser exactly as it was published."
+        }
       ]
     },
     "operations": {
       "heading": "Operations and observability — what has never been measured",
       "notes": [
-        { "lead": "Owner", "text": "name the team accountable for this design and the escalation path before it is used to make a change. Reviewer and approver are currently unassigned." },
-        { "lead": "Nothing here is observable", "text": "no monitoring system, flow collector, syslog target or metrics store is defined, and no out-of-band management path exists — every device is reachable only through the production path it also serves." },
-        { "lead": "Signals worth watching first", "text": "links drawn as HA or aggregate fail silently at member level. Monitor member state, not just the logical interface." },
-        { "lead": "Validation", "text": "this document asserts intent. Reconcile it against the running configuration before treating any value as fact." }
+        {
+          "lead": "Owner",
+          "text": "name the team accountable for this design and the escalation path before it is used to make a change. Reviewer and approver are currently unassigned."
+        },
+        {
+          "lead": "Nothing here is observable",
+          "text": "no monitoring system, flow collector, syslog target or metrics store is defined, and no out-of-band management path exists — every device is reachable only through the production path it also serves."
+        },
+        {
+          "lead": "Signals worth watching first",
+          "text": "links drawn as HA or aggregate fail silently at member level. Monitor member state, not just the logical interface."
+        },
+        {
+          "lead": "Validation",
+          "text": "this document asserts intent. Reconcile it against the running configuration before treating any value as fact."
+        }
       ]
     },
     "findings": {
@@ -1234,7 +1580,10 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
         {
           "title": "Edge router platform and carrier handoff are unrecorded",
           "detail": "Both uplinks are drawn as a pattern. Circuit identifiers, demarcation ownership and CPE responsibility are unknown, and neither router has a selected platform, so both occupy the rack with a generic face.",
-          "at": ["edge-rtr-01", "edge-rtr-02"]
+          "at": [
+            "edge-rtr-01",
+            "edge-rtr-02"
+          ]
         },
         {
           "title": "Firewall policy is a shape, not a ruleset",
@@ -1249,7 +1598,10 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
         {
           "title": "Bundle members, media and identifiers are TBD",
           "detail": "The core peer link and every downstream aggregate are drawn without ports, optics or bundle identifiers. The figure explains redundancy; it cannot drive patching.",
-          "at": ["core-sw-01", "core-sw-02"]
+          "at": [
+            "core-sw-01",
+            "core-sw-02"
+          ]
         },
         {
           "title": "The wireless controller is drawn single-attached",
@@ -1276,23 +1628,56 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
         {
           "title": "The document has not been reviewed or approved",
           "detail": "Reviewer and approver are unassigned. A design carrying this many open items should not be treated as agreed by anyone other than its author."
+        },
+        {
+          "title": "Management access not documented",
+          "detail": "The drawing shows no management network, out-of-band path or console access; how these devices are reached for administration has not been recorded."
         }
       ]
     },
     "equipment": {
       "cards": [
-        { "model": "Cisco Catalyst 9500X-28C8D", "u": "1U", "why": "Collapsed core — two members, peer-linked, port-channelled to every access and service switch.", "asset": "c9500" },
-        { "model": "Cisco Catalyst 9300-48P", "u": "1U", "why": "User and voice access with PoE for the wireless estate.", "asset": "c9300" },
-        { "model": "Cisco FPR4215-NGFW-K9", "u": "1U", "why": "Perimeter pair, active and standby, terminating both provider circuits.", "asset": "fpr4215" },
-        { "model": "Dell PowerEdge R750", "u": "2U", "why": "Virtualization hosts on the service segment. NIC bonding is intended and unverified.", "asset": "r750" },
-        { "model": "APC SMT3000RMI2UC", "u": "2U", "why": "Rack UPS — present in the elevation and absent from the topology, because not every rack device is a network node.", "asset": "ups" },
-        { "model": "Platform not selected", "u": "1U", "why": "Four devices — both edge routers, the service-access switch and the wireless controller — hold real units behind a generic face because no model has been chosen.", "asset": "generic" }
+        {
+          "model": "Cisco Catalyst 9500X-28C8D",
+          "u": "1U",
+          "why": "Collapsed core — two members, peer-linked, port-channelled to every access and service switch.",
+          "asset": "c9500"
+        },
+        {
+          "model": "Cisco Catalyst 9300-48P",
+          "u": "1U",
+          "why": "User and voice access with PoE for the wireless estate.",
+          "asset": "c9300"
+        },
+        {
+          "model": "Cisco FPR4215-NGFW-K9",
+          "u": "1U",
+          "why": "Perimeter pair, active and standby, terminating both provider circuits.",
+          "asset": "fpr4215"
+        },
+        {
+          "model": "Dell PowerEdge R750",
+          "u": "2U",
+          "why": "Virtualization hosts on the service segment. NIC bonding is intended and unverified.",
+          "asset": "r750"
+        },
+        {
+          "model": "APC SMT3000RMI2UC",
+          "u": "2U",
+          "why": "Rack UPS — present in the elevation and absent from the topology, because not every rack device is a network node.",
+          "asset": "ups"
+        },
+        {
+          "model": "Platform not selected",
+          "u": "1U",
+          "why": "Four devices — both edge routers, the service-access switch and the wireless controller — hold real units behind a generic face because no model has been chosen.",
+          "asset": "generic"
+        }
       ],
       "costs": []
     }
   }
 }
-
 </script>
 <!-- PROOF-DATA:END -->
 
