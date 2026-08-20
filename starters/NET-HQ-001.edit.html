@@ -2745,7 +2745,7 @@ if (typeof module !== "undefined" && module.exports) module.exports = RACK_FACE_
     const MONO='Consolas,"Courier New",monospace';
     const sep=typeof naming.separator==="string"&&naming.separator?naming.separator:"-";
     const footnote=typeof naming.note==="string"?naming.note.trim():"";
-    const CH=18,SEG_Y=56,LEAD_TOP=68,LABEL_TOP=142,LANE_STEP=42;
+    const CH=13,SEG_Y=40,LEAD_TOP=50,LABEL_TOP=104,LANE_STEP=36;
     let x=24;
     const spans=parts.map((part,index)=>{
       const text=part.text.trim(),width=text.length*CH;
@@ -2759,7 +2759,7 @@ if (typeof module !== "undefined" && module.exports) module.exports = RACK_FACE_
        stagger collided as soon as a note outgrew its segment. Leaders are
        drawn first and the text carries a white halo, the zone-title recipe,
        so a line passing a deeper label's column never strikes through it. */
-    const labelWidth=(span)=>Math.max(span.label.length*9.2,span.note.length*7.2)+8;
+    const labelWidth=(span)=>Math.max(span.label.length*8.3,span.note.length*6.6)+8;
     const laneEnds=[];
     spans.forEach(span=>{
       let lane=0;
@@ -2767,20 +2767,20 @@ if (typeof module !== "undefined" && module.exports) module.exports = RACK_FACE_
       laneEnds[lane]=span.x+labelWidth(span);
       span.labelY=LABEL_TOP+lane*LANE_STEP;
     });
-    const viewW=Math.max(700,x+24,...spans.map(span=>span.x+labelWidth(span)+16));
-    const H=LABEL_TOP+(laneEnds.length-1)*LANE_STEP+17+(footnote?40:18);
-    svg.setAttribute("viewBox",`0 0 ${viewW} ${H}`);
+    const viewW=Math.max(560,x+24,...spans.map(span=>span.x+labelWidth(span)+16));
+    const H=LABEL_TOP+(laneEnds.length-1)*LANE_STEP+15+(footnote?34:14);
+    svg.setAttribute("viewBox",`0 0 ${viewW} ${H}`);svg.style.maxWidth=viewW+"px";
     spans.forEach(span=>{
-      svg.appendChild(svgEl("line",{x1:span.x+span.width/2,y1:LEAD_TOP,x2:span.x+span.width/2,y2:span.labelY-14,stroke:span.color,"stroke-width":1.6}));
+      svg.appendChild(svgEl("line",{x1:span.x+span.width/2,y1:LEAD_TOP,x2:span.x+span.width/2,y2:span.labelY-12,stroke:span.color,"stroke-width":1.4}));
     });
     const HALO="paint-order:stroke;stroke:#fff;stroke-width:4;stroke-linejoin:round";
     spans.forEach(span=>{
-      svg.appendChild(svgEl("text",{x:span.x,y:SEG_Y,fill:span.color,style:`font:700 30px ${MONO}`},span.text));
-      if(span.sepX)svg.appendChild(svgEl("text",{x:span.sepX,y:SEG_Y,fill:"#334155",style:`font:700 30px ${MONO}`},sep));
-      svg.appendChild(svgEl("text",{x:span.x,y:span.labelY,fill:span.color,style:`font:700 15px 'Segoe UI',Arial,sans-serif;${HALO}`},span.label));
-      if(span.note)svg.appendChild(svgEl("text",{x:span.x,y:span.labelY+17,fill:"#64748b",style:`font:12.5px 'Segoe UI',Arial,sans-serif;${HALO}`},span.note));
+      svg.appendChild(svgEl("text",{x:span.x,y:SEG_Y,fill:span.color,style:`font:700 22px ${MONO}`},span.text));
+      if(span.sepX)svg.appendChild(svgEl("text",{x:span.sepX,y:SEG_Y,fill:"#334155",style:`font:700 22px ${MONO}`},sep));
+      svg.appendChild(svgEl("text",{x:span.x,y:span.labelY,fill:span.color,style:`font:700 13.5px 'Segoe UI',Arial,sans-serif;${HALO}`},span.label));
+      if(span.note)svg.appendChild(svgEl("text",{x:span.x,y:span.labelY+15,fill:"#64748b",style:`font:11.5px 'Segoe UI',Arial,sans-serif;${HALO}`},span.note));
     });
-    if(footnote)svg.appendChild(svgEl("text",{x:24,y:H-12,fill:"#94a3b8",style:"font:italic 13px 'Segoe UI',Arial,sans-serif"},footnote));
+    if(footnote)svg.appendChild(svgEl("text",{x:24,y:H-10,fill:"#94a3b8",style:"font:italic 12px 'Segoe UI',Arial,sans-serif"},footnote));
     setText("naming-caption",`Hostname anatomy — worked example: ${spans.map(span=>span.text).join(sep)}.`)
   }
 
