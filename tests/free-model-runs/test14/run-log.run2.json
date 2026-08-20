@@ -4,36 +4,18 @@
   "organisation": "Harborview Dermatology",
   "topologyImage": "9bc13900891546e70d7ecc25480f58d54a9f3c2d_2_690x464.jpeg",
   "logoImage": "logo-harborview-dermatology.svg",
-  "model": "gemini-2.5-flash",
+  "model": "gpt-5.4-mini",
   "surface": "API (Google AI free tier)",
-  "date": "2026-08-20T21:30:30.202Z",
+  "date": "2026-08-20T16:43:50.255Z",
   "rounds": [
     {
       "round": 1,
       "finishReason": "STOP",
-      "chars": 17006,
+      "chars": 15782,
       "usage": {
-        "prompt": 11846,
-        "output": 5546,
-        "thoughts": 11521
-      },
-      "repairsApplied": [],
-      "truncated": false,
-      "stops": [
-        "\"van-cloud-01\" and \"van-bridge-01\" sit on top of each other by 33% of a device box.",
-        "\"van-bridge-01\" and \"guest-public-ip-network-01\" sit on top of each other by 33% of a device box."
-      ],
-      "warnings": 0,
-      "warningTexts": []
-    },
-    {
-      "round": 2,
-      "finishReason": "STOP",
-      "chars": 16972,
-      "usage": {
-        "prompt": 17614,
-        "output": 5531,
-        "thoughts": 2169
+        "prompt": 10192,
+        "output": 4272,
+        "thoughts": 0
       },
       "repairsApplied": [],
       "truncated": false,
@@ -42,24 +24,24 @@
       "warningTexts": [],
       "inventoryGate": {
         "gate": "met",
-        "promised": 16,
-        "placed": 16,
+        "promised": 17,
+        "placed": 17,
         "short": false
       }
     }
   ],
-  "verdict": "PASS - clean save in 2 round trips",
-  "modelVersion": "gemini-2.5-flash",
+  "verdict": "PASS - clean save in 1 round trip",
+  "modelVersion": "gpt-5.4-mini-2026-03-17",
   "extract": {
     "finishReason": "STOP",
-    "chars": 5119,
+    "chars": 4855,
     "usage": {
-      "prompt": 696,
-      "output": 2018,
-      "thoughts": 6000
+      "prompt": 824,
+      "output": 1541,
+      "thoughts": 0
     }
   },
-  "roundTrips": 2,
+  "roundTrips": 1,
   "branding": {
     "applied": "name+path+viewBox+fill",
     "note": "SVG logo: 1 path(s) extracted"
