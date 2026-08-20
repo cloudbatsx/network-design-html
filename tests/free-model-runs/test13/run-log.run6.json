@@ -1,0 +1,6 @@
+{
+  "test": "test13",
+  "model": "qwen/qwen3.6-27b",
+  "date": "2026-08-20T17:14:57.880Z",
+  "verdict": "ERROR - HTTP 413 tokens: Request too large for model `qwen/qwen3.6-27b` in organization `org_01kpq1czfaep6ve8b5tc4pmsph` service tier `on_demand` on tokens per minute (TPM): Limit 8000, Requested 13930, please reduce your mes"
+}

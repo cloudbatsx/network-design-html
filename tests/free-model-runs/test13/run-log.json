@@ -1,6 +1,57 @@
 {
   "test": "test13",
-  "model": "gemini-3.7-flash",
-  "date": "2026-08-20T16:50:58.252Z",
-  "verdict": "ERROR - HTTP 429 RESOURCE_EXHAUSTED: You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usa"
+  "title": "Brightwave AV Network",
+  "organisation": "Brightwave AV",
+  "topologyImage": "22c16066-d36e-4bb6-81d3-824f73d077fa.jpeg",
+  "logoImage": "logo-brightwave-av.png",
+  "model": "gemini-2.5-flash",
+  "surface": "API (Google AI free tier)",
+  "date": "2026-08-20T18:04:41.838Z",
+  "rounds": [
+    {
+      "round": 1,
+      "finishReason": "STOP",
+      "chars": 18407,
+      "usage": {
+        "prompt": 12285,
+        "output": 5840,
+        "thoughts": 9898
+      },
+      "repairsApplied": [],
+      "truncated": false,
+      "stops": [],
+      "warnings": 0,
+      "warningTexts": [],
+      "inventoryGate": {
+        "gate": "over",
+        "promised": 14,
+        "placed": 15,
+        "short": false
+      }
+    }
+  ],
+  "verdict": "PASS - clean save in 1 round trip - note: 15 placed vs 14 promised (over-count is where padded inventions hide)",
+  "modelVersion": "gemini-2.5-flash",
+  "extract": {
+    "finishReason": "STOP",
+    "chars": 6616,
+    "usage": {
+      "prompt": 696,
+      "output": 2459,
+      "thoughts": 4489
+    }
+  },
+  "roundTrips": 1,
+  "branding": {
+    "applied": "name+image",
+    "note": "raster logo: 2101 bytes"
+  },
+  "drawingId": "BAN-NET-001",
+  "saved": "ban-net-001.edit.html",
+  "packaged": "ban-net-001.portable.html",
+  "packaging": {
+    "embedded": 29,
+    "embeddedBytes": 2963196,
+    "skipped": []
+  }
 }
