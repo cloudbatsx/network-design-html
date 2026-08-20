@@ -1,0 +1,123 @@
+{
+  "test": "test12",
+  "title": "Foxhill Campus Network",
+  "organisation": "Foxhill Campus",
+  "topologyImage": "MCmL6.png",
+  "logoImage": "logo-foxhill-campus.svg",
+  "model": "gpt-5.4-mini",
+  "surface": "API (Google AI free tier)",
+  "date": "2026-08-20T16:45:53.191Z",
+  "rounds": [
+    {
+      "round": 1,
+      "finishReason": "STOP",
+      "chars": 15147,
+      "usage": {
+        "prompt": 9915,
+        "output": 4286,
+        "thoughts": 0
+      },
+      "repairsApplied": [
+        "moved \"bldg-b-access-03\" 22px right to clear \"main-core-01\"",
+        "moved \"main-core-02\" 22px right to make room for \"bldg-b-access-03\"",
+        "moved \"bldg-c-access-02\" 22px right to make room for \"bldg-b-access-03\"",
+        "moved \"bldg-b-access-04\" 22px right to clear \"main-dist-01\"",
+        "moved \"bldg-d-access-04\" 12px down to clear \"dc-dist-01\""
+      ],
+      "truncated": false,
+      "stops": [
+        "\"dc-server-03\" is drawn off the bottom edge of the page.",
+        "\"dc-dist-01\" and \"bldg-d-access-03\" sit on top of each other by 55% of a device box.",
+        "\"dc-dist-02\" and \"bldg-d-access-04\" sit on top of each other by 65% of a device box.",
+        "Rack device \"main-core-01\" is 1U tall but its face \"generic-chassis-switch-4u\" draws 4U.",
+        "Rack device \"main-core-02\" is 1U tall but its face \"generic-chassis-switch-4u\" draws 4U."
+      ],
+      "warnings": 8,
+      "warningTexts": [
+        "The reply's rack left out reserved, so that part was kept unchanged.",
+        "The reply's sections left out overview, change, operations, equipment, so those parts were kept unchanged.",
+        "\"bldg-a-dist-02\" is drawn half in and half out of the area \"perimeter\" (60% inside), so a reader cannot tell which area it belongs to.",
+        "\"bldg-b-dist-02\" is drawn half in and half out of the area \"perimeter\" (60% inside), so a reader cannot tell which area it belongs to.",
+        "\"bldg-d-access-02\" is drawn half in and half out of the area \"perimeter\" (60% inside), so a reader cannot tell which area it belongs to.",
+        "\"dc-server-03\" is drawn half in and half out of the area \"internal\" (60% inside), so a reader cannot tell which area it belongs to.",
+        "Rack device \"dc-dist-01\" uses the hardware code \"dc-switch\", which does not exist. It will be drawn as a generic face, and the saved file will show a red FAIL badge until it is corrected.",
+        "Rack device \"dc-dist-02\" uses the hardware code \"dc-switch\", which does not exist. It will be drawn as a generic face, and the saved file will show a red FAIL badge until it is corrected."
+      ]
+    },
+    {
+      "round": 2,
+      "finishReason": "STOP",
+      "chars": 17583,
+      "usage": {
+        "prompt": 15576,
+        "output": 4891,
+        "thoughts": 0
+      },
+      "repairsApplied": [
+        "moved \"bldg-a-dist-02\" 28px up to sit fully inside \"external\"",
+        "moved \"bldg-b-dist-02\" 28px up to sit fully inside \"external\"",
+        "moved \"bldg-b-access-03\" 22px right to clear \"main-core-01\"",
+        "moved \"main-core-02\" 22px right to make room for \"bldg-b-access-03\"",
+        "moved \"bldg-c-access-02\" 22px right to make room for \"bldg-b-access-03\"",
+        "moved \"bldg-b-access-04\" 22px right to clear \"main-dist-01\"",
+        "moved \"bldg-d-access-02\" 32px up to clear \"bldg-d-access-01\"",
+        "moved \"dc-server-02\" 32px up to clear \"dc-server-03\"",
+        "moved \"bldg-d-access-02\" 36px up to sit fully inside \"external\""
+      ],
+      "truncated": false,
+      "stops": [
+        "Gap 2 is pinned to \"edge-rtr-01\", which is not a device on this diagram. The marker will not be drawn.",
+        "Gap 2 is pinned to \"edge-rtr-02\", which is not a device on this diagram. The marker will not be drawn.",
+        "Gap 3 is pinned to \"edge-fw-02\", which is not a device on this diagram. The marker will not be drawn.",
+        "\"internet\" and \"bldg-a-dist-02\" sit on top of each other by 60% of a device box.",
+        "\"edge-01\" and \"bldg-b-dist-02\" sit on top of each other by 53% of a device box.",
+        "\"dc-dist-01\" and \"bldg-d-access-04\" sit on top of each other by 55% of a device box."
+      ],
+      "warnings": 1,
+      "warningTexts": [
+        "\"bldg-d-access-03\" is drawn half in and half out of the area \"perimeter\" (60% inside), so a reader cannot tell which area it belongs to."
+      ]
+    },
+    {
+      "round": 3,
+      "finishReason": "STOP",
+      "chars": 16986,
+      "usage": {
+        "prompt": 20950,
+        "output": 4718,
+        "thoughts": 0
+      },
+      "repairsApplied": [
+        "grew the area \"perimeter\" 20px down to hold \"bldg-a-dist-02\" and 2 more",
+        "moved \"bldg-b-access-03\" 22px right to clear \"main-core-01\"",
+        "moved \"main-core-02\" 22px right to make room for \"bldg-b-access-03\"",
+        "moved \"bldg-c-access-02\" 22px right to make room for \"bldg-b-access-03\"",
+        "moved \"bldg-b-access-04\" 22px right to clear \"main-dist-01\"",
+        "moved \"bldg-d-access-02\" 32px up to clear \"bldg-d-access-01\"",
+        "moved \"dc-server-02\" 32px up to clear \"dc-server-03\"",
+        "moved \"bldg-a-dist-02\" 18px up to sit fully inside \"perimeter\"",
+        "moved \"bldg-b-dist-02\" 18px up to sit fully inside \"perimeter\"",
+        "moved \"bldg-d-access-02\" 36px up to sit fully inside \"external\""
+      ],
+      "truncated": false,
+      "stops": [
+        "\"bldg-d-access-04\" and \"dc-server-01\" sit on top of each other by 100% of a device box."
+      ],
+      "warnings": 1,
+      "warningTexts": [
+        "The reply's sections left out equipment, so that part was kept unchanged."
+      ]
+    }
+  ],
+  "verdict": "FAIL - no clean reply within 3 round trips",
+  "modelVersion": "gpt-5.4-mini-2026-03-17",
+  "extract": {
+    "finishReason": "STOP",
+    "chars": 2905,
+    "usage": {
+      "prompt": 917,
+      "output": 1173,
+      "thoughts": 0
+    }
+  }
+}

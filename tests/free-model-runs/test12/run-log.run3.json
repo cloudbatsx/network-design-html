@@ -1,0 +1,6 @@
+{
+  "test": "test12",
+  "model": "gpt-5.4-mini",
+  "date": "2026-08-20T16:36:26.458Z",
+  "verdict": "ERROR - a message part is neither text nor inline image"
+}

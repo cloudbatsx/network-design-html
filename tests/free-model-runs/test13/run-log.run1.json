@@ -1,0 +1,53 @@
+{
+  "test": "test13",
+  "title": "Brightwave AV Network",
+  "organisation": "Brightwave AV",
+  "topologyImage": "22c16066-d36e-4bb6-81d3-824f73d077fa.jpeg",
+  "logoImage": "logo-brightwave-av.png",
+  "model": "gemini-3.6-flash",
+  "surface": "API (Google AI free tier)",
+  "date": "2026-08-16T08:42:51.823Z",
+  "rounds": [
+    {
+      "round": 1,
+      "finishReason": "STOP",
+      "chars": 8974,
+      "usage": {
+        "prompt": 10419,
+        "output": 2940,
+        "thoughts": 3588
+      },
+      "repairsApplied": [],
+      "truncated": false,
+      "stops": [],
+      "warnings": 1,
+      "warningTexts": [
+        "\"ctrl-01\" and \"screen-01\" overlap by a few pixels."
+      ]
+    }
+  ],
+  "verdict": "PASS - clean save in 1 round trip with 1 warning(s)",
+  "modelVersion": "gemini-3.6-flash",
+  "extract": {
+    "finishReason": "STOP",
+    "chars": 3147,
+    "usage": {
+      "prompt": 1321,
+      "output": 1396,
+      "thoughts": 1980
+    }
+  },
+  "roundTrips": 1,
+  "branding": {
+    "applied": "name+image",
+    "note": "raster logo: 2101 bytes"
+  },
+  "drawingId": "BAN-NET-001",
+  "saved": "ban-net-001.edit.html",
+  "packaged": "ban-net-001.portable.html",
+  "packaging": {
+    "embedded": 29,
+    "embeddedBytes": 2963196,
+    "skipped": []
+  }
+}

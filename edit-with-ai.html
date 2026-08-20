@@ -3687,6 +3687,10 @@ function renderChanges(before, after) {
 function renderProblems(list) {
   const host = $("problems");
   host.replaceChildren();
+  // Stops before warnings, stably: the retry message reads from this list,
+  // and a weak model fixes what it reads first - a kept-unchanged notice
+  // must never outrank a real stop.
+  list = [...list].sort((a, b) => (b.stop === true) - (a.stop === true));
   for (const item of list) {
     const li = document.createElement("li");
     if (item.stop) li.className = "stop";
@@ -3726,7 +3730,7 @@ function check() {
 
   if (parsed === undefined) {
     const narrower = name === "all"
-      ? "Send it again as one part only: reply with just the topology section, and nothing else."
+      ? "Send the whole object again - document, topology, rack and sections all present - but written compactly: the shortest truthful notes and details, no repeated text, nothing left out."
       : "Send it again. If it keeps being cut off, change fewer things in one go.";
     const why = looksTruncated(cleanedText)
       ? problem(true,

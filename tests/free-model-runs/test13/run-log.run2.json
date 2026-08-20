@@ -1,0 +1,64 @@
+{
+  "test": "test13",
+  "title": "Brightwave AV Network",
+  "organisation": "Brightwave AV",
+  "topologyImage": "22c16066-d36e-4bb6-81d3-824f73d077fa.jpeg",
+  "logoImage": "logo-brightwave-av.png",
+  "model": "gpt-5.4-mini",
+  "surface": "API (Google AI free tier)",
+  "date": "2026-08-20T16:41:43.103Z",
+  "rounds": [
+    {
+      "round": 1,
+      "finishReason": "STOP",
+      "chars": 8423,
+      "usage": {
+        "prompt": 10165,
+        "output": 2420,
+        "thoughts": 0
+      },
+      "repairsApplied": [
+        "moved \"mic-01\" 18px down to sit fully inside \"internal\""
+      ],
+      "truncated": false,
+      "stops": [],
+      "warnings": 4,
+      "warningTexts": [
+        "The reply's document left out subtitle, so that part was kept unchanged.",
+        "The reply's sections left out overview, change, operations, equipment, so those parts were kept unchanged.",
+        "\"pj-01\" uses the device type \"projector\", which does not exist. It will show a red UNKNOWN ICON box.",
+        "\"speaker-01\" is drawn half in and half out of the area \"internal\" (64% inside), so a reader cannot tell which area it belongs to."
+      ],
+      "inventoryGate": {
+        "gate": "over",
+        "promised": 14,
+        "placed": 15,
+        "short": false
+      }
+    }
+  ],
+  "verdict": "PASS - clean save in 1 round trip with 4 warning(s) - note: 15 placed vs 14 promised (over-count is where padded inventions hide)",
+  "modelVersion": "gpt-5.4-mini-2026-03-17",
+  "extract": {
+    "finishReason": "STOP",
+    "chars": 2979,
+    "usage": {
+      "prompt": 1338,
+      "output": 997,
+      "thoughts": 0
+    }
+  },
+  "roundTrips": 1,
+  "branding": {
+    "applied": "name+image",
+    "note": "raster logo: 2101 bytes"
+  },
+  "drawingId": "BAN-NET-001",
+  "saved": "ban-net-001.edit.html",
+  "packaged": "ban-net-001.portable.html",
+  "packaging": {
+    "embedded": 29,
+    "embeddedBytes": 2963196,
+    "skipped": []
+  }
+}

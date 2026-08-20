@@ -1,0 +1,181 @@
+{
+  "test": "test12",
+  "title": "Foxhill Campus Network",
+  "organisation": "Foxhill Campus",
+  "topologyImage": "MCmL6.png",
+  "logoImage": "logo-foxhill-campus.svg",
+  "model": "gpt-5.4-mini",
+  "surface": "API (Google AI free tier)",
+  "date": "2026-08-20T16:38:35.524Z",
+  "rounds": [
+    {
+      "round": 1,
+      "finishReason": "STOP",
+      "chars": 15096,
+      "usage": {
+        "prompt": 10023,
+        "output": 4290,
+        "thoughts": 0
+      },
+      "repairsApplied": [
+        "moved \"bldg-d-floor-1\" 17px right to sit fully inside \"internal\"",
+        "moved \"bldg-d-floor-2\" 17px right to sit fully inside \"internal\"",
+        "moved \"bldg-d-floor-4\" 17px right to sit fully inside \"internal\"",
+        "moved \"main-core-1\" 41px left to sit fully inside \"perimeter\"",
+        "moved \"main-core-2\" 17px right to sit fully inside \"internal\"",
+        "moved \"main-dist-1\" 41px left to sit fully inside \"perimeter\"",
+        "grew the area \"internal\" 12px left to hold \"bldg-d-floor-3\"",
+        "moved \"internet\" 52px up to clear \"bldg-a-floor-1\"",
+        "moved \"edge-router\" 21px right to clear \"bldg-b-floor-1\"",
+        "moved \"bldg-b-floor-1\" 21px left to clear \"edge-router\"",
+        "moved \"edge-router\" 52px up to clear \"bldg-c-floor-1\"",
+        "moved \"bldg-a-floor-2\" 52px up to clear \"bldg-a-dist-1\"",
+        "moved \"bldg-b-floor-2\" 52px up to clear \"bldg-b-dist-1\"",
+        "moved \"bldg-b-floor-4\" 52px down to clear \"bldg-b-dist-1\"",
+        "moved \"bldg-c-floor-2\" 52px up to clear \"bldg-b-dist-1\"",
+        "moved \"bldg-c-floor-4\" 52px down to clear \"bldg-b-dist-1\"",
+        "moved \"main-core-1\" 52px down to make room for \"bldg-c-floor-4\"",
+        "moved \"main-dist-1\" 52px down to make room for \"bldg-c-floor-4\"",
+        "moved \"main-floor-1\" 52px down to make room for \"bldg-c-floor-4\"",
+        "moved \"bldg-d-floor-2\" 52px up to clear \"bldg-c-dist-1\"",
+        "moved \"bldg-d-floor-4\" 52px down to clear \"bldg-c-dist-1\"",
+        "moved \"main-core-2\" 52px down to make room for \"bldg-d-floor-4\"",
+        "moved \"main-floor-2\" 52px down to make room for \"bldg-d-floor-4\"",
+        "moved \"dc-dist-2\" 12px down to clear \"dc-dist-1\"",
+        "moved \"dc-sw-2\" 12px down to clear \"dc-sw-1\"",
+        "moved \"dc-server-2\" 12px down to clear \"dc-server-1\"",
+        "moved \"dc-server-3\" 24px down to clear \"dc-server-2\""
+      ],
+      "truncated": false,
+      "stops": [
+        "\"bldg-a-dist-1\" and \"bldg-a-dist-2\" sit on top of each other by 42% of a device box.",
+        "\"bldg-a-dist-1\" and \"bldg-a-floor-3\" sit on top of each other by 36% of a device box.",
+        "\"bldg-a-dist-2\" and \"bldg-a-floor-4\" sit on top of each other by 36% of a device box.",
+        "\"bldg-a-floor-1\" and \"bldg-a-floor-2\" sit on top of each other by 92% of a device box.",
+        "\"bldg-a-floor-3\" and \"bldg-a-floor-4\" sit on top of each other by 42% of a device box.",
+        "\"bldg-b-dist-1\" and \"bldg-b-floor-3\" sit on top of each other by 36% of a device box.",
+        "\"bldg-b-dist-1\" and \"bldg-c-floor-3\" sit on top of each other by 36% of a device box.",
+        "\"bldg-b-floor-1\" and \"bldg-b-floor-2\" sit on top of each other by 72% of a device box.",
+        "\"bldg-c-dist-1\" and \"bldg-c-floor-3\" sit on top of each other by 36% of a device box.",
+        "\"bldg-c-dist-1\" and \"bldg-d-floor-3\" sit on top of each other by 36% of a device box.",
+        "\"bldg-c-floor-1\" and \"bldg-c-floor-2\" sit on top of each other by 92% of a device box.",
+        "\"bldg-d-dist-1\" and \"bldg-d-floor-3\" sit on top of each other by 36% of a device box.",
+        "\"bldg-d-floor-1\" and \"bldg-d-floor-2\" sit on top of each other by 92% of a device box.",
+        "\"main-dist-1\" and \"main-floor-1\" sit on top of each other by 80% of a device box.",
+        "Rack device \"main-core-1\" is 2U tall but its face \"generic-chassis-switch-4u\" draws 4U.",
+        "Rack device \"main-core-2\" is 2U tall but its face \"generic-chassis-switch-4u\" draws 4U."
+      ],
+      "warnings": 12,
+      "warningTexts": [
+        "The reply's document left out subtitle, revision, date, docClass, subject, history, layers, so those parts were kept unchanged.",
+        "The reply's rack left out frontAisle, rearAisle, reserved, so those parts were kept unchanged.",
+        "The reply's sections left out physical, change, operations, equipment, so those parts were kept unchanged.",
+        "\"bldg-a-dist-1\" and \"bldg-a-floor-4\" overlap by 15% of a device box.",
+        "\"bldg-a-dist-2\" and \"bldg-a-floor-3\" overlap by 15% of a device box.",
+        "\"bldg-b-floor-1\" is drawn half in and half out of the area \"external\" (60% inside), so a reader cannot tell which area it belongs to.",
+        "\"bldg-b-floor-2\" is drawn half in and half out of the area \"perimeter\" (50% inside), so a reader cannot tell which area it belongs to.",
+        "\"bldg-b-floor-3\" is drawn half in and half out of the area \"perimeter\" (50% inside), so a reader cannot tell which area it belongs to.",
+        "\"bldg-b-floor-4\" is drawn half in and half out of the area \"perimeter\" (50% inside), so a reader cannot tell which area it belongs to.",
+        "\"bldg-c-dist-1\" is drawn half in and half out of the area \"perimeter\" (63% inside), so a reader cannot tell which area it belongs to.",
+        "Rack device \"dc-dist-1\" uses the hardware code \"generic-dc-switch-1u\", which does not exist. It will be drawn as a generic face, and the saved file will show a red FAIL badge until it is corrected.",
+        "Rack device \"dc-dist-2\" uses the hardware code \"generic-dc-switch-1u\", which does not exist. It will be drawn as a generic face, and the saved file will show a red FAIL badge until it is corrected."
+      ]
+    },
+    {
+      "round": 2,
+      "finishReason": "STOP",
+      "chars": 14309,
+      "usage": {
+        "prompt": 16810,
+        "output": 4066,
+        "thoughts": 0
+      },
+      "repairsApplied": [
+        "moved \"main-dist-1\" 41px left to sit fully inside \"perimeter\"",
+        "moved \"internet\" 42px right to clear \"bldg-a-floor-1\"",
+        "moved \"bldg-a-floor-2\" 32px up to clear \"bldg-a-dist-2\"",
+        "moved \"bldg-a-dist-1\" 32px up to make room for \"bldg-a-floor-2\"",
+        "moved \"bldg-a-floor-1\" 32px up to make room for \"bldg-a-floor-2\"",
+        "moved \"main-core-2\" 22px right to clear \"bldg-c-dist-1\"",
+        "moved \"main-floor-1\" 42px right to clear \"bldg-c-floor-2\"",
+        "moved \"bldg-c-floor-3\" 44px right to clear \"main-core-2\"",
+        "moved \"main-floor-2\" 52px down to clear \"bldg-d-floor-2\"",
+        "moved \"bldg-d-floor-4\" 52px down to make room for \"main-floor-2\"",
+        "moved \"dc-dist-2\" 12px down to clear \"dc-dist-1\"",
+        "moved \"dc-sw-2\" 12px down to clear \"dc-sw-1\"",
+        "moved \"dc-server-2\" 12px down to clear \"dc-server-1\"",
+        "moved \"dc-server-3\" 24px down to clear \"dc-server-2\""
+      ],
+      "truncated": false,
+      "stops": [
+        "Gap 2 is pinned to \"edge-rtr-01\", which is not a device on this diagram. The marker will not be drawn.",
+        "Gap 2 is pinned to \"edge-rtr-02\", which is not a device on this diagram. The marker will not be drawn.",
+        "Gap 3 is pinned to \"edge-fw-02\", which is not a device on this diagram. The marker will not be drawn.",
+        "\"bldg-b-floor-1\" is drawn off the bottom edge of the page.",
+        "\"bldg-b-floor-2\" is drawn off the bottom edge of the page.",
+        "\"bldg-b-floor-3\" is drawn off the bottom edge of the page.",
+        "\"bldg-b-floor-4\" is drawn off the bottom edge of the page.",
+        "\"bldg-c-floor-3\" and \"bldg-d-dist-1\" sit on top of each other by 83% of a device box.",
+        "Rack device \"main-core-1\" is 2U tall but its face \"generic-chassis-switch-4u\" draws 4U.",
+        "Rack device \"main-core-2\" is 2U tall but its face \"generic-chassis-switch-4u\" draws 4U."
+      ],
+      "warnings": 2,
+      "warningTexts": [
+        "The reply's sections left out overview, findings, so those parts were kept unchanged.",
+        "\"main-core-1\" is drawn half in and half out of the area \"perimeter\" (63% inside), so a reader cannot tell which area it belongs to."
+      ]
+    },
+    {
+      "round": 3,
+      "finishReason": "STOP",
+      "chars": 14420,
+      "usage": {
+        "prompt": 21664,
+        "output": 4079,
+        "thoughts": 0
+      },
+      "repairsApplied": [
+        "moved \"main-dist-1\" 41px left to sit fully inside \"perimeter\"",
+        "moved \"internet\" 42px right to clear \"bldg-a-floor-1\"",
+        "moved \"bldg-a-floor-2\" 32px up to clear \"bldg-a-dist-2\"",
+        "moved \"bldg-a-dist-1\" 32px up to make room for \"bldg-a-floor-2\"",
+        "moved \"bldg-a-floor-1\" 32px up to make room for \"bldg-a-floor-2\"",
+        "moved \"bldg-d-floor-4\" 42px right to clear \"bldg-b-floor-4\"",
+        "moved \"main-floor-1\" 42px right to clear \"bldg-c-floor-2\"",
+        "moved \"main-core-2\" 42px right to clear \"bldg-c-floor-3\"",
+        "moved \"bldg-d-dist-1\" 42px right to make room for \"main-core-2\"",
+        "moved \"dc-dist-2\" 12px down to clear \"bldg-d-dist-1\"",
+        "moved \"main-floor-2\" 52px down to clear \"bldg-d-floor-2\"",
+        "moved \"bldg-d-floor-4\" 52px down to make room for \"main-floor-2\"",
+        "moved \"dc-sw-2\" 12px down to clear \"dc-sw-1\"",
+        "moved \"dc-server-2\" 12px down to clear \"dc-server-1\"",
+        "moved \"dc-server-3\" 24px down to clear \"dc-server-2\"",
+        "aligned \"bldg-d-floor-3\" with \"bldg-d-dist-1\" (2px left) so the cable runs straight"
+      ],
+      "truncated": false,
+      "stops": [
+        "\"bldg-a-floor-4\" and \"bldg-b-floor-1\" sit on top of each other by 35% of a device box.",
+        "\"bldg-b-floor-3\" and \"bldg-c-floor-4\" sit on top of each other by 35% of a device box.",
+        "\"bldg-c-floor-1\" and \"main-core-1\" sit on top of each other by 56% of a device box.",
+        "\"bldg-d-dist-1\" and \"dc-dist-1\" sit on top of each other by 81% of a device box.",
+        "Rack device \"main-core-1\" is 2U tall but its face \"generic-chassis-switch-4u\" draws 4U.",
+        "Rack device \"main-core-2\" is 2U tall but its face \"generic-chassis-switch-4u\" draws 4U."
+      ],
+      "warnings": 1,
+      "warningTexts": [
+        "The reply's sections left out change, operations, equipment, so those parts were kept unchanged."
+      ]
+    }
+  ],
+  "verdict": "FAIL - no clean reply within 3 round trips",
+  "modelVersion": "gpt-5.4-mini-2026-03-17",
+  "extract": {
+    "finishReason": "STOP",
+    "chars": 3285,
+    "usage": {
+      "prompt": 917,
+      "output": 1281,
+      "thoughts": 0
+    }
+  }
+}

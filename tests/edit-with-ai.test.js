@@ -2030,6 +2030,31 @@ test("provider: the OpenAI-protocol converter keeps every part and role honest",
     "a length finish must read as truncation or the zero-truncation record lies");
 });
 
+test("retry: stops outrank warnings, and a cut-off fresh build is asked for the whole compact object", () => {
+  /* Both halves of the second FAIL's anatomy. gpt-5.4-mini's cut-off round
+     earned the edit-loop's "one part only" advice, obeyed it literally, and
+     the fresh-build merge rightly had nothing to apply; and the retry
+     message led with kept-unchanged trivia while twenty-three real stops
+     queued behind it. */
+  const message = gateTools.problemsMessage([
+    { stop: false, what: "left out subtitle, so that part was kept unchanged.", tell: "w1" },
+    { stop: true, what: "sit on top of each other by 100% of a device box.", tell: "s1" },
+    { stop: false, what: "runs past the edge of the page.", tell: "w2" },
+    { stop: true, what: "is drawn off the bottom edge of the page.", tell: "s2" }
+  ]);
+  const firstWarning = message.indexOf("kept unchanged");
+  const lastStop = message.indexOf("off the bottom edge");
+  assert(lastStop < firstWarning, "a warning still outranks a stop in the retry message");
+  const runner = fs.readFileSync(path.join(root, "tools", "run-free-model-tests.js"), "utf8");
+  const helper = fs.readFileSync(path.join(root, "edit-with-ai.html"), "utf8");
+  for (const [name, source] of [["runner", runner], ["helper", helper]]) {
+    assert(!source.includes("one part only: reply with just the topology section"),
+      name + " still narrows a cut-off fresh build to one part");
+    assert(source.includes("Send the whole object again - document, topology, rack and sections all present - but written compactly"),
+      name + " lost the compact-whole-object advice");
+  }
+});
+
 test("provider: the openai provider demands a base url and unknown providers are refused", () => {
   const base = ["node", "runner", "--tests-dir", "x", "--tests", "3"];
   const google = gateTools.parseArgs(base);

@@ -234,7 +234,7 @@ function runCheck(t, raw, original, name = "all") {
   if (parsed === undefined) {
     // The exact two verdicts check() renders when nothing parsed, scope-aware.
     const narrower = name === "all"
-      ? "Send it again as one part only: reply with just the topology section, and nothing else."
+      ? "Send the whole object again - document, topology, rack and sections all present - but written compactly: the shortest truthful notes and details, no repeated text, nothing left out."
       : "Send it again. If it keeps being cut off, change fewer things in one go.";
     const why = t.looksTruncated(cleanedText)
       ? { stop: true,
@@ -342,7 +342,11 @@ function rotateArtifact(dir, name) {
 }
 
 function problemsMessage(problems) {
-  const lines = problems.map((p, i) => `${i + 1}. ${p.what}\n   ${p.tell}`);
+  // Stops before warnings, stably - mirrors renderProblems: a weak model
+  // fixes what it reads first, and a kept-unchanged notice must never
+  // outrank a real stop.
+  const ordered = [...problems].sort((a, b) => (b.stop === true) - (a.stop === true));
+  const lines = ordered.map((p, i) => `${i + 1}. ${p.what}\n   ${p.tell}`);
   return `Your last reply had these problems. Please send the complete JSON object again with them fixed, and reply with JSON only.\n\n${lines.join("\n\n")}`;
 }
 
@@ -813,4 +817,4 @@ if (require.main === module) (async () => {
 
 // The gate and the rotation are graded by the behaviour suite; requiring
 // this file runs nothing.
-module.exports = { statedDeviceCount, confessesCondensation, inventoryShortfall, rotateArtifact, EDIT_MATRIX, toOpenAiMessages, OPENAI_FINISH, parseArgs };
+module.exports = { statedDeviceCount, confessesCondensation, inventoryShortfall, rotateArtifact, EDIT_MATRIX, toOpenAiMessages, OPENAI_FINISH, parseArgs, problemsMessage };

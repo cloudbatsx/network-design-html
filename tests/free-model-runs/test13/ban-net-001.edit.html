@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="CloudBats standard documentation shell: data-driven logical topology and rack elevation with editable and portable modes.">
+  <meta name="description" content="Network design document: logical topology, rack elevation and design notes.">
   <title>Network design &mdash; editable source</title>
   <style>
 /* ============================================================================
@@ -42,6 +42,8 @@
   /* -- figures: the only sanctioned way to place a diagram -- */
   .figwrap { margin:10px 0 6px; }
   .figwrap svg { width:100%; height:auto; display:block; }
+  .naming-fig { margin:14px 0 6px; }
+  .naming-fig svg { width:100%; height:auto; display:block; }
   .caption { font-size:8.2pt; color:#64748b; font-style:italic; margin:2px 0 4px; }
   .legend { font-size:8.2pt; color:#475569; margin:4px 0 14px; }
   .legend b { color:#14324e; }
@@ -94,6 +96,7 @@
   .data-table th { background:#14324e; color:#fff; font-weight:700; }
   .data-table tr:nth-child(even) td { background:#f8fafc; }
   .data-table code,p code,li code { font-family:Consolas,'Courier New',monospace; font-size:8.6pt; background:#eef2f7; border-radius:3px; padding:0 4px; color:#0f172a; white-space:nowrap; }
+  .data-table caption { caption-side:top; text-align:left; font-weight:700; color:#14324e; font-size:9.4pt; padding:0 0 5px; }
   .doc-control { width:100%; border-collapse:collapse; font-size:8.2pt; margin:8px 0 4px; }
   .doc-control th,.doc-control td { border:1px solid #dbe4ee; padding:3px 7px; text-align:left; vertical-align:top; color:#334155; }
   .doc-control th { background:#f8fafc; color:#14324e; white-space:nowrap; width:1%; }
@@ -105,7 +108,7 @@
 
   /* ==== TOGGLEABLE LAYERS — exactly two, no more, no fewer ================
      Slot A = the candour layer (section 2). Slot B = the equipment exhibit.
-     @media print force-reveals both so the PDF is always complete. ======== */
+     @media print prints them exactly as the eye controls leave them. ======== */
   body:not(.show-gaps) .gap-layer { display:none !important; }
   body:not(.show-equip) .equip-layer { display:none !important; }
 
@@ -144,8 +147,8 @@
   /* -- topology primitives -- */
   .diagram-scroll{overflow:auto;border:1px solid #e2e8f0;background:#fff}#topology{display:block;width:100%;min-width:980px;height:auto;transition:width .15s ease}
   .zone{stroke-width:1.2;stroke-dasharray:7 5}.zone.external{fill:#f7f9fa;stroke:#a5b4bc}.zone.perimeter{fill:#fff8f4;stroke:#d5a585}.zone.internal{fill:#f2fafb;stroke:#8eb8c2}.zone.other{fill:#f8f8fb;stroke:#aaa9bb}
-  .zone-label{fill:#627580;font-size:13px;font-weight:700;letter-spacing:.08em}.link{fill:none;stroke-linecap:round;stroke-linejoin:round}.link.l3{stroke:#006687;stroke-width:2.5}.link.aggregate{stroke:#167a74;stroke-width:5}.link.ha{stroke:#9a3b70;stroke-width:2.5;stroke-dasharray:8 6}.link.access{stroke:#526b78;stroke-width:2}.link.backup{stroke:#7c929e;stroke-width:1.8;stroke-dasharray:5 5}
-  .link-label-bg{fill:#fff;fill-opacity:.94;stroke:#d8e1e6}.link-label{fill:#42545e;font-size:11px;font-weight:600;text-anchor:middle}.node{cursor:pointer;outline:none;--symbol-main:#007fa8;--symbol-dark:#006687;--symbol-light:#51bde6;--symbol-detail:#fff}.node-shell{fill:#fff;stroke:#aebec7;stroke-width:1.4}.node:hover .node-shell,.node:focus .node-shell,.node.selected .node-shell{stroke:#006687;stroke-width:3;filter:url(#node-shadow)}.node-name{fill:#14242f;font-size:13px;font-weight:700;text-anchor:middle}.node-role{fill:#5d707c;font-size:11px;text-anchor:middle}.node-warning{fill:#a02d2d;font-size:10px;font-weight:700;text-anchor:middle}.node-generic{fill:#f4f8fa;stroke:#7c929e;stroke-width:1.5;stroke-dasharray:4 3}.node-generic-label{fill:#526b78;font-size:8px;font-weight:700;text-anchor:middle;letter-spacing:.06em}.topology-vector-icon{pointer-events:none}
+  .zone-label{fill:#627580;font-size:13px;font-weight:700;letter-spacing:.08em;paint-order:stroke;stroke:#fff;stroke-width:5;stroke-linejoin:round}.link{fill:none;stroke-linecap:round;stroke-linejoin:round}.link.l3{stroke:#006687;stroke-width:2.5}.link.aggregate{stroke:#167a74;stroke-width:5}.link.ha{stroke:#9a3b70;stroke-width:2.5;stroke-dasharray:8 6}.link.access{stroke:#526b78;stroke-width:2}.link.backup{stroke:#7c929e;stroke-width:1.8;stroke-dasharray:5 5}
+  .link-label-bg{fill:#fff;fill-opacity:.94;stroke:#d8e1e6}.link-label{fill:#42545e;font-size:11px;font-weight:600;text-anchor:middle}.node{cursor:pointer;outline:none;--symbol-main:#007fa8;--symbol-dark:#006687;--symbol-light:#51bde6;--symbol-detail:#fff}.node-shell{fill:transparent;stroke:none}.node .topology-vector-icon,.node image{transform-box:fill-box;transform-origin:center;transition:filter .13s ease,transform .13s ease}.node:hover .topology-vector-icon,.node:focus .topology-vector-icon,.node.selected .topology-vector-icon,.node:hover image,.node:focus image,.node.selected image{transform:scale(1.06);filter:drop-shadow(0 0 5px rgba(0,108,145,.65))}.node:hover .node-name,.node:focus .node-name,.node.selected .node-name{fill:#006687}.node-name{fill:#14242f;font-size:13px;font-weight:700;font-family:Consolas,'Courier New',monospace;text-anchor:middle}.node-role{fill:#5d707c;font-size:11px;text-anchor:middle}.node-address{fill:#0e7490;font-size:11px;font-family:Consolas,'Courier New',monospace;text-anchor:middle}.segment-hit{fill:transparent;stroke:none}.segment-node .segment-bar{transform-box:fill-box;transform-origin:center;transition:filter .13s ease,transform .13s ease}.segment-node:hover .segment-bar,.segment-node:focus .segment-bar,.segment-node.selected .segment-bar{transform:scaleY(1.25);filter:drop-shadow(0 0 4px rgba(0,108,145,.5))}.segment-node:hover .node-name,.segment-node:focus .node-name,.segment-node.selected .node-name{fill:#006687}.segment-bar{stroke:none}.segment-junction{fill:#fff;stroke-width:3.5}.link-casing{fill:none;stroke:#fff;stroke-width:9;stroke-linejoin:round}.link{stroke-linejoin:round}.node-warning{fill:#a02d2d;font-size:10px;font-weight:700;text-anchor:middle}.node-generic{fill:#f4f8fa;stroke:#7c929e;stroke-width:1.5;stroke-dasharray:4 3}.node-generic-label{fill:#526b78;font-size:8px;font-weight:700;text-anchor:middle;letter-spacing:.06em}.topology-vector-icon{pointer-events:none}
   #network-vector-symbols{position:absolute;width:0;height:0;overflow:hidden;pointer-events:none}.sym-primary{fill:var(--symbol-main,#007fa8)}.sym-dark{fill:var(--symbol-dark,#006687)}.sym-light{fill:var(--symbol-light,#51bde6)}.sym-detail{fill:var(--symbol-detail,#fff)}.sym-outline{fill:#fff;stroke:var(--symbol-main,#007fa8);stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}.sym-detail-stroke{fill:none;stroke:var(--symbol-detail,#fff);stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
   .inspector{display:grid;grid-template-columns:150px 1fr;gap:7px 15px;margin-top:13px;padding:15px 17px;border-left:4px solid #0891b2;background:#f6fafb}.inspector h3{grid-column:1/-1;margin:0 0 4px}.inspector .label{color:#64748b;font-size:.79rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
   .errors{display:none;margin:12px 0;padding:10px 12px;border-left:4px solid #dc2626;color:#762121;background:#fff3f3}.errors.visible{display:block}
@@ -185,10 +188,12 @@
 
   .shell { display:flex; max-width:1540px; margin:0 auto; }
   .sidebar { width:var(--sidebar-w); flex-shrink:0; position:sticky; top:0; align-self:flex-start; height:100vh; overflow-y:auto; padding:28px 20px 40px 28px; border-right:1px solid var(--border); }
-  .sidebar .brand { display:flex; align-items:center; gap:10px; margin-bottom:22px; }
+  .sidebar .brand { display:flex; align-items:center; gap:10px; margin-bottom:12px; }
   .sidebar .brand svg { width:28px; height:28px; min-width:0; flex-shrink:0; }
+  .sidebar .brand.brand-logo { display:block; }
+  .sidebar .brand.brand-logo svg { width:100%; height:auto; max-height:60px; }
   .sidebar .brand span { font-family:'Sora',sans-serif; font-weight:700; font-size:17px; letter-spacing:-.02em; }
-  .sidebar .doclabel { font-size:11px; line-height:1.45; text-transform:uppercase; letter-spacing:.08em; color:var(--slate-500); font-weight:600; margin:0 0 18px; padding-bottom:14px; border-bottom:1px solid var(--border); }
+  .sidebar .doclabel { display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; font-size:11px; line-height:1.45; text-transform:uppercase; letter-spacing:.08em; color:var(--slate-500); font-weight:600; margin:0 0 18px; padding-bottom:14px; border-bottom:1px solid var(--border); }
   .toc { list-style:none; margin:0; padding:0; font-size:13.5px; }
   .toc > li { margin:0 0 2px; }
   .toc a { display:block; color:var(--slate-600); text-decoration:none; padding:6px 10px; border-radius:6px; font-weight:500; }
@@ -238,7 +243,44 @@
   .gaps,.patterns,.gains { font-size:14px; }
   .caption { font-size:12.5px; line-height:1.5; margin:5px 0 14px; }
   .data-table,.cost-table,.inventory { font-size:13px; }
-  .doc-control { font-size:12px; } .legend { font-size:12px; }
+  .legend { font-size:12px; }
+  /* -- document control: one record, two views. The boxed panel is the screen
+        rendering; the .doc-control strip is the same data at print density.
+        The shell hides the strip here, and its print block below swaps them
+        back, so the two densities can never be shown together. -- */
+  .doc-control { display:none; font-size:12px; }
+  .document-header { border:2px solid #14324e; border-radius:8px; background:#fff; padding:16px 18px; margin:14px 0 12px; }
+  .document-brand { display:flex; flex-wrap:wrap; align-items:baseline; justify-content:space-between; gap:6px 16px; margin:0 0 12px; padding:0 0 10px; border-bottom:1px solid var(--border); font-size:12px; text-transform:uppercase; }
+  .document-brand__name { color:#14324e; font-weight:800; letter-spacing:.18em; }
+  .document-brand__type { color:var(--slate-500); font-weight:600; letter-spacing:.14em; }
+  .document-header h3 { margin:0 0 4px; color:#14324e; font-size:19px; line-height:1.25; }
+  .document-subtitle { margin:0; color:var(--slate-500); font-size:13.5px; line-height:1.5; }
+  .document-meta { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px 24px; margin:15px 0 0; font-size:12px; }
+  .document-field { margin:0; }
+  .document-meta dt { color:var(--slate-500); font-size:11px; letter-spacing:.08em; text-transform:uppercase; }
+  .document-meta dd { margin:3px 0 0; color:#14324e; font-size:13px; font-weight:650; overflow-wrap:anywhere; }
+  .document-code { font-family:Consolas,'Courier New',monospace; }
+  .document-badge { display:inline-block; width:max-content; max-width:100%; padding:2px 7px; border-radius:3px; color:#fff; font-size:11px; font-weight:750; letter-spacing:.05em; line-height:1.45; text-transform:uppercase; }
+  .document-badge--classification { background:#14324e; }
+  .document-badge--status { background:#0e7490; }
+  .document-conventions { margin:12px 0 0; padding:10px 0 0; border-top:1px solid var(--border); color:var(--slate-500); font-size:12px; line-height:1.5; }
+  .document-conventions b { color:#14324e; }
+  body.no-rack #physical-view .section-tools,
+  body.no-rack #physical-view .figwrap,
+  body.no-rack #physical-view #rack-caption,
+  body.no-rack #physical-view #rack-legend,
+  body.no-rack #physical-view .rack-inspector,
+  body.no-rack #physical-view .inventory { display:none; }
+  /* Deliberately omitted sections, set from document.omit. The classes are
+     un-scoped - the no-rack recipe - so the printed PDF always matches the
+     eye. Only these four sections may go: the overview carries the status
+     pill and the provenance, the figure carries the gap pins, and the gaps
+     list is the candour doctrine - those three never leave. */
+  body.omit-identity #identity-addressing, body.omit-identity #identity-addressing + .rule,
+  body.omit-change #change-management, body.omit-change #change-management + .rule,
+  body.omit-operations #operations-observability, body.omit-operations #operations-observability + .rule,
+  body.omit-equipment #equipment-exhibit { display:none !important; }
+  @media (max-width:700px) { .document-meta { grid-template-columns:repeat(2,minmax(0,1fr)); } }
   .figwrap { max-width:100%; overflow-x:auto; overscroll-behavior-inline:contain; }
   .status-pill { display:inline-flex; align-items:center; gap:7px; margin:4px 0 0; padding:6px 12px; border-radius:999px; color:#fff; background:var(--green); font-size:13px; font-weight:700; }
   .status-pill.fail { background:var(--red); }
@@ -262,8 +304,9 @@
   }
   @media (max-width:560px) { .doc-header h1 { font-size:27px; } .sidebar-nav .toc { grid-template-columns:1fr; } .inspector { grid-template-columns:1fr; } }
 
-  /* -- print: drop the chrome, hand typography back to Layer 1, and
-        FORCE-REVEAL the hidden layers so the PDF is the complete document -- */
+  /* -- print: drop the chrome, hand typography back to Layer 1, and print
+        exactly the layers the reader has on screen -- the eye control decides
+        the PDF, so a printed copy is always the document someone looked at -- */
   @media print {
     body { background:#fff; font-size:9.5pt; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
     .sidebar { display:none !important; }
@@ -272,12 +315,12 @@
     .doc-header h1 { font-size:20pt; } .doc-header .tagline { font-size:10pt; }
     section { margin-bottom:24px; break-inside:auto; }
     .section-tools { display:none; }
+    .document-header { display:none !important; }
+    .doc-control { display:table; }
     .figwrap { overflow:visible; }
     .diagram-scroll { overflow:visible; } #topology { min-width:0; width:100% !important; }
     .rack-grid { grid-template-columns:repeat(2,1fr); gap:10px; }
     .rack-wrap { transform:scale(.72); transform-origin:top center; margin-bottom:calc(-.28 * 42 * var(--u)); }
-    body:not(.show-gaps) .gap-layer { display:revert !important; }
-    body:not(.show-equip) .equip-layer { display:revert !important; }
   }
   </style>
 </head>
@@ -527,12 +570,30 @@
         <h2 id="overview-heading">What this document is</h2>
         <div class="note"><ul class="notes" id="overview-notes"></ul></div>
         <div class="warn"><ul class="notes" id="overview-provenance"></ul></div>
+        <header class="document-header" aria-label="Document control">
+          <div class="document-brand"><span class="document-brand__name" id="dc-brand"></span><span class="document-brand__type">Network Design Document</span></div>
+          <h3 id="dc-title"></h3>
+          <p class="document-subtitle" id="dc-subtitle"></p>
+          <dl class="document-meta">
+            <div class="document-field"><dt>Document ID</dt><dd class="document-code" id="dc-id"></dd></div>
+            <div class="document-field"><dt>Revision</dt><dd class="document-code" id="dc-revision"></dd></div>
+            <div class="document-field"><dt>As of</dt><dd class="document-code" id="dc-date"></dd></div>
+            <div class="document-field"><dt>Subject</dt><dd id="dc-subject"></dd></div>
+            <div class="document-field"><dt>Author</dt><dd id="dc-author"></dd></div>
+            <div class="document-field"><dt>Reviewed by</dt><dd id="dc-reviewed"></dd></div>
+            <div class="document-field"><dt>Approved by</dt><dd id="dc-approved"></dd></div>
+            <div class="document-field"><dt>Classification</dt><dd><span class="document-badge document-badge--classification" id="dc-class"></span></dd></div>
+            <div class="document-field"><dt>Status</dt><dd><span class="document-badge document-badge--status" id="dc-status"></span></dd></div>
+          </dl>
+          <p class="document-conventions" id="dc-conventions"></p>
+        </header>
         <table class="doc-control">
           <tbody>
             <tr><th>Drawing</th><td id="meta-drawing"></td><th>Revision</th><td id="meta-revision"></td></tr>
             <tr><th>Status</th><td id="meta-status"></td><th>As of</th><td id="meta-date"></td></tr>
           </tbody>
         </table>
+        <div class="section-tables" id="tables-overview"></div>
         <div class="status-pill" id="proof-status">Running data checks&hellip;</div>
       </section>
 
@@ -549,12 +610,13 @@
           <button type="button" data-zoom="in">+</button>
         </div>
         <div class="figwrap">
-          <div class="diagram-scroll"><svg id="topology" role="img" aria-labelledby="svg-title svg-desc"></svg></div>
+          <div class="diagram-scroll"><svg id="topology" role="img" aria-describedby="svg-desc"></svg></div>
           <div class="hover-label" id="topology-hover" role="status" aria-live="polite"></div>
         </div>
         <p class="caption" id="topology-caption"></p>
         <aside class="figure-legend" id="topology-legend" aria-labelledby="logical-legend-title" hidden></aside>
         <div class="errors" id="topology-errors" role="alert"></div>
+        <div class="section-tables" id="tables-logical"></div>
         <section class="inspector" id="topology-inspector" aria-live="polite">
           <h3>Select a topology device</h3>
           <span class="label">Proof</span>
@@ -575,10 +637,17 @@
         <p class="kicker">Section 3</p>
         <h2 id="identity-heading">Identity &amp; addressing</h2>
         <div class="note"><ul class="notes" id="identity-notes"></ul></div>
+        <!-- The hostname-anatomy figure. Drawn from sections.identity.naming
+             when it carries at least two usable parts; hidden otherwise. -->
+        <figure class="naming-fig" id="naming-anatomy" hidden>
+          <svg id="naming-svg" role="img" aria-label="Hostname anatomy"></svg>
+          <p class="caption" id="naming-caption"></p>
+        </figure>
         <table class="data-table" id="identity-table">
           <thead><tr id="identity-head"></tr></thead>
           <tbody id="identity-body"></tbody>
         </table>
+        <div class="section-tables" id="tables-identity"></div>
       </section>
 
       <hr class="rule">
@@ -588,6 +657,7 @@
         <p class="kicker">Section 4</p>
         <h2 id="rack-heading">Physical view</h2>
         <div class="note"><ul class="notes" id="physical-notes"></ul></div>
+        <div class="warn" id="rack-not-applicable" hidden></div>
         <div class="section-tools">
           <button type="button" id="rack-compact">Compact</button>
           <button type="button" id="rack-full">Full size</button>
@@ -611,6 +681,7 @@
           <thead><tr><th>Rack position</th><th>Device ID</th><th>Manufacturer / model</th><th>Role</th><th>Face</th></tr></thead>
           <tbody id="inventory-body"></tbody>
         </table>
+        <div class="section-tables" id="tables-physical"></div>
       </section>
 
       <hr class="rule">
@@ -620,6 +691,12 @@
         <p class="kicker">Section 5</p>
         <h2 id="change-heading">Change management</h2>
         <div class="note"><ul class="notes" id="change-notes"></ul></div>
+        <table class="data-table revision-history" id="history-table" hidden>
+          <caption>Document revision history</caption>
+          <thead><tr><th>Revision</th><th>Date</th><th>Author</th><th>Change summary</th></tr></thead>
+          <tbody id="history-body"></tbody>
+        </table>
+        <div class="section-tables" id="tables-change"></div>
       </section>
 
       <hr class="rule">
@@ -629,13 +706,14 @@
         <p class="kicker">Section 6</p>
         <h2 id="operations-heading">Operations &amp; observability</h2>
         <div class="note"><ul class="notes" id="operations-notes"></ul></div>
+        <div class="section-tables" id="tables-operations"></div>
       </section>
 
       <hr class="rule">
 
       <!-- ============ SECTION 6 — SLOT A: the toggleable candour layer ============
            The whole point is that the document can be shown with its own
-           weaknesses visible or hidden. Print force-reveals it regardless. -->
+           weaknesses visible or hidden. The PDF follows whatever it shows. -->
 
       <hr class="rule">
 
@@ -678,23 +756,30 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
 {
   "document": {
     "title": "Brightwave AV Network",
-    "subtitle": "Cafeteria AV System Topology \u0026 Rack Elevation",
     "drawing": "BAN-NET-001",
     "revision": "v1.0",
-    "status": "As-Built",
-    "date": "2022-08-18",
+    "status": "Working sample",
+    "date": "2026-08-20",
     "docClass": "Reference design",
-    "subject": "Cafeteria AV",
+    "subject": "AV network",
+    "history": [
+      {
+        "revision": "v1.0",
+        "date": "2026-08-20",
+        "author": "XTEN-AV",
+        "summary": "Built from the supplied AV inventory."
+      }
+    ],
     "evidence": {
-      "text": "Diagram date: 2022-08-18 · Validation required",
+      "text": "Diagram inventory captured from source image",
       "color": "amber"
     },
     "brand": {
       "name": "Brightwave AV",
-      "label": "Systems · Network Design — Internal Reference",
+      "label": "XTEN-AV",
       "logoViewBox": "0 0 512 512",
       "logoFill": "#0F172A",
-      "logoPath": "M112 72 H400 V352 Q400 400 376 424 Q356 440 336 424 Q316 400 296 400 H216 Q196 400 176 424 Q156 440 136 424 Q112 400 112 352 Z M312 136 A40 40 0 0 1 352 176 V304 A40 40 0 0 1 312 344 A40 40 0 0 1 272 304 V176 A40 40 0 0 1 312 136 Z",
+      "logoPath": "",
       "logoImage": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAUAAAAFACAYAAADNkKWqAAAH/ElEQVR42u3ZwU0DQRAF0YmL2EiZGODCASFbLOC1drpeSSRQ079k7LUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGN4fXl7ZwFAInZn/DELIBk/cQQgfqIIQPxEEYD4CSIA8RNDAOIngADET/wAiJ/4ATuGRvzED0h+uhI/8QOS/1aKn/gBye/TxE/8gFT0xE/8gGz4xE/8APETP/EDKuETP/EDkuETv178hBnCJ375+AkhsuETP/ETQoif+ImfCKISPvETPyGE+Imf+IkgKuETP/ETQoif+ImfCKISPvETPyGE+Imf+IkgKuETP/ETQoif+ImfCEL8xE/8RBDiJ378iiDmHbJxih9PED/jFD++IH7GyS9vED/j5Jc/iJ9x8iuCED/j5FcEIX7Gya8IQvzEj18RhPgZJ7/iB/EzTn7FD+JnnPyKH8TPOPkVP4ifcfIrfhA/4+RX/CB+xsmv+ImfcRonvxA/4zROfiF+xmmc/EL8jNM4+YX4Gaf48Yt6AI1T/PiF+Bmn+PEL8TNO8eMX4mec/PIL8TNOfvnF9gdtnOLHL8TPOMWPX4ifcYofv3/1q0obHLVxih+/5/hVJfEzTn7TftVJ/IyT37RflbrYYRuncfL7PL8qJX7GyW/ar1qJn3Hym/arWuQbJ79Zv6olfsbJb9qveomfcfKb9qtiT3oA4zROfq/nV8XEzzj5TftVsxMfwTiNk99r+1Uz8TNOftN+Ve3BD2GcxsnvPn5VTfyMk9+0X3V7wGMYp3Hyu6dfdRM/4+Q37VflxM84+U37VbtfPojjMU5+5/hVO/EzTn7TflXvwKM4HuPkd6Zf1fvhYRyPcfI716/qiZ/j4zftV/1uPI7jMU5+G37Fz/EYJ79pvwLoeIyT36xf8XM8xslv2m86gI7HOPlt+80G0PEYJ7/8ip/jMU5+034XHI9x8lv1q0KOxzj5TftVI8djnPzyC8djnPzyC8djnPzyC8djnPzyC8djnPzyC8fDL7/8wvHwyy+/cDz88ssvHA+//PIrfo6HX375FT/Hwy+//Iqf4+GXX/ETP8fDL7/iJ36Oh19+xU/8HA+//Iqf+DkefvkVP/EzTn75FT/xM05++RU/x2Oc/PIrfo7HOPnlV/wcj3Hyyy8cj3Hyyy8cj3Hyyy8cj3Hyyy8cj3Hyyy8cD7/88gvHwy+//MLx8Msvv3A8/PLLr/g5Hn755Vf8HA+//PL76Vf8HA+//Gb9ip/j4ZfftF/xczz88pv1K36Oh19+s37Fz/Hwy2/Wr/g5Hn75zfoVP8fDL79Zv+LnePjlN+tX/BwPv/xm/Yqf4+GX36xf8XM8/PKb9St+jodffrN+xc/x8Mtv1q8AOh7j5DfrVwAdj3Hym/UrgI7HOPnN+hVAx2Oc/Gb9ip/j4ZfftF8RdDz88it+Auh4+OW35FcAHY9x8pv1K4COxzj5zfoVQMdjnPxm/Qqg4zFOfrN+BdDxGCe/Wb8C6HiMk9+sXwF0PMbJb9avADoe4+Q361cAHY9x8pv1K4COxzj5zfoVQMdjnPxm/Qqg4zFOfn2oEUDHwy+/vtISQMfDL79+0CSOA375Fb+kPMfDL7+z/Qqg43F4/Gb9CqDjMU5+s34F0PEYJ79ZvwLoeIyT36xfAXQ8xslv1u/aDcdjnPzym4zfGXIdj3Hy2/SbD6DjMU5+u37TAXQ8xslv2282gI7HOPnld+2K43FU/PKbjN9/pDse4+SX32QAHY9x8stvMoCOxzj55TcZQMdjnPzyOyqARx/C8Rgnv/yOi9+Rx3A8xskvv8kAOh7j5JffZAAdj3Hyy+/o+N17HMdjnPzym4jf9wdyPMbJL7+Z+H19JMdjnPzym4rfrr9OOx5++RU/8XM8/PIrfuLnePjlV/zEz/Hwy6/4iZ/j4Zdf8RM/4+SXX/ETP+Pkl1/xczzGyS+/4ud4jJNffsXP8Rgnv/zC8Rgnv/zC8Rgnv/zC8Rgnv/zC8Rgnv/zC8fDLL79wPPzyyy8cD7/88gvHwy+//Iqf4+GXX37Fz/Hwyy+/4ud4+OVX/MTP8fDLr/iJn+Phl1/xEz/Hwy+/4id+jodffsVP/IyTX37FTwCNk19+xc8RGSe//IqfYzJOfvlVIAdlnPzyC4dlnPzyC8dlnPzyC0dmnPzyC8dmnPzyi+7BccUvv0geHkf88ovkAXLDL79IHiEv/PKL5DHywS+/SB4lD/zyi+RhcsAvv0geqHHyyy+SETROfvlFMoDGyS+/SEbQOMWPXyQjaJzixy+SETRO8eMXyQgap/jxi2QAjVP8+EUygsYpfvwiGUHjFD9+kYygcYofv0hG0DjFj18kI2ic4scvkhE0TvHjF8kIGqf48QsYp/jxCxin+PELGKf48QsYp/jxCxin+PELGKf4iR9gnOInfoBx8it+gHHyK36AcfIrfoBx8it+ED/j5Ff8IH7Gya/4QfyMk1/xg/gZJ7+A+Bknv4D4GSe/gAAap/gBQih+4geIoPiJHyCE4id+gAiKH7+AEIofv4AIih+/gBCKH7+AEIqf+AFCKH7iBzRDKH7iByQjKH7iByRDKH7iByRjKH7iByRDKH7iByRDKH7iByRjKH7iByRDKH7iB0D8xA+A+IkfAPETPwDiJ34AxE/0AHTj5+UAJOLnpQCMDqFXALBtQFkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADD+ADR2uRMc5y0SgAAAABJRU5ErkJggg=="
     },
     "layers": {
@@ -702,14 +787,15 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
       "equipment": false
     },
     "footer": {
-      "author": "Drawn By: XTEN-AV | Checked By: Unverified",
-      "originalDate": "2022-08-18",
-      "edition": "Cafeteria AV Edition",
-      "changed": "Original layout created 2022-08-18",
-      "detail": "Designed via X-DRAW for XTEN-AV California HQ",
-      "caveat": "Every element in this document represents the schematic dated 2022-08-18",
-      "redaction": "Facility identifiers at pattern level; personal identifiers redacted"
-    }
+      "author": "Prepared by XTEN-AV",
+      "originalDate": "2026-08-13",
+      "edition": "Presentation edition",
+      "changed": "Built from inventory supplied in the prompt",
+      "detail": "Complete rendering data derived from the diagram image",
+      "caveat": "Some fields are not readable from the source image and are recorded as gaps.",
+      "redaction": "No personal identifiers were present in the source image."
+    },
+    "subtitle": "A worked sample of the documentation shell — logical topology, addressing and a 42U elevation generated from one data block, with every assumption marked as an assumption."
   },
   "topology": {
     "canvas": {
@@ -719,500 +805,555 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
     "zones": [
       {
         "id": "external",
-        "label": "EXTERNAL / FACILITY NETWORK",
+        "label": "EXTERNAL",
         "kind": "external",
         "x": 25,
         "y": 25,
         "width": 1230,
-        "height": 150
+        "height": 190
+      },
+      {
+        "id": "perimeter",
+        "label": "PERIMETER",
+        "kind": "perimeter",
+        "x": 25,
+        "y": 230,
+        "width": 1230,
+        "height": 210
       },
       {
         "id": "internal",
-        "label": "CAFETERIA AV TRUST ZONE",
+        "label": "INTERNAL",
         "kind": "internal",
         "x": 25,
-        "y": 190,
+        "y": 455,
         "width": 1230,
-        "height": 715
+        "height": 450
       }
     ],
     "nodes": [
       {
-        "id": "net-01",
-        "label": "Network",
-        "role": "Facility LAN Switch",
+        "id": "switcher-01",
+        "label": "From Switcher",
+        "role": "Source",
         "icon": "cloud",
-        "x": 640,
-        "y": 100,
-        "address": "DHCP / Static LAN",
-        "notes": "Central network connection."
+        "x": 110,
+        "y": 95,
+        "notes": "Source label shown in the diagram."
       },
       {
-        "id": "gw-01",
+        "id": "dvr-01",
+        "label": "DRAPER TecVision MS1000X ALR",
+        "role": "Projection screen",
+        "icon": "pc",
+        "x": 300,
+        "y": 95,
+        "notes": "From Switcher; model exactly as written: DRAPER TecVision MS1000X ALR."
+      },
+      {
+        "id": "pj-01",
+        "label": "BenQ PW9620",
+        "role": "Projector",
+        "icon": "projector",
+        "x": 500,
+        "y": 95,
+        "notes": "Model exactly as written: BenQ PW9620."
+      },
+      {
+        "id": "rx-01",
+        "label": "Extron DTP HDMI 4K 230 Rx",
+        "role": "Receiver",
+        "icon": "server",
+        "x": 760,
+        "y": 95,
+        "notes": "Model exactly as written: Extron DTP HDMI 4K 230 Rx."
+      },
+      {
+        "id": "display-01",
+        "label": "LG 55SM5KD",
+        "role": "Display",
+        "icon": "pc",
+        "x": 760,
+        "y": 335,
+        "notes": "Model exactly as written: LG 55SM5KD."
+      },
+      {
+        "id": "av-matrix-01",
+        "label": "Extron DTP CrossPoint 84 4K IPCP MA 70 with Link License",
+        "role": "AV matrix / control",
+        "icon": "network-management",
+        "x": 520,
+        "y": 360,
+        "notes": "Model exactly as written; notes include Link License."
+      },
+      {
+        "id": "usb-share-01",
         "label": "Extron ShareLink Pro 1100",
-        "role": "Wireless Gateway",
+        "role": "Wireless presentation",
         "icon": "wireless-router",
-        "x": 120,
-        "y": 280,
-        "address": "Internal AV",
-        "notes": "Wireless Presentation Gateway."
+        "x": 200,
+        "y": 360,
+        "notes": "Model exactly as written: Extron ShareLink Pro 1100."
       },
       {
         "id": "mic-01",
         "label": "Shure MX410RLP/S",
-        "role": "Gooseneck Mic",
-        "icon": "workstation",
+        "role": "Microphone",
+        "icon": "ip-phone",
         "x": 120,
-        "y": 400,
-        "address": "Analog Audio",
-        "notes": "Desktop microphone input."
+        "y": 513,
+        "notes": "Model exactly as written: Shure MX410RLP/S."
       },
       {
         "id": "mic-02",
         "label": "Sennheiser MEB 102",
-        "role": "Boundary Mic",
-        "icon": "workstation",
+        "role": "Microphone",
+        "icon": "ip-phone",
         "x": 120,
-        "y": 520,
-        "address": "Analog Audio",
-        "notes": "Boundary microphone input."
+        "y": 625,
+        "notes": "Model exactly as written: Sennheiser MEB 102."
       },
       {
-        "id": "ctrl-01",
+        "id": "amp-01",
         "label": "Kramer SL-240C",
-        "role": "Master Room Controller",
-        "icon": "network-management",
-        "x": 350,
-        "y": 720,
-        "address": "LAN-1001",
-        "notes": "Master room control processor."
+        "role": "Amplifier / controller",
+        "icon": "server",
+        "x": 320,
+        "y": 760,
+        "notes": "Model exactly as written: Kramer SL-240C."
       },
       {
-        "id": "tp-01",
+        "id": "controller-01",
         "label": "Extron TLP Pro 520M",
-        "role": "Touchpanel Controller",
-        "icon": "workstation",
-        "x": 640,
+        "role": "Touch panel",
+        "icon": "pc",
+        "x": 520,
         "y": 820,
-        "address": "LAN-1002",
-        "notes": "5-inch wall mount touchpanel."
+        "notes": "Model exactly as written: Extron TLP Pro 520M."
       },
       {
-        "id": "matrix-01",
-        "label": "Extron DTP CrossPoint 84",
-        "role": "4K IPCP MA 70 Matrix",
-        "icon": "core-switch",
-        "x": 520,
-        "y": 440,
-        "address": "Link License",
-        "notes": "Matrix switcher with IPCP control \u0026 amp."
+        "id": "net-01",
+        "label": "Network",
+        "role": "External network",
+        "icon": "cloud",
+        "x": 120,
+        "y": 820,
+        "notes": "Cloud label exactly as written: Network."
       },
       {
-        "id": "screen-01",
-        "label": "DRAPER TecVision Screen",
-        "role": "Motorized Screen",
-        "icon": "workstation",
-        "x": 520,
-        "y": 640,
-        "address": "Relay Control",
-        "notes": "Model MS1000X ALR."
+        "id": "speaker-01",
+        "label": "QSC AD-C820 X3",
+        "role": "Speaker",
+        "icon": "laptop",
+        "x": 1060,
+        "y": 470,
+        "notes": "Model exactly as written: QSC AD-C820 X3."
       },
       {
-        "id": "disp-01",
-        "label": "LG 55SM5KD",
-        "role": "55-inch Display",
-        "icon": "workstation",
-        "x": 880,
-        "y": 300,
-        "address": "HDMI-1001",
-        "notes": "Commercial LED display."
+        "id": "speaker-02",
+        "label": "QSC AD-C820 X3",
+        "role": "Speaker",
+        "icon": "laptop",
+        "x": 1060,
+        "y": 610,
+        "notes": "Model exactly as written: QSC AD-C820 X3."
       },
       {
-        "id": "rx-01",
-        "label": "Extron DTP Receiver",
-        "role": "DTP HDMI 4K 230 Rx",
-        "icon": "access-switch",
-        "x": 880,
-        "y": 440,
-        "address": "TP-1001",
-        "notes": "Extended HDMI receiver."
-      },
-      {
-        "id": "proj-01",
-        "label": "BenQ PW9620",
-        "role": "Projector",
-        "icon": "workstation",
-        "x": 1100,
-        "y": 440,
-        "address": "HDMI-1003",
-        "notes": "High brightness projector."
-      },
-      {
-        "id": "spkr-01",
-        "label": "QSC AD-C820 (1)",
-        "role": "Ceiling Speaker",
-        "icon": "workstation",
-        "x": 880,
-        "y": 600,
-        "address": "SP-1002",
-        "notes": "8-inch ceiling speaker 1 of 3."
-      },
-      {
-        "id": "spkr-02",
-        "label": "QSC AD-C820 (2)",
-        "role": "Ceiling Speaker",
-        "icon": "workstation",
-        "x": 880,
-        "y": 720,
-        "address": "Audio Line",
-        "notes": "8-inch ceiling speaker 2 of 3."
-      },
-      {
-        "id": "spkr-03",
-        "label": "QSC AD-C820 (3)",
-        "role": "Ceiling Speaker",
-        "icon": "workstation",
-        "x": 880,
-        "y": 840,
-        "address": "Audio Line",
-        "notes": "8-inch ceiling speaker 3 of 3."
+        "id": "speaker-03",
+        "label": "QSC AD-C820 X3",
+        "role": "Speaker",
+        "icon": "laptop",
+        "x": 1060,
+        "y": 750,
+        "notes": "Model exactly as written: QSC AD-C820 X3."
       }
     ],
     "links": [
       {
-        "from": "net-01",
-        "to": "ctrl-01",
-        "kind": "l3",
-        "label": "LAN-1001"
+        "from": "switcher-01",
+        "to": "dvr-01",
+        "kind": "access"
       },
       {
-        "from": "net-01",
-        "to": "tp-01",
-        "kind": "l3",
-        "label": "LAN-1002"
+        "from": "dvr-01",
+        "to": "pj-01",
+        "kind": "access",
+        "label": "HDMI-1003"
       },
       {
-        "from": "gw-01",
-        "to": "matrix-01",
+        "from": "pj-01",
+        "to": "rx-01",
+        "kind": "access"
+      },
+      {
+        "from": "rx-01",
+        "to": "av-matrix-01",
+        "kind": "access"
+      },
+      {
+        "from": "av-matrix-01",
+        "to": "display-01",
+        "kind": "access",
+        "label": "HDMI-1001"
+      },
+      {
+        "from": "usb-share-01",
+        "to": "av-matrix-01",
         "kind": "access",
         "label": "HDMI-1002"
       },
       {
         "from": "mic-01",
-        "to": "matrix-01",
+        "to": "av-matrix-01",
         "kind": "access",
         "label": "MIC-1001"
       },
       {
         "from": "mic-02",
-        "to": "matrix-01",
+        "to": "av-matrix-01",
         "kind": "access",
         "label": "MIC-1002"
       },
       {
-        "from": "ctrl-01",
-        "to": "matrix-01",
-        "kind": "access",
-        "label": "RS-1001"
-      },
-      {
-        "from": "matrix-01",
-        "to": "screen-01",
-        "kind": "access",
-        "label": "REL-1001"
-      },
-      {
-        "from": "matrix-01",
-        "to": "disp-01",
-        "kind": "access",
-        "label": "HDMI-1001"
-      },
-      {
-        "from": "matrix-01",
-        "to": "rx-01",
-        "kind": "access",
-        "label": "TP-1001"
-      },
-      {
-        "from": "rx-01",
-        "to": "proj-01",
-        "kind": "access",
-        "label": "HDMI-1003"
-      },
-      {
-        "from": "matrix-01",
-        "to": "spkr-01",
+        "from": "av-matrix-01",
+        "to": "speaker-01",
         "kind": "access",
         "label": "SP-1002"
       },
       {
-        "from": "spkr-01",
-        "to": "spkr-02",
-        "kind": "access"
+        "from": "av-matrix-01",
+        "to": "speaker-02",
+        "kind": "access",
+        "label": "SP-1002"
       },
       {
-        "from": "spkr-02",
-        "to": "spkr-03",
-        "kind": "access"
+        "from": "av-matrix-01",
+        "to": "speaker-03",
+        "kind": "access",
+        "label": "SP-1002"
+      },
+      {
+        "from": "av-matrix-01",
+        "to": "amp-01",
+        "kind": "access",
+        "label": "RS-1001"
+      },
+      {
+        "from": "amp-01",
+        "to": "net-01",
+        "kind": "access",
+        "label": "LAN-1001"
+      },
+      {
+        "from": "net-01",
+        "to": "controller-01",
+        "kind": "access",
+        "label": "LAN-1002"
+      },
+      {
+        "from": "rx-01",
+        "to": "av-matrix-01",
+        "kind": "access",
+        "label": "TP-1001"
       }
     ]
   },
   "rack": {
-    "id": "AV-RACK-01",
-    "location": "Cafeteria AV Rack",
-    "units": 12,
-    "frontAisle": "front",
-    "rearAisle": "rear",
-    "reserved": [],
+    "applicable": false,
+    "statement": "No rack-mountable devices are documented as placed in a rack in the source image; the source diagram is an AV system block diagram rather than a rack elevation.",
     "devices": [
       {
-        "id": "matrix-01",
-        "model": "Extron DTP CrossPoint 84 4K IPCP MA 70",
-        "role": "Matrix Switcher \u0026 Controller",
-        "position": 8,
-        "height": 3,
-        "asset": "generic"
-      },
-      {
-        "id": "gw-01",
-        "model": "Extron ShareLink Pro 1100",
-        "role": "Wireless Presentation Gateway",
-        "position": 6,
+        "id": "av-matrix-01",
+        "model": "Extron DTP CrossPoint 84 4K IPCP MA 70 with Link License",
+        "role": "AV matrix / control",
+        "position": 1,
         "height": 1,
         "asset": "generic"
       },
       {
-        "id": "ctrl-01",
+        "id": "usb-share-01",
+        "model": "Extron ShareLink Pro 1100",
+        "role": "Wireless presentation",
+        "position": 2,
+        "height": 1,
+        "asset": "generic"
+      },
+      {
+        "id": "amp-01",
         "model": "Kramer SL-240C",
-        "role": "Master Room Controller",
-        "position": 4,
+        "role": "Amplifier / controller",
+        "position": 3,
         "height": 1,
         "asset": "generic"
       },
       {
         "id": "rx-01",
         "model": "Extron DTP HDMI 4K 230 Rx",
-        "role": "DTP Receiver",
-        "position": 2,
+        "role": "Receiver",
+        "position": 4,
         "height": 1,
         "asset": "generic"
       }
     ]
   },
   "sections": {
-    "overview": {
-      "heading": "Cafeteria Audio Visual Infrastructure",
-      "notes": [
-        {
-          "lead": "Extron \u0026 Kramer AV Integration",
-          "text": "Integrates video switching, audio amplification, user touch panel control, and projector display for the Cafeteria HQ."
-        },
-        {
-          "lead": "XTEN-AV X-DRAW Design",
-          "text": "Designed for XTEN-AV California HQ Cafeteria space."
-        }
-      ]
-    },
     "logical": {
-      "heading": "Signal Flow \u0026 AV Connections",
-      "notes": [
-        {
-          "lead": "Video Paths",
-          "text": "HDMI-1002 input from ShareLink Pro 1100; HDMI-1001 output to LG display; TP-1001 extended to DTP Rx for BenQ projector."
-        },
-        {
-          "lead": "Audio \u0026 Control",
-          "text": "Microphones MIC-1001 and MIC-1002 feed matrix audio inputs; SP-1002 drives three ceiling speakers in daisy-chain."
-        }
-      ]
+      "caption": "Brightwave AV Network logical diagram",
+      "legend": "External source feeds a projector and an AV matrix; the matrix distributes video, microphones, speakers, projector screen relay, and network/control links. A display, touch panel, microphones, speaker group, and network cloud are shown."
     },
     "identity": {
-      "heading": "Signal \u0026 Connection Schedule",
-      "notes": [
-        {
-          "lead": "Cable Interconnects",
-          "text": "Cables identified by connection IDs as shown in the system schematic."
-        }
-      ],
-      "columns": [
-        "Cable ID",
-        "Source",
-        "Destination",
-        "Signal Type"
-      ],
+      "caption": "Inventory and connection details",
       "rows": [
         {
           "cells": [
-            "HDMI-1001",
-            "Extron Matrix Switcher",
-            "LG 55SM5KD Display",
-            "Digital Video / Audio"
+            "switcher-01",
+            "From Switcher",
+            "Address not shown in the source image",
+            "N/A"
           ],
           "layer": "gap"
         },
         {
           "cells": [
-            "HDMI-1002",
-            "ShareLink Pro 1100",
-            "Extron Matrix Switcher",
-            "Digital Video / Audio"
+            "dvr-01",
+            "DRAPER TecVision MS1000X ALR",
+            "Address not shown in the source image",
+            "N/A"
           ],
           "layer": "gap"
         },
         {
           "cells": [
-            "HDMI-1003",
-            "Extron DTP Rx",
-            "BenQ PW9620 Projector",
-            "Digital Video / Audio"
+            "pj-01",
+            "BenQ PW9620",
+            "Address not shown in the source image",
+            "N/A"
           ],
           "layer": "gap"
         },
         {
           "cells": [
-            "TP-1001",
-            "Extron Matrix Switcher",
-            "Extron DTP Rx",
-            "Twisted Pair AV Extension"
+            "rx-01",
+            "Extron DTP HDMI 4K 230 Rx",
+            "Address not shown in the source image",
+            "N/A"
           ],
           "layer": "gap"
         },
         {
           "cells": [
-            "MIC-1001",
-            "Shure MX410RLP/S Mic",
-            "Extron Matrix Switcher",
-            "Analog Audio"
+            "display-01",
+            "LG 55SM5KD",
+            "Address not shown in the source image",
+            "N/A"
           ],
           "layer": "gap"
         },
         {
           "cells": [
-            "MIC-1002",
-            "Sennheiser MEB 102 Mic",
-            "Extron Matrix Switcher",
-            "Analog Audio"
+            "av-matrix-01",
+            "Extron DTP CrossPoint 84 4K IPCP MA 70 with Link License",
+            "Address not shown in the source image",
+            "Link License"
           ],
           "layer": "gap"
         },
         {
           "cells": [
-            "SP-1002",
-            "Extron Matrix Switcher",
-            "QSC AD-C820 Speakers",
-            "Amplified Speaker Level"
+            "usb-share-01",
+            "Extron ShareLink Pro 1100",
+            "Address not shown in the source image",
+            "N/A"
           ],
           "layer": "gap"
         },
         {
           "cells": [
-            "RS-1001",
+            "mic-01",
+            "Shure MX410RLP/S",
+            "Address not shown in the source image",
+            "N/A"
+          ],
+          "layer": "gap"
+        },
+        {
+          "cells": [
+            "mic-02",
+            "Sennheiser MEB 102",
+            "Address not shown in the source image",
+            "N/A"
+          ],
+          "layer": "gap"
+        },
+        {
+          "cells": [
+            "amp-01",
             "Kramer SL-240C",
-            "Extron Matrix Switcher",
-            "Serial Control"
+            "Address not shown in the source image",
+            "N/A"
           ],
           "layer": "gap"
         },
         {
           "cells": [
-            "REL-1001",
-            "Extron Matrix Switcher",
-            "DRAPER Screen",
-            "Relay Control"
-          ],
-          "layer": "gap"
-        },
-        {
-          "cells": [
-            "LAN-1001",
-            "Network Cloud",
-            "Kramer SL-240C",
-            "Ethernet Control"
-          ],
-          "layer": "gap"
-        },
-        {
-          "cells": [
-            "LAN-1002",
-            "Network Cloud",
+            "controller-01",
             "Extron TLP Pro 520M",
-            "Ethernet / PoE Control"
+            "Address not shown in the source image",
+            "N/A"
+          ],
+          "layer": "gap"
+        },
+        {
+          "cells": [
+            "net-01",
+            "Network",
+            "External network label only",
+            "N/A"
+          ],
+          "layer": "gap"
+        },
+        {
+          "cells": [
+            "speaker-01",
+            "QSC AD-C820 X3",
+            "Address not shown in the source image",
+            "N/A"
+          ],
+          "layer": "gap"
+        },
+        {
+          "cells": [
+            "speaker-02",
+            "QSC AD-C820 X3",
+            "Address not shown in the source image",
+            "N/A"
+          ],
+          "layer": "gap"
+        },
+        {
+          "cells": [
+            "speaker-03",
+            "QSC AD-C820 X3",
+            "Address not shown in the source image",
+            "N/A"
           ],
           "layer": "gap"
         }
       ]
     },
     "physical": {
-      "heading": "Equipment Rack \u0026 Layout",
+      "caption": "Physical placement note",
       "notes": [
         {
-          "lead": "Central AV Rack Placement",
-          "text": "Contains central matrix switcher, wireless presentation gateway, Kramer controller, and receiver units."
-        }
-      ]
-    },
-    "change": {
-      "heading": "Revision History",
-      "notes": [
-        {
-          "lead": "Created On 08-18-2022",
-          "text": "Initial schematic generated by XTEN-AV X-DRAW."
-        }
-      ]
-    },
-    "operations": {
-      "heading": "System Maintenance \u0026 Verification",
-      "notes": [
-        {
-          "lead": "Validation Required",
-          "text": "Ensure IP address assignments, Link Licenses, and serial pinouts are verified on site."
+          "lead": "No rack elevation is shown",
+          "text": "The source image is a system block diagram; a rack is not drawn even though several devices are rack-mountable."
         }
       ]
     },
     "findings": {
-      "id": "gaps",
-      "label": "Gaps \u0026 Open Items",
-      "noun": "gaps and open items",
-      "heading": "Gaps \u0026 Open Items — Unverified Details",
-      "flavour": "gaps",
       "items": [
         {
-          "title": "Diagram Creation Date Aged",
-          "detail": "Drawing dated August 18, 2022. Hardware firmware and license status should be audited."
+          "title": "Condensed repeated speaker inventory",
+          "detail": "The source diagram shows one speaker branch labeled QSC AD-C820 X3 with three identical speakers; inventory count is 3 and drawing count is 3."
         },
         {
-          "title": "Unspecified IP Addressing",
-          "detail": "LAN-1001 and LAN-1002 connections do not specify static IP addresses or VLAN configurations.",
-          "at": [
-            "ctrl-01",
-            "tp-01"
-          ]
+          "title": "No addresses visible",
+          "detail": "No IP addresses, MAC addresses, or DHCP/static settings are readable in the source image for any device."
         },
         {
-          "title": "Checked By Field Unverified",
-          "detail": "The diagram title block indicates 'Checked By' is blank/unverified."
+          "title": "No physical rack documentation",
+          "detail": "No rack elevation or unit placement is shown in the diagram; rack placement for rack-mountable devices is therefore a gap."
+        },
+        {
+          "title": "Dated metadata present",
+          "detail": "The source image footer shows Created On: 08-18-2022."
+        },
+        {
+          "title": "No expiry or EOL stated",
+          "detail": "No explicit expired, unsupported, or end-of-life status is written on the diagram."
+        }
+      ]
+    },
+    "overview": {
+      "heading": "What this document is",
+      "notes": [
+        {
+          "lead": "A reference campus design",
+          "text": "one collapsed core, a redundant perimeter and a single 42U rack, drawn to show the notation rather than a real site."
+        },
+        {
+          "lead": "Why it matters here",
+          "text": "it is the worked example every other document in this repository is copied from."
+        },
+        {
+          "lead": "Same drawing conventions as the rest of the set",
+          "text": "only the network changes, not the notation."
+        }
+      ],
+      "provenance": [
+        {
+          "lead": "Provenance, two classes, kept visibly distinct",
+          "text": "Recorded = the topology and rack data in this file, which renders exactly what it says. Assumed = every address, model and role, which is illustrative only."
+        },
+        {
+          "lead": "The Key gaps eye control in the sidebar",
+          "text": "hides the assumption layer for a recorded-only view. Printing follows it, so the PDF is whatever the document shows on screen."
+        }
+      ]
+    },
+    "change": {
+      "heading": "Change management — the file is the record",
+      "notes": [
+        {
+          "lead": "Versioned as text",
+          "text": "the whole document is one HTML file, so a topology change is a reviewable diff rather than an opaque binary replacement."
+        },
+        {
+          "lead": "Revision discipline",
+          "text": "bump the revision and the date in the data block whenever the design changes; the header badges read from those fields."
+        },
+        {
+          "lead": "Rollback",
+          "text": "any prior revision opens in a browser exactly as it was published."
+        }
+      ]
+    },
+    "operations": {
+      "heading": "Operations \u0026 observability — what to watch",
+      "notes": [
+        {
+          "lead": "Owner",
+          "text": "name the team accountable for this design and the escalation path."
+        },
+        {
+          "lead": "Signals",
+          "text": "the links drawn as HA or aggregate are the ones whose loss is silent — monitor member state, not just the logical interface."
+        },
+        {
+          "lead": "Validation",
+          "text": "this document asserts intent. Reconcile it against the running configuration before treating any value as fact."
         }
       ]
     },
     "equipment": {
       "cards": [
         {
-          "model": "Extron DTP CrossPoint 84 4K IPCP MA 70",
-          "u": "3U",
-          "why": "Central matrix switcher with built-in control processor and audio amplifier.",
-          "asset": "generic"
+          "model": "Cisco Catalyst 9500X-28C8D",
+          "u": "1U",
+          "why": "Collapsed core — two members, port-channelled to every access switch.",
+          "asset": "c9500"
         },
         {
-          "model": "Kramer SL-240C",
+          "model": "Cisco Catalyst 9300-48P",
           "u": "1U",
-          "why": "Master room controller handling serial commands.",
-          "asset": "generic"
+          "why": "User and voice access with PoE for the wireless estate.",
+          "asset": "c9300"
         },
         {
-          "model": "Extron ShareLink Pro 1100",
+          "model": "Cisco FPR4215-NGFW-K9",
           "u": "1U",
-          "why": "Wireless presentation gateway for user device streaming.",
-          "asset": "generic"
+          "why": "Perimeter pair, active and standby.",
+          "asset": "fpr4215"
         }
       ],
       "costs": []
@@ -1294,7 +1435,7 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
 // The rack faceplate drawing core. Shared, verbatim, by three consumers:
 //
 //   * tools/build-rack-faces.js, which expands it into an SVG sprite
-//   * examples/rack-face-preview.html, the review page
+//   * tools/rack-faces/rack-face-preview.html, the review page
 //   * the design documents themselves, which inline this whole file and call
 //     faceMarkup() at render time
 //
@@ -2292,7 +2433,7 @@ if (typeof module !== "undefined" && module.exports) module.exports = RACK_FACE_
   // One human name per closed link kind, shared by the Figure 1 legend and
   // the hover glance box so the two can never disagree.
   const KIND_LABELS=Object.freeze({l3:"Routed / Layer 3",aggregate:"Port-channel or aggregate",ha:"HA or peer link",access:"Access link",backup:"Backup or summarized path"});
-  const DEFAULT_BRAND_PATH="M112 72 H400 V352 Q400 400 376 424 Q356 440 336 424 Q316 400 296 400 H216 Q196 400 176 424 Q156 440 136 424 Q112 400 112 352 Z M312 136 A40 40 0 0 1 352 176 V304 A40 40 0 0 1 312 344 A40 40 0 0 1 272 304 V176 A40 40 0 0 1 312 136 Z";
+  const PLACEHOLDER_BRAND_PATH="M96 80 H416 A48 48 0 0 1 464 128 V384 A48 48 0 0 1 416 432 H96 A48 48 0 0 1 48 384 V128 A48 48 0 0 1 96 80 Z M96 120 A8 8 0 0 0 88 128 V384 A8 8 0 0 0 96 392 H416 A8 8 0 0 0 424 384 V128 A8 8 0 0 0 416 120 Z";
   const FINDING_FLAVOURS=Object.freeze({gaps:["gaps","gapnum"],patterns:["patterns","patnum"],gains:["gains","gainnum"]});
   let data,topologyErrors=[],rackErrors=[],slotAId="gaps";
 
@@ -2334,26 +2475,44 @@ if (typeof module !== "undefined" && module.exports) module.exports = RACK_FACE_
   function renderBrand(){
     const brand=data.document?.brand||{};
     const mark=el("brand-mark"),path=el("brand-path");
+    /* brand.logoImage is the one embedded image an editable file may carry:
+       a small PNG, JPG or SVG logo staged by the helper's branding step,
+       size-capped and format-checked there. */
+    const embedded=!!brand.logoImage&&/^data:image\/(png|jpeg|svg\+xml);base64,/.test(brand.logoImage);
+    const hasLogo=embedded||!!brand.logoPath;
+    const name=brand.name||"";
     mark.setAttribute("viewBox",brand.logoViewBox||"0 0 512 512");
     mark.querySelectorAll("image").forEach(old=>old.remove());
-    /* brand.logoImage is the one raster an editable file may carry: a small
-       PNG or JPG logo staged by the helper's branding step, size-capped and
-       format-checked there. Everything else in these files stays vector. */
-    if(brand.logoImage&&/^data:image\/(png|jpeg);base64,/.test(brand.logoImage)){
+    if(embedded){
       path.setAttribute("d","");
       const box=(brand.logoViewBox||"0 0 512 512").split(/\s+/).map(Number);
       const image=svgEl("image",{href:brand.logoImage,x:box[0]||0,y:box[1]||0,width:box[2]||512,height:box[3]||512,preserveAspectRatio:"xMidYMid meet"});
       mark.appendChild(image);
     }else{
-      path.setAttribute("d",brand.logoPath||DEFAULT_BRAND_PATH);
+      path.setAttribute("d",hasLogo?brand.logoPath:(name?"":PLACEHOLDER_BRAND_PATH));
       path.setAttribute("fill",brand.logoFill||"#0F172A");
     }
-    setText("brand-name",brand.name||"cloudbats");
-    setText("brand-doclabel",brand.label||"Systems · Network Design");
+    const block=mark.parentNode;
+    if(block&&block.classList)block.classList.toggle("brand-logo",hasLogo);
+    /* Left-aligned when the logo owns the block: the SVG default centres it,
+       which leaves a square logo floating in the middle of the sidebar. */
+    mark.setAttribute("preserveAspectRatio",hasLogo?"xMinYMid meet":"xMidYMid meet");
+    mark.style.display=(!hasLogo&&name)?"none":"";
+    /* Written directly, not through setText: an unbranded document shows
+       nothing here, never the no-value dash a missing data field earns. */
+    const nameNode=el("brand-name"),labelNode=el("brand-doclabel");
+    if(nameNode)nameNode.textContent=hasLogo?"":name;
+    /* Whoever owns the document may name this line; when they have not, the
+       document names itself, so a reader flipping through a stack always
+       knows which one is open. */
+    if(labelNode)labelNode.textContent=brand.label||data.document?.title||"";
   }
   function renderHeader(){
     const doc=data.document||{};
-    document.title=`${doc.brand?.name||"cloudbats"} — ${doc.title||"Network design"}`;
+    document.title=`${doc.brand?.name?doc.brand.name+" — ":""}${doc.title||"Network design"}`+(doc.drawing?` | ${doc.drawing}${doc.revision?" "+doc.revision:""}`:"");
+    /* The document describes itself to anything that reads its metadata. */
+    const metaDescription=document.querySelector('meta[name="description"]');
+    if(metaDescription)metaDescription.setAttribute("content",[doc.title,doc.subtitle].filter(Boolean).join(" — ")||"Network design document");
     setText("page-title",doc.title);setText("page-subtitle",doc.subtitle);
     setText("badge-subject",`${doc.docClass||"Network design"} · ${doc.subject||doc.drawing||"Untitled"}`);
     setText("badge-version",`${doc.revision||"v1"} · ${doc.date||""}`.trim());
@@ -2363,6 +2522,20 @@ if (typeof module !== "undefined" && module.exports) module.exports = RACK_FACE_
     badge.textContent=evidence.text||"Assumptions · validation required";
     setText("meta-drawing",doc.drawing);setText("meta-revision",doc.revision);
     setText("meta-status",doc.status);setText("meta-date",doc.date);
+    const dcBrand=el("dc-brand");
+    if(dcBrand)dcBrand.textContent=doc.brand?.name||"";
+    setText("dc-title",doc.title);setText("dc-subtitle",doc.subtitle);
+    setText("dc-id",doc.drawing);setText("dc-revision",doc.revision);setText("dc-date",doc.date);
+    setText("dc-subject",doc.subject||doc.docClass);
+    setText("dc-author",doc.author||"Not assigned");
+    setText("dc-reviewed",doc.reviewedBy||"Not assigned");
+    setText("dc-approved",doc.approvedBy||"Not assigned");
+    setText("dc-class",doc.classification||"Unclassified");
+    setText("dc-status",doc.status||"Unstated");
+    const conventions=[doc.footer?.caveat,doc.footer?.redaction].filter(Boolean).join(" · ");
+    const conventionsBox=el("dc-conventions");
+    if(conventions){conventionsBox.hidden=false;conventionsBox.replaceChildren(Object.assign(document.createElement("b"),{textContent:"Caveat."}),document.createTextNode(" "+conventions))}
+    else conventionsBox.hidden=true;
     const strip=el("series-strip"),series=Array.isArray(doc.series)?doc.series:[];
     strip.replaceChildren();
     if(!series.length){strip.hidden=true;return}
@@ -2412,23 +2585,119 @@ if (typeof module !== "undefined" && module.exports) module.exports = RACK_FACE_
     target.addEventListener("mouseenter",show);target.addEventListener("mouseleave",hide);target.addEventListener("focus",()=>show(null));target.addEventListener("blur",hide)
   }
 
+  /* A link label earns its white box only where there is room for one. Four
+     parallel uplinks and a redundant core pair put their midpoints within a
+     few pixels of each other, and the boxes stack into a smear that tells the
+     reader less than the bare lines already did. So the crowded ones stand
+     down and the hover keeps every word - nothing is lost, only quieter.
+
+     Three rules, in this order:
+       - a position someone authored is placed first and never overruled;
+       - the same words on the same pair of devices are the same fact drawn
+         twice, so only the first is drawn;
+       - anything left is drawn if its box clears every box already placed.
+     A lone cable in open space always keeps its label, because nothing is
+     there to collide with. The drawing tunes itself to its own density. */
+  function placeLinkLabels(queue,layer){
+    const placed=[],seen=new Set();
+    const hits=(box)=>placed.some(p=>box.left<p.right&&p.left<box.right&&box.top<p.bottom&&p.top<box.bottom);
+    const ordered=queue.filter(c=>c.authored).concat(queue.filter(c=>!c.authored));
+    for(const cand of ordered){
+      const box={left:cand.x-cand.w/2,right:cand.x+cand.w/2,top:cand.y-12,bottom:cand.y+10};
+      const same=cand.pair+"\u0000"+cand.text;
+      if(!cand.authored&&(seen.has(same)||hits(box)))continue;
+      seen.add(same);placed.push(box);
+      layer.appendChild(svgEl("rect",{class:"link-label-bg",x:box.left,y:cand.y-12,width:cand.w,height:22,rx:4}));
+      layer.appendChild(svgEl("text",{class:"link-label",x:cand.x,y:cand.y+4},cand.text));
+    }
+  }
   function renderTopology(){
     const topo=data.topology||{},width=Number(topo.canvas?.width)||1280,height=Number(topo.canvas?.height)||800,svg=el("topology");
     svg.replaceChildren();svg.setAttribute("viewBox",`0 0 ${width} ${height}`);
-    const title=svgEl("title",{id:"svg-title"},data.document?.title||"Logical topology"),desc=svgEl("desc",{id:"svg-desc"},data.document?.subtitle||""),defs=svgEl("defs"),filter=svgEl("filter",{id:"node-shadow",x:"-20%",y:"-20%",width:"140%",height:"150%"});
-    filter.appendChild(svgEl("feDropShadow",{dx:0,dy:3,stdDeviation:3,"flood-color":"#152d39","flood-opacity":.2}));defs.appendChild(filter);svg.append(title,desc,defs);
-    (topo.zones||[]).forEach(zone=>{const zx=Number(zone.x),zy=Number(zone.y),zw=Number(zone.width),zh=Number(zone.height);if(![zx,zy,zw,zh].every(Number.isFinite)){topologyErrors.push(`Zone ${zone.id||zone.label||"?"} has no usable position or size, so it was not drawn.`);return}if(zone.kind!==undefined&&!ZONE_KINDS.includes(zone.kind))topologyErrors.push(`Zone ${zone.id||zone.label||"?"} has the unknown kind "${zone.kind}", which draws as a solid black rectangle.`);svg.appendChild(svgEl("rect",{class:`zone ${zone.kind||"other"}`,x:zx,y:zy,width:zw,height:zh,rx:12}));svg.appendChild(svgEl("text",{class:"zone-label",x:zx+18,y:zy+27},zone.label||zone.id))});
+    /* The name goes on the element, not into a <title> child: a <title> is
+       also what the browser draws as its own tooltip, and it landed on top of
+       the glance box this figure draws for itself. <desc> never drew one. */
+    svg.setAttribute("aria-label",data.document?.title||"Logical topology");
+    const desc=svgEl("desc",{id:"svg-desc"},data.document?.subtitle||""),defs=svgEl("defs"),filter=svgEl("filter",{id:"node-shadow",x:"-20%",y:"-20%",width:"140%",height:"150%"});
+    filter.appendChild(svgEl("feDropShadow",{dx:0,dy:3,stdDeviation:3,"flood-color":"#152d39","flood-opacity":.2}));defs.appendChild(filter);svg.append(desc,defs);
+    const zoneLabelLayer=svgEl("g",{"aria-label":"Zone labels"});
+    (topo.zones||[]).forEach(zone=>{const zx=Number(zone.x),zy=Number(zone.y),zw=Number(zone.width),zh=Number(zone.height);if(![zx,zy,zw,zh].every(Number.isFinite)){topologyErrors.push(`Zone ${zone.id||zone.label||"?"} has no usable position or size, so it was not drawn.`);return}if(zone.kind!==undefined&&!ZONE_KINDS.includes(zone.kind))topologyErrors.push(`Zone ${zone.id||zone.label||"?"} has the unknown kind "${zone.kind}", which draws as a solid black rectangle.`);svg.appendChild(svgEl("rect",{class:`zone ${zone.kind||"other"}`,x:zx,y:zy,width:zw,height:zh,rx:12}));zoneLabelLayer.appendChild(svgEl("text",{class:"zone-label",x:zx+18,y:zy+27},zone.label||zone.id))});
     const nodes=new Map();(topo.nodes||[]).forEach(node=>{if(!node.id)topologyErrors.push("A topology node is missing an id.");else if(nodes.has(node.id))topologyErrors.push(`Duplicate topology node id: ${node.id}.`);else nodes.set(node.id,node)});
-    const links=svgEl("g",{"aria-label":"Network links"}),labels=svgEl("g",{"aria-label":"Link labels"});
-    (topo.links||[]).forEach((link,index)=>{const source=nodes.get(link.from),target=nodes.get(link.to);if(!source||!target){topologyErrors.push(`Link ${index+1} references a missing node.`);return}if(link.kind!==undefined&&!LINK_KINDS.includes(link.kind))topologyErrors.push(`Link ${index+1} (${link.from} to ${link.to}) has the unknown kind "${link.kind}", which draws an invisible line.`);const points=[[source.x,source.y],...(link.via||[]),[target.x,target.y]],traced=points.map(point=>point.join(",")).join(" "),kind=link.kind||"l3";const linkGroup=svgEl("g",{class:"link-group",tabindex:0,"aria-label":`${link.label?`${link.label}, `:""}${KIND_LABELS[kind]||kind} from ${source.label||source.id} to ${target.label||target.id}`});linkGroup.appendChild(svgEl("polyline",{class:`link ${kind}`,points:traced}));linkGroup.appendChild(svgEl("polyline",{class:"link-hit",points:traced}));attachHover(linkGroup,()=>({title:`${source.label||source.id} → ${target.label||target.id}`,lines:[{text:link.label||""},{text:KIND_LABELS[kind]||kind,detail:true}]}));links.appendChild(linkGroup);if(link.label){const auto=midpoint(points),x=Number.isFinite(Number(link.labelX))?Number(link.labelX):auto[0],y=Number.isFinite(Number(link.labelY))?Number(link.labelY):auto[1],w=Math.max(54,link.label.length*6.7+16);labels.appendChild(svgEl("rect",{class:"link-label-bg",x:x-w/2,y:y-12,width:w,height:22,rx:4}));labels.appendChild(svgEl("text",{class:"link-label",x,y:y+4},link.label))}});svg.append(links,labels);
+    const links=svgEl("g",{"aria-label":"Network links"}),junctions=svgEl("g",{"aria-label":"Segment junctions"}),labels=svgEl("g",{"aria-label":"Link labels"});
+    /* Port fanning: elbow links meeting one side of a node each take their own
+       slot across the symbol, ordered by where they head - the sheets' port
+       spread. Direct links keep the centre; a lone elbow beside a direct
+       trunk nudges off it. Segment ends never fan - the junction is the port. */
+    const stubKey=(id,below)=>`${id}:${below?"b":"t"}`;
+    const stubs=new Map(),directStubs=new Set();
+    (topo.links||[]).forEach((link,index)=>{
+      const s=nodes.get(link.from),t=nodes.get(link.to);if(!s||!t)return;
+      const hasVia=!!(link.via&&link.via.length);
+      if(link.route==="elbow"&&!hasVia){
+        const lane=Number.isFinite(Number(link.elbowAt))?Number(link.elbowAt):(Number(s.y)+Number(t.y))/2;
+        if(s.shape!=="segment"){const key=stubKey(link.from,lane>Number(s.y));if(!stubs.has(key))stubs.set(key,[]);stubs.get(key).push({index,end:"s",sortX:Number(t.x)})}
+        if(t.shape!=="segment"){const key=stubKey(link.to,lane>Number(t.y));if(!stubs.has(key))stubs.set(key,[]);stubs.get(key).push({index,end:"t",sortX:Number(s.x)})}
+      }else{
+        if(s.shape!=="segment")directStubs.add(stubKey(link.from,Number(t.y)>Number(s.y)));
+        if(t.shape!=="segment")directStubs.add(stubKey(link.to,Number(s.y)>Number(t.y)));
+      }
+    });
+    const stubOffset=(nodeId,below,index,end,nodeX)=>{
+      const key=stubKey(nodeId,below),group=stubs.get(key)||[];
+      const withDirect=directStubs.has(key);
+      if(group.length<2&&!withDirect)return 0;
+      const sorted=group.slice().sort((a,b)=>a.sortX-b.sortX);
+      const at=sorted.findIndex(entry=>entry.index===index&&entry.end===end);
+      if(at===-1)return 0;
+      let val=(at-(sorted.length-1)/2)*16;
+      if(withDirect&&val===0)val=16*(Math.sign(sorted[at].sortX-nodeX)||-1);
+      return val;
+    };
+    const labelQueue=[];
+    (topo.links||[]).forEach((link,index)=>{const source=nodes.get(link.from),target=nodes.get(link.to);if(!source||!target){topologyErrors.push(`Link ${index+1} references a missing node.`);return}if(link.kind!==undefined&&!LINK_KINDS.includes(link.kind))topologyErrors.push(`Link ${index+1} (${link.from} to ${link.to}) has the unknown kind "${link.kind}", which draws an invisible line.`);const segmentAnchor=(node,ref)=>{const w=Number(node.width)||300,half=Math.max(20,w/2-14),x=Math.max(Number(node.x)-half,Math.min(Number(node.x)+half,Number(ref[0])));return[x,Number(node.y)]};const srcRef=(link.via&&link.via.length)?link.via[0]:[target.x,target.y];const tgtRef=(link.via&&link.via.length)?link.via[link.via.length-1]:[source.x,source.y];const start=source.shape==="segment"?segmentAnchor(source,srcRef):[source.x,source.y];const end=target.shape==="segment"?segmentAnchor(target,tgtRef):[target.x,target.y];if(source.shape==="segment")junctions.appendChild(svgEl("circle",{class:"segment-junction",cx:start[0],cy:start[1],r:7,style:`stroke:${source.color||"#0e7490"}`}));if(target.shape==="segment")junctions.appendChild(svgEl("circle",{class:"segment-junction",cx:end[0],cy:end[1],r:7,style:`stroke:${target.color||"#0e7490"}`}));let points;if(link.route==="elbow"&&!(link.via&&link.via.length)){const lane=Number.isFinite(Number(link.elbowAt))?Number(link.elbowAt):(start[1]+end[1])/2;const sx=source.shape==="segment"?start[0]:start[0]+stubOffset(link.from,lane>start[1],index,"s",Number(source.x));const ex=target.shape==="segment"?end[0]:end[0]+stubOffset(link.to,lane>end[1],index,"t",Number(target.x));points=[[sx,start[1]],[sx,lane],[ex,lane],[ex,end[1]]]}else{points=[start,...(link.via||[]),end]}const traced=points.map(point=>point.join(",")).join(" "),kind=link.kind||"l3";const linkGroup=svgEl("g",{class:"link-group",tabindex:0,"aria-label":`${link.label?`${link.label}, `:""}${KIND_LABELS[kind]||kind} from ${source.label||source.id} to ${target.label||target.id}`});if((link.route==="elbow"||(link.via&&link.via.length))&&kind!=="backup"&&kind!=="ha")linkGroup.appendChild(svgEl("polyline",{class:"link-casing",points:traced}));linkGroup.appendChild(svgEl("polyline",{class:`link ${kind}`,points:traced}));linkGroup.appendChild(svgEl("polyline",{class:"link-hit",points:traced}));attachHover(linkGroup,()=>({title:`${source.label||source.id} → ${target.label||target.id}`,lines:[{text:link.label||""},{text:KIND_LABELS[kind]||kind,detail:true}]}));links.appendChild(linkGroup);if(link.label){const auto=midpoint(points),authored=Number.isFinite(Number(link.labelX))||Number.isFinite(Number(link.labelY)),x=Number.isFinite(Number(link.labelX))?Number(link.labelX):auto[0],y=Number.isFinite(Number(link.labelY))?Number(link.labelY):auto[1],w=Math.max(54,link.label.length*6.7+16);labelQueue.push({x,y,w,text:link.label,authored,pair:[link.from,link.to].sort().join("|")})}});placeLinkLabels(labelQueue,labels);svg.append(links,junctions,zoneLabelLayer,labels);
     const nodeLayer=svgEl("g",{"aria-label":"Network devices"});
     nodes.forEach(node=>{
       if(!Number.isFinite(Number(node.x))||!Number.isFinite(Number(node.y))){topologyErrors.push(`${node.id} has no usable x,y position, so it was not drawn.`);return}
+      /* A shape:"segment" node is the sheet grammar's shared subnet bar:
+         a coloured rail whose members attach with junction taps. Its caption
+         sits below the bar, or stacked off the right end (labelSide:"right"). */
+      if(node.shape==="segment"){
+        const w=Number(node.width)||300,color=node.color||"#0e7490",sx=Number(node.x),sy=Number(node.y);
+        const group=svgEl("g",{class:"node segment-node",tabindex:0,role:"button","aria-label":`${node.label||node.id}, ${node.role||"shared Layer 3 segment"}`});
+        group.appendChild(svgEl("rect",{class:"segment-hit",x:sx-w/2,y:sy-15,width:w,height:30,rx:8}));
+        group.appendChild(svgEl("rect",{class:"segment-bar",x:sx-w/2,y:sy-5,width:w,height:10,rx:5,style:`fill:${color}`}));
+        if(node.labelSide==="right"){
+          group.appendChild(svgEl("text",{class:"node-name",style:"text-anchor:start",x:sx+w/2+12,y:sy-1},node.label||node.id));
+          if(node.address)group.appendChild(svgEl("text",{class:"node-address",style:"text-anchor:start",x:sx+w/2+12,y:sy+15},node.address));
+        }else{
+          group.appendChild(svgEl("text",{class:"node-name",x:sx,y:sy+24},node.label||node.id));
+          if(node.address)group.appendChild(svgEl("text",{class:"node-address",x:sx,y:sy+41},node.address));
+        }
+        const select=()=>{svg.querySelectorAll(".node.selected").forEach(item=>item.classList.remove("selected"));group.classList.add("selected");makeInspector("topology-inspector",node.label||node.id,[["Role",node.role],["Address / context",node.address],["Documentation note",node.notes],["Rendered icon","segment bar"]])};
+        group.addEventListener("click",select);
+        group.addEventListener("keydown",event=>{if(event.key==="Enter"||event.key===" "){event.preventDefault();select()}});
+        attachHover(group,()=>({title:node.label||node.id,lines:[{text:node.role||""},{text:node.address||""},{text:node.notes||"",detail:true}]}));
+        nodeLayer.appendChild(group);
+        return
+      }
       const group=svgEl("g",{class:"node",tabindex:0,role:"button","aria-label":`${node.label||node.id}, ${node.role||"network device"}`,transform:`translate(${Number(node.x)-NODE_W/2} ${Number(node.y)-NODE_H/2})`});
-      group.appendChild(svgEl("rect",{class:"node-shell",width:NODE_W,height:NODE_H,rx:9}));
+      group.appendChild(svgEl("rect",{class:"node-shell",x:41,y:-3,width:94,height:66,rx:9}));
       const iconRef=appendNodeIcon(group,node);
-      group.appendChild(svgEl("text",{class:"node-name",x:NODE_W/2,y:78},node.label||node.id));
-      group.appendChild(svgEl("text",{class:"node-role",x:NODE_W/2,y:95},node.role||""));
+      /* Caption placement: "below" is the two-line default; "left"/"right"
+         side-anchor the stack beside the symbol and reveal the address line,
+         the source sheets' notation. Inline style wins over the stylesheet's
+         text-anchor, so the same classes serve both modes. */
+      const side=node.labelSide==="left"?"left":node.labelSide==="right"?"right":"below";
+      if(side==="below"){
+        group.appendChild(svgEl("text",{class:"node-name",x:NODE_W/2,y:78},node.label||node.id));
+        group.appendChild(svgEl("text",{class:"node-role",x:NODE_W/2,y:95},node.role||""));
+      }else{
+        const anchorStyle=side==="left"?"text-anchor:end":"text-anchor:start";
+        const tx=side==="left"?NODE_W/2-46:NODE_W/2+46;
+        group.appendChild(svgEl("text",{class:"node-name",style:anchorStyle,x:tx,y:22},node.label||node.id));
+        group.appendChild(svgEl("text",{class:"node-role",style:anchorStyle,x:tx,y:38},node.role||""));
+        if(node.address)group.appendChild(svgEl("text",{class:"node-address",style:anchorStyle,x:tx,y:54},node.address));
+      }
       const select=()=>{svg.querySelectorAll(".node.selected").forEach(item=>item.classList.remove("selected"));group.classList.add("selected");makeInspector("topology-inspector",node.label||node.id,[["Role",node.role],["Address / context",node.address],["Documentation note",node.notes],["Rendered icon",iconRef]])};
       group.addEventListener("click",select);
       group.addEventListener("keydown",event=>{if(event.key==="Enter"||event.key===" "){event.preventDefault();select()}});
@@ -2476,7 +2745,7 @@ if (typeof module !== "undefined" && module.exports) module.exports = RACK_FACE_
     return vectorFace(device,view)||placeholderFace(`${device.id} / ${view}`,view)
   }
   function renderRackView(view,rack){const bay=el(`rack-${view}`),wrap=el(`rack-${view}-wrap`);bay.replaceChildren();wrap.querySelectorAll(".rack-tooltip").forEach(item=>item.remove());bay.style.height=`calc(${rack.units} * var(--u))`;wrap.querySelectorAll(".ruler").forEach(ruler=>ruler.style.height=`calc(${rack.units} * var(--u))`);buildRuler(wrap,rack.units);const tooltip=document.createElement("div");tooltip.className="rack-tooltip";tooltip.setAttribute("role","tooltip");wrap.appendChild(tooltip);(rack.reserved||[]).forEach(slot=>{const item=document.createElement("div");item.className="reserved-slot";item.style.bottom=`calc((${slot.position} - 1) * var(--u))`;item.style.height=`calc(${slot.height} * var(--u))`;item.textContent=slot.label;bay.appendChild(item)});(rack.devices||[]).forEach(device=>{if(!Number.isFinite(Number(device.position))||!Number.isFinite(Number(device.height)))return;const wanted=device.asset&&device.asset!=="generic",asset=wanted?RACK_ASSETS[device.asset]:null,vector=wanted?vectorInfo(device.asset,device.height):null;if(wanted&&!asset&&!vector&&view==="front")rackErrors.push(`Unknown rack asset ${device.asset} on ${device.id}; drawn as a generic face.`);if(vector&&vector.units!==device.height&&view==="front")rackErrors.push(`${device.id} is scheduled as ${device.height}U but ${device.asset} draws a ${vector.units}U face.`);if(wanted&&asset&&!vector&&view==="front")rackErrors.push(`${device.id} is scheduled as ${device.height}U but ${device.asset} has no ${device.height}U face.`);const face=document.createElement("button");face.type="button";face.className="device-face";face.dataset.device=device.id;face.style.bottom=`calc((${device.position} - 1) * var(--u))`;face.style.height=`calc(${device.height} * var(--u))`;face.setAttribute("aria-label",`${device.id}, ${device.model}, ${range(device)}, ${view} view`);face.appendChild(rackFaceContent(device,view,asset?asset[view]:null));const show=()=>showRackTooltip(wrap,bay,face,device,view);face.addEventListener("mouseenter",show);face.addEventListener("focus",show);face.addEventListener("mouseleave",()=>{if(!face.classList.contains("selected"))tooltip.classList.remove("visible")});face.addEventListener("blur",()=>{if(!face.classList.contains("selected"))tooltip.classList.remove("visible")});face.addEventListener("click",()=>{selectRackDevice(device);show()});bay.appendChild(face)})}
-  function renderRack(){const rack=data.rack||{};rack.units=Number(rack.units)||42;setText("rack-heading",data.sections?.physical?.heading||`Physical view · ${rack.id||"rack"} · ${rack.units}U`);const occupied=new Map(),rackIds=new Set();(rack.devices||[]).forEach(device=>{if(device.id){if(rackIds.has(device.id))rackErrors.push(`Duplicate rack device id: ${device.id}.`);rackIds.add(device.id)}else rackErrors.push("A rack device is missing an id.");if(typeof device.position==="string"||typeof device.height==="string")rackErrors.push(`${device.id||"A rack device"} has its position or height written as text instead of a number.`);const p=Number(device.position),h=Number(device.height);if(!Number.isFinite(p)||!Number.isFinite(h)||h<1){rackErrors.push(`${device.id||"A rack device"} has no usable position or height, so it was not drawn.`);return}device.position=p;device.height=h;if(p<1||p+h-1>rack.units)rackErrors.push(`${device.id} is outside the rack.`);for(let u=p;u<p+h;u++){if(occupied.has(u))rackErrors.push(`${device.id} overlaps ${occupied.get(u)} at U${u}.`);else occupied.set(u,device.id)}});setText("rack-front-caption",`Front elevation · ${rack.frontAisle||"cold aisle"}`);setText("rack-rear-caption",`Rear elevation · ${rack.rearAisle||"hot aisle"}`);renderRackView("front",rack);renderRackView("rear",rack);const tbody=el("inventory-body");tbody.replaceChildren();(rack.devices||[]).forEach(device=>{const row=document.createElement("tr");row.dataset.device=device.id;[range(device),device.id,device.model,device.role,faceKind(device)].forEach((value,index)=>{const cell=document.createElement("td");if(index===1){const code=document.createElement("code");code.textContent=value;cell.appendChild(code)}else cell.textContent=value;row.appendChild(cell)});row.addEventListener("click",()=>selectRackDevice(device));tbody.appendChild(row)});showErrors("rack-errors",rackErrors)}
+  function renderRack(){const rack=data.rack||{};rack.units=Number(rack.units)||42;const notApplicable=rack.applicable===false;document.body.classList.toggle("no-rack",notApplicable);const statement=el("rack-not-applicable");if(statement){statement.hidden=!notApplicable;if(notApplicable)statement.textContent=rack.statement||"This design deliberately records no rack: it is a logical view only, and an elevation would imply a physical record this document does not hold."}if(notApplicable){setText("rack-heading",data.sections?.physical?.heading||"Physical view — intentionally not applicable");return}setText("rack-heading",data.sections?.physical?.heading||`Physical view · ${rack.id||"rack"} · ${rack.units}U`);const occupied=new Map(),rackIds=new Set();(rack.devices||[]).forEach(device=>{if(device.id){if(rackIds.has(device.id))rackErrors.push(`Duplicate rack device id: ${device.id}.`);rackIds.add(device.id)}else rackErrors.push("A rack device is missing an id.");if(typeof device.position==="string"||typeof device.height==="string")rackErrors.push(`${device.id||"A rack device"} has its position or height written as text instead of a number.`);const p=Number(device.position),h=Number(device.height);if(!Number.isFinite(p)||!Number.isFinite(h)||h<1){rackErrors.push(`${device.id||"A rack device"} has no usable position or height, so it was not drawn.`);return}device.position=p;device.height=h;if(p<1||p+h-1>rack.units)rackErrors.push(`${device.id} is outside the rack.`);for(let u=p;u<p+h;u++){if(occupied.has(u))rackErrors.push(`${device.id} overlaps ${occupied.get(u)} at U${u}.`);else occupied.set(u,device.id)}});setText("rack-front-caption",`Front elevation · ${rack.frontAisle||"cold aisle"}`);setText("rack-rear-caption",`Rear elevation · ${rack.rearAisle||"hot aisle"}`);renderRackView("front",rack);renderRackView("rear",rack);const tbody=el("inventory-body");tbody.replaceChildren();(rack.devices||[]).forEach(device=>{const row=document.createElement("tr");row.dataset.device=device.id;[range(device),device.id,device.model,device.role,faceKind(device)].forEach((value,index)=>{const cell=document.createElement("td");if(index===1){const code=document.createElement("code");code.textContent=value;cell.appendChild(code)}else cell.textContent=value;row.appendChild(cell)});row.addEventListener("click",()=>selectRackDevice(device));tbody.appendChild(row)});showErrors("rack-errors",rackErrors)}
 
   /* ---- spine sections 0, 2, 4, 5 ---- */
   function renderSections(){
@@ -2494,7 +2763,51 @@ if (typeof module !== "undefined" && module.exports) module.exports = RACK_FACE_
     fillNotes("change-notes",s.change?.notes,[{lead:"Change record",text:"Describe how this design is versioned, reviewed and rolled back."}]);
     if(s.operations?.heading)setText("operations-heading",s.operations.heading);
     fillNotes("operations-notes",s.operations?.notes,[{lead:"Operations",text:"Describe monitoring, alerting and the operational owner."}]);
-    renderIdentityTable(s.identity)
+    renderIdentityTable(s.identity);renderNamingAnatomy(s.identity);renderSectionTables();renderHistory()
+  }
+  /* The revision history renders from document.history, newest entry FIRST -
+     the top row is the revision the document claims to be, and the repository
+     validator holds those two to each other. No history, no table. */
+  function renderHistory(){
+    const table=el("history-table"),body=el("history-body");if(!table||!body)return;
+    const history=Array.isArray(data.document?.history)?data.document.history:[];
+    body.replaceChildren();
+    if(!history.length){table.hidden=true;return}
+    table.hidden=false;
+    history.forEach(entry=>{
+      const tr=document.createElement("tr");
+      const rev=document.createElement("td"),code=document.createElement("code");
+      code.textContent=String(entry?.revision??"");rev.appendChild(code);tr.appendChild(rev);
+      [entry?.date,entry?.author,entry?.summary].forEach(value=>{const td=document.createElement("td");td.textContent=String(value??"");tr.appendChild(td)});
+      body.appendChild(tr)
+    })
+  }
+  /* Authored tables: any spine section may carry tables:[{caption,columns,rows}].
+     Rows reuse the identity-table grammar - a plain array of cells, or
+     {cells:[...],layer:"gap"} to join the toggleable candour layer. */
+  function renderSectionTables(){
+    const s=data.sections||{};
+    [["overview","tables-overview"],["logical","tables-logical"],["identity","tables-identity"],["physical","tables-physical"],["change","tables-change"],["operations","tables-operations"]].forEach(([key,id])=>{
+      const host=el(id);if(!host)return;host.replaceChildren();
+      (Array.isArray(s[key]?.tables)?s[key].tables:[]).forEach(spec=>{
+        const columns=Array.isArray(spec?.columns)?spec.columns:[],rows=Array.isArray(spec?.rows)?spec.rows:[];
+        if(!columns.length||!rows.length)return;
+        const table=document.createElement("table");table.className="data-table section-table";
+        if(spec.caption){const caption=document.createElement("caption");caption.textContent=String(spec.caption);table.appendChild(caption)}
+        const thead=document.createElement("thead"),headRow=document.createElement("tr");
+        columns.forEach(name=>{const th=document.createElement("th");th.textContent=String(name??"");headRow.appendChild(th)});
+        thead.appendChild(headRow);table.appendChild(thead);
+        const tbody=document.createElement("tbody");
+        rows.forEach(row=>{
+          const cells=Array.isArray(row)?row:(Array.isArray(row?.cells)?row.cells:[]);
+          const tr=document.createElement("tr");
+          if(!Array.isArray(row)&&row?.layer==="gap")tr.className="gap-layer";
+          cells.forEach(value=>{const td=document.createElement("td");td.textContent=String(value??"");tr.appendChild(td)});
+          tbody.appendChild(tr)
+        });
+        table.appendChild(tbody);host.appendChild(table)
+      })
+    })
   }
   function renderIdentityTable(identity){
     const table=el("identity-table"),head=el("identity-head"),body=el("identity-body");
@@ -2511,6 +2824,63 @@ if (typeof module !== "undefined" && module.exports) module.exports = RACK_FACE_
       body.appendChild(tr)
     })
   }
+  /* The hostname-anatomy figure - the naming-convention visual from the Wisk
+     lineage documents, rendered from data: one worked device name split into
+     coloured monospace segments, each dropping a leader line to a label and a
+     slate note, staggered at two depths so neighbours never collide. Colours
+     are engine-owned and cycle; the data never picks them. Tolerant the way
+     renderSectionTables is: fewer than two usable parts draws nothing (the
+     helper's checker warns at edit time, where warnings belong). */
+  function renderNamingAnatomy(identity){
+    const host=el("naming-anatomy"),svg=el("naming-svg");if(!host||!svg)return;
+    const naming=identity?.naming;
+    const parts=(Array.isArray(naming?.parts)?naming.parts:[]).filter(part=>part&&typeof part.text==="string"&&part.text.trim()&&typeof part.label==="string"&&part.label.trim());
+    svg.replaceChildren();
+    if(parts.length<2){host.hidden=true;setText("naming-caption","");return}
+    host.hidden=false;
+    const PALETTE=["#0e7490","#b45309","#6d28d9","#9a3412","#0f766e"];
+    const MONO='Consolas,"Courier New",monospace';
+    const sep=typeof naming.separator==="string"&&naming.separator?naming.separator:"-";
+    const footnote=typeof naming.note==="string"?naming.note.trim():"";
+    const CH=13,SEG_Y=40,LEAD_TOP=50,LABEL_TOP=104,LANE_STEP=36;
+    let x=24;
+    const spans=parts.map((part,index)=>{
+      const text=part.text.trim(),width=text.length*CH;
+      const span={x,width,text,color:PALETTE[index%PALETTE.length],label:part.label.trim(),note:typeof part.note==="string"?part.note.trim():"",sepX:0};
+      x+=width;
+      if(index<parts.length-1){span.sepX=x+6;x+=sep.length*CH+12}
+      return span;
+    });
+    /* Labels take the shallowest lane whose previous occupant they clear, so
+       two long notes can never sit on top of each other - a fixed two-depth
+       stagger collided as soon as a note outgrew its segment. Leaders are
+       drawn first and the text carries a white halo, the zone-title recipe,
+       so a line passing a deeper label's column never strikes through it. */
+    const labelWidth=(span)=>Math.max(span.label.length*8.3,span.note.length*6.6)+8;
+    const laneEnds=[];
+    spans.forEach(span=>{
+      let lane=0;
+      while(lane<laneEnds.length&&laneEnds[lane]>span.x-14)lane++;
+      laneEnds[lane]=span.x+labelWidth(span);
+      span.labelY=LABEL_TOP+lane*LANE_STEP;
+    });
+    const viewW=Math.max(560,x+24,...spans.map(span=>span.x+labelWidth(span)+16));
+    const H=LABEL_TOP+(laneEnds.length-1)*LANE_STEP+15+(footnote?34:14);
+    svg.setAttribute("viewBox",`0 0 ${viewW} ${H}`);svg.style.maxWidth=viewW+"px";
+    spans.forEach(span=>{
+      svg.appendChild(svgEl("line",{x1:span.x+span.width/2,y1:LEAD_TOP,x2:span.x+span.width/2,y2:span.labelY-12,stroke:span.color,"stroke-width":1.4}));
+    });
+    const HALO="paint-order:stroke;stroke:#fff;stroke-width:4;stroke-linejoin:round";
+    spans.forEach(span=>{
+      svg.appendChild(svgEl("text",{x:span.x,y:SEG_Y,fill:span.color,style:`font:700 22px ${MONO}`},span.text));
+      if(span.sepX)svg.appendChild(svgEl("text",{x:span.sepX,y:SEG_Y,fill:"#334155",style:`font:700 22px ${MONO}`},sep));
+      svg.appendChild(svgEl("text",{x:span.x,y:span.labelY,fill:span.color,style:`font:700 13.5px 'Segoe UI',Arial,sans-serif;${HALO}`},span.label));
+      if(span.note)svg.appendChild(svgEl("text",{x:span.x,y:span.labelY+15,fill:"#64748b",style:`font:11.5px 'Segoe UI',Arial,sans-serif;${HALO}`},span.note));
+    });
+    if(footnote)svg.appendChild(svgEl("text",{x:24,y:H-10,fill:"#94a3b8",style:"font:italic 12px 'Segoe UI',Arial,sans-serif"},footnote));
+    setText("naming-caption",`Hostname anatomy — worked example: ${spans.map(span=>span.text).join(sep)}.`)
+  }
+
   /* Draws the numbered markers onto the topology. Anchors are node ids and zone ids,
      never coordinates, so a marker cannot drift when the layout moves, and the number
      is the item's position in the list, so the picture and the list cannot disagree. */
@@ -2619,7 +2989,7 @@ if (typeof module !== "undefined" && module.exports) module.exports = RACK_FACE_
     setText("cost-total",total?`$${total.toLocaleString()}`:"—")
   }
 
-  function updateProofStatus(){const topologyIds=new Set((data.topology?.nodes||[]).map(node=>node.id)),matched=(data.rack?.devices||[]).filter(device=>topologyIds.has(device.id)).length,totalErrors=topologyErrors.length+rackErrors.length,status=el("proof-status");status.classList.remove("fail");if(totalErrors){status.textContent=`FAIL · ${totalErrors} data error${totalErrors===1?"":"s"}`;status.classList.add("fail")}else status.textContent=`PASS · ${(data.topology?.nodes||[]).length} logical nodes · ${(data.topology?.links||[]).length} links · ${(data.rack?.devices||[]).length} rack devices · ${matched} synchronized IDs`}
+  function updateProofStatus(){const topologyIds=new Set((data.topology?.nodes||[]).map(node=>node.id)),matched=(data.rack?.devices||[]).filter(device=>topologyIds.has(device.id)).length,totalErrors=topologyErrors.length+rackErrors.length,status=el("proof-status");status.classList.remove("fail");if(totalErrors){status.textContent=`FAIL · ${totalErrors} data error${totalErrors===1?"":"s"}`;status.classList.add("fail")}else{const rackPart=data.rack?.applicable===false?"rack · deliberately none":`${(data.rack?.devices||[]).length} rack devices · ${matched} synchronized IDs`;status.textContent=`PASS · ${(data.topology?.nodes||[]).length} logical nodes · ${(data.topology?.links||[]).length} links · ${rackPart}`}}
   function setupControls(){let zoom=1;document.querySelectorAll("[data-zoom]").forEach(button=>button.addEventListener("click",()=>{if(button.dataset.zoom==="in")zoom=Math.min(1.8,zoom+.2);if(button.dataset.zoom==="out")zoom=Math.max(.8,zoom-.2);if(button.dataset.zoom==="fit")zoom=1;el("topology").style.width=`${zoom*100}%`}));el("rack-compact").addEventListener("click",()=>document.documentElement.style.setProperty("--u","18px"));el("rack-full").addEventListener("click",()=>document.documentElement.style.setProperty("--u","28px"))}
 
   function updatePackagingCopy(){
@@ -2665,7 +3035,7 @@ if (typeof module !== "undefined" && module.exports) module.exports = RACK_FACE_
     function revealHashTarget(){
       const id=decodeURIComponent(window.location.hash.slice(1));let target=null;
       if(id===slotAId){setGapVisibility(true);target=el(id)}
-      else if(id==="equipment-exhibit"){setEquipVisibility(true);target=el(id)}
+      else if(id==="equipment-exhibit"&&!document.body.classList.contains("omit-equipment")){setEquipVisibility(true);target=el(id)}
       if(target)window.requestAnimationFrame(()=>target.scrollIntoView())
     }
     gapButton.addEventListener("click",()=>setGapVisibility(!body.classList.contains("show-gaps")));
@@ -2677,6 +3047,41 @@ if (typeof module !== "undefined" && module.exports) module.exports = RACK_FACE_
     setGapVisibility(data.document?.layers?.findings!==false);
     setEquipVisibility(data.document?.layers?.equipment===true);
     revealHashTarget()
+  }
+
+  /* Deliberately omitted sections. document.omit lists section keys the
+     owner chose to leave out; the section, its sidebar entry and its trailing
+     rule disappear on screen and in print alike, and the numbering follows
+     the eye - Section 4 is always the fourth section a reader can see. Only
+     four sections may go. A key that is not omittable is a data error, said
+     loudly: a document quietly ignoring its own instructions is the exact
+     failure this file exists to prevent. */
+  const OMITTABLE=Object.freeze({identity:"identity-addressing",change:"change-management",operations:"operations-observability",equipment:"equipment-exhibit"});
+  function renderLayout(){
+    const raw=data.document?.omit;
+    if(raw!==undefined&&!Array.isArray(raw)){topologyErrors.push("document.omit is not a list, so it was ignored.");showErrors("topology-errors",topologyErrors);return}
+    const omit=Array.isArray(raw)?raw:[];
+    for(const key of omit){
+      if(!Object.prototype.hasOwnProperty.call(OMITTABLE,key)){topologyErrors.push(`document.omit lists "${key}", which is not a section that can be left out; it stays in the document.`);continue}
+      document.body.classList.add(`omit-${key}`);
+      const link=document.querySelector(`.sidebar-nav .toc a[href="#${OMITTABLE[key]}"]`);
+      const item=link&&link.closest("li");
+      if(item)item.hidden=true;
+    }
+    let number=0;
+    document.querySelectorAll("main .content > section").forEach(section=>{
+      const kicker=section.querySelector(":scope > p.kicker");
+      if(!kicker||!/^Section /.test(kicker.textContent))return;
+      const omitted=Object.entries(OMITTABLE).some(([key,id])=>section.id===id&&document.body.classList.contains(`omit-${key}`));
+      if(!omitted)kicker.textContent=`Section ${number++}`;
+    });
+    let tocNumber=0;
+    document.querySelectorAll(".sidebar-nav .toc > li").forEach(item=>{
+      if(item.hidden)return;
+      const num=item.querySelector(".num");
+      if(num&&/^[0-9]+$/.test(num.textContent))num.textContent=String(tocNumber++);
+    });
+    showErrors("topology-errors",topologyErrors)
   }
 
   /* The renderers are forgiving on purpose: a half-usable document should
@@ -2691,11 +3096,11 @@ if (typeof module !== "undefined" && module.exports) module.exports = RACK_FACE_
     ["nodes","links"].forEach(key=>{if(!Array.isArray(data.topology[key])){data.topology[key]=[];topologyErrors.push(`topology.${key} is missing or is not a list.`)}});
     if(data.topology.zones!==undefined&&!Array.isArray(data.topology.zones)){data.topology.zones=[];topologyErrors.push("topology.zones is not a list, so it was ignored.")}
     if(!data.rack||typeof data.rack!=="object"||Array.isArray(data.rack)){data.rack={};rackErrors.push("The rack section is missing from the data block.")}
-    if(!Array.isArray(data.rack.devices)){data.rack.devices=[];rackErrors.push("rack.devices is missing or is not a list.")}
+    if(!Array.isArray(data.rack.devices)){data.rack.devices=[];if(data.rack.applicable!==false)rackErrors.push("rack.devices is missing or is not a list.")}
   }
 
   try{
-    data=parseData();checkShape();renderBrand();renderHeader();renderSections();renderTopology();renderRack();renderFindings();renderEquipment();updateProofStatus();setupControls();updatePackagingCopy();setupEditableExport();renderFooter();setupLayers()
+    data=parseData();checkShape();renderBrand();renderHeader();renderSections();renderTopology();renderRack();renderFindings();renderEquipment();renderLayout();updateProofStatus();setupControls();updatePackagingCopy();setupEditableExport();renderFooter();setupLayers()
   }catch(error){
     /* Nothing below this line may fail silently. A truncated AI reply pasted
        over the data block used to leave a blank page and a pill stuck on
