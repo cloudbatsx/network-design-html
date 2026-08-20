@@ -110,7 +110,7 @@ invent new ones.
 {
   "document": {
     "title": "", "subtitle": "", "drawing": "", "revision": "", "status": "", "date": "",
-    "docClass": "", "subject": "",
+    "docClass": "", "subject": "", "author": "",
     "evidence": { "text": "", "color": "red" },
     "history": [ { "revision": "", "date": "", "author": "", "summary": "" } ],
     "brand": { "name": "", "label": "", "logoViewBox": "", "logoFill": "", "logoPath": "" },
@@ -153,6 +153,10 @@ figure and the gaps list never leave — they carry the status pill, the gap
 pins and the candour doctrine. Any other key is a data error the document
 reports loudly. This is the owner's presentation choice, set in the helper's
 branding step — like `brand`, it is not yours to write.
+
+`document.author` is the owner's too: set in the helper's branding step, shown
+in the document-control panel, and signed onto every change-record row the
+save stamp writes. Copy it through as you find it.
 
 A **note** is either a plain string or `{ "lead": "bold part", "text": "rest" }`.
 

@@ -297,6 +297,8 @@
         <input id="brand-name" type="text" placeholder="keep current"></label>
       <label class="fresh-field">Header label
         <input id="brand-label" type="text" placeholder="e.g. IT Infrastructure · Network Design"></label>
+      <label class="fresh-field">Author / owner <span class="fresh-hint">(named in the document-control panel, and signs every change-record row a save writes)</span>
+        <input id="brand-author" type="text" placeholder="keep current"></label>
       <label class="fresh-field">Logo file <span class="fresh-hint">(PNG, JPG or SVG, up to 64 KB — an SVG keeps its colours and stays crisp at any size)</span>
         <input id="brand-image" type="file" accept="image/png,image/jpeg,image/svg+xml,.svg"></label>
       <div class="row">
@@ -810,7 +812,7 @@ function contextFor(data, name) {
    compose prose: prompt A has the AI read the picture, and three answers
    build the whole-design request. It lives here rather than in the guide so
    this page is the only one that has to be open. */
-const EXTRACT_PROMPT = "Describe this network diagram as five plain-text lists, capturing everything written on it. First count every device drawn on the diagram and state the total as your reply's first line, exactly in this form - Total device count: 12 - and the device list must match that count:\n1. Every device, with a suggested short id (like fw-01, core-sw-01). Repeated devices are listed one per line with their own ids - eight identical floor switches are eight lines, never \"switches x8\" and never one example standing in for the rest.\n2. Every connection between devices, including any interface or port names written on the line (like FA0/0, GE0/7, Port 4).\n3. The trust areas: what is inside the organization, what is outside.\n4. Per-device details, exactly as written: model, addresses, software versions, licenses and their dates, SSIDs, port counts used and available, DHCP or static.\n5. Anything dated, expired, or end-of-life - old licenses, unsupported operating systems, aged hardware.\nDo not write any code yet - I will paste build instructions next.";
+const EXTRACT_PROMPT = "Describe this network diagram as five plain-text lists, capturing everything written on it. First count every device drawn on the diagram, one by one, and state the total as your reply's first line, exactly in this form - \"Total device count: <N>\" - where <N> is the number you yourself counted on this diagram, never a number copied from these instructions, and the device list must match that count:\n1. Every device, with a suggested short id (like fw-01, core-sw-01). Repeated devices are listed one per line with their own ids - eight identical floor switches are eight lines, never \"switches x8\" and never one example standing in for the rest.\n2. Every connection between devices, including any interface or port names written on the line (like FA0/0, GE0/7, Port 4).\n3. The trust areas: what is inside the organization, what is outside.\n4. Per-device details, exactly as written: model, addresses, software versions, licenses and their dates, SSIDs, port counts used and available, DHCP or static.\n5. Anything dated, expired, or end-of-life - old licenses, unsupported operating systems, aged hardware.\nDo not write any code yet - I will paste build instructions next.";
 
 function freshDrawingId(title) {
   const initials = (title || "").trim().split(/\s+/).map((word) => word[0] || "").join("").toUpperCase().replace(/[^A-Z0-9]/g, "");
@@ -900,6 +902,10 @@ function brandedData(base, fields) {
   }
   const next = structuredClone(base);
   next.document = next.document && typeof next.document === "object" ? next.document : {};
+  /* The author sits on the document, not the brand: it names the accountable
+     owner in the document-control panel, and the version stamp signs every
+     change-record row with it. Empty keeps whatever the file has. */
+  if ((fields.author || "").trim()) next.document.author = fields.author.trim();
   const brand = Object.assign({}, next.document.brand);
   if ((fields.name || "").trim()) brand.name = fields.name.trim();
   if ((fields.label || "").trim()) brand.label = fields.label.trim();
@@ -1175,6 +1181,9 @@ function loadSource(text, name) {
     stagedLogoImage = null; stagedLogoViewBox = "";
     $("brand-image").value = ""; $("brand-image-state").textContent = "No image staged";
     $("brand-image-clear").disabled = true; $("brand-state").textContent = "";
+    // The author box shows who currently signs the document; empty keeps them.
+    $("brand-author").value = "";
+    $("brand-author").placeholder = currentData.document?.author || "keep current";
     // A fresh file is its own baseline; anything staged for the old one is gone.
     styleBaseline = null;
     aiSummary = ""; panelSummary = [];
@@ -3014,6 +3023,8 @@ function save() {
     accepted = null;
     aiSummary = "";
     panelSummary = [];
+    $("brand-author").value = "";
+    $("brand-author").placeholder = currentData.document?.author || "keep current";
     sourceName = name;
     // A design that has been built and saved is a design you edit from here.
     if (buildMode) setStepMode(false);
@@ -3194,7 +3205,7 @@ $("brand-image-clear").addEventListener("click", () => {
 $("brand-apply").addEventListener("click", () => {
   if (!currentData) { $("brand-state").textContent = "Load a design file first."; return; }
   const { next, problem } = brandedData(accepted || currentData, {
-    name: $("brand-name").value, label: $("brand-label").value,
+    name: $("brand-name").value, label: $("brand-label").value, author: $("brand-author").value,
     fill: $("brand-fill").value, path: $("brand-path").value, viewBox: $("brand-viewbox").value,
     image: stagedLogoImage || "", imageViewBox: stagedLogoViewBox || ""
   });

@@ -853,6 +853,18 @@ test("brand: a brand deleted whole is a destroyed logo, not a free pass", () => 
     "deleting document.brand outright slipped past the logo guard");
 });
 
+test("brand: the author signs the document, and empty keeps the incumbent", () => {
+  const base = baseDesign();
+  const { next } = t.brandedData(base, { author: "Jordan Reyes" });
+  assert.strictEqual(next.document.author, "Jordan Reyes");
+  const kept = t.brandedData(next, { author: "  " }).next;
+  assert.strictEqual(kept.document.author, "Jordan Reyes", "an empty author box erased the incumbent");
+  next.document.revision = "v1.0";
+  const stamped = t.versionStamp(next, ["Renamed the core"], false, next.document).next;
+  assert.strictEqual(stamped.document.history[0].author, "Jordan Reyes",
+    "the change record did not sign with the document's author");
+});
+
 test("brand: an image-branded document is protected like a path-branded one", () => {
   const original = baseDesign();
   original.document.brand = { name: "Client", logoImage: "data:image/png;base64,iVBORw0KGgo=" };
@@ -1399,7 +1411,12 @@ test("gate: meeting the stated count needs no confession", () => {
 });
 
 test("gate: the prompts demand the exact count line and numbered confessions", () => {
-  assert(/Total device count: 12/.test(t.EXTRACT_PROMPT), "the extraction no longer demands the exact count line");
+  assert(/Total device count: <N>/.test(t.EXTRACT_PROMPT), "the extraction no longer demands the exact count line");
+  /* The form must never carry a literal example number: nineteen archived
+     extracts proved gemini does not anchor on one, but the next free model
+     might, and a count that echoes the prompt is worse than no count. */
+  assert(!/Total device count:? ?\d/.test(t.EXTRACT_PROMPT), "the count line carries an example number a model could echo");
+  assert(/never a number copied from these instructions/.test(t.EXTRACT_PROMPT), "the anti-anchor rule is gone");
   const text = t.freshRequestText("T", "T-NET-001", "auto");
   assert(/stating both numbers/.test(text), "the confession no longer has to state the numbers");
 });
