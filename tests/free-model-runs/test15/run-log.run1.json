@@ -6,39 +6,33 @@
   "logoImage": "logo-clearline-voice.svg",
   "model": "gemini-3.6-flash",
   "surface": "API (Google AI free tier)",
-  "date": "2026-08-20T21:44:16.591Z",
+  "date": "2026-08-16T07:21:09.443Z",
   "rounds": [
     {
       "round": 1,
       "finishReason": "STOP",
-      "chars": 23039,
+      "chars": 21358,
       "usage": {
-        "prompt": 13012,
-        "output": 7814,
-        "thoughts": 3654
+        "prompt": 11421,
+        "output": 7428,
+        "thoughts": 4881
       },
       "repairsApplied": [],
       "truncated": false,
       "stops": [],
       "warnings": 0,
-      "warningTexts": [],
-      "inventoryGate": {
-        "gate": "met",
-        "promised": 24,
-        "placed": 24,
-        "short": false
-      }
+      "warningTexts": []
     }
   ],
   "verdict": "PASS - clean save in 1 round trip",
   "modelVersion": "gemini-3.6-flash",
   "extract": {
     "finishReason": "STOP",
-    "chars": 5995,
+    "chars": 5830,
     "usage": {
-      "prompt": 1523,
-      "output": 2358,
-      "thoughts": 2490
+      "prompt": 1314,
+      "output": 2404,
+      "thoughts": 3403
     }
   },
   "roundTrips": 1,
