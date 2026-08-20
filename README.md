@@ -334,10 +334,11 @@ dist/                    build output, untracked
 ## Status and license
 
 Pre-release. The workflow is complete, machine-checked on every commit — 37
-repository checks plus a 171-test behaviour suite — and validated on both
-paths. Fresh-build: one live session and twenty-two automated runs, each
-building a complete document from a different diagram image with free Gemini,
-every one reaching a clean save (source-fidelity auditing is ongoing).
+repository checks plus a 176-test behaviour suite — and validated on both
+paths. Fresh-build: one live session and twenty-two diagram images run
+automated with free Gemini, every one reaching a clean save — eight re-run
+live on v0.6.0 in one round trip each, with every produced document
+vision-audited against its source image (zero inapplicable observations).
 Editing: the nine-run protocol matrix passed on 2026-08-17 — nine part-scoped
 edits on the largest starter, each a clean save in one round trip, including
 the whole-design diagnostic run. Protocol, results and the semantic audit live

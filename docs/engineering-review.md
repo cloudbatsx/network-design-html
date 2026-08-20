@@ -26,14 +26,14 @@ reviewer, so recording a gap makes its observation disappear in front of you.
 |---|---|---|---|
 | **trust-skeleton** | Nearly every real topology separates outside from inside; 34 of the 36 calibration documents draw an external area. | No zones at all on a 5+ device drawing, or the internet drawn with no `external` zone anywhere. | Small sketches; drawings with an external area. |
 | **undefended-edge** | Endpoints and servers do not sit raw on the internet — a firewall, router or tunnel stands between. | A cloud wired straight to an endpoint or server with no label saying VPN/tunnel. | The link is `backup`-kind, or the link or device says VPN, tunnel, encrypted, remote — roaming clients are real, and a label makes the drawing say so. |
-| **exposed-service** | Every path from the internet to a server should cross the firewall. The reviewer walks the drawn links outward from each cloud; firewalls and VPN heads stop the walk, labelled tunnels are not crossed. | The walk reaches a server while a firewall exists elsewhere in the drawing. | No firewall drawn at all (that is trust-skeleton territory); the findings already confess the exposure. |
+| **exposed-service** | Every path from the internet to a server should cross the firewall. The reviewer walks the drawn links outward from each cloud separately; firewalls and VPN heads stop the walk, labelled tunnels are not crossed. | The walk reaches a server while a firewall exists elsewhere in the drawing — and the observation names the entry cloud whose walk got there. | No firewall drawn at all (that is trust-skeleton territory); the findings already confess the exposure. |
 | **dmz-question** | Public-facing services conventionally live in a DMZ or screened segment, not in the trusted zone. | A firewall exists, a public-sounding server (web, mail, DNS, proxy, portal) sits inside, and no DMZ or perimeter zone is drawn. | A perimeter/DMZ zone exists, or the findings mention one. |
 | **single-point** | Enterprise edges and cores are usually paired; one unit carrying every path is a risk worth a sentence. | Exactly one firewall or one core switch in a 10+ device drawing. | Smaller networks — a home office with one firewall is normal; a confessed redundancy risk. |
 | **unjoined-pair** | Real HA pairs are joined — an HA line, a peer link, a stack cable. | Two same-stem firewalls/cores/WLCs sit **side by side** with **symmetric neighbours** and no line of any kind between them. | Routers (dual-ISP edges and iBGP-through-core are legitimately unjoined); stacked same-name firewalls in **series** — the Purdue iDMZ sandwich — whose neighbours barely overlap; any direct link of any kind. |
 | **perimeter-band** | Edge security conventionally lives in a perimeter zone between outside and inside; the field test watched the model produce one on some runs and forget it on others. | A firewall sits fully inside an internal zone and no perimeter-kind zone exists. | A perimeter/DMZ zone drawn or confessed; firewalls not swallowed by the trusted zone. |
 | **orientation** | Topologies flow top-down: internet and external services first, the organisation beneath. Flipping a canvas is pure arithmetic, so this one carries its own one-click remedy. | The external zone sits below the internal one, or the internet clouds sit well below the rest of the drawing. | Conventionally-oriented drawings; drawings whose findings keep the orientation deliberately. |
 | **wireless-coverage** | Declared scope is a promise: a document that says it covers wireless must draw some. | `document.coverage` declares `wireless` and no access point, wireless router or WLAN controller is drawn. | Wireless drawn, wireless confessed in the findings, or the pack simply not declared. |
-| **no-management** | Popular, not required: a management VLAN, out-of-band network or console path. One gentle line, said once. | Nothing mentions management, OOB or console - in an 8+ device drawing, or in ANY drawing that declares the management-oob pack (the wording then says so). | A management device or zone is drawn, or the findings confess the gap. |
+| **no-management** | Popular, not required: a management VLAN, out-of-band network or console path. One gentle line, said once. | Nothing mentions management, OOB or console - in an 8+ device drawing, or in ANY drawing that declares the management-oob pack (the wording then says so). | A management device or zone is drawn, or the findings confess the gap. A node wearing the `network-management` icon only counts as drawn management when its own text does not read as passive plant - a live run's wall jack taught that. |
 
 ## How it was calibrated
 
@@ -49,6 +49,19 @@ drawings is a rule people switch off.
 Final fire rate: 36 observations across 36 documents (1.0 average), all on
 model-built documents. Six were then judged against their source images:
 one real AI extraction error caught, ten true gaps, zero noise.
+
+The v0.6.0 validation round (2026-08-20) re-judged the review against eight
+fresh live builds, one vision audit per source image: still zero noise, nine
+true gaps — and a third way an observation can be right that the taxonomy
+did not have a name for. On the test7 power diagram the model *invented*
+cloud shapes the image never draws, and the review's undefended-edge and
+exposed-service questions pointed exactly at them: "look at the picture
+again" would have removed the invention. The same round taught two rules
+some manners: the exposure now **names the entry** whose walk reached the
+servers ("from Access Network" — on that image the literal Internet path
+crosses the firewall fine), and the management rule stopped accepting
+passive plant wearing the `network-management` icon after a live run's
+wall jack silenced it.
 
 ## The declared shape (wave B)
 
