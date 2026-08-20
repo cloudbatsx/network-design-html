@@ -1257,6 +1257,37 @@ test("review: no management story is one gentle note, silenced by drawing or con
     "a finding about CABLE management silenced the NETWORK management rule");
 });
 
+test("review: passive plant wearing the management icon does not silence the management question", () => {
+  // The v0.6.0 validation regression: a live run gave the external wall jack
+  // the network-management icon, and the rule read it as a management story.
+  const jack = reviewDesign(8);
+  jack.topology.nodes.push({ id: "jack-01", icon: "network-management", label: "External Wall Jack", x: 300, y: 500 });
+  assert(rules(t.reviewTopology(jack, false)).includes("no-management"),
+    "a wall jack wearing the management icon quieted the rule");
+  const nms = reviewDesign(8);
+  nms.topology.nodes.push({ id: "nms-01", icon: "network-management", label: "NMS Station", x: 300, y: 500 });
+  assert(!rules(t.reviewTopology(nms, false)).includes("no-management"),
+    "a real management station no longer counted");
+});
+
+test("review: the exposure observation names the cloud whose walk reached the server", () => {
+  // The v0.6.0 validation caveat: test6's unfirewalled entry was the Access
+  // Network cloud, while the message blamed "the internet" generically.
+  const design = reviewDesign();
+  design.topology.nodes.push(
+    { id: "acc", icon: "cloud", label: "Access Network", x: 400, y: 60 },
+    { id: "net", icon: "cloud", label: "Internet", x: 900, y: 60 },
+    { id: "rtr", icon: "router", x: 640, y: 300 },
+    { id: "srv", icon: "server", label: "File Server", x: 640, y: 500 });
+  design.topology.links.push(
+    { from: "acc", to: "rtr", kind: "l3" }, { from: "rtr", to: "srv", kind: "l3" },
+    { from: "net", to: "edge-fw-01", kind: "l3" }, { from: "edge-fw-01", to: "rtr", kind: "l3" });
+  const obs = t.reviewTopology(design, false).find((o) => o.rule === "exposed-service");
+  assert(obs, "the unfirewalled access-cloud path went unremarked");
+  assert(/from Access Network/.test(obs.saw), "the entry cloud is not named: " + obs.saw);
+  assert(!/from the internet/.test(obs.saw), "the internet was blamed for the access cloud's path");
+});
+
 test("review: a firewall swallowed by the trusted zone earns the perimeter question", () => {
   const design = reviewDesign();
   design.topology.nodes.push({ id: "fw-edge", icon: "firewall", x: 640, y: 500 });

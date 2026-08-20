@@ -2704,28 +2704,35 @@ function reviewTopology(data, askPicture) {
     adjacency.get(link.to).push(link.from);
   }
   const reached = new Set();
-  const queue = clouds.map((n) => n.id);
-  const visited = new Set(queue);
-  while (queue.length) {
-    const id = queue.shift();
-    const node = byId.get(id);
-    if (node && SECURITY_ICONS.includes(node.icon)) continue;   // the wall
-    for (const next of adjacency.get(id) || []) {
-      if (visited.has(next)) continue;
-      visited.add(next); reached.add(next); queue.push(next);
+  const entryOf = new Map();   // reached node -> the clouds whose walk got there
+  for (const cloud of clouds) {
+    const queue = [cloud.id];
+    const visited = new Set(queue);
+    while (queue.length) {
+      const id = queue.shift();
+      const node = byId.get(id);
+      if (node && SECURITY_ICONS.includes(node.icon)) continue;   // the wall
+      for (const next of adjacency.get(id) || []) {
+        if (visited.has(next)) continue;
+        visited.add(next); reached.add(next); queue.push(next);
+        if (!entryOf.has(next)) entryOf.set(next, new Set());
+        entryOf.get(next).add(/^(the\s+)?internet\b/i.test(cloud.label || "") ? "the internet" : (cloud.label || cloud.id));
+      }
     }
   }
   const exposed = nodes.filter((n) => SERVER_ICONS.includes(n.icon) && reached.has(n.id));
   if (exposed.length && nodes.some((n) => n.icon === "firewall") && !confessed(/expos|unprotect|bypass|dmz/i)) {
     const shown = exposed.map(name).slice(0, 4).join(", ");
+    const entries = [...new Set(exposed.flatMap((n) => [...(entryOf.get(n.id) || [])]))];
+    const from = entries.length ? entries.slice(0, 2).join(" and ") : "the internet";
     observe("exposed-service",
       "Servers are reachable from the internet without passing any firewall.",
-      `Following the drawn links from the internet, ${shown}${exposed.length > 4 ? " and more" : ""} can be reached without crossing the firewall.`,
-      ask("Look at the picture again: does every path from the internet to the servers pass through the firewall?",
-        "Should every path from the internet to these servers pass through the firewall?"),
+      `Following the drawn links from ${from}, ${shown}${exposed.length > 4 ? " and more" : ""} can be reached without crossing the firewall.`,
+      ask(`Look at the picture again: does every path from ${from} to the servers pass through the firewall?`,
+        `Should every path from ${from} to these servers pass through the firewall?`),
       "Internet-to-server paths not verified",
-      `The drawing shows a path from the internet to ${shown} that crosses no firewall; whether that exposure is real has not been verified.`,
-      { slice: "topology", request: `Re-route the internet-facing links so every path from the internet to ${shown} crosses the firewall, exactly as the diagram shows. Change only what is wrong.` });
+      `The drawing shows a path from ${from} to ${shown} that crosses no firewall; whether that exposure is real has not been verified.`,
+      { slice: "topology", request: `Re-route the external-facing links so every path from ${from} to ${shown} crosses the firewall, exactly as the diagram shows. Change only what is wrong.` });
   }
 
   /* R4 · single points and unpaired pairs. */
@@ -2789,8 +2796,11 @@ function reviewTopology(data, askPicture) {
       { slice: "links", request: `Add the link the diagram shows between ${unpaired[0]} - HA, peer link or stack - with the right kind. If they are genuinely unjoined, change nothing.` });
   }
 
-  /* R5 · the management story. Popular, not required - one line, said once. */
-  const mgmtDrawn = nodes.some((n) => n.icon === "network-management" || MGMT_TEXT.test(textOf(n)))
+  /* R5 · the management story. Popular, not required - one line, said once.
+     The icon only counts when the node is not plainly passive plant: a live
+     run gave a wall jack the network-management icon and silenced this rule. */
+  const PLANT_TEXT = /\bjack\b|wall\s*plate|splitter|coupler|passthrough|pass-through|patch\s*panel|conduit/i;
+  const mgmtDrawn = nodes.some((n) => (n.icon === "network-management" && !PLANT_TEXT.test(textOf(n))) || MGMT_TEXT.test(textOf(n)))
     || zones.some((z) => MGMT_TEXT.test(`${z.label || ""} ${z.id || ""}`) || /^\s*management\s*$/i.test(z.label || ""));
   const mgmtDeclared = coverage.includes("management-oob");
   if (!mgmtDrawn && (nodes.length >= 8 || mgmtDeclared) && !confessed(MGMT_TEXT)) {
