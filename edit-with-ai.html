@@ -77,6 +77,9 @@
     #network-description{width:100%;margin:0;min-height:76px}
     #build-options{margin-top:12px}
     #build-options summary{cursor:pointer;color:var(--blue2);font-weight:700;font-size:.9rem}
+    .advanced{margin:10px 0 4px}
+    .advanced summary{cursor:pointer;color:var(--blue2);font-weight:700;font-size:.9rem}
+    .file-name a{color:var(--blue2);font-weight:700}
     .fresh-field{display:block;margin:8px 0;font-size:.9rem;font-weight:650}
     .fresh-field input,.fresh-field select{display:block;width:min(420px,100%);margin-top:4px;padding:7px 10px;border:1px solid var(--line);border-radius:6px;font-weight:400;font-family:inherit}
     .fresh-hint{color:var(--muted);font-weight:400;font-size:.82rem}
@@ -346,12 +349,18 @@
         <button class="button" id="brand-image-clear" type="button" disabled>Remove staged image</button>
         <span class="file-name" id="brand-image-state">No image staged</span>
       </div>
-      <label class="fresh-field">Logo colour <span class="fresh-hint">(hex, e.g. #0F172A — empty keeps current; applies to the drawn mark)</span>
-        <input id="brand-fill" type="text" placeholder="keep current"></label>
-      <label class="fresh-field">Logo as SVG path data <span class="fresh-hint">(only if you have no logo file at all — upload the SVG above instead and this is done for you)</span>
-        <input id="brand-path" type="text" placeholder="M112 72 H400 …"></label>
-      <label class="fresh-field">Logo viewBox <span class="fresh-hint">(only with a new path, e.g. 0 0 512 512)</span>
-        <input id="brand-viewbox" type="text" placeholder="0 0 512 512"></label>
+      <details class="advanced">
+        <summary>Advanced — draw the logo from SVG path data</summary>
+        <p class="hint">Only for when you have no logo file at all: paste path data out of an SVG
+        by hand. The logo file field above does all of this for you, so most people never
+        open this.</p>
+        <label class="fresh-field">Logo colour <span class="fresh-hint">(hex, e.g. #0F172A — empty keeps current; applies to the drawn mark)</span>
+          <input id="brand-fill" type="text" placeholder="keep current"></label>
+        <label class="fresh-field">Logo as SVG path data
+          <input id="brand-path" type="text" placeholder="M112 72 H400 …"></label>
+        <label class="fresh-field">Logo viewBox <span class="fresh-hint">(only with a new path, e.g. 0 0 512 512)</span>
+          <input id="brand-viewbox" type="text" placeholder="0 0 512 512"></label>
+      </details>
       <div class="row gap">
         <button class="button primary" id="brand-apply" type="button">Stage the branding</button>
         <span class="file-name" id="brand-state"></span>
@@ -1252,6 +1261,26 @@ function note(host, kind, title, body) {
   strong.textContent = title;
   el.append(strong, document.createTextNode(body || ""));
   box.appendChild(el);
+}
+
+/* A staging note that names what was staged and carries the reader to the
+   evidence. The change list lives under Save, several steps below the panels
+   that write it, and "review the change list below" alone sent the field
+   test hunting for which below. */
+function stagedNote(stateId, summary) {
+  const state = $(stateId);
+  if (!state) return;
+  state.replaceChildren();
+  state.append(document.createTextNode(`Staged: ${summary} — `));
+  const jump = document.createElement("a");
+  jump.href = "#step-4";
+  jump.textContent = "see the change list under Save";
+  jump.addEventListener("click", (event) => {
+    event.preventDefault();
+    const target = $("step-4");
+    if (target && target.scrollIntoView) target.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+  state.append(jump, document.createTextNode("."));
 }
 
 /* ---------- 1. Read the file, locate the data block ---------- */
@@ -4308,6 +4337,17 @@ $("brand-image-clear").addEventListener("click", () => {
 });
 $("brand-apply").addEventListener("click", () => {
   if (!currentData) { $("brand-state").textContent = "Load a design file first."; return; }
+  const stagedBits = [];
+  if ($("brand-name").value.trim()) stagedBits.push("organisation name");
+  if ($("brand-label").value.trim()) stagedBits.push("header label");
+  if ($("brand-author").value.trim()) stagedBits.push("author");
+  if (stagedLogoImage) stagedBits.push("logo file");
+  if ($("brand-fill").value.trim()) stagedBits.push("logo colour");
+  if ($("brand-path").value.trim()) stagedBits.push("logo path");
+  if (!stagedBits.length) {
+    $("brand-state").textContent = "Nothing to stage - every field is empty and no logo is chosen, so the file keeps what it has.";
+    return;
+  }
   const { next, problem } = brandedData(accepted || currentData, {
     name: $("brand-name").value, label: $("brand-label").value, author: $("brand-author").value,
     fill: $("brand-fill").value, path: $("brand-path").value, viewBox: $("brand-viewbox").value,
@@ -4320,7 +4360,7 @@ $("brand-apply").addEventListener("click", () => {
   renderChanges(fileBaseline(), next);
   $("save").disabled = false;
   syncDiscard();
-  $("brand-state").textContent = "Staged. Review the change list below, then save.";
+  stagedNote("brand-state", stagedBits.join(", "));
   setStage("save", "review the change list, then press Save new design file.");
 });
 /* ---------- the style panel: deterministic, like branding ---------- */
@@ -4386,8 +4426,9 @@ function applyStyle(target) {
   currentData = next;
   accepted = next;
   panelSummary.push(target === "sheet" ? "Redrawn as an engineering sheet" : "Redrawn as a clean grid");
-  renderChanges(before, next);
+  renderChanges(fileBaseline(), next);
   $("save").disabled = false;
+  syncDiscard();
   note("style-message", "ok", `Converted — ${applied.length} change${applied.length === 1 ? "" : "s"}.`,
     ` ${applied.join("; ")}.${skipped.length ? " What was left alone is listed below." : ""} Review the change list under Save.`);
   refreshStylePanel();
@@ -4438,7 +4479,20 @@ $("sections-apply").addEventListener("click", () => {
   syncDiscard();
   // Declared coverage changes what the review holds the document to.
   renderReview(reviewTopology(next, lastAskPicture));
-  $("sections-state").textContent = "Staged. Review the change list below, then save.";
+  const scopeBits = [];
+  const omitted = next.document.omit || [];
+  if (JSON.stringify(omitted) !== JSON.stringify(before.document?.omit || [])) {
+    scopeBits.push(omitted.length ? `${omitted.length} section${omitted.length === 1 ? "" : "s"} left out` : "every section included");
+  }
+  const packs = next.document.coverage || [];
+  if (JSON.stringify(packs) !== JSON.stringify(before.document?.coverage || [])) {
+    scopeBits.push(packs.length ? `coverage: ${packs.map((key) => COVERAGE_PACKS[key].label).join(", ")}` : "coverage cleared");
+  }
+  const arch = next.document.architecture || "";
+  if (arch !== (before.document?.architecture || "")) {
+    scopeBits.push(arch ? `architecture: ${ARCHITECTURES[arch].label}` : "architecture undeclared");
+  }
+  stagedNote("sections-state", scopeBits.join("; "));
   setStage("save", "review the change list, then press Save new design file.");
 });
 
@@ -4451,8 +4505,9 @@ $("style-restore").addEventListener("click", () => {
   currentData = next;
   accepted = next;
   panelSummary.push("Drawing restored to the loaded style");
-  renderChanges(before, next);
+  renderChanges(fileBaseline(), next);
   $("save").disabled = false;
+  syncDiscard();
   renderStyleReport([]);
   note("style-message", "ok", "Restored.", " The drawing is back to the one this session started with. Review the change list under Save.");
   refreshStylePanel();
@@ -4465,6 +4520,7 @@ $("slice").addEventListener("change", () => {
   if (accepted || $("problems").children.length) {
     accepted = null; aiSummary = ""; panelSummary = [];
     $("save").disabled = true;
+    syncDiscard();
     $("problems").replaceChildren(); $("changes").replaceChildren();
     $("copy-problems").disabled = true;
     note("check-message", null);

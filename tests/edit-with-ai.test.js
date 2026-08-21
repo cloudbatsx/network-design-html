@@ -720,6 +720,27 @@ test("branding: an empty author leaves both author fields alone", () => {
   assert.strictEqual(next.document.footer.author, "Prepared by Existing Owner");
 });
 
+/* The branding panel leads with what everyone sets - name, label, author,
+   logo file. The expert path (colour, path data, viewBox) folds away, or it
+   reads as three more required fields. */
+test("markup: the niche logo fields live inside the advanced fold", () => {
+  const fold = helper.match(/<details class="advanced">([\s\S]*?)<\/details>/);
+  assert(fold, "the branding panel lost its advanced fold");
+  for (const id of ["brand-fill", "brand-path", "brand-viewbox"]) {
+    assert(fold[1].includes(`id="${id}"`), `${id} escaped the advanced fold`);
+  }
+  assert(!fold[1].includes('id="brand-author"'), "the author field fell into the advanced fold");
+  assert(!fold[1].includes('id="brand-image"'), "the logo file field fell into the advanced fold");
+});
+
+test("markup: staging messages name what they staged and anchor the change list", () => {
+  assert(/function stagedNote\(/.test(helper), "the anchored staging note is gone");
+  assert((helper.match(/stagedNote\(/g) || []).length >= 3,
+    "the branding and scope panels no longer route through the anchored note");
+  assert(!/Staged\. Review the change list below, then save\./.test(helper),
+    "an unanchored 'below' staging message came back");
+});
+
 test("branding: a broken logo path or colour is refused with a plain reason", () => {
   assert(/angle brackets|looks wrong/.test(t.brandedData(baseDesign(), { path: "M0 0<script>" }).problem));
   assert(t.brandedData(baseDesign(), { path: "M0 0" }).problem, "a too-short path was accepted");
