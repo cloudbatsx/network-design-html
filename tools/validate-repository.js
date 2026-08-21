@@ -248,6 +248,13 @@ for (const name of starterNames) {
       if (item.atZone !== undefined) want(zoneIds.has(item.atZone), `gap ${index + 1} pins to missing zone ${item.atZone}`);
     });
     want(findings.some((item) => item.at != null || item.atZone !== undefined), "no gap is pinned to the drawing");
+
+    // Declared scope renders in both densities - the boxed panel on screen,
+    // the strip in print - whenever document.coverage or .architecture is
+    // set. A document that can hold a declaration must be able to show it.
+    want(source.includes('id="dc-scope-field"') && source.includes('id="meta-scope-row"'),
+      "declared-scope row missing from the document-control panel or the print strip");
+    want(source.includes('el("dc-scope-field")'), "the renderer no longer fills the declared-scope row");
   });
 }
 

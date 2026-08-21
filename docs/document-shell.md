@@ -95,6 +95,14 @@ is the same record at print density: the shell hides it on screen, and its
 `@media print` block swaps it back in for the boxed panel, so the two densities
 can never disagree or appear together.
 
+A document that declares scope shows it: when `document.coverage` or
+`document.architecture` is set, both densities gain a **Declared scope** row —
+the coverage packs by name, the architecture last (`Architecture — Spine-leaf
+fabric`). Undeclared documents render no row at all; the panel still never
+invents a value. The declaration is owner-set in the helper, and the
+engineering review holds the drawing to it — the row is the promise the reader
+can point at.
+
 **Print follows the eye.** `@media print` prints exactly the layers the reader
 has on screen. A printed copy is always a document someone actually looked at,
 and the eye controls are how you decide what a deliverable contains.

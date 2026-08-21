@@ -257,6 +257,7 @@
   .document-subtitle { margin:0; color:var(--slate-500); font-size:13.5px; line-height:1.5; }
   .document-meta { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px 24px; margin:15px 0 0; font-size:12px; }
   .document-field { margin:0; }
+  .document-field--scope { grid-column:1 / -1; }
   .document-meta dt { color:var(--slate-500); font-size:11px; letter-spacing:.08em; text-transform:uppercase; }
   .document-meta dd { margin:3px 0 0; color:#14324e; font-size:13px; font-weight:650; overflow-wrap:anywhere; }
   .document-code { font-family:Consolas,'Courier New',monospace; }
@@ -584,6 +585,7 @@
             <div class="document-field"><dt>Approved by</dt><dd id="dc-approved"></dd></div>
             <div class="document-field"><dt>Classification</dt><dd><span class="document-badge document-badge--classification" id="dc-class"></span></dd></div>
             <div class="document-field"><dt>Status</dt><dd><span class="document-badge document-badge--status" id="dc-status"></span></dd></div>
+            <div class="document-field document-field--scope" id="dc-scope-field" hidden><dt>Declared scope</dt><dd id="dc-scope"></dd></div>
           </dl>
           <p class="document-conventions" id="dc-conventions"></p>
         </header>
@@ -591,6 +593,7 @@
           <tbody>
             <tr><th>Drawing</th><td id="meta-drawing"></td><th>Revision</th><td id="meta-revision"></td></tr>
             <tr><th>Status</th><td id="meta-status"></td><th>As of</th><td id="meta-date"></td></tr>
+            <tr id="meta-scope-row" hidden><th>Declared scope</th><td id="meta-scope" colspan="3"></td></tr>
           </tbody>
         </table>
         <div class="section-tables" id="tables-overview"></div>
@@ -4989,6 +4992,17 @@ if (typeof module !== "undefined" && module.exports) module.exports = RACK_FACE_
     setText("dc-approved",doc.approvedBy||"Not assigned");
     setText("dc-class",doc.classification||"Unclassified");
     setText("dc-status",doc.status||"Unstated");
+    /* Declared scope - owner-set coverage packs and architecture. Rendered
+       in both densities when declared, absent otherwise, so screen and
+       print can never disagree about what this document promises. */
+    const scopeNames={"management-oob":"Management & out-of-band","wireless":"Wireless","fabric-overlay":"Fabric overlay","wan-multisite":"WAN / multi-site","security-segmentation":"Security & segmentation"};
+    const shapeNames={"collapsed-core":"Collapsed core","three-tier":"Three-tier (core / distribution / access)","spine-leaf":"Spine-leaf fabric","hub-and-spoke":"Hub-and-spoke","ring":"Ring"};
+    const scopeParts=(Array.isArray(doc.coverage)?doc.coverage:[]).map(key=>scopeNames[key]||key);
+    if(doc.architecture)scopeParts.push(`Architecture — ${shapeNames[doc.architecture]||doc.architecture}`);
+    const scopeField=el("dc-scope-field"),scopeRow=el("meta-scope-row");
+    if(scopeField)scopeField.hidden=!scopeParts.length;
+    if(scopeRow)scopeRow.hidden=!scopeParts.length;
+    if(scopeParts.length){setText("dc-scope",scopeParts.join(" · "));setText("meta-scope",scopeParts.join(" · "))}
     const conventions=[doc.footer?.caveat,doc.footer?.redaction].filter(Boolean).join(" · ");
     const conventionsBox=el("dc-conventions");
     if(conventions){conventionsBox.hidden=false;conventionsBox.replaceChildren(Object.assign(document.createElement("b"),{textContent:"Caveat."}),document.createTextNode(" "+conventions))}
