@@ -815,6 +815,13 @@ test("markup: the niche logo fields live inside the advanced fold", () => {
   assert(!fold[1].includes('id="brand-image"'), "the logo file field fell into the advanced fold");
 });
 
+test("markup: the build options sit above the button that copies them", () => {
+  const options = helper.indexOf('id="build-options"');
+  const button = helper.indexOf('id="build-copy"');
+  assert(options !== -1 && button !== -1);
+  assert(options < button, "the options fold slid back below the copy button - the order form reads backwards again");
+});
+
 test("markup: staging messages name what they staged and anchor the change list", () => {
   assert(/function stagedNote\(/.test(helper), "the anchored staging note is gone");
   assert((helper.match(/stagedNote\(/g) || []).length >= 3,

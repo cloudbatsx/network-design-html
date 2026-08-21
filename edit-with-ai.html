@@ -200,15 +200,13 @@
 
         <div class="turn" id="turn-build">
           <p class="turn-head">B · Build the document</p>
-          <div class="row">
-            <button class="button primary" id="build-copy" type="button">Copy the build prompt</button>
-            <span class="file-name" id="build-state"></span>
-          </div>
-          <p class="hint" id="build-where">Paste it into the same chat you used in A, then bring
-          its reply to step 3.</p>
+          <!-- The options feed the prompt, so they come before the button
+               that copies it: choose, then copy. The last click is always
+               Copy the build prompt. -->
           <details id="build-options">
-            <summary>More options — name it yourself, choose the rack</summary>
-            <p class="hint">All optional. Leave them alone and the AI decides from your diagram.</p>
+            <summary>Optional build choices — title, coverage, architecture, rack</summary>
+            <p class="hint">All optional, and all baked into the build prompt the button below
+            copies. Leave them alone and the AI decides from your diagram.</p>
             <label class="fresh-field">Document title <span class="fresh-hint">(empty = the AI names it)</span>
               <input id="fresh-title" type="text" placeholder="Our Organization Network"></label>
             <label class="fresh-field">Drawing id <span class="fresh-hint">(also the saved filename; empty = from the title)</span>
@@ -242,6 +240,12 @@
                 <option value="none">No rack — record its absence as a gap</option>
               </select></label>
           </details>
+          <div class="row">
+            <button class="button primary" id="build-copy" type="button">Copy the build prompt</button>
+            <span class="file-name" id="build-state"></span>
+          </div>
+          <p class="hint" id="build-where">Paste it into the same chat you used in A, then bring
+          its reply to step 3.</p>
         </div>
       </div>
 
