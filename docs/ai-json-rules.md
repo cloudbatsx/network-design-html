@@ -99,6 +99,11 @@ so do not use `generic-server-2u` to fill a 1U slot.
   whole `brand` object through **exactly as you found it**, character for
   character. It is the only place a person changes their own branding, and one
   altered character destroys the logo.
+- **`document.author` and `footer.author`** — the document's owner, set in the
+  helper's branding step. Copy them through exactly; never replace either with
+  an invented team, company or assistant name. Building fresh, leave
+  `document.author` out and set `footer.author` to `Prepared by the design
+  owner` — the owner signs both later.
 - **`evidence.color`** must be one of `purple`, `red`, `green`, `amber`, `teal`.
 
 ## Shape

@@ -983,6 +983,7 @@ function freshRequestText(title, drawing, rack, source, packs, architecture) {
     " Section 3 is not optional: sections.identity.rows must have a row for every device that has an address, and every rack-mountable device - firewall, router, switch, server - must appear in the rack schedule with a position, a height and a face code. A device drawn in the topology and missing from both tables is a device the document only half records." +
     ` The document must contain every device in the ${noun}. If you condense repeated devices or leave anything out, record exactly what was condensed or omitted as a finding stating both numbers - how many the ${noun} counted, how many the drawing shows - the document must never look more complete than it is.` +
     " Anything dated, expired or end-of-life becomes a finding, and anything you could not read from the diagram goes in the gaps list." +
+    " The author is the document's owner, not you: leave document.author out and set footer.author to \"Prepared by the design owner\" - the owner signs both in the helper's branding step, and an invented team or company name there is a fabrication." +
     " Write the figure caption and legend to describe what is actually drawn." +
     (packs || []).filter((key) => COVERAGE_PACKS[key]).map((key) => COVERAGE_PACKS[key].request).join("") +
     (ARCHITECTURES[architecture] ? ARCHITECTURES[architecture].request : "");
@@ -1039,8 +1040,20 @@ function brandedData(base, fields) {
   next.document = next.document && typeof next.document === "object" ? next.document : {};
   /* The author sits on the document, not the brand: it names the accountable
      owner in the document-control panel, and the version stamp signs every
-     change-record row with it. Empty keeps whatever the file has. */
-  if ((fields.author || "").trim()) next.document.author = fields.author.trim();
+     change-record row with it. Empty keeps whatever the file has.
+
+     The FOOTER credits an author too - a separate field the AI wrote at
+     build time, printed on every page. The field test staged a real name,
+     saved, and watched every page still credit the model's invented
+     "Network Architecture Team": one name, two homes, one updated. Staging
+     an author now signs both. */
+  if ((fields.author || "").trim()) {
+    const person = fields.author.trim();
+    next.document.author = person;
+    const footer = next.document.footer && typeof next.document.footer === "object" ? next.document.footer : {};
+    footer.author = `Prepared by ${person}`;
+    next.document.footer = footer;
+  }
   const brand = Object.assign({}, next.document.brand);
   if ((fields.name || "").trim()) brand.name = fields.name.trim();
   if ((fields.label || "").trim()) brand.label = fields.label.trim();

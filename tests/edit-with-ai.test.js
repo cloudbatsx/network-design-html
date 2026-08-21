@@ -615,6 +615,14 @@ test("wizard: the build request carries the title, id, zones, rack and gaps rule
   assert(/gaps list/.test(text));
 });
 
+test("wizard: the build request keeps the footer credit for the owner", () => {
+  const text = t.freshRequestText("", "", "auto");
+  assert(text.includes('Prepared by the design owner'),
+    "the request no longer names the placeholder footer credit");
+  assert(/leave document\.author out/.test(text));
+  assert(/invented team or company name/.test(text));
+});
+
 test("wizard: every question left empty still builds a complete request", () => {
   const text = t.freshRequestText("", "", "auto");
   assert(/Choose a fitting document title/.test(text), "empty title did not delegate naming");
@@ -686,6 +694,30 @@ test("branding: empty fields keep what the file already has", () => {
   base.document.brand.name = "Existing";
   const { next } = t.brandedData(base, { name: "", label: "  " });
   assert.strictEqual(next.document.brand.name, "Existing");
+});
+
+/* One name, two homes: the control panel reads document.author, every printed
+   page reads footer.author - and the AI wrote the footer's at build time.
+   The field test staged a real name and watched the pages still credit
+   "Network Architecture Team". Staging an author signs both. */
+test("branding: the staged author signs the control panel and the printed footer", () => {
+  const base = baseDesign();
+  base.document.footer.author = "Network Architecture Team";
+  const { next, problem } = t.brandedData(base, { author: "Sayed Haque" });
+  assert(!problem);
+  assert.strictEqual(next.document.author, "Sayed Haque");
+  assert.strictEqual(next.document.footer.author, "Prepared by Sayed Haque");
+  assert.strictEqual(next.document.footer.caveat, "c", "the rest of the footer was disturbed");
+  assert.strictEqual(next.document.footer.redaction, "r", "the rest of the footer was disturbed");
+});
+
+test("branding: an empty author leaves both author fields alone", () => {
+  const base = baseDesign();
+  base.document.author = "Existing Owner";
+  base.document.footer.author = "Prepared by Existing Owner";
+  const { next } = t.brandedData(base, { author: "  ", name: "Acme" });
+  assert.strictEqual(next.document.author, "Existing Owner");
+  assert.strictEqual(next.document.footer.author, "Prepared by Existing Owner");
 });
 
 test("branding: a broken logo path or colour is refused with a plain reason", () => {
