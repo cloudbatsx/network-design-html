@@ -1,0 +1,57 @@
+{
+  "test": "test19",
+  "title": "Vantage Networks Network",
+  "organisation": "Vantage Networks",
+  "topologyImage": "network-diagram-example3.png",
+  "logoImage": "logo-vantage-networks.png",
+  "model": "gemini-3.6-flash",
+  "surface": "API (Google AI free tier)",
+  "date": "2026-08-16T07:01:17.777Z",
+  "rounds": [
+    {
+      "round": 1,
+      "finishReason": "STOP",
+      "chars": 21530,
+      "usage": {
+        "prompt": 13058,
+        "output": 7731,
+        "thoughts": 4456
+      },
+      "repairsApplied": [],
+      "truncated": false,
+      "stops": [],
+      "warnings": 5,
+      "warningTexts": [
+        "\"dev-sp-003\" and \"sw-np-005\" overlap by 9% of a device box.",
+        "\"srv-opm-11\" and \"srv-opm-10\" overlap by 9% of a device box.",
+        "\"sw-cisco-3750\" and \"srv-opm-13\" overlap by 9% of a device box.",
+        "\"sw-opm-stack-01\" and \"srv-opm-14\" overlap by 9% of a device box.",
+        "\"srv-opm-18\" and \"srv-opm-01\" overlap by 9% of a device box."
+      ]
+    }
+  ],
+  "verdict": "PASS - clean save in 1 round trip with 5 warning(s)",
+  "modelVersion": "gemini-3.6-flash",
+  "extract": {
+    "finishReason": "STOP",
+    "chars": 9313,
+    "usage": {
+      "prompt": 1285,
+      "output": 4070,
+      "thoughts": 3862
+    }
+  },
+  "roundTrips": 1,
+  "branding": {
+    "applied": "name+image",
+    "note": "raster logo: 1713 bytes"
+  },
+  "drawingId": "VNN-NET-001",
+  "saved": "vnn-net-001.edit.html",
+  "packaged": "vnn-net-001.portable.html",
+  "packaging": {
+    "embedded": 29,
+    "embeddedBytes": 2963196,
+    "skipped": []
+  }
+}

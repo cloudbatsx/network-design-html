@@ -1,0 +1,107 @@
+{
+  "test": "test10",
+  "title": "Cedarview Clinic Network",
+  "organisation": "Cedarview Clinic",
+  "topologyImage": "0c4e45b159c3bf1627f7497f81205111807d3a7e.png",
+  "logoImage": "logo-cedarview-clinic.png",
+  "model": "gemini-2.5-flash",
+  "surface": "API (Google AI free tier)",
+  "date": "2026-08-20T16:05:45.838Z",
+  "rounds": [
+    {
+      "round": 1,
+      "finishReason": "STOP",
+      "chars": 30542,
+      "usage": {
+        "prompt": 12260,
+        "output": 9589,
+        "thoughts": 8298
+      },
+      "repairsApplied": [
+        "removed a code fence"
+      ],
+      "truncated": false,
+      "stops": [
+        "This reply is not valid JSON, even after cleaning it up."
+      ],
+      "warnings": 0,
+      "warningTexts": []
+    },
+    {
+      "round": 2,
+      "finishReason": "STOP",
+      "chars": 20599,
+      "usage": {
+        "prompt": 21918,
+        "output": 7059,
+        "thoughts": 3938
+      },
+      "repairsApplied": [
+        "moved \"wan-sw-01\" 18px down to sit fully inside \"perimeter\"",
+        "moved \"remote-datacenter\" 28px up to sit fully inside \"internal\"",
+        "moved \"ap-top\" 28px up to sit fully inside \"internal\"",
+        "moved \"ap-middle\" 28px up to sit fully inside \"internal\"",
+        "moved \"ap-bottom\" 28px up to sit fully inside \"internal\"",
+        "moved \"l2-sw-bottom\" 28px up to sit fully inside \"internal\"",
+        "moved \"client-laptop\" 28px up to sit fully inside \"internal\"",
+        "filled the identity table from the 10 devices that carry an address"
+      ],
+      "truncated": false,
+      "stops": [
+        "\"core-sw-01\" and \"seg-vlan19\" sit on top of each other by 81% of a device box."
+      ],
+      "warnings": 1,
+      "warningTexts": [
+        "\"hsrp-01\" and \"seg-vlan19\" overlap by 25% of a device box."
+      ]
+    },
+    {
+      "round": 3,
+      "finishReason": "STOP",
+      "chars": 20557,
+      "usage": {
+        "prompt": 29144,
+        "output": 7051,
+        "thoughts": 4661
+      },
+      "repairsApplied": [
+        "moved \"wan-sw-01\" 18px down to sit fully inside \"perimeter\"",
+        "filled the identity table from the 10 devices that carry an address"
+      ],
+      "truncated": false,
+      "stops": [],
+      "warnings": 0,
+      "warningTexts": [],
+      "inventoryGate": {
+        "gate": "over",
+        "promised": 23,
+        "placed": 27,
+        "short": false
+      }
+    }
+  ],
+  "verdict": "PASS - clean save in 3 round trips - note: 27 placed vs 23 promised (over-count is where padded inventions hide)",
+  "modelVersion": "gemini-2.5-flash",
+  "extract": {
+    "finishReason": "STOP",
+    "chars": 5827,
+    "usage": {
+      "prompt": 696,
+      "output": 2434,
+      "thoughts": 1461
+    }
+  },
+  "roundTrips": 3,
+  "branding": {
+    "applied": "name+image",
+    "note": "raster logo: 1563 bytes"
+  },
+  "drawingId": "CCN-NET-001",
+  "saved": "ccn-net-001.edit.html",
+  "packaged": "ccn-net-001.portable.html",
+  "packaging": {
+    "embedded": 29,
+    "embeddedBytes": 2963196,
+    "skipped": []
+  }
+}
