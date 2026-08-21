@@ -94,7 +94,10 @@ the declared shape against the review's own output: **open**, echoing the
 observation and jumping to its walkthrough, or **quiet** - the drawing,
 its tables or the gaps list answer the promise. The report never
 re-detects evidence with logic of its own; it is a view over the same
-observations, so it can never disagree with the review it summarises.
+observations, so it can never disagree with the review it summarises. The
+same probe fills a chip beside each pack checkbox before it is ever ticked —
+"already answered" or "ticking opens the question, never draws" — because a
+bare checkbox reads as "the app might change my network", and it never does.
 
 ## The roadmap (unbuilt)
 

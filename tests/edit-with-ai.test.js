@@ -418,6 +418,29 @@ test("scope report: the declared shape reports too, and undeclared shows nothing
   assert.strictEqual(host.hidden, true, "an undeclared document grew a scope report");
 });
 
+/* The chip on an unticked pack says what ticking would do - the field test
+   read a bare checkbox as "the app might evolve my network". Its verdict is
+   a probe of the review itself, so chip, report and review always agree. */
+test("scope: pack chips say before ticking whether the design answers it", () => {
+  const design = baseDesign();
+  t.setData(design);
+  t.forceAccepted(null);
+  t.renderScopeReport();
+  const wireless = sandbox.document.getElementById("pack-state-wireless");
+  assert(/never draws/.test(wireless.textContent), "an unanswered pack's chip does not warn");
+  const covered = structuredClone(design);
+  covered.topology.nodes.push({ id: "ap-01", label: "AP", icon: "access-point", x: 900, y: 300 });
+  t.setData(covered);
+  t.renderScopeReport();
+  assert(/already answers/.test(wireless.textContent), "an answered pack's chip does not say so");
+});
+
+test("markup: every coverage pack carries its applicability chip", () => {
+  for (const key of Object.keys(t.COVERAGE_PACKS)) {
+    assert(helper.includes(`id="pack-state-${key}"`), `${key} has no applicability chip`);
+  }
+});
+
 test("scope report: every coverage pack has review rules answering for it", () => {
   for (const key of Object.keys(t.COVERAGE_PACKS)) {
     assert(Array.isArray(t.PACK_RULES[key]) && t.PACK_RULES[key].length,

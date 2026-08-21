@@ -80,6 +80,8 @@
     .advanced{margin:10px 0 4px}
     .advanced summary{cursor:pointer;color:var(--blue2);font-weight:700;font-size:.9rem}
     .file-name a{color:var(--blue2);font-weight:700}
+    .pack-state{margin-left:6px;font-size:.78rem;font-weight:400;color:var(--muted)}
+    .pack-state.answered{color:var(--ok);font-weight:650}
     .fresh-field{display:block;margin:8px 0;font-size:.9rem;font-weight:650}
     .fresh-field input,.fresh-field select{display:block;width:min(420px,100%);margin-top:4px;padding:7px 10px;border:1px solid var(--line);border-radius:6px;font-weight:400;font-family:inherit}
     .fresh-hint{color:var(--muted);font-weight:400;font-size:.82rem}
@@ -211,8 +213,10 @@
               <input id="fresh-title" type="text" placeholder="Our Organization Network"></label>
             <label class="fresh-field">Drawing id <span class="fresh-hint">(also the saved filename; empty = from the title)</span>
               <input id="fresh-drawing" type="text" placeholder="OUR-NET-001"></label>
-            <p class="fresh-hint" style="margin:12px 0 4px"><b>Extra coverage</b> — tick what this
-            document should also record; the engineering review will hold it to the choice.</p>
+            <p class="fresh-hint" style="margin:12px 0 4px"><b>Extra coverage</b> — tick what your
+            network has and this document should record. Unlike the scope step later, these ticks
+            DO shape the build: the prompt teaches the AI what each pack wants drawn and tabled,
+            and the engineering review then holds the document to the choice.</p>
             <label class="pick"><input type="checkbox" data-cover="management-oob">
               <span><b>Management &amp; out-of-band</b> — the management network, console or jump paths, shared dependencies</span></label>
             <label class="pick"><input type="checkbox" data-cover="wireless">
@@ -388,14 +392,15 @@
         <label class="pick"><input type="checkbox" data-omit="operations" checked> <span>Operations &amp; observability</span></label>
         <label class="pick"><input type="checkbox" data-omit="equipment" checked> <span>Equipment exhibit <span class="fresh-hint">— the Appendix A hardware cards</span></span></label>
         <p class="hint" style="margin:12px 0 6px"><b>Extra coverage</b> — promises this document
-        makes, shown as a "Declared scope" row on its cover. A pack does not add a section by
-        itself: the engineering review asks for whatever the drawing does not show, and each
-        open question carries its own fix prompt. The scope report below Apply keeps the score.</p>
-        <label class="pick"><input type="checkbox" data-cover="management-oob"> <span>Management &amp; out-of-band</span></label>
-        <label class="pick"><input type="checkbox" data-cover="wireless"> <span>Wireless — APs, controller, SSIDs</span></label>
-        <label class="pick"><input type="checkbox" data-cover="fabric-overlay"> <span>Fabric overlay — VNIs, VRFs, mappings</span></label>
-        <label class="pick"><input type="checkbox" data-cover="wan-multisite"> <span>WAN / multi-site — sites, circuits, diversity</span></label>
-        <label class="pick"><input type="checkbox" data-cover="security-segmentation"> <span>Security &amp; segmentation — zone-to-VLAN mapping</span></label>
+        makes, shown as a "Declared scope" row on its cover. <b>Ticking a pack never changes the
+        drawing</b> — it declares a promise, and the note beside each pack says up front whether
+        this design already answers it. Where it does not, the review opens the question, and its
+        fix prompt is how the AI adds what is missing. The scope report below Apply keeps the score.</p>
+        <label class="pick"><input type="checkbox" data-cover="management-oob"> <span>Management &amp; out-of-band <span class="pack-state" id="pack-state-management-oob"></span></span></label>
+        <label class="pick"><input type="checkbox" data-cover="wireless"> <span>Wireless — APs, controller, SSIDs <span class="pack-state" id="pack-state-wireless"></span></span></label>
+        <label class="pick"><input type="checkbox" data-cover="fabric-overlay"> <span>Fabric overlay — VNIs, VRFs, mappings <span class="pack-state" id="pack-state-fabric-overlay"></span></span></label>
+        <label class="pick"><input type="checkbox" data-cover="wan-multisite"> <span>WAN / multi-site — sites, circuits, diversity <span class="pack-state" id="pack-state-wan-multisite"></span></span></label>
+        <label class="pick"><input type="checkbox" data-cover="security-segmentation"> <span>Security &amp; segmentation — zone-to-VLAN mapping <span class="pack-state" id="pack-state-security-segmentation"></span></span></label>
         <label class="fresh-field" style="margin-top:12px">Architecture <span class="fresh-hint">(a declaration, never a redraw — the drawing stays exactly as it is)</span>
           <select id="scope-arch">
             <option value="" selected>Not declared — let the drawing speak</option>
@@ -3435,6 +3440,27 @@ function renderScopeReport() {
   if (!host) return;
   host.replaceChildren();
   const data = accepted || currentData;
+  /* The chips beside the pack checkboxes: what ticking WOULD do, said
+     before it is done. The field test read an untouched checkbox as "the
+     app might evolve my network" - so each pack now announces its own
+     state up front. Same drift-proof rule as the report below: a chip's
+     verdict comes from probing the review itself with the pack declared,
+     never from a second detector that could disagree with it. */
+  for (const key of Object.keys(COVERAGE_PACKS)) {
+    const chip = $("pack-state-" + key);
+    if (!chip) continue;
+    if (!data) { chip.textContent = ""; continue; }
+    const probe = structuredClone(data);
+    probe.document = probe.document && typeof probe.document === "object" ? probe.document : {};
+    const declared = Array.isArray(probe.document.coverage) ? probe.document.coverage : [];
+    if (!declared.includes(key)) probe.document.coverage = [...declared, key];
+    const rules = PACK_RULES[key] || [];
+    const answered = !reviewTopology(probe, lastAskPicture).some((obs) => rules.includes(obs.rule));
+    chip.classList.toggle("answered", answered);
+    chip.textContent = answered
+      ? "✓ this design already answers it"
+      : "not shown in this design — ticking opens the question, never draws";
+  }
   const packs = Array.isArray(data?.document?.coverage)
     ? data.document.coverage.filter((key) => COVERAGE_PACKS[key]) : [];
   const shape = ARCHITECTURES[data?.document?.architecture] ? data.document.architecture : "";
