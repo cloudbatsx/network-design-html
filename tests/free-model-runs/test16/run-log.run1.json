@@ -6,41 +6,33 @@
   "logoImage": "logo-redwood-residence.png",
   "model": "gemini-3.6-flash",
   "surface": "API (Google AI free tier)",
-  "date": "2026-08-21T01:03:16.247Z",
+  "date": "2026-08-16T18:28:18.449Z",
   "rounds": [
     {
       "round": 1,
       "finishReason": "STOP",
-      "chars": 14036,
+      "chars": 12640,
       "usage": {
-        "prompt": 11927,
-        "output": 4578,
-        "thoughts": 3196
+        "prompt": 11145,
+        "output": 4189,
+        "thoughts": 4212
       },
-      "repairsApplied": [
-        "aligned \"ap-04\" with \"switch-48-poe\" (20px left) so the cable runs straight"
-      ],
+      "repairsApplied": [],
       "truncated": false,
       "stops": [],
       "warnings": 0,
-      "warningTexts": [],
-      "inventoryGate": {
-        "gate": "met",
-        "promised": 13,
-        "placed": 13,
-        "short": false
-      }
+      "warningTexts": []
     }
   ],
   "verdict": "PASS - clean save in 1 round trip",
   "modelVersion": "gemini-3.6-flash",
   "extract": {
     "finishReason": "STOP",
-    "chars": 3906,
+    "chars": 5200,
     "usage": {
-      "prompt": 1540,
-      "output": 1256,
-      "thoughts": 2095
+      "prompt": 1331,
+      "output": 2111,
+      "thoughts": 2226
     }
   },
   "roundTrips": 1,
