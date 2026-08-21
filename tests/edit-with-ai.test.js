@@ -57,7 +57,8 @@ const shim = ";globalThis.__exports = { parseWithRepair, mergeReply, checkStruct
   " setData: (d) => { currentData = d; }," +
   " setRequest: (text) => { document.getElementById('request').value = text; }," +
   " setSlice: (name) => { document.getElementById('slice').value = name; }," +
-  " getAccepted: () => accepted, forceAccepted: (v) => { accepted = v; }, loadSource };";
+  " getAccepted: () => accepted, forceAccepted: (v) => { accepted = v; }, loadSource," +
+  " check, setStepMode, getBuildMode: () => buildMode };";
 vm.runInNewContext(script[1] + shim, sandbox, { filename: "edit-with-ai.html <script>" });
 const t = sandbox.__exports;
 
@@ -223,6 +224,70 @@ test("merge: removing a device from a list is editing, not deletion", () => {
   const { problems } = t.mergeReply(reply, original, "nodes");
   assert(!has(problems, /no longer contains/),
     "an array shrink was reported as a key deletion");
+});
+
+/* A whole design pasted while the picker asks for one part is a mismatch,
+   not an over-reply: applying one part of it silently discards the other
+   three. It stops, and only when the reply is unambiguously a whole design -
+   all four top keys - so an over-compliant model echoing two strays keeps
+   the gentler ignored-with-a-warning path. */
+test("merge: a whole design pasted against a part is a stop naming the mismatch", () => {
+  const original = baseDesign();
+  const { merged, problems, wholeDesign } = t.mergeReply(structuredClone(original), original, "nodes");
+  assert.strictEqual(merged, null);
+  assert.strictEqual(wholeDesign, true);
+  assert(has(problems, /whole design/, true));
+});
+
+/* ---- build mode does not depend on the copy buttons ---- */
+
+/* The copy buttons used to be the only place that aimed the part picker and
+   captured the coverage ticks - so a person pasting a reply saved from an
+   earlier chat, without pressing them, had a full build merged as "devices
+   only" into the sample template. The mode owns that state now. */
+test("build mode: entering it aims the hidden part picker at everything", () => {
+  t.setData(baseDesign());
+  t.setSlice("nodes");
+  t.setStepMode(true);
+  assert.strictEqual(sandbox.document.getElementById("slice").value, "all");
+  t.setStepMode(false);
+});
+
+test("build mode: a reply checked without any copy click merges as the whole design", () => {
+  const original = baseDesign();
+  t.setData(structuredClone(original));
+  t.setStepMode(true);
+  t.setSlice("nodes");   // sabotage: the picker must not matter in this mode
+  const reply = structuredClone(original);
+  reply.topology.nodes.push({ id: "wlc-01", label: "WLC", icon: "wlan-controller", x: 500, y: 500 });
+  reply.sections.findings.items.push({ title: "New", detail: "A finding the part merge would have dropped." });
+  sandbox.document.getElementById("reply").value = JSON.stringify(reply);
+  t.check();
+  const accepted = t.getAccepted();
+  assert(accepted, "check() accepted nothing in build mode");
+  assert.strictEqual(accepted.topology.nodes.length, 3, "the reply's new device was not merged");
+  assert.strictEqual(accepted.sections.findings.items.length, 2, "the reply's sections were not merged");
+  t.setStepMode(false);
+});
+
+test("build mode: coverage ticks are read at check time, not at copy time", () => {
+  const original = baseDesign();
+  t.setData(structuredClone(original));
+  t.setStepMode(true);
+  const previous = sandbox.document.querySelectorAll;
+  sandbox.document.querySelectorAll = (selector) =>
+    String(selector).includes("data-cover") ? [{ checked: true, dataset: { cover: "wireless" } }] : [];
+  sandbox.document.getElementById("reply").value = JSON.stringify(original);
+  try {
+    t.check();
+  } finally {
+    sandbox.document.querySelectorAll = previous;
+  }
+  const accepted = t.getAccepted();
+  assert(accepted, "check() accepted nothing in build mode");
+  assert.deepStrictEqual(json(accepted.document.coverage), ["wireless"],
+    "a tick never blessed by the copy button did not reach the document");
+  t.setStepMode(false);
 });
 
 /* ---- the whole design is validated after merging ---- */

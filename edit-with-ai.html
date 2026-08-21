@@ -1217,6 +1217,14 @@ function setStepMode(building) {
   step.classList.toggle("mode-build", building);
   step.classList.toggle("mode-edit", !building);
   $("step-2-head").textContent = building ? "Build your design" : "Say what you want changed";
+  if (building) {
+    // A fresh build is always the whole design. The part picker is hidden in
+    // this mode but check() still consults it, so the MODE aims it - never a
+    // copy button: a reply pasted without touching the buttons must merge as
+    // everything, not as whichever part the picker happened to hold.
+    $("slice").value = "all";
+    describeSlice();
+  }
 }
 
 function note(host, kind, title, body) {
@@ -1661,6 +1669,18 @@ function mergeReply(parsed, original, name) {
   if (parsed === null || typeof parsed !== "object") {
     return { merged: null, problems: [problem(true, "The reply is not a JSON object.",
       "Reply with one JSON object, starting with { and ending with }.")] };
+  }
+
+  /* A whole design pasted against a narrow part is a picker mismatch, not an
+     over-reply: applying one part of it would silently discard the other
+     three, which were presumably meant. It stops. The tell speaks to the AI
+     (the Copy-problems channel); check() adds the human way out - widen the
+     picker to Everything - beside it. */
+  if (name !== "all" && !Array.isArray(parsed)
+    && ["document", "topology", "rack", "sections"].every((key) => parsed[key] !== undefined)) {
+    return { merged: null, wholeDesign: true, problems: [problem(true,
+      `The reply is a whole design - document, topology, rack and sections are all present - but only ${wanted} was asked for.`,
+      `Reply with ${wanted} only, nested exactly as it was given to you. Send no other part of the design.`)] };
   }
 
   const merged = structuredClone(original);
@@ -3714,7 +3734,11 @@ function renderProblems(list) {
 
 function check() {
   const raw = $("reply").value;
-  const name = currentSliceName();
+  // In build mode the part picker is hidden and the answer is always the
+  // whole design. Read the mode, never the picker: state a copy button set
+  // is state a person who skipped the button never set, and merging a full
+  // build as "devices only" was exactly that failure.
+  const name = buildMode ? "all" : currentSliceName();
   // A check rebuilds from the file, so anything the panels staged is gone -
   // their summary lines must not survive into a save they are no part of.
   accepted = null; aiSummary = ""; panelSummary = [];
@@ -3753,10 +3777,13 @@ function check() {
   // The AI only saw one part. Everything below checks the whole design, because
   // a valid-looking part can still contradict the parts it was not shown.
   const original = currentData;
-  const { merged, problems: mergeProblems } = mergeReply(parsed, original, name);
+  const { merged, problems: mergeProblems, wholeDesign } = mergeReply(parsed, original, name);
   if (!merged) {
     renderProblems(hostile.concat(mergeProblems));
-    note("check-message", "error", "Could not use the reply.", " See below.");
+    note("check-message", "error", "Could not use the reply.",
+      wholeDesign
+        ? ` This reply is a complete design, but the part picker asks for ${SLICES[name].noun} only. If the whole design is what you meant - a reply kept from an earlier AI chat, for example - set "Which part is changing?" to "The whole design in one go" and press Check it again.`
+        : " See below.");
     return;
   }
 
@@ -3766,7 +3793,13 @@ function check() {
   const { next: tidied, applied: fills } = fillIdentityFromDrawing(polished, name);
   /* Declared coverage is owner-owned: the model never writes it, the helper
      stamps it onto a fresh build so the document carries what was asked of
-     it - and the review below holds it to that. */
+     it - and the review below holds it to that. Read live from the panel at
+     check time, never from a snapshot a copy button took: a tick must count
+     even when the person never pressed Copy, and an untick must too. */
+  if (buildMode) {
+    pendingCoverage = buildPacks();
+    pendingArchitecture = $("build-arch") ? $("build-arch").value : "";
+  }
   if (buildMode && (pendingCoverage.length || pendingArchitecture)) {
     tidied.document = tidied.document && typeof tidied.document === "object" ? tidied.document : {};
     if (pendingCoverage.length) tidied.document.coverage = [...pendingCoverage];
