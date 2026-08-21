@@ -217,10 +217,13 @@ A numbered marker then appears on that device, and the number is the finding's
 position in the list — so the drawing and the list can never disagree. Click the
 marker to jump to the finding. `"atZone": "perimeter"` outlines a whole area instead.
 
-One control hides the section, the markers, and every table row marked as an
-assumption, together — and printing follows it, so you decide what a printed
-deliverable contains. What keeps a document honest is not the printer: the gaps
-list can never be empty, assumed rows stay marked, and the layer ships visible.
+One control hides the section and the markers together — and printing follows
+it, so you decide what a printed deliverable contains. Table rows marked as
+assumptions are not part of the switch: they stay visible always, wearing an
+**assumed** mark, so hiding the layer can never blank a table and an
+assumption can never pass as a recorded fact. What keeps a document honest is
+not the printer: the gaps list can never be empty, assumed rows stay marked,
+and the layer ships visible.
 
 ### It catches your mistakes
 

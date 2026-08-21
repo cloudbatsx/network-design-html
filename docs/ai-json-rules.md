@@ -183,7 +183,8 @@ A **note** is either a plain string or `{ "lead": "bold part", "text": "rest" }`
 
 An **identity row** is either a list of cells, or
 `{ "cells": [], "layer": "gap" }`. Rows marked `"layer": "gap"` are assumptions —
-they hide and reveal with the Key gaps control, so mark anything unverified.
+they stay visible wearing an **assumed** mark, so mark anything unverified;
+the reader can always tell recorded from assumed.
 
 > **The helper teaches this grammar too.** The built-in prompt in
 > `edit-with-ai.html` carries the drawing grammar below — caption sides,

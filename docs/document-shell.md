@@ -73,9 +73,14 @@ Slot A is not only a list. A finding that carries `at` (a device id) or `atZone`
 point at the drawing and read the finding. Zone findings additionally get a
 dashed outline.
 
-One control governs all of it — the section, the markers, and any identity row
-marked `"layer": "gap"` — because they all carry `.gap-layer` and the body
-class `show-gaps` is the single switch.
+One control governs the section and the markers — they carry `.gap-layer` and
+the body class `show-gaps` is the single switch. Table rows marked
+`"layer": "gap"` are **not** part of the switch: they stay visible always,
+wearing a permanent `assumed` mark, because a document whose every identity
+row is an assumption used to blank its own table the moment the layer was
+hidden — and an invisible assumption is indistinguishable from a recorded
+fact. (Until 2026-08-21 the rows hid with the layer; the mark replaced the
+hiding.)
 
 Marker numbers are **derived from the order of `findings.items`**, never
 authored. The earlier hand-built documents placed markers at absolute SVG

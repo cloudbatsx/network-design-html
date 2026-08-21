@@ -108,8 +108,13 @@
 
   /* ==== TOGGLEABLE LAYERS — exactly two, no more, no fewer ================
      Slot A = the candour layer (section 2). Slot B = the equipment exhibit.
-     @media print prints them exactly as the eye controls leave them. ======== */
-  body:not(.show-gaps) .gap-layer { display:none !important; }
+     @media print prints them exactly as the eye controls leave them.
+     The gap switch hides the SECTION and the drawing MARKERS only: assumed
+     table rows stay visible wearing their "assumed" mark, so the toggle can
+     never blank a table whose every row is an assumption. ============== */
+  body:not(.show-gaps) section.gap-layer, body:not(.show-gaps) g.gap-layer { display:none !important; }
+  tr.gap-layer td { background:#fffaf0; }
+  tr.gap-layer td:first-child::before { content:"assumed"; display:inline-block; vertical-align:1px; margin-right:6px; padding:0 5px; border-radius:8px; background:#f1e3c4; color:#7a5b1f; font-size:7pt; font-weight:700; letter-spacing:.05em; }
   body:not(.show-equip) .equip-layer { display:none !important; }
 
   /* -- numbered finding list. One flavour per document. -- */
@@ -119,7 +124,7 @@
   .gaps li { background:#fef2f2; border-left:3px solid #dc2626; } .gapnum { background:#dc2626; } .gaps b { color:#7f1d1d; }
   /* -- the gap overlay: markers drawn onto the topology, numbered from the findings
         list so a reader can point at the picture and read the finding. Carries
-        .gap-layer so one control governs the diagram, the tables and the list. -- */
+        .gap-layer so one control governs the drawing overlay and the list. -- */
   .gap-pin { cursor:pointer; }
   .gap-pin circle { fill:#dc2626; stroke:#fff; stroke-width:2; }
   .gap-pin text { fill:#fff; font-size:13px; font-weight:700; text-anchor:middle; pointer-events:none; }
@@ -1122,7 +1127,7 @@ Do not rewrite the renderers, inline vector library, or stable official-asset ma
       "provenance": [
         { "lead": "Two classes of statement, kept visibly distinct", "text": "Recorded = the topology, rack and schedule data in this file, which renders exactly what it says. Assumed = every address, port, model and power figure, all of which are illustrative." },
         { "lead": "This is a starter kit, not an as-built record", "text": "the shape is a documented pattern; no configuration, measurement or survey stands behind any value here. Copy it, then replace the data block." },
-        { "lead": "The Key gaps eye control in the sidebar", "text": "hides the assumption layer, including the identity rows marked as assumptions, for a recorded-only view. Printing follows it, so the PDF is whatever the document shows on screen." }
+        { "lead": "The Key gaps eye control in the sidebar", "text": "hides the gaps section and its drawing markers. Assumed table rows stay visible, wearing their assumed mark - the reader can always tell recorded from assumed. Printing follows it, so the PDF is whatever the document shows on screen." }
       ]
     },
     "logical": {

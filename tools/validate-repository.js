@@ -255,6 +255,15 @@ for (const name of starterNames) {
     want(source.includes('id="dc-scope-field"') && source.includes('id="meta-scope-row"'),
       "declared-scope row missing from the document-control panel or the print strip");
     want(source.includes('el("dc-scope-field")'), "the renderer no longer fills the declared-scope row");
+
+    // The gap switch hides the findings section and the drawing markers
+    // ONLY; assumed table rows stay visible wearing their permanent mark.
+    // Both halves of that contract ship together - a switch that can blank
+    // a table, or an unmarked assumption, is each its own failure.
+    want(source.includes("body:not(.show-gaps) section.gap-layer"),
+      "the gap switch is no longer scoped to the section and the overlay");
+    want(source.includes('tr.gap-layer td:first-child::before'),
+      "the permanent assumed-row mark is missing");
   });
 }
 
