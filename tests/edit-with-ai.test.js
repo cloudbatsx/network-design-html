@@ -58,7 +58,11 @@ const shim = ";globalThis.__exports = { parseWithRepair, mergeReply, checkStruct
   " setRequest: (text) => { document.getElementById('request').value = text; }," +
   " setSlice: (name) => { document.getElementById('slice').value = name; }," +
   " getAccepted: () => accepted, forceAccepted: (v) => { accepted = v; }, loadSource," +
-  " check, setStepMode, getBuildMode: () => buildMode };";
+  " check, setStepMode, getBuildMode: () => buildMode," +
+  " applyReviewStage, discardStaged, getReviewActions: () => reviewActions," +
+  " pushReviewAction: (a) => { reviewActions.push(a); }," +
+  " resetReviewActions: () => { reviewActions = []; }," +
+  " getPanelSummary: () => panelSummary, getCurrentData: () => currentData };";
 vm.runInNewContext(script[1] + shim, sandbox, { filename: "edit-with-ai.html <script>" });
 const t = sandbox.__exports;
 
@@ -288,6 +292,110 @@ test("build mode: coverage ticks are read at check time, not at copy time", () =
   assert.deepStrictEqual(json(accepted.document.coverage), ["wireless"],
     "a tick never blessed by the copy button did not reach the document");
   t.setStepMode(false);
+});
+
+/* ---- the review's actions are staged with a way back ---- */
+
+/* A loadable one-block source, for tests that measure staging against the
+   file the way save() does. */
+function sourceFor(design) {
+  return `<html><script id="proof-data" type="application/json">\n${JSON.stringify(design)}\n</script></html>`;
+}
+const undoGap = { title: "No out-of-band path", detail: "Nothing reaches the devices out of band." };
+
+test("review: recording a gap stages it, and undo back to the file stands the staging down", () => {
+  const design = baseDesign();
+  t.loadSource(sourceFor(design), "undo-test.edit.html");
+  // What the Record button does:
+  const next = t.withReviewGap(t.getCurrentData(), undoGap);
+  t.pushReviewAction({ kind: "gap", gap: { ...undoGap } });
+  t.applyReviewStage(next);
+  assert(t.getAccepted(), "recording did not stage");
+  assert.strictEqual(json(t.getAccepted()).sections.findings.items.length, 2);
+  assert.strictEqual(sandbox.document.getElementById("save").disabled, false);
+  assert.strictEqual(sandbox.document.getElementById("discard-staged").disabled, false);
+  assert(t.getPanelSummary().includes("Recorded engineering-review gaps"));
+  // What its Undo button does:
+  const undone = structuredClone(t.getAccepted());
+  const items = undone.sections.findings.items;
+  items.splice(items.findLastIndex((item) => item.title === undoGap.title && item.detail === undoGap.detail), 1);
+  t.resetReviewActions();
+  t.applyReviewStage(undone);
+  assert.strictEqual(t.getAccepted(), null, "an undo back to the file must stand the whole staging down");
+  assert.strictEqual(sandbox.document.getElementById("save").disabled, true);
+  assert.strictEqual(sandbox.document.getElementById("discard-staged").disabled, true);
+  assert(!t.getPanelSummary().includes("Recorded engineering-review gaps"),
+    "the summary line outlived the action it describes");
+});
+
+test("review: undoing one gap keeps another staged, and Save stays live", () => {
+  const design = baseDesign();
+  t.loadSource(sourceFor(design), "undo-two.edit.html");
+  const second = { title: "Single uplink", detail: "One cable carries everything." };
+  let staged = t.withReviewGap(t.getCurrentData(), undoGap);
+  t.pushReviewAction({ kind: "gap", gap: { ...undoGap } });
+  staged = t.withReviewGap(staged, second);
+  t.pushReviewAction({ kind: "gap", gap: { ...second } });
+  t.applyReviewStage(staged);
+  // Undo only the first
+  const undone = structuredClone(t.getAccepted());
+  const items = undone.sections.findings.items;
+  items.splice(items.findLastIndex((item) => item.title === undoGap.title), 1);
+  t.resetReviewActions();
+  t.pushReviewAction({ kind: "gap", gap: { ...second } });
+  t.applyReviewStage(undone);
+  assert(t.getAccepted(), "the remaining gap lost its staging");
+  assert.strictEqual(json(t.getAccepted()).sections.findings.items.length, 2);
+  assert(t.getPanelSummary().includes("Recorded engineering-review gaps"));
+  t.resetReviewActions();
+});
+
+test("review: a flip stages undoably - flipping back stands the staging down", () => {
+  const design = baseDesign();
+  t.loadSource(sourceFor(design), "flip-test.edit.html");
+  t.pushReviewAction({ kind: "flip" });
+  t.applyReviewStage(t.flipTopology(t.getCurrentData()));
+  assert(t.getAccepted(), "the flip did not stage");
+  assert(t.getPanelSummary().includes("Drawing flipped top-to-bottom"));
+  t.resetReviewActions();
+  t.applyReviewStage(t.flipTopology(t.getAccepted()));
+  assert.strictEqual(t.getAccepted(), null, "flipping back to the file must stand the staging down");
+});
+
+test("review: a recorded gap survives a check only when the reply keeps its finding", () => {
+  const design = baseDesign();
+  t.loadSource(sourceFor(design), "check-keeps.edit.html");
+  const withGap = t.withReviewGap(t.getCurrentData(), undoGap);
+  t.pushReviewAction({ kind: "gap", gap: { ...undoGap } });
+  t.applyReviewStage(withGap);
+  t.setSlice("findings");
+  // A reply that keeps the recorded finding: the action and its line survive.
+  sandbox.document.getElementById("reply").value =
+    JSON.stringify({ sections: { findings: withGap.sections.findings } });
+  t.check();
+  assert.strictEqual(t.getReviewActions().length, 1, "a kept finding lost its undo");
+  assert(t.getPanelSummary().includes("Recorded engineering-review gaps"));
+  // A reply that rewrites the findings without it: the action stands down.
+  sandbox.document.getElementById("reply").value =
+    JSON.stringify({ sections: { findings: { items: [{ title: "T", detail: "D", at: "core-sw-01" }] } } });
+  t.check();
+  assert.strictEqual(t.getReviewActions().length, 0, "a wiped finding kept a stale undo");
+  assert(!t.getPanelSummary().includes("Recorded engineering-review gaps"));
+});
+
+test("discard: everything staged stands down and the session is the file again", () => {
+  const design = baseDesign();
+  t.loadSource(sourceFor(design), "discard-test.edit.html");
+  const staged = t.withReviewGap(t.getCurrentData(), undoGap);
+  t.pushReviewAction({ kind: "gap", gap: { ...undoGap } });
+  t.applyReviewStage(staged);
+  assert(t.getAccepted(), "nothing staged to discard");
+  t.discardStaged();
+  assert.strictEqual(t.getAccepted(), null);
+  assert.deepStrictEqual(json(t.getCurrentData()), json(design), "discard did not return to the file");
+  assert.strictEqual(t.getReviewActions().length, 0);
+  assert.strictEqual(sandbox.document.getElementById("save").disabled, true);
+  assert.strictEqual(sandbox.document.getElementById("discard-staged").disabled, true);
 });
 
 /* ---- the whole design is validated after merging ---- */

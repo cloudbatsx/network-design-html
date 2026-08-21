@@ -65,6 +65,7 @@
     .style-note{display:block;margin-top:3px;color:var(--blue2);font-weight:650;font-size:.82rem}
     .review-head{margin:18px 0 4px;font-size:.98rem}
     .problems.review li{border-color:var(--blue);background:#f3f8fa}
+    .problems.review li.recorded{border-color:var(--ok);background:#f1f8f4}
     .review-actions{margin-top:8px}
     .review-actions .button{flex-shrink:0;padding:5px 10px;font-size:.82rem}
     .review-step{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:7px}
@@ -393,6 +394,7 @@
       <div id="changes"></div>
       <div class="row">
         <button class="button success" id="save" type="button" disabled>Save new design file</button>
+        <button class="button" id="discard-staged" type="button" disabled>Discard staged changes</button>
         <span class="file-name" id="save-state"></span>
       </div>
       <div id="save-message"></div>
@@ -1330,6 +1332,7 @@ function loadSource(text, name) {
     // A fresh file is its own baseline; anything staged for the old one is gone.
     styleBaseline = null;
     aiSummary = ""; panelSummary = [];
+    reviewActions = [];
     pendingCoverage = [];
     pendingArchitecture = "";
     document.querySelectorAll("#build-options input[data-cover]").forEach((box) => { box.checked = false; });
@@ -1352,6 +1355,7 @@ function loadSource(text, name) {
     // it over the second. Found live when a review observation described a
     // document that was no longer open.
     accepted = null;
+    syncDiscard();
     $("problems").replaceChildren();
     $("changes").replaceChildren();
     $("copy-problems").disabled = true;
@@ -3129,11 +3133,106 @@ function reviewTopology(data, askPicture) {
    observation whose territory the findings now confess simply stops
    appearing, which is the recording click paying off in front of you. */
 let lastAskPicture = false;
+
+/* The review's own staged actions this session - recorded gaps, a flip -
+   each undoable until the save makes them the file. Without this the
+   recording click was one-way: the observation stood down instantly (by
+   design - the candour layer outranks the reviewer) and a changed mind had
+   nowhere to go but reloading the file. */
+let reviewActions = [];
+
+/* The design exactly as the loaded file holds it - the baseline every staged
+   change is measured against, because it is what save() will measure against. */
+function fileBaseline() {
+  if (!source) return currentData;
+  try { return JSON.parse(source.slice(payloadStart, payloadEnd)); }
+  catch { return currentData; }
+}
+
+/* Discard mirrors reality, not the save button: stops can disable Save while
+   panel edits stay staged underneath, and those are exactly the moments a
+   way back matters. */
+function syncDiscard() {
+  const discard = $("discard-staged");
+  if (!discard) return;
+  let staged = Boolean(accepted);
+  if (!staged && source && currentData) {
+    try { staged = JSON.stringify(currentData) !== JSON.stringify(fileBaseline()); } catch { staged = false; }
+  }
+  discard.disabled = !staged;
+}
+
+/* Advance the session to `next` after a review action - or, when an undo
+   returns the design to exactly what the file holds, stand the staging down
+   whole so Save disables and the change list clears. The summary lines
+   follow the actions that remain, never the clicks that happened. */
+function applyReviewStage(next) {
+  const gapLine = "Recorded engineering-review gaps";
+  const flipLine = "Drawing flipped top-to-bottom";
+  panelSummary = panelSummary.filter((line) => line !== gapLine && line !== flipLine);
+  if (reviewActions.some((action) => action.kind === "gap")) panelSummary.push(gapLine);
+  if (reviewActions.some((action) => action.kind === "flip")) panelSummary.push(flipLine);
+  const baseline = fileBaseline();
+  let unchanged = false;
+  try { unchanged = JSON.stringify(next) === JSON.stringify(baseline); } catch { unchanged = false; }
+  currentData = next;
+  if (unchanged) {
+    accepted = null;
+    $("save").disabled = true;
+    $("changes").replaceChildren();
+  } else {
+    accepted = next;
+    $("save").disabled = false;
+    renderChanges(baseline, next);
+  }
+  syncDiscard();
+  refreshStylePanel();
+  renderReview(reviewTopology(next, lastAskPicture));
+}
+
 function renderReview(observations) {
   const block = $("review-block"), host = $("review-list");
   if (!block || !host) return;
   host.replaceChildren();
-  block.hidden = observations.length === 0;
+  block.hidden = observations.length === 0 && reviewActions.length === 0;
+  /* What was recorded stays visible where it was recorded - with the way
+     back. The row disappears when the save makes it the file. */
+  for (const action of reviewActions) {
+    const li = document.createElement("li");
+    li.className = "recorded";
+    const what = document.createElement("span");
+    what.className = "what";
+    what.textContent = action.kind === "flip"
+      ? "Drawing flipped top-to-bottom - staged, not yet saved."
+      : `Recorded in the gaps list: "${action.gap.title}" - staged, not yet saved.`;
+    const undo = document.createElement("button");
+    undo.type = "button"; undo.className = "button"; undo.textContent = "Undo";
+    undo.addEventListener("click", () => {
+      const before = accepted || currentData;
+      let next;
+      if (action.kind === "flip") {
+        next = flipTopology(before);   // flipping twice is the identity
+      } else {
+        next = structuredClone(before);
+        const items = next.sections?.findings?.items;
+        if (Array.isArray(items)) {
+          const at = items.findLastIndex((item) => item
+            && item.title === action.gap.title && item.detail === action.gap.detail);
+          if (at >= 0) items.splice(at, 1);
+        }
+      }
+      reviewActions = reviewActions.filter((other) => other !== action);
+      applyReviewStage(next);
+    });
+    const row = document.createElement("div");
+    row.className = "review-step";
+    row.append(undo);
+    const actions = document.createElement("div");
+    actions.className = "review-actions";
+    actions.append(row);
+    li.append(what, actions);
+    host.appendChild(li);
+  }
   for (const obs of observations) {
     const li = document.createElement("li");
     const what = document.createElement("span");
@@ -3189,28 +3288,17 @@ function renderReview(observations) {
       remedyButton = document.createElement("button");
       remedyButton.type = "button"; remedyButton.className = "button"; remedyButton.textContent = "Flip the drawing — no AI";
       remedyButton.addEventListener("click", () => {
-        const before = accepted || currentData;
-        const next = flipTopology(before);
-        currentData = next;
-        accepted = next;
-        panelSummary.push("Drawing flipped top-to-bottom");
-        renderChanges(before, next);
-        $("save").disabled = false;
-        refreshStylePanel();
-        renderReview(reviewTopology(next, lastAskPicture));
+        const next = flipTopology(accepted || currentData);
+        reviewActions.push({ kind: "flip" });
+        applyReviewStage(next);
       });
     }
     const record = document.createElement("button");
     record.type = "button"; record.className = "button"; record.textContent = "Record as a gap";
     record.addEventListener("click", () => {
-      const before = accepted || currentData;
-      const next = withReviewGap(before, obs.gap);
-      currentData = next;
-      accepted = next;
-      if (!panelSummary.includes("Recorded engineering-review gaps")) panelSummary.push("Recorded engineering-review gaps");
-      renderChanges(before, next);
-      $("save").disabled = false;
-      renderReview(reviewTopology(next, lastAskPicture));
+      const next = withReviewGap(accepted || currentData, obs.gap);
+      reviewActions.push({ kind: "gap", gap: { title: obs.gap.title, detail: obs.gap.detail } });
+      applyReviewStage(next);
     });
     /* Numbered, because the field test could not guess an unnumbered flow:
        step 1 asks, step 2 forks - fix through the ordinary Check loop, or
@@ -3739,11 +3827,13 @@ function check() {
   // is state a person who skipped the button never set, and merging a full
   // build as "devices only" was exactly that failure.
   const name = buildMode ? "all" : currentSliceName();
-  // A check rebuilds from the file, so anything the panels staged is gone -
-  // their summary lines must not survive into a save they are no part of.
+  // Staged panel edits live on inside currentData and ride through the merge;
+  // the summary lines are rebuilt conservatively - the review's own lines
+  // return below only for actions whose effect verifiably survived the reply.
   accepted = null; aiSummary = ""; panelSummary = [];
   renderReview([]);
   $("save").disabled = true; $("save-state").textContent = "";
+  syncDiscard();
   note("save-message", null);
   $("changes").replaceChildren();   // covers every early return below
   if (!raw.trim()) {
@@ -3823,6 +3913,7 @@ function check() {
 
   if (stops) {
     $("changes").replaceChildren();
+    syncDiscard();
     note("check-message", "error", `${stops} problem${stops === 1 ? "" : "s"} must be fixed before saving.`,
       `${warns ? ` There ${warns === 1 ? "is" : "are"} also ${warns} warning${warns === 1 ? "" : "s"}.` : ""} Use Copy problems and paste them back to the AI.${cleaned}${tidiedNote}`);
     setStage("check", "press Copy problems, paste it to your AI, then paste its new reply above and check again.");
@@ -3830,12 +3921,23 @@ function check() {
   }
 
   accepted = tidied;
+  /* Review actions staged earlier survive a check only when the reply kept
+     their effect: a reply that rewrote the findings wiped a recorded gap,
+     and a rewritten drawing owes no memory of a flip. */
+  const keptFindings = tidied.sections?.findings?.items || [];
+  reviewActions = reviewActions.filter((action) => action.kind === "gap"
+    && keptFindings.some((item) => item && item.title === action.gap.title && item.detail === action.gap.detail));
+  if (reviewActions.length) panelSummary.push("Recorded engineering-review gaps");
   const requestText = $("request").value.trim().replace(/\s+/g, " ");
   aiSummary = requestText
     ? (requestText.length > 160 ? requestText.slice(0, 159) + "…" : requestText)
     : `Edited ${SLICES[name].noun} with the AI helper`;
-  renderChanges(currentData, tidied);
+  // The change list answers one question - what will Save write, measured
+  // against the file - so it diffs from the file's own payload, which is
+  // exactly the baseline save() stamps against.
+  renderChanges(fileBaseline(), tidied);
   $("save").disabled = false;
+  syncDiscard();
   const kept = name === "all" ? "" : ` Only ${SLICES[name].noun} changed; the rest of your file is untouched.`;
   if (warns) {
     note("check-message", "warning", `Ready to save, with ${warns} warning${warns === 1 ? "" : "s"}.`,
@@ -4012,8 +4114,12 @@ function save() {
     $("payload-size").textContent = `${injected.trim().length.toLocaleString()} characters of diagram data, out of ${out.length.toLocaleString()} in the whole file.`;
     describeSlice();
     // The saved drawing is the new starting point; restoring past it would
-    // silently unpick a file the person already has on disk.
+    // silently unpick a file the person already has on disk. The review's
+    // staged rows retire the same way: what was recorded is the file now.
     styleBaseline = null;
+    reviewActions = [];
+    syncDiscard();
+    renderReview(reviewTopology(currentData, lastAskPicture));
     refreshStylePanel();
     $("reply").value = "";
     $("copy-state").textContent = "";
@@ -4195,12 +4301,12 @@ $("brand-apply").addEventListener("click", () => {
     image: stagedLogoImage || "", imageViewBox: stagedLogoViewBox || ""
   });
   if (problem) { $("brand-state").textContent = problem; return; }
-  const before = currentData;
   currentData = next;
   accepted = next;
   if (!panelSummary.includes("Branding updated")) panelSummary.push("Branding updated");
-  renderChanges(before, next);
+  renderChanges(fileBaseline(), next);
   $("save").disabled = false;
+  syncDiscard();
   $("brand-state").textContent = "Staged. Review the change list below, then save.";
   setStage("save", "review the change list, then press Save new design file.");
 });
@@ -4314,8 +4420,9 @@ $("sections-apply").addEventListener("click", () => {
   currentData = next;
   accepted = next;
   if (!panelSummary.includes("Document scope changed")) panelSummary.push("Document scope changed");
-  renderChanges(before, next);
+  renderChanges(fileBaseline(), next);
   $("save").disabled = false;
+  syncDiscard();
   // Declared coverage changes what the review holds the document to.
   renderReview(reviewTopology(next, lastAskPicture));
   $("sections-state").textContent = "Staged. Review the change list below, then save.";
@@ -4383,6 +4490,43 @@ $("copy-problems").addEventListener("click", async () => {
   }
 });
 $("save").addEventListener("click", save);
+
+/* The way back for a changed mind: everything staged - a checked reply,
+   branding, document scope, recorded gaps, a flip - stands down and the
+   session returns to exactly what the loaded file holds. Nothing on disk is
+   touched, and the AI reply stays in step 3, so re-staging is one Check. */
+function discardStaged() {
+  if (!source) return;
+  let parsed;
+  try { parsed = JSON.parse(source.slice(payloadStart, payloadEnd)); }
+  catch { return; }
+  currentData = parsed;
+  accepted = null;
+  aiSummary = ""; panelSummary = [];
+  reviewActions = [];
+  stagedLogoImage = null; stagedLogoViewBox = "";
+  $("brand-image").value = ""; $("brand-image-state").textContent = "No image staged";
+  $("brand-image-clear").disabled = true; $("brand-state").textContent = "";
+  $("brand-author").value = "";
+  $("brand-author").placeholder = currentData.document?.author || "keep current";
+  $("sections-state").textContent = "";
+  styleBaseline = null;
+  refreshStylePanel();
+  syncSectionChoices();
+  $("payload").value = JSON.stringify(currentData, null, 2);
+  describeSlice();
+  $("save").disabled = true;
+  syncDiscard();
+  $("changes").replaceChildren();
+  $("save-state").textContent = "";
+  note("save-message", "ok", "Staged changes discarded.",
+    ` The design is back to exactly what ${sourceName} holds. Nothing on disk changed. If the AI's reply is still in step 3, Check it stages it again.`);
+  renderReview(reviewTopology(currentData, lastAskPicture));
+  setStage("check", buildMode
+    ? "copy the build prompt in step 2, or paste a reply into step 3 and press Check it."
+    : "describe a change in step 2, or paste a reply into step 3 and press Check it.");
+}
+$("discard-staged").addEventListener("click", discardStaged);
 
 /* ---------- packaging: the final step ----------
    The design is already in memory - `source` is the file just saved, byte for
