@@ -370,6 +370,14 @@
         <button class="button primary" id="brand-apply" type="button">Stage the branding</button>
         <span class="file-name" id="brand-state"></span>
       </div>
+    </section>
+
+    <section class="step" id="step-scope" hidden>
+      <h2><span class="n">6</span>Document scope <span style="font-weight:400;color:var(--muted);font-size:.85rem">— optional · no AI involved</span></h2>
+      <p class="hint">Two different dials, one honest cover. <b>Sections</b> are presentation:
+      include or leave out, and the printed PDF follows. <b>Coverage and architecture</b> are
+      promises: they render as a "Declared scope" row on the cover, and the engineering review
+      holds the drawing to them — the scope report below keeps the score.</p>
       <fieldset class="parts" id="section-choices" style="margin-top:16px">
         <legend>Sections in this document</legend>
         <p class="hint">Every document keeps its overview, its figure and its gaps list — they
@@ -407,7 +415,7 @@
     </section>
 
     <section class="step" id="step-4" hidden>
-      <h2><span class="n">6</span>Save your new file</h2>
+      <h2><span class="n">7</span>Save your new file</h2>
       <p class="hint">Everything outside the diagram data is copied through unchanged. Save it, then double-click it to see your change.</p>
       <div id="changes"></div>
       <div class="row">
@@ -1353,7 +1361,7 @@ async function loadFile(file) {
   } catch {
     sourceName = file.name; $("file-name").textContent = file.name;
     source = ""; accepted = null;
-    $("step-2").hidden = true; $("step-3").hidden = true; $("step-style").hidden = true; $("step-brand").hidden = true; $("step-4").hidden = true;
+    $("step-2").hidden = true; $("step-3").hidden = true; $("step-style").hidden = true; $("step-brand").hidden = true; $("step-scope").hidden = true; $("step-4").hidden = true;
     note("load-message", "error", "Cannot use this file.", " It is not valid UTF-8 text, so it is probably not a design file at all.");
     return;
   }
@@ -1377,7 +1385,7 @@ function loadSource(text, name) {
     const parts = editableParts(parsed);
     if (parts && !parts.length) {
       source = ""; accepted = null; currentData = null;
-      $("step-2").hidden = true; $("step-3").hidden = true; $("step-style").hidden = true; $("step-brand").hidden = true; $("step-4").hidden = true;
+      $("step-2").hidden = true; $("step-3").hidden = true; $("step-style").hidden = true; $("step-brand").hidden = true; $("step-scope").hidden = true; $("step-4").hidden = true;
       note("load-message", "warning", "AI editing is not supported for this file.",
         " This is a retired engineering-sheet edition - hand-tuned SVG geometry carried inside the data. Every current starter, including NET-ENT-002, NET-HQ-002, NET-LAB-003 and NET-RH-001, has been regenerated through the coordinate engine and is fully editable. Re-download the current copy from the repository, or start from the template.");
       return;
@@ -1414,7 +1422,7 @@ function loadSource(text, name) {
     renderReview(reviewTopology(currentData, false));
     setStage("build", "pick the part that is changing, describe the change, then press Copy prompt.");
     $("step-2").hidden = false; $("step-3").hidden = false; $("step-style").hidden = false; $("step-brand").hidden = false;
-    $("step-4").hidden = false; $("save").disabled = true;
+    $("step-scope").hidden = false; $("step-4").hidden = false; $("save").disabled = true;
     $("save-state").textContent = ""; note("save-message", null);
     $("next-step").hidden = true;
     // Anything reported against the previous file is meaningless now - and
@@ -1431,7 +1439,7 @@ function loadSource(text, name) {
     note("check-message", null);
   } catch (error) {
     source = ""; accepted = null;
-    $("step-2").hidden = true; $("step-3").hidden = true; $("step-style").hidden = true; $("step-brand").hidden = true; $("step-4").hidden = true;
+    $("step-2").hidden = true; $("step-3").hidden = true; $("step-style").hidden = true; $("step-brand").hidden = true; $("step-scope").hidden = true; $("step-4").hidden = true;
     const why = error instanceof SyntaxError
       ? "The diagram data in this file is not valid JSON, so it was probably damaged by an earlier edit."
       : error.message;
@@ -3399,7 +3407,8 @@ function renderReview(observations) {
     host.appendChild(li);
   }
   // Every re-render of the review re-scores the declared promises: the
-  // scope report in step 5 is a view over the same observations.
+  // scope report in the Document scope step is a view over the same
+  // observations.
   renderScopeReport();
 }
 

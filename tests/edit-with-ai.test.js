@@ -815,6 +815,17 @@ test("markup: the niche logo fields live inside the advanced fold", () => {
   assert(!fold[1].includes('id="brand-image"'), "the logo file field fell into the advanced fold");
 });
 
+test("markup: document scope is its own step between branding and save", () => {
+  const brand = helper.indexOf('id="step-brand"');
+  const scope = helper.indexOf('id="step-scope"');
+  const save = helper.indexOf('id="step-4"');
+  assert(brand !== -1 && scope !== -1 && save !== -1);
+  assert(brand < scope && scope < save, "the scope step left its place between Branding and Save");
+  assert(helper.includes('<span class="n">6</span>Document scope'), "the scope step lost its number");
+  assert(helper.includes('<span class="n">7</span>Save your new file'), "the save step did not renumber");
+  assert(helper.indexOf('id="section-choices"') > scope, "the section chooser did not move into the scope step");
+});
+
 test("markup: the build options sit above the button that copies them", () => {
   const options = helper.indexOf('id="build-options"');
   const button = helper.indexOf('id="build-copy"');
