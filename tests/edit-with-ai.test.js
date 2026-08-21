@@ -669,7 +669,9 @@ test("wizard: the build request keeps the footer credit for the owner", () => {
   assert(text.includes('Prepared by the design owner'),
     "the request no longer names the placeholder footer credit");
   assert(/leave document\.author out/.test(text));
-  assert(/invented team or company name/.test(text));
+  assert(/sign any change-record row you write as "the design owner"/.test(text),
+    "the request no longer teaches the change-record placeholder");
+  assert(/invented team, company or assistant name/.test(text));
 });
 
 test("wizard: every question left empty still builds a complete request", () => {
@@ -767,6 +769,37 @@ test("branding: an empty author leaves both author fields alone", () => {
   const { next } = t.brandedData(base, { author: "  ", name: "Acme" });
   assert.strictEqual(next.document.author, "Existing Owner");
   assert.strictEqual(next.document.footer.author, "Prepared by Existing Owner");
+});
+
+/* The change record's rows carry an author too - the model signs them with
+   the taught placeholder, which then reads "design owner" in section 5 while
+   the cover says the real name. The owner takes the placeholder seats; a row
+   signed with any real name is history and stays exactly as written. */
+test("branding: the staged author takes the placeholder seats in the change record", () => {
+  const base = baseDesign();
+  base.document.history = [
+    { revision: "v1.1", date: "2026-08-21", author: "the design owner", summary: "s" },
+    { revision: "v1.0", date: "2026-08-20", author: "Jordan Lee", summary: "s" },
+    { revision: "v0.9", date: "2026-08-19", author: "Not assigned", summary: "s" }
+  ];
+  const { next } = t.brandedData(base, { author: "Sayed Haque" });
+  assert.strictEqual(next.document.history[0].author, "Sayed Haque", "the placeholder row was not signed");
+  assert.strictEqual(next.document.history[1].author, "Jordan Lee", "a real name was rewritten - that is history");
+  assert.strictEqual(next.document.history[2].author, "Sayed Haque", "the Not assigned row was not signed");
+});
+
+test("save: a fresh stamp signs the initial row for the known owner only over a placeholder", () => {
+  const base = baseDesign();
+  base.document.author = "Sayed Haque";
+  base.document.revision = "v1.0";
+  base.document.history = [{ revision: "v1.0", date: "2026-01-01", author: "the design owner", summary: "Initial issue" }];
+  const { next } = t.versionStamp(base, [], true, undefined);
+  assert.strictEqual(next.document.history[0].author, "Sayed Haque");
+  const named = baseDesign();
+  named.document.author = "Sayed Haque";
+  named.document.history = [{ revision: "v1.0", date: "2026-01-01", author: "Jordan Lee", summary: "Initial issue" }];
+  const kept = t.versionStamp(named, [], true, undefined);
+  assert.strictEqual(kept.next.document.history[0].author, "Jordan Lee", "a fresh save rewrote a named signature");
 });
 
 /* The branding panel leads with what everyone sets - name, label, author,

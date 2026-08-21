@@ -997,7 +997,7 @@ function freshRequestText(title, drawing, rack, source, packs, architecture) {
     " Section 3 is not optional: sections.identity.rows must have a row for every device that has an address, and every rack-mountable device - firewall, router, switch, server - must appear in the rack schedule with a position, a height and a face code. A device drawn in the topology and missing from both tables is a device the document only half records." +
     ` The document must contain every device in the ${noun}. If you condense repeated devices or leave anything out, record exactly what was condensed or omitted as a finding stating both numbers - how many the ${noun} counted, how many the drawing shows - the document must never look more complete than it is.` +
     " Anything dated, expired or end-of-life becomes a finding, and anything you could not read from the diagram goes in the gaps list." +
-    " The author is the document's owner, not you: leave document.author out and set footer.author to \"Prepared by the design owner\" - the owner signs both in the helper's branding step, and an invented team or company name there is a fabrication." +
+    " The author is the document's owner, not you: leave document.author out, set footer.author to \"Prepared by the design owner\", and sign any change-record row you write as \"the design owner\" - the owner signs all of it in the helper's branding step, and an invented team, company or assistant name in any of them is a fabrication." +
     " Write the figure caption and legend to describe what is actually drawn." +
     (packs || []).filter((key) => COVERAGE_PACKS[key]).map((key) => COVERAGE_PACKS[key].request).join("") +
     (ARCHITECTURES[architecture] ? ARCHITECTURES[architecture].request : "");
@@ -1024,6 +1024,14 @@ function sectionedData(base, omit, coverage, architecture) {
     else delete next.document.architecture;
   }
   return next;
+}
+
+/* The credits our own prompts teach the model to write while the owner is
+   unknown. These - and only these - may be replaced when the owner signs:
+   a real name in a change-record row is history, and history is never
+   rewritten. */
+function isPlaceholderAuthor(value) {
+  return /^\s*(prepared\s+by\s+)?(the\s+)?design\s+owner\s*$|^\s*not\s+assigned\s*$|^\s*$/i.test(String(value ?? ""));
 }
 
 /* Branding is deliberately a local, deterministic edit. The AI is forbidden
@@ -1067,6 +1075,16 @@ function brandedData(base, fields) {
     const footer = next.document.footer && typeof next.document.footer === "object" ? next.document.footer : {};
     footer.author = `Prepared by ${person}`;
     next.document.footer = footer;
+    /* The change record's rows carry an author too, and the model signs the
+       rows it writes with the taught placeholder - which then reads as
+       "design owner" in section 5 while the cover says the real name. The
+       placeholder is the owner's seat, so the owner takes it; a row signed
+       with any real name is left exactly as history left it. */
+    if (Array.isArray(next.document.history)) {
+      for (const row of next.document.history) {
+        if (row && typeof row === "object" && isPlaceholderAuthor(row.author)) row.author = person;
+      }
+    }
   }
   const brand = Object.assign({}, next.document.brand);
   if ((fields.name || "").trim()) brand.name = fields.name.trim();
@@ -4117,7 +4135,13 @@ function versionStamp(base, summaryParts, fresh, prior) {
 
   if (fresh) {
     doc.date = today;
-    if (doc.history.length) doc.history[0].date = today;
+    if (doc.history.length) {
+      doc.history[0].date = today;
+      // The model signs the initial row with the placeholder it was taught;
+      // a fresh save knows the real owner and signs for them. Only the
+      // placeholder is ever replaced - a named person is history.
+      if (author !== "Not assigned" && isPlaceholderAuthor(doc.history[0].author)) doc.history[0].author = author;
+    }
     else doc.history.unshift({ revision: doc.revision || "v1.0", date: today, author, summary: "Initial issue - built with the AI helper." });
     return { next, note: ` The change record's first row is dated today (${today}).` };
   }
