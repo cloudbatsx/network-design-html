@@ -1,0 +1,51 @@
+{
+  "test": "test17",
+  "title": "Ironwood Labs Network",
+  "organisation": "Ironwood Labs",
+  "topologyImage": "advanced-home-lab-network-architecture-design.jpg",
+  "logoImage": "logo-ironwood-labs.svg",
+  "model": "gemini-3.6-flash",
+  "surface": "API (Google AI free tier)",
+  "date": "2026-08-16T20:29:26.673Z",
+  "rounds": [
+    {
+      "round": 1,
+      "finishReason": "STOP",
+      "chars": 17362,
+      "usage": {
+        "prompt": 10956,
+        "output": 5863,
+        "thoughts": 6173
+      },
+      "repairsApplied": [],
+      "truncated": false,
+      "stops": [],
+      "warnings": 0,
+      "warningTexts": []
+    }
+  ],
+  "verdict": "PASS - clean save in 1 round trip",
+  "modelVersion": "gemini-3.6-flash",
+  "extract": {
+    "finishReason": "STOP",
+    "chars": 4797,
+    "usage": {
+      "prompt": 1321,
+      "output": 1931,
+      "thoughts": 1817
+    }
+  },
+  "roundTrips": 1,
+  "branding": {
+    "applied": "name+path+viewBox+fill",
+    "note": "SVG logo: 1 path(s) extracted"
+  },
+  "drawingId": "ILN-NET-001",
+  "saved": "iln-net-001.edit.html",
+  "packaged": "iln-net-001.portable.html",
+  "packaging": {
+    "embedded": 29,
+    "embeddedBytes": 2963196,
+    "skipped": []
+  }
+}

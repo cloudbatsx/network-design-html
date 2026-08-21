@@ -1284,6 +1284,28 @@ test("review: no management story is one gentle note, silenced by drawing or con
     "a finding about CABLE management silenced the NETWORK management rule");
 });
 
+test("review: unjoined spines are Clos doctrine, not a missing pair", () => {
+  /* test17's live spine pair earned the unjoined-pair question - the exact
+     link the declared spine-leaf recognizer would then flag as an anomaly.
+     Spines sit the pair rule out with the routers. */
+  const spines = reviewDesign();
+  spines.topology.nodes.push(
+    { id: "spine-sw-01", icon: "core-switch", x: 400, y: 300 },
+    { id: "spine-sw-02", icon: "core-switch", x: 700, y: 300 },
+    { id: "leaf-01", icon: "access-switch", x: 400, y: 500 },
+    { id: "leaf-02", icon: "access-switch", x: 700, y: 500 });
+  spines.topology.links.push(
+    { from: "spine-sw-01", to: "leaf-01", kind: "aggregate" }, { from: "spine-sw-01", to: "leaf-02", kind: "aggregate" },
+    { from: "spine-sw-02", to: "leaf-01", kind: "aggregate" }, { from: "spine-sw-02", to: "leaf-02", kind: "aggregate" });
+  assert(!rules(t.reviewTopology(spines, false)).includes("unjoined-pair"),
+    "an unjoined spine pair was asked for the link its fabric forbids");
+  const cores = structuredClone(spines);
+  cores.topology.nodes.forEach((n) => { if (/spine/.test(n.id)) n.id = n.id.replace("spine", "hub"); });
+  cores.topology.links.forEach((l) => { l.from = l.from.replace("spine", "hub"); l.to = l.to.replace("spine", "hub"); });
+  assert(rules(t.reviewTopology(cores, false)).includes("unjoined-pair"),
+    "renaming the spines away must restore the question - the exemption is name-scoped");
+});
+
 test("review: passive plant wearing the management icon does not silence the management question", () => {
   // The v0.6.0 validation regression: a live run gave the external wall jack
   // the network-management icon, and the rule read it as a management story.

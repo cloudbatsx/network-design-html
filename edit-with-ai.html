@@ -2789,6 +2789,12 @@ function reviewTopology(data, askPicture) {
   const stems = new Map();
   for (const node of nodes) {
     if (!["firewall", "core-switch", "wlan-controller"].includes(node.icon)) continue;
+    // Spines sit this rule out with the routers: a Clos fabric never joins
+    // its spines, and the declared spine-leaf recognizer flags a
+    // spine-to-spine link as an anomaly - firing here would ask the owner
+    // to add the exact link that check would then condemn. Found live when
+    // test17's spine pair earned the question its own fabric forbids.
+    if (/\bspine\b|[-_]spine|spine[-_]/i.test(`${node.id} ${node.label || ""} ${node.role || ""}`)) continue;
     const stem = node.id.replace(/[-_]?\d+[a-z]?$/i, "");
     if (!stems.has(stem)) stems.set(stem, []);
     stems.get(stem).push(node);
