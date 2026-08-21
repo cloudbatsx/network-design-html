@@ -225,7 +225,7 @@
               <span><b>WAN / multi-site</b> — sites, circuits, carriers, and whether two circuits are truly diverse</span></label>
             <label class="pick"><input type="checkbox" data-cover="security-segmentation">
               <span><b>Security &amp; segmentation</b> — the zone-to-VLAN/VRF mapping and policy stance</span></label>
-            <label class="fresh-field">Architecture <span class="fresh-hint">(declares the shape; the engineering review holds the drawing to it)</span>
+            <label class="fresh-field">Architecture <span class="fresh-hint">(a declaration, never a redraw — it teaches the AI the shape's discipline and arms the review's shape questions)</span>
               <select id="build-arch">
                 <option value="" selected>Let the drawing speak for itself</option>
                 <option value="collapsed-core">Collapsed core</option>
@@ -234,6 +234,7 @@
                 <option value="hub-and-spoke">Hub-and-spoke</option>
                 <option value="ring">Ring</option>
               </select></label>
+            <p class="counts" id="build-arch-hint"></p>
             <label class="fresh-field">Physical rack
               <select id="fresh-rack">
                 <option value="auto" selected>Let the diagram decide</option>
@@ -374,14 +375,16 @@
         <label class="pick"><input type="checkbox" data-omit="change" checked> <span>Change management <span class="fresh-hint">— revision history and change notes</span></span></label>
         <label class="pick"><input type="checkbox" data-omit="operations" checked> <span>Operations &amp; observability</span></label>
         <label class="pick"><input type="checkbox" data-omit="equipment" checked> <span>Equipment exhibit <span class="fresh-hint">— the Appendix A hardware cards</span></span></label>
-        <p class="hint" style="margin:12px 0 6px"><b>Extra coverage</b> — additions this document
-        should also record. The engineering review holds the document to what it declares.</p>
+        <p class="hint" style="margin:12px 0 6px"><b>Extra coverage</b> — promises this document
+        makes, shown as a "Declared scope" row on its cover. A pack does not add a section by
+        itself: the engineering review asks for whatever the drawing does not show, and each
+        open question carries its own fix prompt. The scope report below Apply keeps the score.</p>
         <label class="pick"><input type="checkbox" data-cover="management-oob"> <span>Management &amp; out-of-band</span></label>
         <label class="pick"><input type="checkbox" data-cover="wireless"> <span>Wireless — APs, controller, SSIDs</span></label>
         <label class="pick"><input type="checkbox" data-cover="fabric-overlay"> <span>Fabric overlay — VNIs, VRFs, mappings</span></label>
         <label class="pick"><input type="checkbox" data-cover="wan-multisite"> <span>WAN / multi-site — sites, circuits, diversity</span></label>
         <label class="pick"><input type="checkbox" data-cover="security-segmentation"> <span>Security &amp; segmentation — zone-to-VLAN mapping</span></label>
-        <label class="fresh-field" style="margin-top:12px">Architecture <span class="fresh-hint">(the declared shape; the review holds the drawing to it)</span>
+        <label class="fresh-field" style="margin-top:12px">Architecture <span class="fresh-hint">(a declaration, never a redraw — the drawing stays exactly as it is)</span>
           <select id="scope-arch">
             <option value="" selected>Not declared — let the drawing speak</option>
             <option value="collapsed-core">Collapsed core</option>
@@ -390,10 +393,12 @@
             <option value="hub-and-spoke">Hub-and-spoke</option>
             <option value="ring">Ring</option>
           </select></label>
+        <p class="counts" id="scope-arch-hint"></p>
         <div class="row gap">
           <button class="button" id="sections-apply" type="button">Apply document scope</button>
           <span class="file-name" id="sections-state"></span>
         </div>
+        <ul class="problems review" id="scope-report" hidden></ul>
       </fieldset>
     </section>
 
@@ -3371,6 +3376,63 @@ function renderReview(observations) {
     li.append(what, saw, actions);
     host.appendChild(li);
   }
+  // Every re-render of the review re-scores the declared promises: the
+  // scope report in step 5 is a view over the same observations.
+  renderScopeReport();
+}
+
+/* Which review rules answer for which declared pack. The scope report reads
+   ONLY the review's own output through this map - it never re-detects
+   evidence with logic of its own, because two detectors drift and a report
+   that disagrees with the review it summarises is worse than none. */
+const PACK_RULES = Object.freeze({
+  "management-oob": ["no-management", "management-isolated"],
+  "wireless": ["wireless-coverage"],
+  "fabric-overlay": ["fabric-coverage"],
+  "wan-multisite": ["wan-coverage", "wan-diversity"],
+  "security-segmentation": ["segmentation-coverage"]
+});
+
+/* The scope report: one row per declared pack, plus the declared shape.
+   The field test ticked five packs, pressed Apply, and nothing visibly
+   happened - the observations rendered four steps up in step 3, and a pack
+   the drawing already satisfied produced no feedback at all. Every promise
+   now reports right where it was made: open, with the question and a jump
+   to its walkthrough - or quiet, said plainly. */
+function renderScopeReport() {
+  const host = $("scope-report");
+  if (!host) return;
+  host.replaceChildren();
+  const data = accepted || currentData;
+  const packs = Array.isArray(data?.document?.coverage)
+    ? data.document.coverage.filter((key) => COVERAGE_PACKS[key]) : [];
+  const shape = ARCHITECTURES[data?.document?.architecture] ? data.document.architecture : "";
+  host.hidden = !data || (!packs.length && !shape);
+  if (host.hidden) return;
+  const observations = reviewTopology(data, lastAskPicture);
+  const row = (label, open) => {
+    const li = document.createElement("li");
+    if (!open.length) {
+      li.className = "recorded";
+      li.textContent = `${label} — nothing open. The drawing, its tables or the gaps list answer this promise.`;
+    } else {
+      li.textContent = `${label} — open: ${open.map((obs) => obs.what).join(" ")} `;
+      const jump = document.createElement("a");
+      jump.href = "#step-3";
+      jump.textContent = "see its walkthrough in step 3";
+      jump.addEventListener("click", (event) => {
+        event.preventDefault();
+        const target = $("review-block");
+        if (target && target.scrollIntoView) target.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+      li.appendChild(jump);
+    }
+    host.appendChild(li);
+  };
+  for (const key of packs) {
+    row(COVERAGE_PACKS[key].label, observations.filter((obs) => (PACK_RULES[key] || []).includes(obs.rule)));
+  }
+  if (shape) row(`Architecture — ${ARCHITECTURES[shape].label}`, observations.filter((obs) => obs.rule === "architecture"));
 }
 
 /* The orientation remedy: mirror the page top-to-bottom. Pure arithmetic -
@@ -4455,9 +4517,31 @@ function syncSectionChoices() {
   });
   const scopeArch = $("scope-arch");
   if (scopeArch) scopeArch.value = ARCHITECTURES[currentData?.document?.architecture] ? currentData.document.architecture : "";
+  if ($("scope-arch-hint")) $("scope-arch-hint").textContent = architectureHint(scopeArch ? scopeArch.value : "");
   const state = $("sections-state");
   if (state) state.textContent = "";
 }
+
+/* What declaring a shape actually does, in front of the dropdown that does
+   it - the field test could not tell whether picking one would redraw the
+   topology. It never does; it arms questions. The discipline text is the
+   builder's own, so the hint and the prompt can never teach different rules. */
+function architectureHint(value) {
+  if (!ARCHITECTURES[value]) {
+    return "No shape declared: nothing changes, and the review asks only its general questions.";
+  }
+  const discipline = ARCHITECTURES[value].request.replace(/^\s*This network is [^:]+:\s*/, "").replace(/\s+$/, "");
+  return `Declaring never redraws anything. It adds review questions holding the drawing to the shape: ${discipline}`;
+}
+const wireArchHint = (selectId, hintId) => {
+  const select = $(selectId), hint = $(hintId);
+  if (!select || !hint) return;
+  const update = () => { hint.textContent = architectureHint(select.value); };
+  select.addEventListener("change", update);
+  update();
+};
+wireArchHint("scope-arch", "scope-arch-hint");
+wireArchHint("build-arch", "build-arch-hint");
 
 $("sections-apply").addEventListener("click", () => {
   if (!currentData) { $("sections-state").textContent = "Load a design file first."; return; }

@@ -85,6 +85,17 @@ zone-to-VLAN/VRF mapping, accepting the identity table's own columns as
 evidence - a VLAN is not, by itself, a security boundary (SEC-002). Every observation keeps the
 three-way resolution and its fix prompt.
 
+The declaration has two faces beyond the observations themselves. The
+document renders it - a **Declared scope** row on the document-control
+panel, in both densities - so the promise is visible to the reader, not
+only to the reviewer. And the helper's **scope report**, beside the
+section chooser that makes the declaration, scores every declared pack and
+the declared shape against the review's own output: **open**, echoing the
+observation and jumping to its walkthrough, or **quiet** - the drawing,
+its tables or the gaps list answer the promise. The report never
+re-detects evidence with logic of its own; it is a view over the same
+observations, so it can never disagree with the review it summarises.
+
 ## The roadmap (unbuilt)
 
 Auto-detection of undeclared shapes (conservative classification before the

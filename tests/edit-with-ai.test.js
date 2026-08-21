@@ -62,7 +62,8 @@ const shim = ";globalThis.__exports = { parseWithRepair, mergeReply, checkStruct
   " applyReviewStage, discardStaged, getReviewActions: () => reviewActions," +
   " pushReviewAction: (a) => { reviewActions.push(a); }," +
   " resetReviewActions: () => { reviewActions = []; }," +
-  " getPanelSummary: () => panelSummary, getCurrentData: () => currentData };";
+  " getPanelSummary: () => panelSummary, getCurrentData: () => currentData," +
+  " renderScopeReport, architectureHint, PACK_RULES };";
 vm.runInNewContext(script[1] + shim, sandbox, { filename: "edit-with-ai.html <script>" });
 const t = sandbox.__exports;
 
@@ -381,6 +382,54 @@ test("review: a recorded gap survives a check only when the reply keeps its find
   t.check();
   assert.strictEqual(t.getReviewActions().length, 0, "a wiped finding kept a stale undo");
   assert(!t.getPanelSummary().includes("Recorded engineering-review gaps"));
+});
+
+/* ---- the scope report: every declared promise reports where it was made ---- */
+
+test("scope report: an unmet promise reads open, a met one reads quiet", () => {
+  const design = baseDesign();
+  design.document.coverage = ["wireless"];
+  t.setData(design);
+  t.forceAccepted(null);
+  t.renderScopeReport();
+  const host = sandbox.document.getElementById("scope-report");
+  assert.strictEqual(host.hidden, false);
+  assert.strictEqual(host.children.length, 1);
+  assert(/Wireless — open:/.test(host.children[0].textContent), "an unmet pack did not read open");
+  const covered = structuredClone(design);
+  covered.topology.nodes.push({ id: "ap-01", label: "AP", icon: "access-point", x: 900, y: 300 });
+  t.setData(covered);
+  t.renderScopeReport();
+  assert(/nothing open/.test(host.children[0].textContent), "a met pack did not read quiet");
+});
+
+test("scope report: the declared shape reports too, and undeclared shows nothing", () => {
+  const design = baseDesign();
+  design.document.architecture = "spine-leaf";
+  t.setData(design);
+  t.forceAccepted(null);
+  t.renderScopeReport();
+  const host = sandbox.document.getElementById("scope-report");
+  assert.strictEqual(host.hidden, false);
+  assert(/Architecture — Spine-leaf fabric — open:/.test(host.children[0].textContent),
+    "a declared shape with no spines did not read open");
+  t.setData(baseDesign());
+  t.renderScopeReport();
+  assert.strictEqual(host.hidden, true, "an undeclared document grew a scope report");
+});
+
+test("scope report: every coverage pack has review rules answering for it", () => {
+  for (const key of Object.keys(t.COVERAGE_PACKS)) {
+    assert(Array.isArray(t.PACK_RULES[key]) && t.PACK_RULES[key].length,
+      `${key} is declarable but no review rule answers for it in the report`);
+  }
+});
+
+test("scope: the architecture hint teaches the discipline and the never-redraw rule", () => {
+  const armed = t.architectureHint("spine-leaf");
+  assert(/never redraws/.test(armed));
+  assert(/every leaf uplinks to every spine/.test(armed), "the hint lost the builder's own discipline text");
+  assert(/general questions/.test(t.architectureHint("")));
 });
 
 test("discard: everything staged stands down and the session is the file again", () => {
